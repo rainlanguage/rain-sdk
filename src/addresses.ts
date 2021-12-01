@@ -9,7 +9,7 @@ export class AddressBook {
   public static getFactoryAddressFromChainId(chainId: number) {
     const addresses = addressBook.filter(a => a.chainId === chainId);
     if (!addresses.length) {
-      throw 'No deployed TrustFactory for this chain';
+      throw new Error('No deployed TrustFactory for this chain');
     }
     return addresses[0].trustFactory;
   }
