@@ -14,7 +14,7 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "nix-build": "nix-shell --run npm run build",
-    "test": "tsdx test",
+    "test": "npx hardhat test",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
@@ -47,18 +47,27 @@
     }
   ],
   "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@size-limit/preset-small-lib": "^6.0.4",
+    "@types/chai": "^4.2.22",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.11.11",
+    "chai": "^4.3.4",
+    "ethereum-waffle": "^3.4.0",
+    "hardhat": "^2.7.0",
     "husky": "^7.0.4",
     "size-limit": "^6.0.4",
+    "ts-node": "^10.4.0",
     "tsdx": "^0.14.1",
     "tslib": "^2.3.1",
-    "typescript": "^4.4.4"
+    "typescript": "^4.5.2"
   },
   "dependencies": {
     "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#9236037157ebe468b491cacf14cd3e783080d97a",
     "@uniswap/sdk-core": "^3.0.1",
     "async": "^3.2.2",
-    "ethers": "^5.5.1",
+    "ethers": "^5.5.2",
     "standardx": "3.0.0"
   },
   "resolutions": {
