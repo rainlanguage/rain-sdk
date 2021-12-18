@@ -8,16 +8,18 @@
     "src"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
-    "test": "tsdx test",
+    "nix-build": "nix-shell --run npm run build",
+    "test": "npx hardhat test",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "postinstall": "cd node_modules/@beehiveinnovation/rain-protocol && npm install --ignore-scripts && npm run build"
   },
   "peerDependencies": {},
   "husky": {
@@ -45,18 +47,34 @@
     }
   ],
   "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@size-limit/preset-small-lib": "^6.0.4",
+    "@types/chai": "^4.2.22",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.11.11",
+    "chai": "^4.3.4",
+    "ethereum-waffle": "^3.4.0",
+    "hardhat": "^2.7.0",
     "husky": "^7.0.4",
     "size-limit": "^6.0.4",
+    "ts-node": "^10.4.0",
     "tsdx": "^0.14.1",
     "tslib": "^2.3.1",
-    "typescript": "^4.4.4"
+    "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@beehiveinnovation/rain-protocol": "^0.0.14",
+    "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#9236037157ebe468b491cacf14cd3e783080d97a",
     "@uniswap/sdk-core": "^3.0.1",
     "async": "^3.2.2",
-    "ethers": "^5.5.1",
+    "ethers": "^5.5.2",
     "standardx": "3.0.0"
+  },
+  "resolutions": {
+    "**/@typescript-eslint/eslint-plugin": "^5.4.0",
+    "**/@typescript-eslint/parser": "^5.4.0",
+    "**/jest": "^27.3.1",
+    "**/ts-jest": "^27.0.7",
+    "**/typescript": "^4.4.4"
   }
 }
