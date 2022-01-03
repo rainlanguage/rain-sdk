@@ -8,11 +8,11 @@ export type TrustConfig = {
   seederUnits: BigNumber;
   seederCooldownDuration: BigNumber;
   redeemInit: BigNumber;
+  seedERC20Config: ERC20Config;
 };
 
 export type RedeemableERC20Config = {
-  name: string;
-  symbol: string;
+  erc20Config: ERC20Config;
   tier: string;
   minimumStatus: BigNumber;
   totalSupply: BigNumber;
@@ -24,6 +24,11 @@ export type RedeemableERC20PoolConfig = {
   initialValuation: BigNumber;
   finalValuation: BigNumber;
   minimumTradingDuration: BigNumber;
+};
+
+export type ERC20Config = {
+  name: string;
+  symbol: string;
 };
 
 export type Config = {
