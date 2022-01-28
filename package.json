@@ -64,7 +64,7 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#9236037157ebe468b491cacf14cd3e783080d97a",
+    "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#d90af97f1549e118a11dc7e0c83c898ce997fe55",
     "@uniswap/sdk-core": "^3.0.1",
     "async": "^3.2.2",
     "ethers": "^5.5.2",
