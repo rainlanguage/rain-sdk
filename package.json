@@ -19,7 +19,7 @@
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "postinstall": "cd node_modules/@beehiveinnovation/rain-protocol && npm install --ignore-scripts && npm run build"
+    "postinstall": "cd node_modules/@beehiveinnovation/rain-protocol && npm install --ignore-scripts && npm run build && cd /node_modules/@beehiveinnovation/rain-statusfi && npm install --ignore-scripts && npm run build"
   },
   "peerDependencies": {},
   "husky": {
@@ -64,7 +64,8 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#d90af97f1549e118a11dc7e0c83c898ce997fe55",
+    "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#ba4fb2fe6b2abefae59f4158a626e10ba05a8386",
+    "@beehiveinnovation/rain-statusfi": "beehive-innovation/rain-statusfi.git#288e082ae81ca796b0732619a9631db24beb7a7a",
     "@uniswap/sdk-core": "^3.0.1",
     "async": "^3.2.2",
     "ethers": "^5.5.2",
