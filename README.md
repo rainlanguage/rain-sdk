@@ -31,7 +31,7 @@ The shell hook will:
 This library uses TSDX to compile and bundle. To run TSDX, use:
 
 ```bash
-npm start # or yarn start
+yarn start
 ```
 
 This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
