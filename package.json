@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "license": "MIT",
+  "license": "CAL",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [
@@ -19,9 +19,9 @@
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "compile-rain-protocol": "cd node_modules/@beehiveinnovation/rain-protocol && npm install --ignore-scripts && npm run build",
-    "compile-statusfi": "cd node_modules/@beehiveinnovation/rain-statusfi && npm install --ignore-scripts && npm run build",
-    "postinstall": "npm run compile-rain-protocol && npm run compile-statusfi"
+    "copy-typechain": "yarn compile-rain-protocol && yarn compile-statusfi",
+    "compile-rain-protocol": "cd node_modules/@beehiveinnovation/rain-protocol && yarn install --ignore-scripts && yarn build && mkdir -p $INIT_CWD/src/typechain/rain-protocol && scp -r typechain/. $INIT_CWD/src/typechain/rain-protocol",
+    "compile-statusfi": "cd node_modules/@beehiveinnovation/rain-statusfi && yarn install --ignore-scripts && yarn build && mkdir -p $INIT_CWD/src/typechain/rain-statusfi && scp -r typechain/. $INIT_CWD/src/typechain/rain-statusfi"
   },
   "peerDependencies": {},
   "husky": {
@@ -36,7 +36,7 @@
     "trailingComma": "es5"
   },
   "name": "rain-sdk-ts",
-  "author": "Josh Hardy",
+  "author": "Beehive Innovation",
   "module": "dist/rain-sdk-ts.esm.js",
   "size-limit": [
     {
@@ -51,7 +51,6 @@
   "devDependencies": {
     "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#ba4fb2fe6b2abefae59f4158a626e10ba05a8386",
     "@beehiveinnovation/rain-statusfi": "beehive-innovation/rain-statusfi.git#499b0a05e0bea8685dcd3b4b03af7da91fd31258",
-    "@uniswap/sdk-core": "^3.0.1",
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@size-limit/preset-small-lib": "^6.0.4",
@@ -66,12 +65,11 @@
     "ts-node": "^10.4.0",
     "tsdx": "^0.14.1",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "standardx": "3.0.0"
   },
   "dependencies": {
-    "async": "^3.2.2",
-    "ethers": "^5.5.2",
-    "standardx": "3.0.0"
+    "ethers": "^5.5.2"
   },
   "resolutions": {
     "**/@typescript-eslint/eslint-plugin": "^5.4.0",

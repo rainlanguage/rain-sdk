@@ -1,2 +1,2 @@
-export * from "./addresses";
-export * from "./gatednft"
+export * from './addresses';
+export * from './gatednft';

@@ -42,6 +42,8 @@ pkgs.stdenv.mkDerivation {
   source .env
   export PATH=$( npm bin ):$PATH
   # keep it fresh
-  yarn install
+  yarn install --ignore-scripts
+  yarn copy-typechain
+  yarn build
  '';
 }
