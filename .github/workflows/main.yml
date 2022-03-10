@@ -14,7 +14,6 @@ jobs:
       - name: Install requirements
         run: |
           git config --global url."https://${{ secrets.PAT }}@github".insteadOf https://github
-          pip install -r requirements.txt
       - name: Checkout repo
         uses: actions/checkout@v2
         with:
