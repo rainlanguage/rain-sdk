@@ -11,13 +11,13 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
-      - name: Install requirements
-        run: |
-          git config --global url."https://${{ secrets.PAT }}@github".insteadOf https://github
+      - name: webfactory/ssh-agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Checkout repo
         uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.PAT }}
 
       - name: Use Node ${{ matrix.node }}
         uses: actions/setup-node@v1
