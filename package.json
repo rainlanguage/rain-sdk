@@ -13,7 +13,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
-    "nix-build": "nix-shell --run npm run build",
+    "nix-build": "nix-shell --run yarn build",
     "test": "npx hardhat test",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
@@ -35,16 +35,16 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "rain-sdk-ts",
+  "name": "rain-sdk",
   "author": "Beehive Innovation",
-  "module": "dist/rain-sdk-ts.esm.js",
+  "module": "dist/rain-sdk.esm.js",
   "size-limit": [
     {
-      "path": "dist/rain-sdk-ts.cjs.production.min.js",
+      "path": "dist/rain-sdk.cjs.production.min.js",
       "limit": "10 KB"
     },
     {
-      "path": "dist/rain-sdk-ts.esm.js",
+      "path": "dist/rain-sdk.esm.js",
       "limit": "10 KB"
     }
   ],
