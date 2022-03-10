@@ -14,12 +14,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
         with:
-          repository: beehive-innovation/rain-statusfi
-          ref: mvp
-          token: ${{ secrets.PAT }}
-        with:
-          repository: beehive-innovation/rain-protocol
-          ref: develop-sale
           token: ${{ secrets.PAT }}
 
       - name: Use Node ${{ matrix.node }}
