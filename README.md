@@ -4,9 +4,9 @@ An in-progress SDK for interacting with Rain Protocol's factories and their chil
 
 This SDK uses an [ethers.js](https://docs.ethers.io/v5/) interface.
 
-# Development setup (for contributors)
+## Development setup (for contributors)
 
-## Nix shell
+### Nix shell
 
 Install the nix shell if you haven't already.
 
@@ -26,12 +26,12 @@ The shell hook will:
 2. Compile the @beehive-innovation/rain-protocol and @beehive-innovation/statusfi dependencies
 3. Copy the compiled typechain files into src/typechain.
 
-## Commands
+### Commands
 
-To run TSDX, use:
+This library uses TSDX to compile and bundle. To run TSDX, use:
 
 ```bash
-npm start # or yarn start
+yarn start
 ```
 
 This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
