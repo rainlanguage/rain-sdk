@@ -1,13 +1,17 @@
 export interface OpMeta {
-  opcode: number
-  name: string
-  input: string
+  opcode: number;
+  name: string;
+  input: string;
 }
 
-export const generateHumanFriendlySource = (source: Uint8Array, constants: Array<number>, opmetas: Array<OpMeta>) => {
-  const ops = pairs(source).map((pair) => ({
+export const generateHumanFriendlySource = (
+  source: Uint8Array,
+  constants: Array<number>,
+  opmetas: Array<OpMeta>
+) => {
+  const ops = pairs(source).map(pair => ({
     operand: pair[0],
-    ...opmetas.find((opmeta) => opmeta.opcode === pair[1]),
+    ...opmetas.find(opmeta => opmeta.opcode === pair[1]),
   }));
 
   const stack = [];

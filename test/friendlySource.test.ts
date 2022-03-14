@@ -4,7 +4,7 @@ import { generateHumanFriendlySource } from '../src/friendlySource';
 
 import { concat, Hexable, hexlify, zeroPad } from 'ethers/lib/utils';
 
-import type { BytesLike } from 'ethers';
+import { BytesLike } from 'ethers';
 
 function bytify(
   value: number | BytesLike | Hexable,
