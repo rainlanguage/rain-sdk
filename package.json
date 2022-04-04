@@ -19,7 +19,6 @@
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "POST-UPDATE": "npm run copy-typechain; npm run compile-rain-protocol; npm run compile-statusfi",
     "copy-typechain": "yarn compile-rain-protocol && yarn compile-statusfi",
     "compile-rain-protocol": "cd node_modules/@beehiveinnovation/rain-protocol && yarn install --ignore-scripts && yarn build && mkdir -p $INIT_CWD/src/typechain/rain-protocol && scp -r typechain/. $INIT_CWD/src/typechain/rain-protocol",
     "compile-statusfi": "cd node_modules/@beehiveinnovation/rain-statusfi && yarn install --ignore-scripts && yarn build && mkdir -p $INIT_CWD/src/typechain/rain-statusfi && scp -r typechain/. $INIT_CWD/src/typechain/rain-statusfi"
