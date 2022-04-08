@@ -49,7 +49,7 @@
     }
   ],
   "devDependencies": {
-    "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#ba4fb2fe6b2abefae59f4158a626e10ba05a8386",
+    "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#2283124fe2d53d3fd878612ebc29950c33397ab0",
     "@beehiveinnovation/rain-statusfi": "beehive-innovation/rain-statusfi.git#499b0a05e0bea8685dcd3b4b03af7da91fd31258",
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
