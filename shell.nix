@@ -1,5 +1,5 @@
 let
- pkgs = import
+  pkgs = import
     (builtins.fetchTarball {
       name = "nixos-unstable-2021-10-01";
       url = "https://github.com/nixos/nixpkgs/archive/0f33d439a715688605402a450fba0382b658d581.tar.gz";
@@ -26,6 +26,26 @@ let
  local-deploy = pkgs.writeShellScriptBin "local-deploy" ''
   cd balancer-local-dev && npx hardhat run --network localhost scripts/deploy-local.ts
  '';
+
+ copy-contracts = pkgs.writeShellScriptBin "copy-contracts" ''
+  mkdir -p contracts && cp -r node_modules/@beehiveinnovation/rain-protocol/contracts .
+  mkdir -p contracts/rain-statusfi && cp node_modules/@beehiveinnovation/rain-statusfi/contracts/*.sol contracts/rain-statusfi
+  mkdir -p contracts/tier && cp node_modules/@vishalkale15107/rain-protocol/contracts/tier/ERC721BalanceTier*.sol contracts/tier
+  mkdir -p contracts/test && cp node_modules/@vishalkale15107/rain-protocol/contracts/test/ReserveNFT.sol contracts/test
+  hardhat compile
+ '';
+
+ generate-typechain = pkgs.writeShellScriptBin "generate-typechain" ''
+  hardhat typechain 
+  rm -rf src/typechain && mkdir -p src/typechain
+  mv typechain src
+ '';
+
+ copy-typechain = pkgs.writeShellScriptBin "copy-typechain" ''
+  copy-contracts
+  generate-typechain
+ '';
+
 in
 pkgs.stdenv.mkDerivation {
  name = "shell";
@@ -36,6 +56,9 @@ pkgs.stdenv.mkDerivation {
   local-deploy
   local-test
   local-fork
+  copy-contracts
+  generate-typechain
+  copy-typechain
  ];
 
  shellHook = ''
@@ -43,7 +66,7 @@ pkgs.stdenv.mkDerivation {
   export PATH=$( npm bin ):$PATH
   # keep it fresh
   yarn install --ignore-scripts
-  yarn copy-typechain
+  copy-typechain
   yarn build
  '';
 }
