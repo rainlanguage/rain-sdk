@@ -81,6 +81,7 @@ export class Sale extends RainContract {
     return new Sale(address, signer);
   };
 
+  // TODO: Currently, these properties are not initialized. Need to assign them in construction time
   public readonly buy = this.sale.buy;
   public readonly calculatePrice = this.sale.calculatePrice;
   public readonly canEnd = this.sale.canEnd;
