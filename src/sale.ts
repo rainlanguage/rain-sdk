@@ -1,12 +1,12 @@
-import { BigNumberish, Signer } from 'ethers';
+import { BigNumberish, Signer, Overrides } from 'ethers';
 import { AddressBook } from './addresses';
 import { RainContract } from './rain-contract';
 import {
   Sale__factory,
   Sale as SaleContract,
   SaleFactory__factory,
-} from './typechain/rain-protocol';
-import { StateConfigStruct } from './typechain/rain-protocol/Sale';
+} from './typechain';
+import { StateConfigStruct } from './typechain/Sale';
 
 /**
  * A class for deploying and calling methods on a Sale.
@@ -30,9 +30,7 @@ import { StateConfigStruct } from './typechain/rain-protocol/Sale';
  */
 
 export class Sale extends RainContract {
-  public readonly signer: Signer;
   public readonly sale!: SaleContract;
-  public deploy: Function;
 
   /**
    * Constructs a new Sale from a known address.
@@ -43,8 +41,7 @@ export class Sale extends RainContract {
    *
    */
   constructor(address: string, signer: Signer) {
-    super();
-    this.signer = signer;
+    super(address, signer);
     this.sale = Sale__factory.connect(address, signer);
   }
 
@@ -54,53 +51,27 @@ export class Sale extends RainContract {
    * @param signer - An ethers.js Signer
    * @param chainId - The chain id of the network (e.g. 80001)
    * @param args - Arguments for deploying a Sale @see SaleDeployArguments
+   * @param overrides - **(optional)** Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
    * @returns A new Sale instance
    *
    */
   public static deploy = async (
     signer: Signer,
     chainId: number,
-    {
-      _config: {
-        canStartStateConfig,
-        canEndStateConfig,
-        calculatePriceStateConfig,
-        recipient,
-        reserve,
-        cooldownDuration,
-        minimumRaise,
-        dustSize,
-      },
-      saleRedeemableERC20Config_: {
-        erc20Config: { name, symbol, distributor, initialSupply },
-        tier,
-        minimumTier,
-        distributionEndForwardingAddress,
-      },
-    }: SaleDeployArguments
+    args: SaleDeployArguments,
+    overrides: Overrides = {}
   ) => {
     const saleFactory = SaleFactory__factory.connect(
-      AddressBook.getAddressesForChainId(chainId).gatedNFT,
+      AddressBook.getAddressesForChainId(chainId).saleFactory,
       signer
     );
 
+    const { saleConfig, saleRedeemableERC20Config } = args;
+
     const tx = await saleFactory.createChildTyped(
-      {
-        canStartStateConfig,
-        canEndStateConfig,
-        calculatePriceStateConfig,
-        recipient,
-        reserve,
-        cooldownDuration,
-        minimumRaise,
-        dustSize,
-      },
-      {
-        erc20Config: { name, symbol, distributor, initialSupply },
-        tier,
-        minimumTier,
-        distributionEndForwardingAddress,
-      }
+      saleConfig,
+      saleRedeemableERC20Config,
+      overrides
     );
 
     const receipt = await tx.wait();
@@ -129,7 +100,8 @@ interface SaleConfigStruct {
    */
   canStartStateConfig: StateConfigStruct;
   /**
-   * State config for the script that allows a Sale to end. IMPORTANT: A Sale can always end if/when its rTKN sells out, regardless of the result of this script.
+   * State config for the script that allows a Sale to end. IMPORTANT: A Sale can always end if/when its rTKN sells out, regardless
+   * of the result of this script.
    */
   canEndStateConfig: StateConfigStruct;
   /**
@@ -145,18 +117,26 @@ interface SaleConfigStruct {
    */
   reserve: string;
   /**
+   * The number of blocks before this sale can timeout. SHOULD be well after the expected end time as a timeout will fail an active
+   * or pending sale regardless of any funds raised.
+   */
+  saleTimeout: BigNumberish;
+  /**
    * The amount of blocks after each buy/refund, before a user is allowed another buy/refund.
    */
   cooldownDuration: BigNumberish;
   /**
-   * defines the amount of reserve required to raise tha defines success/fail of the sale. Reaching the minimum raise DOES NOT cause the raise to end early (unless the "can end" script allows it of course).
+   * defines the amount of reserve required to raise tha defines success/fail of the sale. Reaching the minimum raise DOES NOT cause
+   * the raise to end early (unless the "can end" script allows it of course).
    */
   minimumRaise: BigNumberish;
   /**
-   * The minimum amount of rTKN that must remain in the Sale contract unless it is all purchased, clearing the raise to 0 stock and thus ending the raise.
+   * The minimum amount of rTKN that must remain in the Sale contract unless it is all purchased, clearing the raise to 0 stock and
+   * thus ending the raise.
    */
   dustSize: BigNumberish;
 }
+
 interface SaleRedeemableERC20ConfigStruct {
   /**
    * ERC20 config
@@ -194,13 +174,14 @@ interface ERC20ConfigStruct {
    */
   initialSupply: BigNumberish;
 }
+
 interface SaleDeployArguments {
   /**
    * Everything required to configure (initialize) a Sale.
    */
-  _config: SaleConfigStruct;
+  saleConfig: SaleConfigStruct;
   /**
    * Config for the RedeemableERC20 token that is minted by the Sale
    */
-  saleRedeemableERC20Config_: SaleRedeemableERC20ConfigStruct;
+  saleRedeemableERC20Config: SaleRedeemableERC20ConfigStruct;
 }
