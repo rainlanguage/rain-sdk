@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { TierLevels, Addresses } from './utils';
 
-import { ERC20BalanceTier } from '../src';
+import { ERC20BalanceTier } from '../dist';
 
 /**
  * Hardhat network chainID

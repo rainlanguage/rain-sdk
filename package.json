@@ -11,8 +11,8 @@
     "node": ">=12"
   },
   "scripts": {
-    "start": "tsdx watch --tsconfig ./tsconfig.build.json",
-    "build": "tsdx build --tsconfig ./tsconfig.build.json",
+    "start": "tsdx watch",
+    "build": "tsdx build",
     "nix-build": "nix-shell --run yarn build",
     "test": "npx hardhat test",
     "lint": "tsdx lint src",
