@@ -7,24 +7,18 @@ let
     })
     { };
 
- mnemonic = pkgs.writeShellScriptBin "mnemonic" ''
-  mnemonics
+ lint-sdk = pkgs.writeShellScriptBin "lint-sdk" ''
+  yarn lint
  '';
 
- local-node = pkgs.writeShellScriptBin "local-node" ''
-  cd balancer-local-dev && npx hardhat node
+ build-sdk = pkgs.writeShellScriptBin "build-sdk" ''
+  copy-typechain
+  yarn build
  '';
 
- local-fork = pkgs.writeShellScriptBin "local-fork" ''
- hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/G0Vg_iZFiAuUD6hjXqcVg-Nys-NGiTQy --fork-block-number 11833335
- '';
-
- local-test = pkgs.writeShellScriptBin "local-test" ''
- hardhat test --network localhost
- '';
-
- local-deploy = pkgs.writeShellScriptBin "local-deploy" ''
-  cd balancer-local-dev && npx hardhat run --network localhost scripts/deploy-local.ts
+ test-sdk = pkgs.writeShellScriptBin "test-sdk" ''
+  yarn build
+  yarn test
  '';
 
  copy-contracts = pkgs.writeShellScriptBin "copy-contracts" ''
@@ -32,7 +26,7 @@ let
   mkdir -p contracts/rain-statusfi && cp node_modules/@beehiveinnovation/rain-statusfi/contracts/*.sol contracts/rain-statusfi
   mkdir -p contracts/tier && cp node_modules/@vishalkale15107/rain-protocol/contracts/tier/ERC721BalanceTier*.sol contracts/tier
   mkdir -p contracts/test && cp node_modules/@vishalkale15107/rain-protocol/contracts/test/ReserveNFT.sol contracts/test
-  hardhat compile
+  hardhat compile --no-typechain
  '';
 
  generate-typechain = pkgs.writeShellScriptBin "generate-typechain" ''
@@ -51,22 +45,18 @@ pkgs.stdenv.mkDerivation {
  name = "shell";
  buildInputs = [
   pkgs.nodejs-14_x
-  mnemonic
-  local-node
-  local-deploy
-  local-test
-  local-fork
   copy-contracts
   generate-typechain
   copy-typechain
+  lint-sdk
+  build-sdk
+  test-sdk
  ];
 
  shellHook = ''
-  source .env
   export PATH=$( npm bin ):$PATH
   # keep it fresh
   yarn install --ignore-scripts
-  copy-typechain
-  yarn build
+  build-sdk
  '';
 }
