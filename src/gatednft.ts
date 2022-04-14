@@ -22,7 +22,7 @@ export class GatedNFT extends RainContract {
    * @param signer - An ethers.js Signer
    * @param chainId - The chain id of the network (e.g. 80001)
    * @param args - Arguments for deploying a GatedNFT @see GatedNFTDeployArguments
-   * @param overrides - **(optional)** Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
+   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
    * @returns A new GatedNFT instance
    *
    */

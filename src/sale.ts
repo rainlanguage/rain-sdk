@@ -51,7 +51,7 @@ export class Sale extends RainContract {
    * @param signer - An ethers.js Signer
    * @param chainId - The chain id of the network (e.g. 80001)
    * @param args - Arguments for deploying a Sale @see SaleDeployArguments
-   * @param overrides - **(optional)** Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
+   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
    * @returns A new Sale instance
    *
    */
@@ -79,6 +79,26 @@ export class Sale extends RainContract {
     const address = super.getNewChildFromReceipt(receipt, saleFactory);
 
     return new Sale(address, signer);
+  };
+
+  /**
+   * Checks if address is registered as a child contract of this SaleFactory on a specific network
+   *
+   * @param signer - An ethers.js Signer
+   * @param chainId - The chain id of the network (e.g. 80001)
+   * @param maybeChild - Address to check registration for.
+   * @returns `true` if address was deployed by this contract factory, otherwise `false`
+   */
+  public static isChild = async (
+    signer: Signer,
+    chainId: number,
+    maybeChild: string
+  ): Promise<boolean> => {
+    return await super._isChild(
+      signer,
+      AddressBook.getAddressesForChainId(chainId).saleFactory,
+      maybeChild
+    );
   };
 
   // TODO: Currently, these properties are not initialized. Need to assign them in construction time

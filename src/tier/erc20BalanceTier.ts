@@ -1,6 +1,13 @@
-import { BigNumberish, Signer, Overrides } from 'ethers';
 import { AddressBook } from '../addresses';
-import { RainContract } from '../rain-contract';
+import { TierContract } from './tierContract';
+import {
+  Signer,
+  BigNumberish,
+  BigNumber,
+  BytesLike,
+  Overrides,
+  CallOverrides,
+} from 'ethers';
 import {
   ERC20BalanceTier__factory,
   ERC20BalanceTier as ERC20BalanceTierContract,
@@ -9,47 +16,54 @@ import {
 
 /**
  * A class for deploying and calling methods on a ERC20BalanceTier.
- * @remarks
  *
- * This class provides an easy way to deploy ERC20BalanceTiers using Rain's canonical factories,
+ *   The `ERC20BalanceTier` simply checks the current balance of an erc20 against tier values.
+ * As the current balance is always read from the erc20 contract directly there is no historical
+ * block data.
+ *
+ * @remarks
+ *   This class provides an easy way to deploy ERC20BalanceTiers using Rain's canonical factories,
  * and methods for interacting with an already deployed ERC20BalanceTier.
+ *
  * @example
  * ```typescript
  * import { ERC20BalanceTier } from 'rain-sdk'
+ *
  * // To deploy a new ERC20BalanceTier, pass an ethers.js Signer, the chainId and the config for the ERC20BalanceTier.
- * const newTier = await ERC20BalanceTier.deploy(signer, chainId, { erc20, tierValues })
+ * const newTier = await ERC20BalanceTier.deploy(signer, chainId, ERC20BalanceTierArgs);
  *
  * // To connect to an existing ERC20BalanceTier just pass the address and an ethers.js Signer.
- * const existingTier = new ERC20BalanceTier(address, signer)
+ * const existingTier = new ERC20BalanceTier(address, signer);
  *
  * // Once you have a ERC20BalanceTier, you can call the smart contract methods:
- * const tierValues = await existingTier.tierValues()
+ * const tierValues = await existingTier.tierValues();
  * ```
  *
  */
-export class ERC20BalanceTier extends RainContract {
+export class ERC20BalanceTier extends TierContract {
   public readonly erc20BalanceTier!: ERC20BalanceTierContract;
 
   /**
-   * A tier report is a `uint256` that contains each of the block numbers each tier has been
-   * held continously since as a `uint32`. There are 9 possible tier, starting with tier 0
-   * for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the
-   * full 256 bits.
-   *
-   * @param account - Account to get the report for.
-   * @param overrides - **(optional)** Specific transaction values to send it (e.g gasLimit,
-   * nonce or gasPrice)
-   * @return The report blocks encoded as a uint256.
+   * It is NOT implemented in BalanceTiers. Always will throw an error
    */
-  public readonly report: ERC20BalanceTierContract['report'];
+  public readonly setTier = async (
+    account: string,
+    endTier: BigNumberish,
+    data: BytesLike,
+    overrides?: Overrides
+  ) => {
+    throw new Error('SET TIER: NOT IMPLEMENTED');
+  };
 
   /**
    * Complements the default solidity accessor for `tierValues`. Returns all the values in a
    * listrather than requiring an index be specified.
    *
-   * @return tierValues_ The immutable `tierValues`.
+   * @return The immutable `tierValues[8]`.
    */
-  public readonly tierValues: ERC20BalanceTierContract['tierValues'];
+  public readonly tierValues: (
+    overrides?: CallOverrides
+  ) => Promise<BigNumber[]>;
 
   /**
    * Constructs a new ERC20BalanceTier from a known address.
@@ -62,7 +76,6 @@ export class ERC20BalanceTier extends RainContract {
   constructor(address: string, signer: Signer) {
     super(address, signer);
     this.erc20BalanceTier = ERC20BalanceTier__factory.connect(address, signer);
-    this.report = this.erc20BalanceTier.report;
     this.tierValues = this.erc20BalanceTier.tierValues;
   }
 
@@ -72,7 +85,7 @@ export class ERC20BalanceTier extends RainContract {
    * @param signer - An ethers.js Signer
    * @param chainId - The chain id of the network (e.g. 80001)
    * @param args - Arguments for deploying a ERC20BalanceTier @see ERC20BalanceTierDeployArgs
-   * @param overrides - **(optional)** Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
+   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
    * @returns A new ERC20BalanceTier instance
    *
    */

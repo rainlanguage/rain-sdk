@@ -1,5 +1,17 @@
-import { Contract, ContractReceipt, Signer, ethers } from 'ethers';
+import {
+  Contract,
+  ContractReceipt,
+  Signer,
+  utils,
+  Overrides,
+  CallOverrides,
+} from 'ethers';
 import { Factory__factory } from './typechain';
+
+/**
+ * All the utils that ethers provide. Come from `ethers.utils`
+ */
+export const ethersUtils = utils;
 
 export abstract class RainContract {
   public readonly signer: Signer;
@@ -14,7 +26,7 @@ export abstract class RainContract {
     receipt: ContractReceipt,
     parentContract: Contract
   ): string => {
-    return ethers.utils.defaultAbiCoder.decode(
+    return ethersUtils.defaultAbiCoder.decode(
       ['address', 'address'],
       receipt.events.filter(
         event =>
@@ -39,3 +51,15 @@ export abstract class RainContract {
     return await Factory__factory.connect(factory, signer).isChild(maybeChild);
   };
 }
+
+// TODO: Add doc to `ReadTxOverrides` so users can see all the fields that have CallOverrides from ethers
+/**
+ * More read about `ReadTxOverrides` that comes from CallOverrides of ethers
+ */
+export interface ReadTxOverrides extends CallOverrides {}
+
+// TODO: Add doc to `TxOverrides` so users can see all the fields that have Overrides from ethers
+/**
+ * More read about `TxOverrides` that comes from Overrides of ethers
+ */
+export interface TxOverrides extends Overrides {}
