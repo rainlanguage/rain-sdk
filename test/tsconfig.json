@@ -2,9 +2,10 @@
   "include": ["./**/*.ts"],
   "files": ["../hardhat.config.ts"],
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "es2018",
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
   }
 }
