@@ -10,5 +10,5 @@ dist
 ## Generated
 artifacts
 cache
-contracts
+/contracts
 /typechain

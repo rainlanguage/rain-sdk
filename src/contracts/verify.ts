@@ -1,4 +1,3 @@
-import { AddressBook } from './addresses';
 import {
   Signer,
   BytesLike,
@@ -6,17 +5,9 @@ import {
   BigNumberish,
   ContractTransaction,
 } from 'ethers';
-import {
-  TxOverrides,
-  ethersUtils,
-  RainContract,
-  ReadTxOverrides,
-} from './rain-contract';
-import {
-  Verify__factory,
-  VerifyFactory__factory,
-  Verify as VerifyContract,
-} from './typechain';
+import { Verify__factory, VerifyFactory__factory } from '../typechain';
+import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
+import { FactoryContract } from '../classes/factoryContract';
 
 /**
  * A class for deploying and calling methods on a Verify.
@@ -45,9 +36,86 @@ import {
  *
  */
 
-export class Verify extends RainContract {
-  // TODO: Think about if it is necessary save the contract instance, remove it or make it private/protected
-  public readonly verify!: VerifyContract;
+export class Verify extends FactoryContract {
+  protected static readonly nameBookReference = 'verifyFactory';
+
+  /**
+   * Constructs a new Verify from a known address.
+   *
+   * @param address - The address of the Verify contract
+   * @param signer - An ethers.js Signer
+   * @returns A new Verify instance
+   *
+   */
+  constructor(address: string, signer: Signer) {
+    super(address, signer);
+    const _verify = Verify__factory.connect(address, signer);
+
+    this.callback = _verify.callback;
+    this.add = _verify.add;
+    this.approve = _verify.approve;
+    this.ban = _verify.ban;
+    this.remove = _verify.remove;
+    this.requestApprove = _verify.requestApprove;
+    this.requestBan = _verify.requestBan;
+    this.requestRemove = _verify.requestRemove;
+    this.state = _verify.state;
+    this.statusAtBlock = _verify.statusAtBlock;
+
+    this.hasRole = _verify.hasRole;
+    this.getRoleAdmin = _verify.getRoleAdmin;
+    this.grantRole = _verify.grantRole;
+    this.revokeRole = _verify.revokeRole;
+    this.renounceRole = _verify.renounceRole;
+    this.supportsInterface = _verify.supportsInterface;
+
+    this.DEFAULT_ADMIN_ROLE = _verify.DEFAULT_ADMIN_ROLE;
+    this.APPROVER_ADMIN = _verify.APPROVER_ADMIN;
+    this.REMOVER_ADMIN = _verify.REMOVER_ADMIN;
+    this.BANNER_ADMIN = _verify.BANNER_ADMIN;
+    this.APPROVER = _verify.APPROVER;
+    this.REMOVER = _verify.REMOVER;
+    this.BANNER = _verify.BANNER;
+  }
+
+  /**
+   * Deploys a new Verify.
+   *
+   * @param signer - An ethers.js Signer
+   * @param args - Arguments for deploying a Verify @see VerifyDeployArgs
+   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
+   * @returns A new Verify instance
+   *
+   */
+  public static deploy = async (
+    signer: Signer,
+    args: VerifyDeployArgs,
+    overrides: TxOverrides = {}
+  ): Promise<Verify> => {
+    const verifyFactory = VerifyFactory__factory.connect(
+      this.getBookAddress(await this.getChainId(signer)),
+      signer
+    );
+
+    const tx = await verifyFactory.createChildTyped(args, overrides);
+    const receipt = await tx.wait();
+    const address = this.getNewChildFromReceipt(receipt, verifyFactory);
+    return new Verify(address, signer);
+  };
+
+  /**
+   * Checks if address is registered as a child contract of this VerifyFactory on a specific network
+   *
+   * @param signer - An ethers.js Signer
+   * @param maybeChild - Address to check registration for.
+   * @returns `true` if address was deployed by this contract factory, otherwise `false`
+   */
+  public static isChild = async (
+    signer: Signer,
+    maybeChild: string
+  ): Promise<boolean> => {
+    return await this._isChild(signer, maybeChild);
+  };
 
   /**
    * By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means
@@ -58,52 +126,48 @@ export class Verify extends RainContract {
    * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
    * grant and revoke this role. Extra precautions should be taken to secure
    * accounts that have been granted it.
+   *
    */
-  public readonly DEFAULT_ADMIN_ROLE = ethersUtils.hexZeroPad('0x00', 32);
+  public readonly DEFAULT_ADMIN_ROLE: (
+    overrides?: ReadTxOverrides
+  ) => Promise<string>;
 
   /**
    * Admin role for `APPROVER`
    */
-  public readonly APPROVER_ADMIN = ethersUtils.keccak256(
-    ethersUtils.toUtf8Bytes('APPROVER_ADMIN')
-  );
+  public readonly APPROVER_ADMIN: (
+    overrides?: ReadTxOverrides
+  ) => Promise<string>;
 
   /**
    * Admin role for `REMOVER`
    */
-  public readonly REMOVER_ADMIN = ethersUtils.keccak256(
-    ethersUtils.toUtf8Bytes('REMOVER_ADMIN')
-  );
+  public readonly REMOVER_ADMIN: (
+    overrides?: ReadTxOverrides
+  ) => Promise<string>;
 
   /**
    * Admin role for `BANNER`
    */
-  public readonly BANNER_ADMIN = ethersUtils.keccak256(
-    ethersUtils.toUtf8Bytes('BANNER_ADMIN')
-  );
+  public readonly BANNER_ADMIN: (
+    overrides?: ReadTxOverrides
+  ) => Promise<string>;
 
   /**
    * Role for `APPROVER`
    */
-  readonly APPROVER = ethersUtils.keccak256(
-    ethersUtils.toUtf8Bytes('APPROVER')
-  );
+  public readonly APPROVER: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * Role for `REMOVER`
    */
-  public readonly REMOVER = ethersUtils.keccak256(
-    ethersUtils.toUtf8Bytes('REMOVER')
-  );
+  public readonly REMOVER: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * Role for `BANNER`
    */
-  public readonly BANNER = ethersUtils.keccak256(
-    ethersUtils.toUtf8Bytes('BANNER')
-  );
+  public readonly BANNER: (overrides?: ReadTxOverrides) => Promise<string>;
 
-  // TODO: Return an instance of IVerifyCallback (?). Wrapping the function
   /**
    * @param overrides - @see ReadTxOverrides
    * @return VerifyCallback contract address. MAY be address 0.
@@ -308,7 +372,6 @@ export class Verify extends RainContract {
     overrides?: TxOverrides
   ) => Promise<ContractTransaction>;
 
-  // TODO: Think if support this in the SDK (?)
   /**
    * Returns true if this contract implements the interface defined by
    * `interfaceId`. See the corresponding
@@ -322,96 +385,12 @@ export class Verify extends RainContract {
     interfaceId: BytesLike,
     overrides?: ReadTxOverrides
   ) => Promise<boolean>;
-
-  /**
-   * Constructs a new Verify from a known address.
-   *
-   * @param address - The address of the Verify contract
-   * @param signer - An ethers.js Signer
-   * @returns A new Verify instance
-   *
-   */
-  constructor(address: string, signer: Signer) {
-    super(address, signer);
-    const _verify = Verify__factory.connect(address, signer);
-    this.verify = _verify;
-
-    this.callback = _verify.callback;
-    this.add = _verify.add;
-    this.approve = _verify.approve;
-    this.ban = _verify.ban;
-    this.remove = _verify.remove;
-    this.requestApprove = _verify.requestApprove;
-    this.requestBan = _verify.requestBan;
-    this.requestRemove = _verify.requestRemove;
-    this.state = _verify.state;
-    this.statusAtBlock = _verify.statusAtBlock;
-
-    // Access control
-    this.hasRole = _verify.hasRole;
-    this.getRoleAdmin = _verify.getRoleAdmin;
-    this.grantRole = _verify.grantRole;
-    this.revokeRole = _verify.revokeRole;
-    this.renounceRole = _verify.renounceRole;
-
-    this.supportsInterface = _verify.supportsInterface;
-  }
-
-  /**
-   * Deploys a new Verify.
-   *
-   * @param signer - An ethers.js Signer
-   * @param chainId - The chain id of the network (e.g. 80001)
-   * @param args - Arguments for deploying a Verify @see VerifyDeployArgs
-   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
-   * @returns A new Verify instance
-   *
-   */
-  public static deploy = async (
-    signer: Signer,
-    chainId: number,
-    args: VerifyDeployArgs,
-    overrides: TxOverrides = {}
-  ) => {
-    const verifyFactory = VerifyFactory__factory.connect(
-      AddressBook.getAddressesForChainId(chainId).verifyFactory,
-      signer
-    );
-
-    const tx = await verifyFactory.createChildTyped(args, overrides);
-
-    const receipt = await tx.wait();
-
-    const address = super.getNewChildFromReceipt(receipt, verifyFactory);
-
-    return new Verify(address, signer);
-  };
-
-  /**
-   * Checks if address is registered as a child contract of this VerifyFactory on a specific network
-   *
-   * @param signer - An ethers.js Signer
-   * @param chainId - The chain id of the network (e.g. 80001)
-   * @param maybeChild - Address to check registration for.
-   * @returns `true` if address was deployed by this contract factory, otherwise `false`
-   */
-  public static isChild = async (
-    signer: Signer,
-    chainId: number,
-    maybeChild: string
-  ): Promise<boolean> => {
-    return await super._isChild(
-      signer,
-      AddressBook.getAddressesForChainId(chainId).verifyFactory,
-      maybeChild
-    );
-  };
 }
 
 /**
  * Config to initialize a Verify contract with.
  */
-interface VerifyDeployArgs {
+export interface VerifyDeployArgs {
   /**
    * The address to ASSIGN ALL ADMIN ROLES to initially. This address is
    * free and encouraged to delegate fine grained permissions to many other
@@ -429,7 +408,7 @@ interface VerifyDeployArgs {
  * Structure of arbitrary evidence to support any action taken. Priviledged roles are expected to
  * provide evidence just as applicants as an audit trail will be preserved permanently in the logs.
  */
-interface Evidence {
+export interface Evidence {
   /**
    * The account this evidence is relevant to.
    */
@@ -446,7 +425,7 @@ interface Evidence {
  * UNINITIALIZED, i.e. 0xFFFFFFFF. Most accounts will never be banned so most accounts will never
  * reach every status, which is a good thing.
  */
-interface State {
+export interface State {
   /**
    * Block the address was added else 0xFFFFFFFF.
    */

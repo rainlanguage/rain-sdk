@@ -5,16 +5,32 @@ import {
   Tier,
   TierLevels,
   Addresses,
+  deployErc20,
+  deployErc721,
   expectAsyncError,
 } from './utils';
 
-// import { ERC20BalanceTier, ERC20TransferTier, Verify } from '../dist';
+// import {
+//   ERC20BalanceTier,
+//   ERC20TransferTier,
+//   ERC721BalanceTier,
+//   VerifyTier,
+//   Verify,
+// } from '../dist';
 import {
+  AddressBook,
+  Sale,
+  Verify,
+  GatedNFT,
+  VerifyTier,
+  CombineTier,
+  NoticeBoard,
+  EmissionsERC20,
+  RedeemableERC20,
   ERC20BalanceTier,
   ERC20TransferTier,
   ERC721BalanceTier,
-  VerifyTier,
-  Verify,
+  RedeemableERC20ClaimEscrow,
 } from '../src';
 
 /**
@@ -23,16 +39,10 @@ import {
  */
 export let addresses: Addresses;
 
-// Meanwhile
-async function deployErc20() {
-  const TokenFactory = await ethers.getContractFactory('ReserveTokenTest');
-  return await TokenFactory.deploy();
-}
+// TODO: search the script to decode reports
+// await tier.report(ethers.constants.AddressZero)).toString());
 
-async function deployErc721() {
-  const TokenFactory = await ethers.getContractFactory('ReserveTokenERC721');
-  return await TokenFactory.deploy();
-}
+// Meanwhile
 
 before('Initializing and deploying contracts to hardhat network', async () => {
   // ⚠️ Contract Factories instances ⚠️
@@ -125,63 +135,148 @@ before('Initializing and deploying contracts to hardhat network', async () => {
 });
 
 describe('SDK Test', () => {
-  describe('Verify', () => {
-    // Verify Roles.
-    // TODO: Is it redundant? Because it is the same that the class or how will be the best way to test this?
-    const DEFAULT_ADMIN_ROLE = ethers.utils.hexZeroPad('0x00', 32);
+  describe('SDK - BookAddress', () => {
+    it('should fail if no address stored in the book for a chain', () => {
+      const arbitraryId = 1234;
+      expect(() => AddressBook.getAddressesForChainId(arbitraryId)).to.throw(
+        Error,
+        'No deployed contracts for this chain.'
+      );
+    });
 
-    const APPROVER = ethers.utils.keccak256(
-      ethers.utils.toUtf8Bytes('APPROVER')
-    );
-    const REMOVER = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('REMOVER'));
-    const BANNER = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('BANNER'));
+    it('should get the address directly from the book', () => {
+      const address = AddressBook.getAddressesForChainId(chainId).noticeBoard;
+      expect(address).to.be.equals(addresses.NoticeBoard);
+    });
 
-    const APPROVER_ADMIN = ethers.utils.keccak256(
-      ethers.utils.toUtf8Bytes('APPROVER_ADMIN')
-    );
-    const REMOVER_ADMIN = ethers.utils.keccak256(
-      ethers.utils.toUtf8Bytes('REMOVER_ADMIN')
-    );
+    it('should get the RedeemableERC20Factory address', () => {
+      const address = RedeemableERC20.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.RedeemableERC20Factory);
+    });
 
-    const BANNER_ADMIN = ethers.utils.keccak256(
-      ethers.utils.toUtf8Bytes('BANNER_ADMIN')
-    );
+    it('should get the VerifyFactory address', async () => {
+      const address = Verify.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.VerifyFactory);
+    });
 
-    it('Deploying VerifyChild', async () => {
-      // TODO: Separete expects as unit testing
+    it('should get the VerifyTierFactory address', async () => {
+      const address = VerifyTier.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.VerifyTierFactory);
+    });
+
+    it('should get the ERC20BalanceTierFactory address', async () => {
+      const address = ERC20BalanceTier.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.ERC20BalanceTierFactory);
+    });
+
+    it('should get the ERC20TransferTierFactory address', async () => {
+      const address = ERC20TransferTier.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.ERC20TransferTierFactory);
+    });
+
+    it('should get the CombineTierFactory address', async () => {
+      const address = CombineTier.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.CombineTierFactory);
+    });
+
+    it('should get the  ERC721BalanceTierFactory address', async () => {
+      const address = ERC721BalanceTier.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.ERC721BalanceTierFactory);
+    });
+
+    it('should get the  GatedNFTFactory address', async () => {
+      const address = GatedNFT.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.GatedNFTFactory);
+    });
+
+    it('should get the  EmissionsERC20Factory address', async () => {
+      const address = EmissionsERC20.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.EmissionsERC20Factory);
+    });
+
+    it('should get the  SaleFactory address', async () => {
+      const address = Sale.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.SaleFactory);
+    });
+
+    it('should get the RedeemableERC20ClaimEscrow address', () => {
+      const address = RedeemableERC20ClaimEscrow.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.RedeemableERC20ClaimEscrow);
+    });
+
+    it('should get the NoticeBoard address', () => {
+      const address = NoticeBoard.getBookAddress(chainId);
+      expect(address).to.be.equals(addresses.NoticeBoard);
+    });
+  });
+
+  describe('ClaimEscrow', () => {
+    it('should fail when a not formatted address is provided as Sale or Token', async () => {
       const [signer] = await ethers.getSigners();
-      const verify = await Verify.deploy(signer, chainId, {
+
+      // Zero address is used since is already formatted
+      const token = ethers.constants.AddressZero;
+      const sale = ethers.constants.AddressZero;
+
+      const invalidAddress = '0xabcdabcdabcdabcdabcd';
+
+      expectAsyncError(
+        RedeemableERC20ClaimEscrow.get(invalidAddress, token, signer),
+        'SALE: NOT A VALID FORMAT ADDRESS'
+      );
+
+      expectAsyncError(
+        RedeemableERC20ClaimEscrow.get(sale, invalidAddress, signer),
+        'TOKEN: NOT A VALID FORMAT ADDRESS'
+      );
+    });
+  });
+
+  describe('Verify', () => {
+    it('should deploy a Verify child', async () => {
+      const [signer] = await ethers.getSigners();
+      const verify = await Verify.deploy(signer, {
         admin: signer.address,
         callback: ethers.constants.AddressZero,
       });
 
-      expect(verify.DEFAULT_ADMIN_ROLE).to.equals(DEFAULT_ADMIN_ROLE);
+      expect(await Verify.isChild(verify.signer, verify.address)).to.be.true;
+    });
 
-      expect(verify.APPROVER).to.equals(APPROVER);
-      expect(verify.REMOVER).to.equals(REMOVER);
-      expect(verify.BANNER).to.equals(BANNER);
+    it('should change the signer in a Verify instance correctly', async () => {
+      const [admin, newSigner] = await ethers.getSigners();
 
-      expect(verify.APPROVER_ADMIN).to.equals(APPROVER_ADMIN);
-      expect(verify.REMOVER_ADMIN).to.equals(REMOVER_ADMIN);
-      expect(verify.BANNER_ADMIN).to.equals(BANNER_ADMIN);
+      // Deploy to get the address
+      const Verify_Admin = await Verify.deploy(admin, {
+        admin: admin.address,
+        callback: ethers.constants.AddressZero,
+      });
 
-      expect(await verify.callback()).to.equals(ethers.constants.AddressZero);
+      // Admin grant an admin role to signer
+      const txAdmin = await Verify_Admin.grantRole(
+        await Verify_Admin.APPROVER_ADMIN(),
+        newSigner.address
+      );
+      expect(txAdmin.from).to.equals(admin.address);
 
-      const erc165Id = '0x01ffc9a7';
-      expect(await verify.supportsInterface(erc165Id)).to.be.true;
-      expect(await verify.supportsInterface('0xffffffff')).to.be.false;
+      // Connect to new signer
+      const Verify_Signer = Verify_Admin.connect(newSigner);
+      expect(Verify_Admin.address).to.be.equals(Verify_Signer.address);
+
+      // signer grant a approver to himself
+      const txNewSigner = await Verify_Signer.grantRole(
+        await Verify_Signer.APPROVER(),
+        newSigner.address
+      );
+      expect(txNewSigner.from).to.equals(newSigner.address);
     });
   });
 
-  describe('Tiers', () => {
-    // TODO: search the script to decode reports
-    // console.log((await tier.report(ethers.constants.AddressZero)).toString());
-
+  describe('ERC20BalanceTier', () => {
     it('Deploying ERC20BalanceTierChild', async () => {
-      const token = await deployErc20();
-
       const [signer] = await ethers.getSigners();
-      const tier = await ERC20BalanceTier.deploy(signer, chainId, {
+      const token = await deployErc20();
+      const tier = await ERC20BalanceTier.deploy(signer, {
         erc20: token.address,
         tierValues: TierLevels,
       });
@@ -192,12 +287,14 @@ describe('SDK Test', () => {
         'SET TIER: NOT IMPLEMENTED'
       );
     });
+  });
 
+  describe('Tiers', () => {
     it('Deploying ERC20TransferTierChild', async () => {
       const token = await deployErc20();
 
       const [signer] = await ethers.getSigners();
-      const tier = await ERC20TransferTier.deploy(signer, chainId, {
+      const tier = await ERC20TransferTier.deploy(signer, {
         erc20: token.address,
         tierValues: TierLevels,
       });
@@ -210,7 +307,6 @@ describe('SDK Test', () => {
       await token.connect(signer).approve(tier.address, requiredTierFive);
 
       const beforeSet = await tier.report(signer.address);
-
       await tier.setTier(signer.address, Tier.FIVE, []);
 
       expect(await tier.report(signer.address)).to.be.not.equals(beforeSet);
@@ -220,7 +316,7 @@ describe('SDK Test', () => {
       const token = await deployErc721();
 
       const [signer] = await ethers.getSigners();
-      const tier = await ERC721BalanceTier.deploy(signer, chainId, {
+      const tier = await ERC721BalanceTier.deploy(signer, {
         erc721: token.address,
         tierValues: TierLevels,
       });
@@ -235,12 +331,12 @@ describe('SDK Test', () => {
     it('Deploying VerifyTierChild', async () => {
       const [signer] = await ethers.getSigners();
 
-      const verify = await Verify.deploy(signer, chainId, {
+      const verify = await Verify.deploy(signer, {
         admin: signer.address,
         callback: ethers.constants.AddressZero,
       });
 
-      const tier = await VerifyTier.deploy(signer, chainId, verify.address);
+      const tier = await VerifyTier.deploy(signer, verify.address);
 
       await expectAsyncError(
         tier.setTier('', 2, []),
@@ -248,6 +344,4 @@ describe('SDK Test', () => {
       );
     });
   });
-
-  describe('test', () => {});
 });

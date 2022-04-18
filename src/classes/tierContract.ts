@@ -1,33 +1,40 @@
 import {
-  Contract,
-  ContractReceipt,
   Signer,
-  ethers,
-  CallOverrides,
   BigNumber,
-  BigNumberish,
   BytesLike,
-  Overrides,
+  BigNumberish,
   ContractTransaction,
 } from 'ethers';
+import { TxOverrides, ReadTxOverrides } from './rainContract';
+import { FactoryContract } from './factoryContract';
 import { ITier__factory } from '../typechain';
-import { RainContract } from '../rain-contract';
 
-export abstract class TierContract extends RainContract {
+/**
+ * Combine the static methods that are present in factories with the ITier instance methods.
+ * Should be use to the TierFactories.
+ */
+export abstract class TierFactoryContract extends FactoryContract {
+  constructor(address: string, signer: Signer) {
+    super(address, signer);
+    const tier = ITier__factory.connect(address, signer);
+    this.report = tier.report;
+    this.setTier = tier.setTier;
+  }
+
   /**
    * A tier report is a `uint256` that contains each of the block numbers each tier has been
    * held continously since as a `uint32`. There are 9 possible tier, starting with tier 0
    * for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the
    * full 256 bits.
    *
-   * @param account_ - Account to get the report for.
+   * @param account - Account to get the report for.
    * @param overrides - Specific transaction values to send it (e.g gasLimit,
    * nonce or gasPrice)
    * @return The report blocks encoded as a uint256.
    */
   public readonly report: (
     account: string,
-    overrides?: CallOverrides
+    overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
   /**
@@ -50,27 +57,6 @@ export abstract class TierContract extends RainContract {
     account: string,
     endTier: BigNumberish,
     data: BytesLike,
-    overrides?: Overrides
+    overrides?: TxOverrides
   ) => Promise<ContractTransaction>;
-
-  constructor(address: string, signer: Signer) {
-    super(address, signer);
-    const tier = ITier__factory.connect(address, signer);
-    this.report = tier.report;
-    this.setTier = tier.setTier;
-  }
-
-  public static getNewChildFromReceipt = (
-    receipt: ContractReceipt,
-    parentContract: Contract
-  ): string => {
-    return ethers.utils.defaultAbiCoder.decode(
-      ['address', 'address'],
-      receipt.events.filter(
-        event =>
-          event.event === 'NewChild' &&
-          event.address.toUpperCase() === parentContract.address.toUpperCase()
-      )[0].data
-    )[1];
-  };
 }

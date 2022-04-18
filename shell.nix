@@ -32,7 +32,7 @@ let
  generate-typechain = pkgs.writeShellScriptBin "generate-typechain" ''
   hardhat typechain 
   rm -rf src/typechain && mkdir -p src/typechain
-  mv typechain src
+  cp typechain src
  '';
 
  copy-typechain = pkgs.writeShellScriptBin "copy-typechain" ''

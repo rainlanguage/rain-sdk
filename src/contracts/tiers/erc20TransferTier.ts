@@ -1,19 +1,16 @@
-import { AddressBook } from '../addresses';
-import { TierContract } from './tierContract';
 import {
   Signer,
   BytesLike,
-  BigNumberish,
   BigNumber,
-  Overrides,
-  CallOverrides,
+  BigNumberish,
   ContractTransaction,
 } from 'ethers';
+import { TierFactoryContract } from '../../classes/tierContract';
+import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
 import {
   ERC20TransferTier__factory,
-  ERC20TransferTier as ERC20TransferTierContract,
   ERC20TransferTierFactory__factory,
-} from '../typechain';
+} from '../../typechain';
 
 /**
  * A class for deploying and calling methods on a ERC20TransferTier.
@@ -39,8 +36,8 @@ import {
  * ```typescript
  * import { ERC20TransferTier } from 'rain-sdk'
  *
- * // To deploy a new ERC20TransferTier, pass an ethers.js Signer, the chainId and the config for the ERC20TransferTier.
- * const newTier = await ERC20TransferTier.deploy(signer, chainId, ERC20TransferTierConfigArgs);
+ * // To deploy a new ERC20TransferTier, pass an ethers.js Signer and the config for the ERC20TransferTier.
+ * const newTier = await ERC20TransferTier.deploy(signer, ERC20TransferTierConfigArgs);
  *
  * // To connect to an existing ERC20TransferTier just pass the address and an ethers.js Signer.
  * const existingTier = new ERC20TransferTier(address, signer);
@@ -50,8 +47,67 @@ import {
  * ```
  *
  */
-export class ERC20TransferTier extends TierContract {
-  public readonly erc20TransferTier!: ERC20TransferTierContract;
+export class ERC20TransferTier extends TierFactoryContract {
+  protected static readonly nameBookReference = 'erc20TransferTierFactory';
+
+  /**
+   * Constructs a new ERC20TransferTier from a known address.
+   *
+   * @param address - The address of the ERC20TransferTier contract
+   * @param signer - An ethers.js Signer
+   * @returns A new ERC20TransferTier instance
+   *
+   */
+  constructor(address: string, signer: Signer) {
+    super(address, signer);
+    const _erc20TransferTier = ERC20TransferTier__factory.connect(
+      address,
+      signer
+    );
+    this.tierValues = _erc20TransferTier.tierValues;
+  }
+
+  /**
+   * Deploys a new ERC20TransferTier.
+   *
+   * @param signer - An ethers.js Signer
+   * @param args - Arguments for deploying a ERC20TransferTier @see ERC20TransferTierDeployArgs
+   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
+   * @returns A new ERC20TransferTier instance
+   *
+   */
+  public static deploy = async (
+    signer: Signer,
+    args: ERC20TransferTierDeployArgs,
+    overrides: TxOverrides = {}
+  ): Promise<ERC20TransferTier> => {
+    const erc20TransferTierFactory = ERC20TransferTierFactory__factory.connect(
+      this.getBookAddress(await this.getChainId(signer)),
+      signer
+    );
+
+    const tx = await erc20TransferTierFactory.createChildTyped(args, overrides);
+    const receipt = await tx.wait();
+    const address = this.getNewChildFromReceipt(
+      receipt,
+      erc20TransferTierFactory
+    );
+    return new ERC20TransferTier(address, signer);
+  };
+
+  /**
+   * Checks if address is registered as a child contract of this ERC20TransferTierFactory on a specific network
+   *
+   * @param signer - An ethers.js Signer
+   * @param maybeChild - Address to check registration for.
+   * @returns `true` if address was deployed by this contract factory, otherwise `false`
+   */
+  public static isChild = async (
+    signer: Signer,
+    maybeChild: string
+  ): Promise<boolean> => {
+    return await this._isChild(signer, maybeChild);
+  };
 
   /**
    * Complements the default solidity accessor for `tierValues`. Returns all the values in a
@@ -60,7 +116,7 @@ export class ERC20TransferTier extends TierContract {
    * @return The immutable `tierValues[8]`.
    */
   public readonly tierValues: (
-    overrides?: CallOverrides
+    overrides?: ReadTxOverrides
   ) => Promise<BigNumber[]>;
 
   /**
@@ -82,90 +138,14 @@ export class ERC20TransferTier extends TierContract {
     account: string,
     endTier: BigNumberish,
     data: BytesLike,
-    overrides?: Overrides
+    overrides?: TxOverrides
   ) => Promise<ContractTransaction>;
-
-  /**
-   * Constructs a new ERC20TransferTier from a known address.
-   *
-   * @param address - The address of the ERC20TransferTier contract
-   * @param signer - An ethers.js Signer
-   * @returns A new ERC20TransferTier instance
-   *
-   */
-  constructor(address: string, signer: Signer) {
-    super(address, signer);
-    this.erc20TransferTier = ERC20TransferTier__factory.connect(
-      address,
-      signer
-    );
-    this.tierValues = this.erc20TransferTier.tierValues;
-    this.setTier = this.erc20TransferTier.setTier;
-  }
-
-  /**
-   * Deploys a new ERC20TransferTier.
-   *
-   * @param signer - An ethers.js Signer
-   * @param chainId - The chain id of the network (e.g. 80001)
-   * @param args - Arguments for deploying a ERC20TransferTier @see ERC20TransferTierDeployArgs
-   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
-   * @returns A new ERC20TransferTier instance
-   *
-   */
-  public static deploy = async (
-    signer: Signer,
-    chainId: number,
-    args: ERC20TransferTierDeployArgs,
-    overrides: Overrides = {}
-  ): Promise<ERC20TransferTier> => {
-    const erc20TransferTierFactory = ERC20TransferTierFactory__factory.connect(
-      AddressBook.getAddressesForChainId(chainId).erc20TransferTierFactory,
-      signer
-    );
-
-    const tx = await erc20TransferTierFactory.createChildTyped(args, overrides);
-
-    const receipt = await tx.wait();
-
-    const address = super.getNewChildFromReceipt(
-      receipt,
-      erc20TransferTierFactory
-    );
-
-    const erc20TransferTier = new ERC20TransferTier(address, signer);
-
-    // @ts-ignore
-    erc20TransferTier.erc20TransferTier.deployTransaction = tx;
-
-    return erc20TransferTier;
-  };
-
-  /**
-   * Checks if address is registered as a child contract of this ERC20TransferTierFactory on a specific network
-   *
-   * @param signer - An ethers.js Signer
-   * @param chainId - The chain id of the network (e.g. 80001)
-   * @param maybeChild - Address to check registration for.
-   * @returns `true` if address was deployed by this contract factory, otherwise `false`
-   */
-  public static isChild = async (
-    signer: Signer,
-    chainId: number,
-    maybeChild: string
-  ): Promise<boolean> => {
-    return await super._isChild(
-      signer,
-      AddressBook.getAddressesForChainId(chainId).erc20TransferTierFactory,
-      maybeChild
-    );
-  };
 }
 
 /**
  * Constructor config for ERC20TransferTier
  */
-interface ERC20TransferTierDeployArgs {
+export interface ERC20TransferTierDeployArgs {
   /**
    * The erc20 token contract to transfer balances from/to during `setTier`
    */

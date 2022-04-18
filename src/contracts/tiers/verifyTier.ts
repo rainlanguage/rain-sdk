@@ -1,11 +1,7 @@
-import { AddressBook } from '../addresses';
-import { TierContract } from './tierContract';
-import { Signer, BigNumberish, BytesLike, Overrides } from 'ethers';
-import {
-  VerifyTier__factory,
-  VerifyTier as VerifyTierContract,
-  VerifyTierFactory__factory,
-} from '../typechain';
+import { Signer, BytesLike, BigNumberish } from 'ethers';
+import { TierFactoryContract } from '../../classes/tierContract';
+import { TxOverrides } from '../../classes/rainContract';
+import { VerifyTierFactory__factory } from '../../typechain';
 
 /**
  * A class for deploying and calling methods on a VerifyTier.
@@ -21,8 +17,8 @@ import {
  * @example
  * ```typescript
  * import { VerifyTier } from 'rain-sdk'
- * // To deploy a new VerifyTier, pass an ethers.js Signer, the chainId and the config for the VerifyTier.
- * const newTier = await VerifyTier.deploy(signer, chainId, VerifyTierConfigArgs);
+ * // To deploy a new VerifyTier, pass an ethers.js Signer and the config for the VerifyTier.
+ * const newTier = await VerifyTier.deploy(signer, VerifyTierConfigArgs);
  *
  * // To connect to an existing VerifyTier just pass the address and an ethers.js Signer.
  * const existingTier = new VerifyTier(address, signer);
@@ -32,21 +28,8 @@ import {
  * ```
  *
  */
-export class VerifyTier extends TierContract {
-  public readonly verifyTier!: VerifyTierContract;
-
-  /**
-   * It is NOT implemented in VerifyTiers. Always will throw an error
-   */
-  public readonly setTier = async (
-    account: string,
-    endTier: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides
-  ) => {
-    throw new Error('SET TIER: NOT IMPLEMENTED');
-  };
-
+export class VerifyTier extends TierFactoryContract {
+  protected static readonly nameBookReference = 'verifyTierFactory';
   /**
    * Constructs a new VerifyTier from a known address.
    *
@@ -55,16 +38,11 @@ export class VerifyTier extends TierContract {
    * @returns A new VerifyTier instance
    *
    */
-  constructor(address: string, signer: Signer) {
-    super(address, signer);
-    this.verifyTier = VerifyTier__factory.connect(address, signer);
-  }
 
   /**
    * Deploys a new VerifyTier.
    *
    * @param signer - An ethers.js Signer
-   * @param chainId - The chain id of the network (e.g. 80001)
    * @param verifyAddress - The contract to check to produce reports.
    * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
    * @returns A new VerifyTier instance
@@ -72,12 +50,11 @@ export class VerifyTier extends TierContract {
    */
   public static deploy = async (
     signer: Signer,
-    chainId: number,
     verifyAddress: string,
-    overrides: Overrides = {}
+    overrides: TxOverrides = {}
   ): Promise<VerifyTier> => {
     const verifyTierFactory = VerifyTierFactory__factory.connect(
-      AddressBook.getAddressesForChainId(chainId).verifyTierFactory,
+      this.getBookAddress(await this.getChainId(signer)),
       signer
     );
 
@@ -85,36 +62,34 @@ export class VerifyTier extends TierContract {
       verifyAddress,
       overrides
     );
-
     const receipt = await tx.wait();
-
-    const address = super.getNewChildFromReceipt(receipt, verifyTierFactory);
-
-    const verifyTier = new VerifyTier(address, signer);
-
-    // @ts-ignore
-    verifyTier.verifyTier.deployTransaction = tx;
-
-    return verifyTier;
+    const address = this.getNewChildFromReceipt(receipt, verifyTierFactory);
+    return new VerifyTier(address, signer);
   };
 
   /**
    * Checks if address is registered as a child contract of this VerifyTierFactory on a specific network
    *
    * @param signer - An ethers.js Signer
-   * @param chainId - The chain id of the network (e.g. 80001)
    * @param maybeChild - Address to check registration for.
    * @returns `true` if address was deployed by this contract factory, otherwise `false`
    */
   public static isChild = async (
     signer: Signer,
-    chainId: number,
     maybeChild: string
   ): Promise<boolean> => {
-    return await super._isChild(
-      signer,
-      AddressBook.getAddressesForChainId(chainId).verifyTierFactory,
-      maybeChild
-    );
+    return await this._isChild(signer, maybeChild);
+  };
+
+  /**
+   * It is NOT implemented in VerifyTiers. Always will throw an error
+   */
+  public readonly setTier = async (
+    account: string,
+    endTier: BigNumberish,
+    data: BytesLike,
+    overrides?: TxOverrides
+  ) => {
+    throw new Error('SET TIER: NOT IMPLEMENTED');
   };
 }

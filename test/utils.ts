@@ -2,6 +2,9 @@ import { ethers } from 'hardhat';
 import { BigNumberish } from 'ethers';
 import { assert } from 'chai';
 
+import { ReserveTokenTest, ReserveTokenERC721 } from '../typechain';
+
+
 export const eighteenZeros = '000000000000000000';
 
 /**
@@ -49,6 +52,16 @@ export interface Addresses {
   NoticeBoard: string;
   EmissionsERC20Factory: string;
   SaleFactory: string;
+}
+
+export async function deployErc20(): Promise<ReserveTokenTest> {
+  const TokenFactory = await ethers.getContractFactory('ReserveTokenTest');
+  return (await TokenFactory.deploy()) as ReserveTokenTest;
+}
+
+export async function deployErc721(): Promise<ReserveTokenERC721> {
+  const TokenFactory = await ethers.getContractFactory('ReserveTokenERC721');
+  return (await TokenFactory.deploy()) as ReserveTokenERC721;
 }
 
 /**
