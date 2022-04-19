@@ -102,3 +102,5 @@ export async function expectAsyncError(
     }
   }
 }
+
+export const mockSubgraphReceipt = () => {};
