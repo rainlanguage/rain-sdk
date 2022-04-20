@@ -4,6 +4,12 @@
 
 ## RedeemableERC20ClaimEscrow.sweepPending property
 
+Anon can convert any existing pending deposit to a deposit with known rTKN supply once the escrow has moved out of pending status.
+
+As `sweepPending` is anon callable, raise participants know that the depositor cannot later prevent a sweep, and depositor knows that raise participants cannot prevent a sweep. As per normal deposits, the output of swept tokens depends on success/fail state allowing `undeposit` or `withdraw` to be called subsequently.
+
+Partial sweeps are NOT supported, to avoid griefers splitting a deposit across many different `supply_` values.
+
 <b>Signature:</b>
 
 ```typescript

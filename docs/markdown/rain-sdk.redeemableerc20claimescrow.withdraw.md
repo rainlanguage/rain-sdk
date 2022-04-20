@@ -4,6 +4,18 @@
 
 ## RedeemableERC20ClaimEscrow.withdraw property
 
+The successful handover of a `deposit` to a recipient.
+
+When a redeemable token distribution is successful the redeemable token holders are automatically and immediately eligible to `withdraw` any and all tokens previously deposited against the relevant `Sale`<!-- -->. The `withdraw` can only happen if/when the relevant `Sale` reaches the success distribution status.
+
+Delegated `withdraw` is NOT supported. Every redeemable token holder is directly responsible for being aware of and calling `withdraw`<!-- -->. If a redeemable token holder calls `redeem` they also burn their claim on any tokens held in escrow so they MUST first call `withdraw` THEN `redeem`<!-- -->.
+
+It is expected that the redeemable token holder knows about the tokens that they will be withdrawing. This information is NOT tracked onchain or exposed for bulk processing.
+
+Partial `withdraw` is not supported, all tokens allocated to the caller are withdrawn. 0 amount withdrawal is an error, if the prorata share of the token being claimed is small enough to round down to 0 then the withdraw will revert.
+
+Multiple withdrawals across multiple deposits is supported and is equivalent to a single withdraw after all relevant deposits.
+
 <b>Signature:</b>
 
 ```typescript

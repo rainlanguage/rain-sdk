@@ -6,7 +6,7 @@
 
 Transfers `tokenId` token from `from` to `to`<!-- -->.
 
-WARNING: Usage of this method is discouraged, use {<!-- -->safeTransferFrom<!-- -->} whenever possible.
+WARNING: Usage of this method is discouraged, use `safeTransferFrom()` whenever possible.
 
 Requirements:
 

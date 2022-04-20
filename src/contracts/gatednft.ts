@@ -289,7 +289,7 @@ export class GatedNFT extends FactoryContract {
 
   /**
    * Approve or remove `operator` as an operator for the caller.
-   * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
+   * Operators can call `transferFrom()` or `safeTransferFrom()` for any token owned by the caller.
    *
    * Requirements:
    *
@@ -308,7 +308,7 @@ export class GatedNFT extends FactoryContract {
   /**
    * Transfers `tokenId` token from `from` to `to`.
    *
-   * WARNING: Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
+   * WARNING: Usage of this method is discouraged, use `safeTransferFrom()` whenever possible.
    *
    * Requirements:
    *
@@ -338,8 +338,8 @@ export class GatedNFT extends FactoryContract {
    * - `from` cannot be the zero address.
    * - `to` cannot be the zero address.
    * - `tokenId` token must exist and be owned by `from`.
-   * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
-   * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+   * - If the caller is not `from`, it must be have been allowed to move this token by either approve() or setApprovalForAll().
+   * - If `to` refers to a smart contract, it must implement `IERC721Receiver-onERC721Received`, which is called upon a safe transfer.
    *
    * @param from - address that have the token to transfer
    * @param to - address that will receive the token
@@ -361,8 +361,8 @@ export class GatedNFT extends FactoryContract {
    * - `from` cannot be the zero address.
    * - `to` cannot be the zero address.
    * - `tokenId` token must exist and be owned by `from`.
-   * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
-   * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+   * - If the caller is not `from`, it must be approved to move this token by either approve() or setApprovalForAll().
+   * - If `to` refers to a smart contract, it must implement `IERC721Receiver-onERC721Received`, which is called upon a safe transfer.
    *
    * @param from - address that have the token to transfer
    * @param to - address that will receive the token

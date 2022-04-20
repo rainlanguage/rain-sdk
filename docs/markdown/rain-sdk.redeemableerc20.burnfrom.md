@@ -6,7 +6,7 @@
 
 Destroys `amount` tokens from `account`<!-- -->, deducting from the caller's allowance.
 
-Requirements: - The caller must have allowance for \`\`<!-- -->accounts<!-- -->\`\`<!-- -->'s tokens of at least `amount`<!-- -->.
+Requirements: - The caller must have allowance for `accounts`<!-- -->'s tokens of at least `amount`<!-- -->.
 
 <b>Signature:</b>
 

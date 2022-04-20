@@ -6,14 +6,6 @@
 
 The `ISale` contract address that is used to interact with the Escrow contract.
 
-Get a new instance with different ISale use:
-
-```typescript
-const newInstance = escrowInstance.changeSale(newSaleAddress);
-// Using same IERC20 token but different Sale
-const tx = await newInstance.deposit(amount);
-```
-
 <b>Signature:</b>
 
 ```typescript

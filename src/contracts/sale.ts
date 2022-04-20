@@ -109,7 +109,7 @@ export class Sale extends FactoryContract {
   /**
    * Obtain the instance redeemable token from this sale.
    *
-   * @param signer The signer that will be connected to the Redeemable token instance. If not
+   * @param signer - The signer that will be connected to the Redeemable token instance. If not
    * provided, the same signer of this instance will be used.
    * @returns A Redeemable instance with all the redeemableERC20 methods
    */
@@ -128,7 +128,7 @@ export class Sale extends FactoryContract {
    * _logged_ rather than returned as it cannot be used in same block for a refund anyway due
    * to cooldowns.
    *
-   * @param config All parameters to configure the purchase. @see BuyConfig
+   * @param config - All parameters to configure the purchase. @see BuyConfig
    * @param overrides - @see TxOverrides
    */
   public readonly buy: (
@@ -144,7 +144,7 @@ export class Sale extends FactoryContract {
    * other unwanted side effects for other sale participants. Cooldowns are bypassed if the
    * sale ends and is a failure.
    *
-   * @param receipt The receipt of the buy to rollback.
+   * @param receipt - The receipt of the buy to rollback.
    * @param overrides - @see TxOverrides
    */
   public readonly refund: (
@@ -155,7 +155,7 @@ export class Sale extends FactoryContract {
   /**
    * Calculates the current reserve price quoted for 1 unit of rTKN. Used internally to process `buy`
    *
-   * @param units Amount of rTKN to quote a price for, will be available to the price script from
+   * @param units - Amount of rTKN to quote a price for, will be available to the price script from
    * OPCODE_CURRENT_BUY_UNITS.
    * @param overrides - @see ReadTxOverrides
    * @returns The current price
@@ -171,7 +171,7 @@ export class Sale extends FactoryContract {
    * refund. A failed raise implies that all buyers should immediately refund and zero fees
    * claimed.
    *
-   * @param recipient The recipient to claim fees for. Does NOT need to be the `msg.sender`.
+   * @param recipient - The recipient to claim fees for. Does NOT need to be the `msg.sender`.
    * @param overrides - @see TxOverrides
    */
   public readonly claimFees: (
@@ -183,7 +183,7 @@ export class Sale extends FactoryContract {
    * Start the sale (move from pending to active).
    * - `canStart` MUST return true.
    *
-   * @param overrides - @see ReadTxOverrides
+   * @param overrides - @see TxOverrides
    */
   public readonly start: (
     overrides?: TxOverrides
@@ -193,7 +193,7 @@ export class Sale extends FactoryContract {
    * End the sale (move from active to success or fail).
    * - `canEnd` MUST return true.
    *
-   * @param overrides - @see ReadTxOverrides
+   * @param overrides - @see TxOverrides
    */
   public readonly end: (
     overrides?: TxOverrides
@@ -207,6 +207,7 @@ export class Sale extends FactoryContract {
    * The sale can ONLY start if it is currently in pending status.
    *
    * @param overrides - @see ReadTxOverrides
+   * @returns true if can start the sale
    */
   public readonly canStart: (overrides?: ReadTxOverrides) => Promise<boolean>;
 
@@ -218,6 +219,7 @@ export class Sale extends FactoryContract {
    * The sale can ONLY end if it is currently in active status.
    *
    * @param overrides - @see ReadTxOverrides
+   * @returns true if can end the sale
    */
   public readonly canEnd: (overrides?: ReadTxOverrides) => Promise<boolean>;
 
@@ -249,6 +251,7 @@ export class Sale extends FactoryContract {
    * MUST NOT change during the lifecycle of the sale contract.
    *
    * @param overrides - @see ReadTxOverrides
+   * @returns the token reserve address
    */
   public readonly reserve: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -257,6 +260,7 @@ export class Sale extends FactoryContract {
    * MUST NOT change during the lifecycle of the sale contract.
    *
    * @param overrides - @see ReadTxOverrides
+   * @returns the token redeemable address
    */
   public readonly token: (overrides?: ReadTxOverrides) => Promise<string>;
 }

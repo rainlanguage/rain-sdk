@@ -10,7 +10,7 @@ NOTE: Does not update the allowance if the current allowance is the maximum `uin
 
 Requirements:
 
-- `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`<!-- -->. - the caller must have allowance for \`\`<!-- -->from<!-- -->\`\`<!-- -->'s tokens of at least `amount`<!-- -->.
+- `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`<!-- -->. - the caller must have allowance for `from`<!-- -->'s tokens of at least `amount`<!-- -->.
 
 <b>Signature:</b>
 

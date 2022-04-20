@@ -121,13 +121,14 @@ export class Verify extends FactoryContract {
   /**
    * By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means
    * that only accounts with this role will be able to grant or revoke other
-   * roles. More complex role relationships can be created by using
-   * {_setRoleAdmin}.
+   * roles.
    *
    * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
    * grant and revoke this role. Extra precautions should be taken to secure
    * accounts that have been granted it.
    *
+   * @param overrides - @see ReadTxOverrides
+   * @returns Default admin role as an hexadecimal value
    */
   public readonly DEFAULT_ADMIN_ROLE: (
     overrides?: ReadTxOverrides
@@ -135,6 +136,9 @@ export class Verify extends FactoryContract {
 
   /**
    * Admin role for `APPROVER`
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns Approver admin role as an hexadecimal value
    */
   public readonly APPROVER_ADMIN: (
     overrides?: ReadTxOverrides
@@ -142,6 +146,9 @@ export class Verify extends FactoryContract {
 
   /**
    * Admin role for `REMOVER`
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns Remover admin role as an hexadecimal value
    */
   public readonly REMOVER_ADMIN: (
     overrides?: ReadTxOverrides
@@ -149,6 +156,9 @@ export class Verify extends FactoryContract {
 
   /**
    * Admin role for `BANNER`
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns Banner admin role as an hexadecimal value
    */
   public readonly BANNER_ADMIN: (
     overrides?: ReadTxOverrides
@@ -156,16 +166,25 @@ export class Verify extends FactoryContract {
 
   /**
    * Role for `APPROVER`
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns Approve role as an hexadecimal value
    */
   public readonly APPROVER: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * Role for `REMOVER`
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns Remover role as an hexadecimal value
    */
   public readonly REMOVER: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * Role for `BANNER`
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns Banner role as an hexadecimal value
    */
   public readonly BANNER: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -199,7 +218,7 @@ export class Verify extends FactoryContract {
    * is more recent than the ban. The only way to reset a ban is to remove and reapprove the account.
    *
    * @param evidences - All evidence for all approvals. @see Evidence
-   * @param overrides - @see ReadTxOverrides
+   * @param overrides - @see TxOverrides
    */
   public readonly approve: (
     evidences: Evidence[],
@@ -280,8 +299,8 @@ export class Verify extends FactoryContract {
   /**
    * Derives a single `Status` from a `State` and a reference block number.
    *
-   * @param state The raw `State` to reduce into a `Status`.
-   * @param blockNumber The block number to compare `State` against.
+   * @param state - The raw `State` to reduce into a `Status`.
+   * @param blockNumber - The block number to compare `State` against.
    * @param overrides - @see ReadTxOverrides
    * @returns A `BigNumber` that represent the `status` in `blockNumber`.
    */
@@ -294,8 +313,8 @@ export class Verify extends FactoryContract {
   /**
    * Check if an `account` have a determined `role` in the Verify Contract.
    *
-   * @param role The role that will check if `account` have.
-   * @param account The account that will checked.
+   * @param role - The role that will check if `account` have.
+   * @param account - The account that will checked.
    * @param overrides - @see ReadTxOverrides
    * @returns A boolean with `true` if `account` has been granted `role`.
    */
@@ -308,7 +327,7 @@ export class Verify extends FactoryContract {
   /**
    * Get the admin role that controls `role`
    *
-   * @param role Role for which the RoleAdmin is obtained
+   * @param role - Role for which the RoleAdmin is obtained
    * @param overrides - @see ReadTxOverrides
    * @returns The admin role
    */

@@ -4,7 +4,7 @@
 
 ## Verify.DEFAULT\_ADMIN\_ROLE property
 
-By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`<!-- -->, which means that only accounts with this role will be able to grant or revoke other roles. More complex role relationships can be created by using {<!-- -->\_setRoleAdmin<!-- -->}<!-- -->.
+By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`<!-- -->, which means that only accounts with this role will be able to grant or revoke other roles.
 
 WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to grant and revoke this role. Extra precautions should be taken to secure accounts that have been granted it.
 

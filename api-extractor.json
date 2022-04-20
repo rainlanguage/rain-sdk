@@ -364,11 +364,6 @@
         "logLevel": "warning"
         // "addToApiReportFile": true
       }
-
-      // "tsdoc-param-tag-missing-hyphen": {
-      //   "logLevel": "warning",
-      //   "addToApiReportFile": true
-      // },
     }
   }
 }

@@ -37,26 +37,11 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
 
   /**
    * The `ISale` contract address that is used to interact with the Escrow contract.
-   *
-   * Get a new instance with different ISale use:
-   * ```typescript
-   * const newInstance = escrowInstance.changeSale(newSaleAddress);
-   * // Using same IERC20 token but different Sale
-   * const tx = await newInstance.deposit(amount);
-   * ```
-   *
    */
   public readonly sale: string;
 
   /**
    * The `IERC20` token being deposited and that will be use to interact with the Escrow contract
-   *
-   * Get a new instance with different ISale use:
-   * ```typescript
-   * const newInstance = escrowInstance.changeToken(newAddress);
-   * // Using same Sale token but different IERC20
-   * const tx = await newInstance.deposit(amount);
-   * ```
    */
   public readonly token: string;
 
@@ -102,9 +87,10 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * The function ask to the provider inside of the ethers signer what is the chain
    * identifier to get the address in this chain.
    *
-   * @param saleAddress
-   * @param tokenAddress
-   * @param signer
+   * @param saleAddress - sale address
+   * @param tokenAddress - token ERC20 address
+   * @param signer - ethers signer connected to the instance
+   * @returns A RedeemableERC20ClaimEscrow instance
    */
   public static get = async (
     saleAddress: string,
@@ -121,8 +107,8 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
 
   /**
    * Get a new instance with a different Sale to interact with the Escrow contract
-   * @param newSale A new ISale address
-   * @returns A new RedeemableERC20ClaimEscrow instance
+   * @param newSale - A new ISale address
+   * @returns A new RedeemableERC20ClaimEscrow instance with different Sale
    */
   public readonly changeSale = (
     newSale: string
@@ -141,8 +127,8 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
 
   /**
    * Get a new instance with a different ERC20 to interact with the Escrow contract
-   * @param newToken A new IERC20 address
-   * @returns A new RedeemableERC20ClaimEscrow instance
+   * @param newToken - A new IERC20 address
+   * @returns A new RedeemableERC20ClaimEscrow instance with different ERC20 Token
    */
   public readonly changeToken = (
     newToken: string
@@ -159,7 +145,8 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
     );
   };
 
-  /* Any address can deposit any amount of the token`IERC20` under the `Sale`.
+  /**
+   * Any address can deposit any amount of the token`IERC20` under the `Sale`.
    * The `Sale` MUST be a child of the trusted factory.
    *
    * The deposit will be accounted for under both the depositor individually
@@ -183,9 +170,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * depositing at this point is dangerous. If the `Sale` never starts the
    * raise it will never fail the raise either.
    *
-   * @param sale The `Sale` to assign this deposit to.
-   * @param token The `IERC20` token to deposit to the escrow.
-   * @param amount The amount of token to deposit. Requires depositor has
+   * @param amount - The amount of token to deposit. Requires depositor has
    * approved at least this amount to succeed.
    * @param overrides - @see TxOverrides
    */
@@ -193,10 +178,30 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
     amount: BigNumberish,
     overrides?: TxOverrides
   ): Promise<ContractTransaction> => {
-    const tx = await this._deposit(this.sale, this.token, amount, overrides);
-    return tx;
+    return await this._deposit(this.sale, this.token, amount, overrides);
   };
 
+  /**
+   * Depositor can set aside tokens during pending raise status to be swept
+   * into a real deposit later.
+   *
+   * The problem with doing a normal deposit while the raise is still active
+   * is that the `Sale` will burn all unsold tokens when the raise ends. If
+   * we captured the token supply mid-raise then many deposited TKN would
+   * be allocated to unsold rTKN. Instead we set aside TKN so that raise
+   * participants can be sure that they will be claimable upon raise success
+   * but they remain unbound to any rTKN supply until `sweepPending` is
+   * called.
+   *
+   * `depositPending` is a one-way function, there is no way to `undeposit`
+   * until after the raise fails. Strongly recommended that depositors do
+   * NOT call `depositPending` until raise starts, so they know it will also
+   * end.
+   *
+   * @param amount - The amount of token to despoit. Requires depositor has
+   * approved at least this amount to succeed.
+   * @param overrides - @see TxOverrides
+   */
   public readonly depositPending = async (
     amount: BigNumberish,
     overrides?: TxOverrides
@@ -210,6 +215,22 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
     return tx;
   };
 
+  /**
+   * Anon can convert any existing pending deposit to a deposit with known
+   * rTKN supply once the escrow has moved out of pending status.
+   *
+   * As `sweepPending` is anon callable, raise participants know that the
+   * depositor cannot later prevent a sweep, and depositor knows that raise
+   * participants cannot prevent a sweep. As per normal deposits, the output
+   * of swept tokens depends on success/fail state allowing `undeposit` or
+   * `withdraw` to be called subsequently.
+   *
+   * Partial sweeps are NOT supported, to avoid griefers splitting a deposit
+   * across many different `supply_` values.
+   *
+   * @param depositor - The depositor to sweep registered deposits under.
+   * @param overrides - @see TxOverrides
+   */
   public readonly sweepPending = async (
     depositor: string,
     overrides?: TxOverrides
@@ -223,6 +244,32 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
     return tx;
   };
 
+  /**
+   * The inverse of `deposit`.
+   *
+   * In the case of a failed distribution the depositors can claim back any
+   * tokens they deposited in the escrow.
+   *
+   * Ideally the distribution is a success and this does not need to be
+   * called but it is important that we can walk back deposits and try again
+   * for some future raise if needed.
+   *
+   * Delegated `undeposit` is not supported, only the depositor can wind
+   * back their original deposit.
+   *
+   * `amount` must be non-zero.
+   *
+   * If several tokens have been deposited against a given trust for the
+   * depositor then each token must be individually undeposited. There is
+   * no onchain tracking or bulk processing for the depositor, they are
+   * expected to know what they have previously deposited and if/when to
+   * process an `undeposit`.
+   *
+   * @param supply - The total supply of the sale token associated with the
+   * deposit being undeposited.
+   * @param amount - The amount to undeposit.
+   * @param overrides - @see TxOverrides
+   */
   public readonly undeposit = async (
     supply: BigNumberish,
     amount: BigNumberish,
@@ -238,6 +285,37 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
     return tx;
   };
 
+  /**
+   * The successful handover of a `deposit` to a recipient.
+   *
+   * When a redeemable token distribution is successful the redeemable token
+   * holders are automatically and immediately eligible to `withdraw` any
+   * and all tokens previously deposited against the relevant `Sale`.
+   * The `withdraw` can only happen if/when the relevant `Sale` reaches the
+   * success distribution status.
+   *
+   * Delegated `withdraw` is NOT supported. Every redeemable token holder is
+   * directly responsible for being aware of and calling `withdraw`.
+   * If a redeemable token holder calls `redeem` they also burn their claim
+   * on any tokens held in escrow so they MUST first call `withdraw` THEN
+   * `redeem`.
+   *
+   * It is expected that the redeemable token holder knows about the tokens
+   * that they will be withdrawing. This information is NOT tracked onchain
+   * or exposed for bulk processing.
+   *
+   * Partial `withdraw` is not supported, all tokens allocated to the caller
+   * are withdrawn. 0 amount withdrawal is an error, if the prorata share
+   * of the token being claimed is small enough to round down to 0 then the
+   * withdraw will revert.
+   *
+   * Multiple withdrawals across multiple deposits is supported and is
+   * equivalent to a single withdraw after all relevant deposits.
+   *
+   * @param supply - The total supply of the sale token at time of deposit
+   * to process this withdrawal against.
+   * @param overrides - @see TxOverrides
+   */
   public readonly withdraw = async (
     supply: BigNumberish,
     overrides?: TxOverrides
@@ -271,9 +349,9 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * depositing at this point is dangerous. If the `Sale` never starts the
    * raise it will never fail the raise either.
    *
-   * @param sale The `Sale` to assign this deposit to.
-   * @param token The `IERC20` token to deposit to the escrow.
-   * @param amount The amount of token to deposit. Requires depositor has
+   * @param sale - The `Sale` to assign this deposit to.
+   * @param token - The `IERC20` token to deposit to the escrow.
+   * @param amount - The amount of token to deposit. Requires depositor has
    * approved at least this amount to succeed.
    * @param overrides - @see TxOverrides
    */
@@ -301,9 +379,9 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * NOT call `depositPending` until raise starts, so they know it will also
    * end.
    *
-   * @param sale The `Sale` to assign this deposit to.
-   * @param token The `IERC20` token to deposit to the escrow.
-   * @param amount The amount of token to despoit. Requires depositor has
+   * @param sale - The `Sale` to assign this deposit to.
+   * @param token - The `IERC20` token to deposit to the escrow.
+   * @param amount - The amount of token to despoit. Requires depositor has
    * approved at least this amount to succeed.
    * @param overrides - @see TxOverrides
    */
@@ -327,9 +405,9 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * Partial sweeps are NOT supported, to avoid griefers splitting a deposit
    * across many different `supply_` values.
    *
-   * @param sale The sale to sweep all pending deposits for.
-   * @param token The token to sweep into registered deposits.
-   * @param depositor The depositor to sweep registered deposits under.
+   * @param sale - The sale to sweep all pending deposits for.
+   * @param token - The token to sweep into registered deposits.
+   * @param depositor - The depositor to sweep registered deposits under.
    * @param overrides - @see TxOverrides
    */
   private readonly _sweepPending: (
@@ -360,11 +438,11 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * expected to know what they have previously deposited and if/when to
    * process an `undeposit`.
    *
-   * @param sale The `Sale` to undeposit from.
-   * @param token The token to undeposit.
-   * @param supply The total supply of the sale token associated with the
+   * @param sale - The `Sale` to undeposit from.
+   * @param token - The token to undeposit.
+   * @param supply - The total supply of the sale token associated with the
    * deposit being undeposited.
-   * @param amount The amount to undeposit.
+   * @param amount - - The amount to undeposit.
    * @param overrides - @see TxOverrides
    */
   private readonly _undeposit: (
@@ -395,16 +473,16 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * or exposed for bulk processing.
    *
    * Partial `withdraw` is not supported, all tokens allocated to the caller
-   * are withdrawn`. 0 amount withdrawal is an error, if the prorata share
+   * are withdrawn. 0 amount withdrawal is an error, if the prorata share
    * of the token being claimed is small enough to round down to 0 then the
    * withdraw will revert.
    *
    * Multiple withdrawals across multiple deposits is supported and is
    * equivalent to a single withdraw after all relevant deposits.
    *
-   * @param sale The trust to `withdraw` against.
-   * @param token The token to `withdraw`.
-   * @param supply The total supply of the sale token at time of deposit
+   * @param sale - The trust to `withdraw` against.
+   * @param token - The token to `withdraw`.
+   * @param supply - The total supply of the sale token at time of deposit
    * to process this withdrawal against.
    * @param overrides - @see TxOverrides
    */

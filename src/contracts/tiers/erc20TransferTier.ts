@@ -130,9 +130,9 @@ export class ERC20TransferTier extends TierFactoryContract {
    * must ensure sufficient approvals before attempting to set a new tier. This throw
    * an error if the user attempts to return to the ZERO tier.
    *
-   * @param account Account to change the tier for.
-   * @param endTier Tier after the change.
-   * @param data Arbitrary input to disambiguate ownership
+   * @param account - Account to change the tier for.
+   * @param endTier - Tier after the change.
+   * @param data - Arbitrary input to disambiguate ownership
    * @param overrides - @see TxOverrides
    */
   public declare readonly setTier: (

@@ -7,6 +7,10 @@ let
     })
     { };
 
+ generate-docs = pkgs.writeShellScriptBin "generate-docs" ''
+  yarn generate-docs
+ '';
+
  lint-sdk = pkgs.writeShellScriptBin "lint-sdk" ''
   yarn lint
  '';
@@ -48,6 +52,7 @@ pkgs.stdenv.mkDerivation {
   copy-contracts
   generate-typechain
   copy-typechain
+  generate-docs
   lint-sdk
   build-sdk
   test-sdk

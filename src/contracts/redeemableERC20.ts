@@ -183,7 +183,7 @@ export class RedeemableERC20 extends FactoryContract {
    * Destroys `amount` tokens from `account`, deducting from the caller's allowance.
    *
    * Requirements:
-   * - The caller must have allowance for ``accounts``'s tokens of at least
+   * - The caller must have allowance for `accounts`'s tokens of at least
    * `amount`.
    *
    * @param account - The account that hold the tokens which will be burned
@@ -385,7 +385,7 @@ export class RedeemableERC20 extends FactoryContract {
    *
    * @param index - The index to get the phaseBlock. There are 8 phases. The index
    * should be between 0 and 7.
-   * @param overrides - @read ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns the phase block
    */
   public readonly phaseBlocks: (
@@ -478,7 +478,7 @@ export class RedeemableERC20 extends FactoryContract {
    *
    * - `from` and `to` cannot be the zero address.
    * - `from` must have a balance of at least `amount`.
-   * - the caller must have allowance for ``from``'s tokens of at least `amount`.
+   * - the caller must have allowance for `from`'s tokens of at least `amount`.
    *
    * @param from - address that have the tokens to transfer
    * @param to - address that will receive the tokens

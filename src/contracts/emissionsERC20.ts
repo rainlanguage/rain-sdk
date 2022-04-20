@@ -313,7 +313,7 @@ export class EmissionsERC20 extends TierFactoryContract {
    *
    * - `from` and `to` cannot be the zero address.
    * - `from` must have a balance of at least `amount`.
-   * - the caller must have allowance for ``from``'s tokens of at least `amount`.
+   * - the caller must have allowance for `from`'s tokens of at least `amount`.
    *
    * @param from - address that have the tokens to transfer
    * @param to - address that will receive the tokens

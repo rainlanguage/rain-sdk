@@ -6,14 +6,6 @@
 
 The `IERC20` token being deposited and that will be use to interact with the Escrow contract
 
-Get a new instance with different ISale use:
-
-```typescript
-const newInstance = escrowInstance.changeToken(newAddress);
-// Using same Sale token but different IERC20
-const tx = await newInstance.deposit(amount);
-```
-
 <b>Signature:</b>
 
 ```typescript
