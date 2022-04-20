@@ -9,7 +9,7 @@ Checks if address is registered as a child contract of the factory in the chain.
 <b>Signature:</b>
 
 ```typescript
-static _isChild(signer: Signer, maybeChild: string): Promise<boolean>;
+protected static _isChild(signer: Signer, maybeChild: string): Promise<boolean>;
 ```
 
 ## Parameters

@@ -2,21 +2,10 @@
 
 [Home](./index.md) &gt; [rain-sdk](./rain-sdk.md) &gt; [AddressBook](./rain-sdk.addressbook.md) &gt; [getAddressesForChainId](./rain-sdk.addressbook.getaddressesforchainid.md)
 
-## AddressBook.getAddressesForChainId() method
+## AddressBook.getAddressesForChainId property
 
 <b>Signature:</b>
 
 ```typescript
-static getAddressesForChainId(chainId: number): Addresses;
+static getAddressesForChainId: (chainId: number) => Addresses;
 ```
-
-## Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  chainId | number |  |
-
-<b>Returns:</b>
-
-[Addresses](./rain-sdk.addresses.md)
-

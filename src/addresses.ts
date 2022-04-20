@@ -59,11 +59,11 @@ export type Addresses = {
  *  @public
  */
 export class AddressBook {
-  public static getAddressesForChainId(chainId: number): Addresses {
+  public static getAddressesForChainId = (chainId: number): Addresses => {
     const network = addressBook.find(n => n.chainId === chainId);
     if (!network?.addresses) {
       throw new Error('No deployed contracts for this chain.');
     }
     return network.addresses;
-  }
+  };
 }

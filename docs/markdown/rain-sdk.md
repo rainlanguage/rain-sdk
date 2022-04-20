@@ -30,7 +30,15 @@
 
 |  Enumeration | Description |
 |  --- | --- |
+|  [StandardOps](./rain-sdk.standardops.md) | All the standard Op Codes |
 |  [Transferrable](./rain-sdk.transferrable.md) | Determine the status about how the GatedNFT contract will handle the transfers |
+
+## Functions
+
+|  Function | Description |
+|  --- | --- |
+|  [bytify(value, bytesLength)](./rain-sdk.bytify.md) | Converts a value to raw bytes representation. Assumes <code>value</code> is less than or equal to 1 byte, unless a desired <code>bytesLength</code> is specified. |
+|  [op(code, erand)](./rain-sdk.op.md) | Converts an opcode and operand to bytes, and returns their concatenation. |
 
 ## Interfaces
 

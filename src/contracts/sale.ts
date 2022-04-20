@@ -1,13 +1,17 @@
 import { BigNumberish, BigNumber, Signer, ContractTransaction } from 'ethers';
+import { concat } from 'ethers/lib/utils';
+
 import {
   ERC20Config,
   TxOverrides,
   ReadTxOverrides,
 } from '../classes/rainContract';
+import { State, StandardOps, op } from '../classes/vm';
+
 import { FactoryContract } from '../classes/factoryContract';
-import { State } from '../classes/vm';
 import { RedeemableERC20 } from './redeemableERC20';
 import { Sale__factory, SaleFactory__factory } from '../typechain';
+
 // TODO: Add this type/interface inside VMState class
 
 /**
@@ -61,26 +65,50 @@ export class Sale extends FactoryContract {
     this.token = _sale.token;
   }
 
+  public static Opcode = {
+    ...StandardOps,
+    /**
+     * local opcode to stack remaining rTKN units.
+     */
+    REMAINING_UNITS: 0 + StandardOps.length,
+    /**
+     * local opcode to stack total reserve taken in so far.
+     */
+    TOTAL_RESERVE_IN: 1 + StandardOps.length,
+    /**
+     * local opcode to stack the rTKN units/amount of the current buy.
+     */
+    CURRENT_BUY_UNITS: 2 + StandardOps.length,
+    /**
+     * local opcode to stack the address of the rTKN.
+     */
+    TOKEN_ADDRESS: 3 + StandardOps.length,
+    /**
+     * local opcode to stack the address of the reserve token.
+     */
+    RESERVE_ADDRESS: 4 + StandardOps.length,
+  };
+
   /**
    * Deploys a new Sale.
    *
    * @param signer - An ethers.js Signer
-   * @param args - Arguments for deploying a Sale @see SaleDeployArguments
+   * @param saleConfig - Arguments for the Sale configuration @see saleConfig
+   * @param saleRedeemableERC20Config - Arguments for the Redeemable configuration @see saleRedeemableERC20Config
    * @param overrides - @see TxOverrides
    * @returns A new Sale instance
    *
    */
   public static deploy = async (
     signer: Signer,
-    args: SaleDeployArguments,
+    saleConfig: SaleConfig,
+    saleRedeemableERC20Config: SaleRedeemableERC20Config,
     overrides: TxOverrides = {}
   ): Promise<Sale> => {
     const saleFactory = SaleFactory__factory.connect(
       this.getBookAddress(await this.getChainId(signer)),
       signer
     );
-
-    const { saleConfig, saleRedeemableERC20Config } = args;
 
     const tx = await saleFactory.createChildTyped(
       saleConfig,
@@ -104,6 +132,27 @@ export class Sale extends FactoryContract {
     maybeChild: string
   ): Promise<boolean> => {
     return await this._isChild(signer, maybeChild);
+  };
+
+  /**
+   * Create a condition as VM state configuration to that is true after a `blockNumber` in the chain.
+   *
+   * @param blockNumber - block number that will be use as comparision
+   * @returns A VM Configturation
+   */
+  public static afterBlockNumberConfig = (blockNumber: number): State => {
+    return {
+      sources: [
+        concat([
+          op(this.Opcode.BLOCK_NUMBER),
+          op(this.Opcode.VAL, 0),
+          op(this.Opcode.GREATER_THAN),
+        ]),
+      ],
+      constants: [blockNumber - 1],
+      stackLength: 3,
+      argumentsLength: 0,
+    };
   };
 
   /**

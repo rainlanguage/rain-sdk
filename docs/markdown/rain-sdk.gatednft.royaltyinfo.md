@@ -2,26 +2,12 @@
 
 [Home](./index.md) &gt; [rain-sdk](./rain-sdk.md) &gt; [GatedNFT](./rain-sdk.gatednft.md) &gt; [royaltyInfo](./rain-sdk.gatednft.royaltyinfo.md)
 
-## GatedNFT.royaltyInfo() method
+## GatedNFT.royaltyInfo property
 
 Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of exchange. The royalty amount is denominated and should be payed in that same unit of exchange.
 
 <b>Signature:</b>
 
 ```typescript
-royaltyInfo(salePrice: BigNumberish, overrides?: ReadTxOverrides): Promise<RoyaltyInfo>;
+readonly royaltyInfo: (salePrice: BigNumberish, overrides?: ReadTxOverrides) => Promise<RoyaltyInfo>;
 ```
-
-## Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  salePrice | BigNumberish | the sale price that will be use as based to calculate hor much royalty is owed |
-|  overrides | [ReadTxOverrides](./rain-sdk.readtxoverrides.md) | <i>(Optional)</i> |
-
-<b>Returns:</b>
-
-Promise&lt;[RoyaltyInfo](./rain-sdk.royaltyinfo.md)<!-- -->&gt;
-
-The royaltyRecipient and the royaltyAmount
-

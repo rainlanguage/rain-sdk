@@ -10,6 +10,7 @@ import { RainContract } from './rainContract';
 export abstract class FactoryContract extends RainContract {
   /**
    * Get the child from a receipt obtain from a Factory transaction
+   *
    * @param receipt - The receipt of the transaction
    * @param parentContract - Contract factory/parent that create the child. Can be the instance or the address
    * @returns The address of the child
@@ -39,7 +40,7 @@ export abstract class FactoryContract extends RainContract {
    * @param maybeChild - Address to check registration for.
    * @returns `true` if address was deployed by this contract factory, otherwise `false`
    */
-  public static async _isChild(
+  protected static async _isChild(
     signer: Signer,
     maybeChild: string
   ): Promise<boolean> {

@@ -11,9 +11,9 @@
 export declare class AddressBook 
 ```
 
-## Methods
+## Properties
 
-|  Method | Modifiers | Description |
-|  --- | --- | --- |
-|  [getAddressesForChainId(chainId)](./rain-sdk.addressbook.getaddressesforchainid.md) | <code>static</code> |  |
+|  Property | Modifiers | Type | Description |
+|  --- | --- | --- | --- |
+|  [getAddressesForChainId](./rain-sdk.addressbook.getaddressesforchainid.md) | <code>static</code> | (chainId: number) =&gt; [Addresses](./rain-sdk.addresses.md) |  |
 

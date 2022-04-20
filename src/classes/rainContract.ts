@@ -26,6 +26,7 @@ export abstract class RainContract {
 
   /**
    * Connect the current instance to a new signer
+   *
    * @param signer - The new signer which will be connected
    * @returns The instance with a new signer
    */
@@ -38,6 +39,7 @@ export abstract class RainContract {
 
   /**
    * Get the address stored in the book to this chain
+   *
    * @param chainId - The chain ID where is deployed the contract
    * @returns The address for this contract
    */

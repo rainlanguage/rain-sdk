@@ -184,21 +184,17 @@
           "name": "AddressBook",
           "members": [
             {
-              "kind": "Method",
-              "canonicalReference": "rain-sdk!AddressBook.getAddressesForChainId:member(1)",
+              "kind": "Property",
+              "canonicalReference": "rain-sdk!AddressBook.getAddressesForChainId:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "static getAddressesForChainId(chainId: "
+                  "text": "static getAddressesForChainId: "
                 },
                 {
                   "kind": "Content",
-                  "text": "number"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
+                  "text": "(chainId: number) => "
                 },
                 {
                   "kind": "Reference",
@@ -211,24 +207,13 @@
                 }
               ],
               "isOptional": false,
-              "isStatic": true,
-              "returnTypeTokenRange": {
-                "startIndex": 3,
-                "endIndex": 4
-              },
               "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "chainId",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                }
-              ],
-              "name": "getAddressesForChainId"
+              "name": "getAddressesForChainId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": true
             }
           ],
           "implementsTokenRanges": []
@@ -407,6 +392,81 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "Function",
+          "canonicalReference": "rain-sdk!bytify:function(1)",
+          "docComment": "/**\n * Converts a value to raw bytes representation. Assumes `value` is less than or equal to 1 byte, unless a desired `bytesLength` is specified.\n *\n * @param value - value to convert to raw bytes format\n *\n * @param bytesLength - (defaults to 1) number of bytes to left pad if `value` doesn't completely fill the desired amount of memory. Will throw `InvalidArgument` error if value already exceeds bytes length.\n *\n * @returns raw bytes representation as Uint8Array\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function bytify(value: "
+            },
+            {
+              "kind": "Content",
+              "text": "number | "
+            },
+            {
+              "kind": "Reference",
+              "text": "BytesLike",
+              "canonicalReference": "@ethersproject/bytes!BytesLike:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | "
+            },
+            {
+              "kind": "Reference",
+              "text": "Hexable",
+              "canonicalReference": "@ethersproject/bytes!Hexable:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ", bytesLength?: "
+            },
+            {
+              "kind": "Content",
+              "text": "number"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Reference",
+              "text": "BytesLike",
+              "canonicalReference": "@ethersproject/bytes!BytesLike:type"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "returnTypeTokenRange": {
+            "startIndex": 8,
+            "endIndex": 9
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "value",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "isOptional": false
+            },
+            {
+              "parameterName": "bytesLength",
+              "parameterTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 7
+              },
+              "isOptional": true
+            }
+          ],
+          "name": "bytify"
         },
         {
           "kind": "Class",
@@ -3245,7 +3305,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "static _isChild(signer: "
+                  "text": "protected static _isChild(signer: "
                 },
                 {
                   "kind": "Reference",
@@ -4233,13 +4293,17 @@
               "isStatic": false
             },
             {
-              "kind": "Method",
-              "canonicalReference": "rain-sdk!GatedNFT#royaltyInfo:member(1)",
+              "kind": "Property",
+              "canonicalReference": "rain-sdk!GatedNFT#royaltyInfo:member",
               "docComment": "/**\n * Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of exchange. The royalty amount is denominated and should be payed in that same unit of exchange.\n *\n * @param salePrice - the sale price that will be use as based to calculate hor much royalty is owed\n *\n * @param overrides - \n *\n * @returns The royaltyRecipient and the royaltyAmount\n *\n * @see\n *\n * ReadTxOverrides\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "royaltyInfo(salePrice: "
+                  "text": "readonly royaltyInfo: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(salePrice: "
                 },
                 {
                   "kind": "Reference",
@@ -4257,7 +4321,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "): "
+                  "text": ") => "
                 },
                 {
                   "kind": "Reference",
@@ -4283,32 +4347,13 @@
                 }
               ],
               "isOptional": false,
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 9
-              },
               "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "salePrice",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "overrides",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
-              "name": "royaltyInfo"
+              "name": "royaltyInfo",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 10
+              },
+              "isStatic": false
             },
             {
               "kind": "Property",
@@ -5386,6 +5431,81 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "Function",
+          "canonicalReference": "rain-sdk!op:function(1)",
+          "docComment": "/**\n * Converts an opcode and operand to bytes, and returns their concatenation.\n *\n * @param code - the opcode\n *\n * @param erand - the operand, currently limited to 1 byte (defaults to 0)\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function op(code: "
+            },
+            {
+              "kind": "Content",
+              "text": "number"
+            },
+            {
+              "kind": "Content",
+              "text": ", erand?: "
+            },
+            {
+              "kind": "Content",
+              "text": "number | "
+            },
+            {
+              "kind": "Reference",
+              "text": "BytesLike",
+              "canonicalReference": "@ethersproject/bytes!BytesLike:type"
+            },
+            {
+              "kind": "Content",
+              "text": " | "
+            },
+            {
+              "kind": "Reference",
+              "text": "Hexable",
+              "canonicalReference": "@ethersproject/bytes!Hexable:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Reference",
+              "text": "Uint8Array",
+              "canonicalReference": "!Uint8Array:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "returnTypeTokenRange": {
+            "startIndex": 8,
+            "endIndex": 9
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "code",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isOptional": false
+            },
+            {
+              "parameterName": "erand",
+              "parameterTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 7
+              },
+              "isOptional": true
+            }
+          ],
+          "name": "op"
         },
         {
           "kind": "Class",
@@ -8396,6 +8516,38 @@
             },
             {
               "kind": "Property",
+              "canonicalReference": "rain-sdk!Sale.afterBlockNumberConfig:member",
+              "docComment": "/**\n * Create a condition as VM state configuration to that is true after a `blockNumber` in the chain.\n *\n * @param blockNumber - block number that will be use as comparision\n *\n * @returns A VM Configturation\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static afterBlockNumberConfig: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(blockNumber: number) => "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "State",
+                  "canonicalReference": "rain-sdk!State:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "afterBlockNumberConfig",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isStatic": true
+            },
+            {
+              "kind": "Property",
               "canonicalReference": "rain-sdk!Sale#buy:member",
               "docComment": "/**\n * Main entrypoint to the sale. Sells rTKN in exchange for reserve token. The price curve is eval'd to produce a reserve price quote. Each 1 unit of rTKN costs `price` reserve token where BOTH the rTKN units and price are treated as 18 decimal fixed point values. If the reserve token has more or less precision by its own conventions (e.g. \"decimals\" method on ERC20 tokens) then the price will need to scale accordingly. The receipt is _logged_ rather than returned as it cannot be used in same block for a refund anyway due to cooldowns.\n *\n * @param config - All parameters to configure the purchase.\n *\n * @param overrides - \n *\n * @see\n *\n * BuyConfig\n *\n * @see\n *\n * TxOverrides\n */\n",
               "excerptTokens": [
@@ -8667,7 +8819,7 @@
             {
               "kind": "Property",
               "canonicalReference": "rain-sdk!Sale.deploy:member",
-              "docComment": "/**\n * Deploys a new Sale.\n *\n * @param signer - An ethers.js Signer\n *\n * @param args - Arguments for deploying a Sale\n *\n * @param overrides - \n *\n * @returns A new Sale instance\n *\n * @see\n *\n * SaleDeployArguments\n *\n * @see\n *\n * TxOverrides\n */\n",
+              "docComment": "/**\n * Deploys a new Sale.\n *\n * @param signer - An ethers.js Signer\n *\n * @param saleConfig - Arguments for the Sale configuration\n *\n * @param saleRedeemableERC20Config - Arguments for the Redeemable configuration\n *\n * @param overrides - \n *\n * @returns A new Sale instance\n *\n * @see\n *\n * saleConfig\n *\n * @see\n *\n * saleRedeemableERC20Config\n *\n * @see\n *\n * TxOverrides\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -8684,12 +8836,21 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ", args: "
+                  "text": ", saleConfig: "
                 },
                 {
                   "kind": "Reference",
-                  "text": "SaleDeployArguments",
-                  "canonicalReference": "rain-sdk!SaleDeployArguments:interface"
+                  "text": "SaleConfig",
+                  "canonicalReference": "rain-sdk!SaleConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", saleRedeemableERC20Config: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "SaleRedeemableERC20Config",
+                  "canonicalReference": "rain-sdk!SaleRedeemableERC20Config:interface"
                 },
                 {
                   "kind": "Content",
@@ -8732,7 +8893,7 @@
               "name": "deploy",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 12
+                "endIndex": 14
               },
               "isStatic": true
             },
@@ -8905,6 +9066,456 @@
               "propertyTypeTokenRange": {
                 "startIndex": 0,
                 "endIndex": 0
+              },
+              "isStatic": true
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "rain-sdk!Sale.Opcode:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "static Opcode: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        REMAINING_UNITS: number;\n        TOTAL_RESERVE_IN: number;\n        CURRENT_BUY_UNITS: number;\n        TOKEN_ADDRESS: number;\n        RESERVE_ADDRESS: number;\n        SKIP: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SKIP",
+                  "canonicalReference": "rain-sdk!StandardOps.SKIP:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        VAL: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.VAL",
+                  "canonicalReference": "rain-sdk!StandardOps.VAL:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        DUP: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.DUP",
+                  "canonicalReference": "rain-sdk!StandardOps.DUP:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        ZIPMAP: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.ZIPMAP",
+                  "canonicalReference": "rain-sdk!StandardOps.ZIPMAP:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        DEBUG: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.DEBUG",
+                  "canonicalReference": "rain-sdk!StandardOps.DEBUG:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        BLOCK_NUMBER: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.BLOCK_NUMBER",
+                  "canonicalReference": "rain-sdk!StandardOps.BLOCK_NUMBER:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        BLOCK_TIMESTAMP: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.BLOCK_TIMESTAMP",
+                  "canonicalReference": "rain-sdk!StandardOps.BLOCK_TIMESTAMP:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SENDER: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SENDER",
+                  "canonicalReference": "rain-sdk!StandardOps.SENDER:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        THIS_ADDRESS: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.THIS_ADDRESS",
+                  "canonicalReference": "rain-sdk!StandardOps.THIS_ADDRESS:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SCALE18_MUL: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SCALE18_MUL",
+                  "canonicalReference": "rain-sdk!StandardOps.SCALE18_MUL:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SCALE18_DIV: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SCALE18_DIV",
+                  "canonicalReference": "rain-sdk!StandardOps.SCALE18_DIV:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SCALE18: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SCALE18",
+                  "canonicalReference": "rain-sdk!StandardOps.SCALE18:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SCALEN: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SCALEN",
+                  "canonicalReference": "rain-sdk!StandardOps.SCALEN:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SCALE_BY: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SCALE_BY",
+                  "canonicalReference": "rain-sdk!StandardOps.SCALE_BY:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SCALE18_ONE: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SCALE18_ONE",
+                  "canonicalReference": "rain-sdk!StandardOps.SCALE18_ONE:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SCALE18_DECIMALS: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SCALE18_DECIMALS",
+                  "canonicalReference": "rain-sdk!StandardOps.SCALE18_DECIMALS:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        ADD: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.ADD",
+                  "canonicalReference": "rain-sdk!StandardOps.ADD:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SATURATING_ADD: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SATURATING_ADD",
+                  "canonicalReference": "rain-sdk!StandardOps.SATURATING_ADD:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SUB: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SUB",
+                  "canonicalReference": "rain-sdk!StandardOps.SUB:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SATURATING_SUB: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SATURATING_SUB",
+                  "canonicalReference": "rain-sdk!StandardOps.SATURATING_SUB:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        MUL: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.MUL",
+                  "canonicalReference": "rain-sdk!StandardOps.MUL:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SATURATING_MUL: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SATURATING_MUL",
+                  "canonicalReference": "rain-sdk!StandardOps.SATURATING_MUL:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        DIV: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.DIV",
+                  "canonicalReference": "rain-sdk!StandardOps.DIV:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        MOD: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.MOD",
+                  "canonicalReference": "rain-sdk!StandardOps.MOD:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        EXP: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.EXP",
+                  "canonicalReference": "rain-sdk!StandardOps.EXP:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        MIN: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.MIN",
+                  "canonicalReference": "rain-sdk!StandardOps.MIN:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        MAX: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.MAX",
+                  "canonicalReference": "rain-sdk!StandardOps.MAX:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        ISZERO: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.ISZERO",
+                  "canonicalReference": "rain-sdk!StandardOps.ISZERO:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        EAGER_IF: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.EAGER_IF",
+                  "canonicalReference": "rain-sdk!StandardOps.EAGER_IF:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        EQUAL_TO: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.EQUAL_TO",
+                  "canonicalReference": "rain-sdk!StandardOps.EQUAL_TO:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        LESS_THAN: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.LESS_THAN",
+                  "canonicalReference": "rain-sdk!StandardOps.LESS_THAN:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        GREATER_THAN: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.GREATER_THAN",
+                  "canonicalReference": "rain-sdk!StandardOps.GREATER_THAN:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        EVERY: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.EVERY",
+                  "canonicalReference": "rain-sdk!StandardOps.EVERY:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        ANY: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.ANY",
+                  "canonicalReference": "rain-sdk!StandardOps.ANY:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        REPORT: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.REPORT",
+                  "canonicalReference": "rain-sdk!StandardOps.REPORT:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        NEVER: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.NEVER",
+                  "canonicalReference": "rain-sdk!StandardOps.NEVER:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        ALWAYS: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.ALWAYS",
+                  "canonicalReference": "rain-sdk!StandardOps.ALWAYS:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SATURATING_DIFF: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SATURATING_DIFF",
+                  "canonicalReference": "rain-sdk!StandardOps.SATURATING_DIFF:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        UPDATE_BLOCKS_FOR_TIER_RANGE: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE",
+                  "canonicalReference": "rain-sdk!StandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        SELECT_LTE: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.SELECT_LTE",
+                  "canonicalReference": "rain-sdk!StandardOps.SELECT_LTE:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        IERC20_BALANCE_OF: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.IERC20_BALANCE_OF",
+                  "canonicalReference": "rain-sdk!StandardOps.IERC20_BALANCE_OF:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        IERC20_TOTAL_SUPPLY: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.IERC20_TOTAL_SUPPLY",
+                  "canonicalReference": "rain-sdk!StandardOps.IERC20_TOTAL_SUPPLY:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        IERC721_BALANCE_OF: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.IERC721_BALANCE_OF",
+                  "canonicalReference": "rain-sdk!StandardOps.IERC721_BALANCE_OF:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        IERC721_OWNER_OF: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.IERC721_OWNER_OF",
+                  "canonicalReference": "rain-sdk!StandardOps.IERC721_OWNER_OF:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        IERC1155_BALANCE_OF: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.IERC1155_BALANCE_OF",
+                  "canonicalReference": "rain-sdk!StandardOps.IERC1155_BALANCE_OF:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        IERC1155_BALANCE_OF_BATCH: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.IERC1155_BALANCE_OF_BATCH",
+                  "canonicalReference": "rain-sdk!StandardOps.IERC1155_BALANCE_OF_BATCH:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        length: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "StandardOps.length",
+                  "canonicalReference": "rain-sdk!StandardOps.length:member"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "Opcode",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 96
               },
               "isStatic": true
             },
@@ -9669,6 +10280,1008 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "rain-sdk!StandardOps:enum",
+          "docComment": "/**\n * All the standard Op Codes\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare enum StandardOps "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "StandardOps",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.ADD:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ADD = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "16"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "ADD",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.ALWAYS:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ALWAYS = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "36"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "ALWAYS",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.ANY:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ANY = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "33"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "ANY",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.BLOCK_NUMBER:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "BLOCK_NUMBER = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "5"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "BLOCK_NUMBER",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.BLOCK_TIMESTAMP:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "BLOCK_TIMESTAMP = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "6"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "BLOCK_TIMESTAMP",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.DEBUG:member",
+              "docComment": "/**\n * ABI encodes the entire stack and logs it to the hardhat console.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "DEBUG = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "4"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "DEBUG",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.DIV:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "DIV = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "22"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "DIV",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.DUP:member",
+              "docComment": "/**\n * Duplicates the value at index `operand_` to the top of the stack\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "DUP = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "2"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "DUP",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.EAGER_IF:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "EAGER_IF = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "28"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "EAGER_IF",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.EQUAL_TO:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "EQUAL_TO = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "29"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "EQUAL_TO",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.EVERY:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "EVERY = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "32"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "EVERY",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.EXP:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "EXP = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "24"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "EXP",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.GREATER_THAN:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "GREATER_THAN = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "31"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "GREATER_THAN",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.IERC1155_BALANCE_OF:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IERC1155_BALANCE_OF = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "44"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "IERC1155_BALANCE_OF",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.IERC1155_BALANCE_OF_BATCH:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IERC1155_BALANCE_OF_BATCH = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "45"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "IERC1155_BALANCE_OF_BATCH",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.IERC20_BALANCE_OF:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IERC20_BALANCE_OF = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "40"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "IERC20_BALANCE_OF",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.IERC20_TOTAL_SUPPLY:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IERC20_TOTAL_SUPPLY = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "41"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "IERC20_TOTAL_SUPPLY",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.IERC721_BALANCE_OF:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IERC721_BALANCE_OF = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "42"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "IERC721_BALANCE_OF",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.IERC721_OWNER_OF:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "IERC721_OWNER_OF = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "43"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "IERC721_OWNER_OF",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.ISZERO:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ISZERO = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "27"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "ISZERO",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.length:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "length = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "46"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "length",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.LESS_THAN:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "LESS_THAN = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "30"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "LESS_THAN",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.MAX:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "MAX = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "26"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "MAX",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.MIN:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "MIN = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "25"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "MIN",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.MOD:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "MOD = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "23"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "MOD",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.MUL:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "MUL = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "20"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "MUL",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.NEVER:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "NEVER = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "35"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "NEVER",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.REPORT:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "REPORT = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "34"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "REPORT",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SATURATING_ADD:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SATURATING_ADD = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "17"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SATURATING_ADD",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SATURATING_DIFF:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SATURATING_DIFF = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "37"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SATURATING_DIFF",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SATURATING_MUL:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SATURATING_MUL = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "21"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SATURATING_MUL",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SATURATING_SUB:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SATURATING_SUB = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "19"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SATURATING_SUB",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SCALE_BY:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SCALE_BY = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "13"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SCALE_BY",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SCALE18:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SCALE18 = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "11"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SCALE18",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SCALE18_DECIMALS:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SCALE18_DECIMALS = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "15"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SCALE18_DECIMALS",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SCALE18_DIV:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SCALE18_DIV = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "10"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SCALE18_DIV",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SCALE18_MUL:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SCALE18_MUL = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "9"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SCALE18_MUL",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SCALE18_ONE:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SCALE18_ONE = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "14"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SCALE18_ONE",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SCALEN:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SCALEN = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "12"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SCALEN",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SELECT_LTE:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SELECT_LTE = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "39"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SELECT_LTE",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SENDER:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SENDER = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "7"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SENDER",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SKIP:member",
+              "docComment": "/**\n * @deprecated\n *\n * **DONT USE SKIP!**\n *\n * It is a skip as this is the fallback value for unset solidity bytes. Any additional \"whitespace\" in rain scripts will be noops as `0 0` is \"skip self\". The val can be used to skip additional opcodes but take care to not underflow the source itself.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SKIP = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "0"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SKIP",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.SUB:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "SUB = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "18"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "SUB",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.THIS_ADDRESS:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "THIS_ADDRESS = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "8"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "THIS_ADDRESS",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "UPDATE_BLOCKS_FOR_TIER_RANGE = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "38"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "UPDATE_BLOCKS_FOR_TIER_RANGE",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.VAL:member",
+              "docComment": "/**\n * Copies a value either off `constants` or `arguments` to the top of the stack. The high bit of the operand specifies which, `0` for `constants` and `1` for `arguments`.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "VAL = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "1"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "VAL",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "rain-sdk!StandardOps.ZIPMAP:member",
+              "docComment": "/**\n * Takes N values off the stack, interprets them as an array then zips and maps a source from `sources` over them. The source has access to the original constants using `1 0` and to zipped arguments as `1 1`.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ZIPMAP = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "3"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "ZIPMAP",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
         },
         {
           "kind": "Interface",

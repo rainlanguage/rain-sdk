@@ -9,5 +9,5 @@ Deploys a new Sale.
 <b>Signature:</b>
 
 ```typescript
-static deploy: (signer: Signer, args: SaleDeployArguments, overrides?: TxOverrides) => Promise<Sale>;
+static deploy: (signer: Signer, saleConfig: SaleConfig, saleRedeemableERC20Config: SaleRedeemableERC20Config, overrides?: TxOverrides) => Promise<Sale>;
 ```

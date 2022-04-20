@@ -143,12 +143,12 @@ export class GatedNFT extends FactoryContract {
    * @param overrides - @see ReadTxOverrides
    * @returns The royaltyRecipient and the royaltyAmount
    */
-  public royaltyInfo(
+  public readonly royaltyInfo = async (
     salePrice: BigNumberish,
     overrides: ReadTxOverrides = {}
-  ): Promise<RoyaltyInfo> {
+  ): Promise<RoyaltyInfo> => {
     return this._royaltyInfo(0, salePrice, overrides);
-  }
+  };
 
   private readonly _royaltyInfo: (
     arg0: BigNumberish,

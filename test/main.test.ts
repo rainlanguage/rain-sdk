@@ -18,6 +18,7 @@ import {
 //   Verify,
 // } from '../dist';
 import {
+  StandardOps,
   AddressBook,
   Sale,
   Verify,
@@ -354,6 +355,14 @@ describe('SDK Test', () => {
         tier.setTier('', 2, []),
         'SET TIER: NOT IMPLEMENTED'
       );
+    });
+  });
+
+  describe('Sale', () => {
+    // TODO: Create a sale to test the opcode with afterBlockNumberConfig method
+    it('Opcodes', () => {
+      // TODO: Remove it. Just for visual check
+      expect(StandardOps.length).to.be.equals(Sale.Opcode.REMAINING_UNITS);
     });
   });
 });
