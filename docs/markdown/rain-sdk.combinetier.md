@@ -42,5 +42,5 @@ const report = await existingTier.report(address)
 |  [deploy](./rain-sdk.combinetier.deploy.md) | <code>static</code> | (signer: Signer, args: [CombineTierDeployArgs](./rain-sdk.combinetierdeployargs.md)<!-- -->, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;[CombineTier](./rain-sdk.combinetier.md)<!-- -->&gt; | Deploys a new CombineTier. |
 |  [isChild](./rain-sdk.combinetier.ischild.md) | <code>static</code> | (signer: Signer, maybeChild: string) =&gt; Promise&lt;boolean&gt; | Checks if address is registered as a child contract of this CombineTierFactory on a specific network |
 |  [nameBookReference](./rain-sdk.combinetier.namebookreference.md) | <code>static</code> | (not declared) |  |
-|  [setTier](./rain-sdk.combinetier.settier.md) |  | (account: string, endTier: BigNumberish, data: BytesLike, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;never&gt; | It is NOT implemented in CombineTiers. Always will throw an error |
+|  [setTier](./rain-sdk.combinetier.settier.md) |  | (account: string, endTier: BigNumberish, data: BytesLike, overrides?: [TxOverrides](./rain-sdk.txoverrides.md) \| undefined) =&gt; Promise&lt;never&gt; | It is NOT implemented in CombineTiers. Always will throw an error |
 

@@ -23,13 +23,13 @@ export abstract class FactoryContract extends RainContract {
       parentContract = parentContract.address;
     }
 
-    const event = receipt.events.filter(
+    const event = receipt.events?.filter(
       event =>
         event.event === 'NewChild' &&
         event.address.toUpperCase() === parentContract.toUpperCase()
     )[0];
 
-    return event.decode(event.data, event.topics).child;
+    return event?.decode?.(event.data, event.topics).child;
   };
 
   /**

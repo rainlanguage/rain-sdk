@@ -1,21 +1,19 @@
 {
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
-  "include": ["src", "types", "scripts"],
-  "exclude": ["**/test", "/test", "test", "**/test/**/*.ts"],
+  "include": ["src"],
+  "exclude": ["**/__tests__/*", "dist"],
   "compilerOptions": {
     "target": "es2018",
     "lib": ["dom", "esnext"],
     "importHelpers": true,
     // output .d.ts declaration files for consumers
     "declaration": true,
-    // enables generation of .d.ts.map files
-    "declarationMap": true,
     // output .js.map sourcemap files for consumers
     "sourceMap": true,
     // match output dir to input dir. e.g. dist/index instead of dist/src/index
     "rootDir": "./src",
     // stricter type-checking for stronger correctness. Recommended by TS
-    "strict": false,
+    "strict": true,
     // linter checks for common issues
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,

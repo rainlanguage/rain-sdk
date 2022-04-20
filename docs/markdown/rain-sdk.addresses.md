@@ -10,6 +10,7 @@ Type for all the addresses stored in the Book
 
 ```typescript
 export declare type Addresses = {
+    [key: string]: string;
     redeemableERC20Factory: string;
     verifyFactory: string;
     verifyTierFactory: string;

@@ -9,5 +9,5 @@ It is NOT implemented in BalanceTiers. Always will throw an error
 <b>Signature:</b>
 
 ```typescript
-readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>;
+readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides | undefined) => Promise<never>;
 ```

@@ -13,5 +13,5 @@ The problem with doing a normal deposit while the raise is still active is that 
 <b>Signature:</b>
 
 ```typescript
-readonly depositPending: (amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>;
+readonly depositPending: (amount: BigNumberish, overrides?: TxOverrides | undefined) => Promise<ContractTransaction>;
 ```

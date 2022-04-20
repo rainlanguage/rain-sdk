@@ -41,5 +41,5 @@ const report = await existingTier.report(address);
 |  [deploy](./rain-sdk.verifytier.deploy.md) | <code>static</code> | (signer: Signer, verifyAddress: string, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;[VerifyTier](./rain-sdk.verifytier.md)<!-- -->&gt; | Deploys a new VerifyTier. |
 |  [isChild](./rain-sdk.verifytier.ischild.md) | <code>static</code> | (signer: Signer, maybeChild: string) =&gt; Promise&lt;boolean&gt; | Checks if address is registered as a child contract of this VerifyTierFactory on a specific network |
 |  [nameBookReference](./rain-sdk.verifytier.namebookreference.md) | <code>static</code> | (not declared) |  |
-|  [setTier](./rain-sdk.verifytier.settier.md) |  | (account: string, endTier: BigNumberish, data: BytesLike, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;never&gt; | It is NOT implemented in VerifyTiers. Always will throw an error |
+|  [setTier](./rain-sdk.verifytier.settier.md) |  | (account: string, endTier: BigNumberish, data: BytesLike, overrides?: [TxOverrides](./rain-sdk.txoverrides.md) \| undefined) =&gt; Promise&lt;never&gt; | It is NOT implemented in VerifyTiers. Always will throw an error |
 

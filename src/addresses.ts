@@ -41,6 +41,7 @@ const addressBook = [
  * Type for all the addresses stored in the Book
  */
 export type Addresses = {
+  [key: string]: string;
   redeemableERC20Factory: string;
   verifyFactory: string;
   verifyTierFactory: string;

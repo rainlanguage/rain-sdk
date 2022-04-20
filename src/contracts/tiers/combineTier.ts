@@ -89,7 +89,7 @@ export class CombineTier extends TierFactoryContract {
     endTier: BigNumberish,
     data: BytesLike,
     overrides?: TxOverrides
-  ) => {
+  ): Promise<never> => {
     throw new Error('SET TIER: NOT IMPLEMENTED');
   };
 }

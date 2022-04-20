@@ -17,5 +17,5 @@ WARNING: As `undeposit` can only be called when the `Sale` reports failure, `dep
 <b>Signature:</b>
 
 ```typescript
-readonly deposit: (amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>;
+readonly deposit: (amount: BigNumberish, overrides?: TxOverrides | undefined) => Promise<ContractTransaction>;
 ```

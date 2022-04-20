@@ -18,5 +18,6 @@ export interface Receipt
 |  [fee](./rain-sdk.receipt.fee.md) | BigNumberish |  |
 |  [feeRecipient](./rain-sdk.receipt.feerecipient.md) | string |  |
 |  [id](./rain-sdk.receipt.id.md) | BigNumberish |  |
+|  [price](./rain-sdk.receipt.price.md) | BigNumberish |  |
 |  [units](./rain-sdk.receipt.units.md) | BigNumberish |  |
 

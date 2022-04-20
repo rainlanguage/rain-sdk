@@ -58,10 +58,17 @@ export abstract class RainContract {
   public static getChainId = async (
     signerOrProvider: Signer | Provider
   ): Promise<number> => {
+    let id;
     if (signerOrProvider instanceof Signer) {
-      return (await signerOrProvider.provider.getNetwork()).chainId;
+      id = (await signerOrProvider.provider?.getNetwork())?.chainId;
     } else {
-      return (await signerOrProvider.getNetwork()).chainId;
+      id = (await signerOrProvider.getNetwork()).chainId;
+    }
+
+    if (id) {
+      return id;
+    } else {
+      throw new Error('Cannot get the chain ID');
     }
   };
 }

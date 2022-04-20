@@ -13,5 +13,5 @@ Partial sweeps are NOT supported, to avoid griefers splitting a deposit across m
 <b>Signature:</b>
 
 ```typescript
-readonly sweepPending: (depositor: string, overrides?: TxOverrides) => Promise<ContractTransaction>;
+readonly sweepPending: (depositor: string, overrides?: TxOverrides | undefined) => Promise<ContractTransaction>;
 ```

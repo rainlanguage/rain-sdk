@@ -19,5 +19,5 @@ If several tokens have been deposited against a given trust for the depositor th
 <b>Signature:</b>
 
 ```typescript
-readonly undeposit: (supply: BigNumberish, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>;
+readonly undeposit: (supply: BigNumberish, amount: BigNumberish, overrides?: TxOverrides | undefined) => Promise<ContractTransaction>;
 ```

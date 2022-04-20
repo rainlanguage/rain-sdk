@@ -59,9 +59,33 @@ export class RedeemableERC20 extends FactoryContract {
   constructor(address: string, signer: Signer) {
     super(address, signer);
     const _redeemable = RedeemableERC20__factory.connect(address, signer);
+
+    this.allowance = _redeemable.allowance;
+    this.approve = _redeemable.approve;
+    this.balanceOf = _redeemable.balanceOf;
+    this.blockNumberForPhase = _redeemable.blockNumberForPhase;
+    this.burn = _redeemable.burn;
+    this.burnFrom = _redeemable.burnFrom;
+    this.currentPhase = _redeemable.currentPhase;
+    this.decimals = _redeemable.decimals;
+    this.decreaseAllowance = _redeemable.decreaseAllowance;
+    this.endDistribution = _redeemable.endDistribution;
+    this.grantReceiver = _redeemable.grantReceiver;
+    this.grantSender = _redeemable.grantSender;
+    this.increaseAllowance = _redeemable.increaseAllowance;
+    this.isReceiver = _redeemable.isReceiver;
+    this.isSender = _redeemable.isSender;
     this.name = _redeemable.name;
+    this.minimumTier = _redeemable.minimumTier;
+    this.newTreasuryAsset = _redeemable.newTreasuryAsset;
+    this.phaseAtBlockNumber = _redeemable.phaseAtBlockNumber;
     this.phaseBlocks = _redeemable.phaseBlocks;
-    // TODO: assign funcionts
+    this.redeem = _redeemable.redeem;
+    this.symbol = _redeemable.symbol;
+    this.tier = _redeemable.tier;
+    this.totalSupply = _redeemable.totalSupply;
+    this.transfer = _redeemable.transfer;
+    this.transferFrom = _redeemable.transferFrom;
   }
 
   /**

@@ -102,7 +102,7 @@ export class ERC20BalanceTier extends TierFactoryContract {
     endTier: BigNumberish,
     data: BytesLike,
     overrides?: TxOverrides
-  ) => {
+  ): Promise<never> => {
     throw new Error('SET TIER: NOT IMPLEMENTED');
   };
 

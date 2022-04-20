@@ -411,6 +411,7 @@ export interface BuyConfig {
  * @public
  */
 export interface Receipt {
+  price: BigNumberish;
   id: BigNumberish;
   feeRecipient: string;
   fee: BigNumberish;

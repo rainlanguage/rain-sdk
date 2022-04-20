@@ -229,7 +229,7 @@
             },
             {
               "kind": "Content",
-              "text": "{\n    redeemableERC20Factory: string;\n    verifyFactory: string;\n    verifyTierFactory: string;\n    erc20BalanceTierFactory: string;\n    erc20TransferTierFactory: string;\n    combineTierFactory: string;\n    erc721BalanceTierFactory: string;\n    gatedNFTFactory: string;\n    redeemableERC20ClaimEscrow: string;\n    noticeBoard: string;\n    emissionsERC20Factory: string;\n    saleFactory: string;\n}"
+              "text": "{\n    [key: string]: string;\n    redeemableERC20Factory: string;\n    verifyFactory: string;\n    verifyTierFactory: string;\n    erc20BalanceTierFactory: string;\n    erc20TransferTierFactory: string;\n    combineTierFactory: string;\n    erc721BalanceTierFactory: string;\n    gatedNFTFactory: string;\n    redeemableERC20ClaimEscrow: string;\n    noticeBoard: string;\n    emissionsERC20Factory: string;\n    saleFactory: string;\n}"
             },
             {
               "kind": "Content",
@@ -664,7 +664,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",
@@ -1515,7 +1515,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",
@@ -2112,7 +2112,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",
@@ -3048,7 +3048,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",
@@ -5913,6 +5913,33 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "rain-sdk!Receipt#price:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "price: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "BigNumberish",
+                  "canonicalReference": "@ethersproject/bignumber!BigNumberish:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "price",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "rain-sdk!Receipt#units:member",
               "docComment": "",
               "excerptTokens": [
@@ -7807,7 +7834,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",
@@ -7870,7 +7897,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",
@@ -8024,7 +8051,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",
@@ -8123,7 +8150,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",
@@ -8186,7 +8213,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",
@@ -13604,7 +13631,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ") => "
+                  "text": " | undefined) => "
                 },
                 {
                   "kind": "Reference",

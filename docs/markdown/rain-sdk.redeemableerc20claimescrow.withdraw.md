@@ -19,5 +19,5 @@ Multiple withdrawals across multiple deposits is supported and is equivalent to 
 <b>Signature:</b>
 
 ```typescript
-readonly withdraw: (supply: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>;
+readonly withdraw: (supply: BigNumberish, overrides?: TxOverrides | undefined) => Promise<ContractTransaction>;
 ```
