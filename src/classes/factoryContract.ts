@@ -1,4 +1,4 @@
-import { ContractReceipt, Contract, Signer } from 'ethers';
+import { ContractReceipt, Contract, Signer, utils } from 'ethers';
 import { Factory__factory } from '../typechain';
 import { RainContract } from './rainContract';
 
@@ -19,17 +19,22 @@ export abstract class FactoryContract extends RainContract {
     receipt: ContractReceipt,
     parentContract: Contract | string
   ): string => {
-    if (parentContract instanceof Contract) {
-      parentContract = parentContract.address;
+    const parentAddress =
+      parentContract instanceof Contract
+        ? parentContract.address
+        : parentContract;
+
+    const data = receipt.events?.find(
+      x =>
+        x.event === 'NewChild' &&
+        x.address.toLowerCase() === parentAddress.toLowerCase()
+    )?.data;
+
+    if (data) {
+      return utils.defaultAbiCoder.decode(['address', 'address'], data)[1];
+    } else {
+      throw new Error('NewChild not found in the receipt');
     }
-
-    const event = receipt.events?.filter(
-      event =>
-        event.event === 'NewChild' &&
-        event.address.toUpperCase() === parentContract.toUpperCase()
-    )[0];
-
-    return event?.decode?.(event.data, event.topics).child;
   };
 
   /**
