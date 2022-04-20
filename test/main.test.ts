@@ -211,18 +211,6 @@ describe('SDK Test', () => {
     });
   });
 
-  // describe('Sales', () => {
-  //   it('should deploy a Sale child', async () => {
-  //     const [signer] = await ethers.getSigners();
-  //     const sale = await Sale.deploy(signer, {
-  //       admin: signer.address,
-  //       callback: ethers.constants.AddressZero,
-  //     });
-
-  //     expect(await Verify.isChild(verify.signer, verify.address)).to.be.true;
-  //   });
-  // });
-
   describe('ClaimEscrow', () => {
     it('should fail when a not formatted address is provided as Sale or Token', async () => {
       const [signer] = await ethers.getSigners();
@@ -355,6 +343,46 @@ describe('SDK Test', () => {
         tier.setTier('', 2, []),
         'SET TIER: NOT IMPLEMENTED'
       );
+    });
+  });
+
+  describe('GatedNFT', () => {
+    it('should deploy a GatedNFTChild', async () => {
+      const [signer, receipient] = await ethers.getSigners()
+      const token = await deployErc20();
+      const tier = await ERC20BalanceTier.deploy(signer, {
+        erc20: token.address,
+        tierValues: TierLevels,
+      });
+
+      const gatedConfig = {
+        name: 'Test',
+        symbol: 'TEST',
+        description: 'Testing',
+        animationUrl:
+          'https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy',
+        imageUrl:
+          'https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy',
+        animationHash:
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+        imageHash:
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+      };
+
+      const deployArgs = {
+        config: gatedConfig,
+        tier: tier.address,
+        minimumStatus: 1,
+        maxPerAddress: 1,
+        transferrable: 0,
+        maxMintable: 1000,
+        royaltyRecipient: receipient.address,
+        royaltyBPS: 1
+      }
+
+      const gatedNFT = await GatedNFT.deploy(signer, deployArgs);
+
+      expect(await GatedNFT.isChild(signer, gatedNFT.address)).to.be.true;
     });
   });
 
