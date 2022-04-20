@@ -210,6 +210,18 @@ describe('SDK Test', () => {
     });
   });
 
+  // describe('Sales', () => {
+  //   it('should deploy a Sale child', async () => {
+  //     const [signer] = await ethers.getSigners();
+  //     const sale = await Sale.deploy(signer, {
+  //       admin: signer.address,
+  //       callback: ethers.constants.AddressZero,
+  //     });
+
+  //     expect(await Verify.isChild(verify.signer, verify.address)).to.be.true;
+  //   });
+  // });
+
   describe('ClaimEscrow', () => {
     it('should fail when a not formatted address is provided as Sale or Token', async () => {
       const [signer] = await ethers.getSigners();

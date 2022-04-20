@@ -5,6 +5,7 @@ import { State } from '../../classes/vm';
 import { CombineTierFactory__factory } from '../../typechain';
 
 /**
+ * @public
  * A class for deploying and calling methods on a CombineTier.
  *
  *   Implements `ReadOnlyTier` over RainVM. Allows combining the reports from any other `ITier`
@@ -46,7 +47,7 @@ export class CombineTier extends TierFactoryContract {
    *
    * @param signer - An ethers.js Signer
    * @param args - Arguments for deploying a CombineTier @see CombineTierDeployArgs
-   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
+   * @param overrides - @see TxOverrides
    * @returns A new CombineTier instance
    *
    */
@@ -94,6 +95,7 @@ export class CombineTier extends TierFactoryContract {
 }
 
 /**
+ * @public
  * The StateConfig will be deployed as a pointer under
  */
 export type CombineTierDeployArgs = State;

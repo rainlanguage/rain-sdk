@@ -11,7 +11,9 @@ import { Sale__factory, SaleFactory__factory } from '../typechain';
 // TODO: Add this type/interface inside VMState class
 
 /**
+ * @public
  * A class for deploying and calling methods on a Sale.
+ *
  * @remarks
  *
  * This class provides an easy way to deploy Sales using Rain's canonical factories, and methods for interacting with an already deployed Sale.
@@ -127,7 +129,7 @@ export class Sale extends FactoryContract {
    * to cooldowns.
    *
    * @param config All parameters to configure the purchase. @see BuyConfig
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   public readonly buy: (
     config: BuyConfig,
@@ -143,7 +145,7 @@ export class Sale extends FactoryContract {
    * sale ends and is a failure.
    *
    * @param receipt The receipt of the buy to rollback.
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   public readonly refund: (
     receipt: Receipt,
@@ -155,7 +157,7 @@ export class Sale extends FactoryContract {
    *
    * @param units Amount of rTKN to quote a price for, will be available to the price script from
    * OPCODE_CURRENT_BUY_UNITS.
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns The current price
    */
   public readonly calculatePrice: (
@@ -170,7 +172,7 @@ export class Sale extends FactoryContract {
    * claimed.
    *
    * @param recipient The recipient to claim fees for. Does NOT need to be the `msg.sender`.
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   public readonly claimFees: (
     recipient: string,
@@ -181,7 +183,7 @@ export class Sale extends FactoryContract {
    * Start the sale (move from pending to active).
    * - `canStart` MUST return true.
    *
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    */
   public readonly start: (
     overrides?: TxOverrides
@@ -191,7 +193,7 @@ export class Sale extends FactoryContract {
    * End the sale (move from active to success or fail).
    * - `canEnd` MUST return true.
    *
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    */
   public readonly end: (
     overrides?: TxOverrides
@@ -204,7 +206,7 @@ export class Sale extends FactoryContract {
    * if the sale never started.
    * The sale can ONLY start if it is currently in pending status.
    *
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    */
   public readonly canStart: (overrides?: ReadTxOverrides) => Promise<boolean>;
 
@@ -215,7 +217,7 @@ export class Sale extends FactoryContract {
    * of rTKN stock it can ALWAYS end and in this case will NOT eval the "can end" script.
    * The sale can ONLY end if it is currently in active status.
    *
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    */
   public readonly canEnd: (overrides?: ReadTxOverrides) => Promise<boolean>;
 
@@ -223,7 +225,7 @@ export class Sale extends FactoryContract {
    * Returns the current `SaleStatus` of the sale.
    * Represents a linear progression of the sale through its major lifecycle  events.
    *
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns The sale status
    */
   public readonly saleStatus: (overrides?: ReadTxOverrides) => Promise<number>;
@@ -236,7 +238,7 @@ export class Sale extends FactoryContract {
    * that any downstream escrows or similar can always expect that eventually they will see a
    * pass/fail state and so are safe to lock funds while a Sale is active.
    *
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   public readonly timeout: (
     overrides?: TxOverrides
@@ -246,7 +248,7 @@ export class Sale extends FactoryContract {
    * Returns the address of the token that sale prices are denominated in.
    * MUST NOT change during the lifecycle of the sale contract.
    *
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    */
   public readonly reserve: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -254,11 +256,14 @@ export class Sale extends FactoryContract {
    * Returns the address of the token being sold in the sale.
    * MUST NOT change during the lifecycle of the sale contract.
    *
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    */
   public readonly token: (overrides?: ReadTxOverrides) => Promise<string>;
 }
 
+/**
+ * @public
+ */
 export interface SaleConfig {
   /**
    * State config for the script that allows a Sale to start.
@@ -302,6 +307,9 @@ export interface SaleConfig {
   dustSize: BigNumberish;
 }
 
+/**
+ * @public
+ */
 export interface SaleRedeemableERC20Config {
   /**
    * ERC20 config
@@ -321,6 +329,9 @@ export interface SaleRedeemableERC20Config {
   distributionEndForwardingAddress: string;
 }
 
+/**
+ * @public
+ */
 export interface SaleDeployArguments {
   /**
    * Everything required to configure (initialize) a Sale.
@@ -332,6 +343,9 @@ export interface SaleDeployArguments {
   saleRedeemableERC20Config: SaleRedeemableERC20Config;
 }
 
+/**
+ * @public
+ */
 export interface BuyConfig {
   feeRecipient: string;
   fee: BigNumberish;
@@ -340,6 +354,9 @@ export interface BuyConfig {
   maximumPrice: BigNumberish;
 }
 
+/**
+ * @public
+ */
 export interface Receipt {
   id: BigNumberish;
   feeRecipient: string;

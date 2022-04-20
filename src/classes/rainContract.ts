@@ -2,13 +2,11 @@ import { Signer, utils, BigNumberish, Overrides, CallOverrides } from 'ethers';
 import { Provider } from '@ethersproject/abstract-provider';
 import { AddressBook } from '../addresses';
 
-/**
- * All the utils that ethers provide. Come from `ethers.utils`
- */
-export const ethersUtils = utils;
-
 // TODO: script to get events
 
+/**
+ * @public
+ */
 export abstract class RainContract {
   public readonly signer: Signer;
   public readonly address: string;
@@ -19,7 +17,7 @@ export abstract class RainContract {
   protected static readonly nameBookReference: string;
 
   constructor(address: string, signer: Signer) {
-    if (!ethersUtils.isAddress(address.toLowerCase())) {
+    if (!utils.isAddress(address.toLowerCase())) {
       throw new Error('NOT A VALID FORMAT ADDRESS');
     }
     this.signer = signer;
@@ -28,7 +26,7 @@ export abstract class RainContract {
 
   /**
    * Connect the current instance to a new signer
-   * @param signer The new signer which will be connected
+   * @param signer - The new signer which will be connected
    * @returns The instance with a new signer
    */
   public readonly connect = (signer: Signer): this => {
@@ -40,7 +38,7 @@ export abstract class RainContract {
 
   /**
    * Get the address stored in the book to this chain
-   * @param chainId The chain ID where is deployed the contract
+   * @param chainId - The chain ID where is deployed the contract
    * @returns The address for this contract
    */
   public static getBookAddress(chainId: number): string {
@@ -52,7 +50,7 @@ export abstract class RainContract {
    *
    * Request to the provider stored in the signer which is the chain ID.
    *
-   * @param signerOrProvider An ethers signer or ethers provider
+   * @param signerOrProvider - An ethers signer or ethers provider
    * @returns The chain ID
    */
   public static getChainId = async (
@@ -68,12 +66,14 @@ export abstract class RainContract {
 
 // TODO: Add doc to `ReadTxOverrides` so users can see all the fields that have CallOverrides from ethers
 /**
+ * @public
  * More read about `ReadTxOverrides` that comes from CallOverrides of ethers
  */
 export interface ReadTxOverrides extends CallOverrides {}
 
 // TODO: Add doc to `TxOverrides` so users can see all the fields that have Overrides from ethers
 /**
+ * @public
  * More read about `TxOverrides` that comes from Overrides of ethers
  */
 export interface TxOverrides extends Overrides {
@@ -81,6 +81,7 @@ export interface TxOverrides extends Overrides {
 }
 
 /**
+ * @public
  * Constructor config for standard Open Zeppelin ERC20.
  */
 export interface ERC20Config {

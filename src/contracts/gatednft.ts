@@ -9,6 +9,9 @@ import {
 import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
 import { FactoryContract } from '../classes/factoryContract';
 
+/**
+ * @public
+ */
 export class GatedNFT extends FactoryContract {
   protected static readonly nameBookReference = 'gatedNFTFactory';
 
@@ -114,13 +117,18 @@ export class GatedNFT extends FactoryContract {
 
   /**
    * Tier contract to compare statuses against on transfer.
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns The tier contract address
    */
   public readonly tier: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * Returns the Uniform Resource Identifier (URI) for `tokenId` token.
    *
-   * @param tokenId `tokenId` must exist.
+   * @param tokenId - `tokenId` must exist.
+   * @param overrides - @see ReadTxOverrides
+   * @returns The token URI
    */
   public readonly tokenURI: (
     tokenId: BigNumberish,
@@ -131,8 +139,8 @@ export class GatedNFT extends FactoryContract {
    * Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any
    * unit of exchange. The royalty amount is denominated and should be payed in that same unit of exchange.
    *
-   * @param salePrice the sale price that will be use as based to calculate hor much royalty is owed
-   * @param overrides @see ReadTxOverrides
+   * @param salePrice - the sale price that will be use as based to calculate hor much royalty is owed
+   * @param overrides - @see ReadTxOverrides
    * @returns The royaltyRecipient and the royaltyAmount
    */
   public royaltyInfo(
@@ -151,7 +159,8 @@ export class GatedNFT extends FactoryContract {
   /**
    * Update the royalty recipient. Requires the caller to be the current recipient
    *
-   * @param royaltyRecipient The new recipient. Cannot be a zero address
+   * @param royaltyRecipient - The new recipient. Cannot be a zero address
+   * @param overrides - @see TxOverrides
    */
   public readonly updateRoyaltyRecipient: (
     royaltyRecipient: string,
@@ -160,16 +169,25 @@ export class GatedNFT extends FactoryContract {
 
   /**
    * Returns the token collection name.
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns The name of the GatedNFT
    */
   public readonly name: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * Returns the token collection symbol.
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns The symbol of the GatedNFT
    */
   public readonly symbol: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * Returns the total amount of tokens stored by the contract.
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns the amount of tokens minted
    */
   public readonly totalSupply: (
     overrides?: ReadTxOverrides
@@ -182,7 +200,8 @@ export class GatedNFT extends FactoryContract {
    * - `to` should have the required tier
    * - `to` should not exhausted his allowance
    *
-   * @param to The address that will get the token minted
+   * @param to - The address that will get the token minted
+   * @param overrides - @see TxOverrides
    */
   public readonly mint: (
     to: string,
@@ -196,7 +215,9 @@ export class GatedNFT extends FactoryContract {
    *
    * - `tokenId` must exist.
    *
-   * @param tokenId
+   * @param tokenId - ID of tokens to get the owner
+   * @param overrides - @see ReadTxOverrides
+   * @returns the owner address of the token
    */
   public readonly ownerOf: (
     tokenId: BigNumberish,
@@ -206,7 +227,9 @@ export class GatedNFT extends FactoryContract {
   /**
    * Returns the number of tokens in `owner`'s account.
    *
-   * @param owner
+   * @param owner - owner address to get the balance
+   * @param overrides - @see ReadTxOverrides
+   * @returns Amount of tokens that the owner have
    */
   public readonly balanceOf: (
     owner: string,
@@ -224,8 +247,8 @@ export class GatedNFT extends FactoryContract {
    * - The caller must own the token or be an approved operator.
    * - `tokenId` must exist.
    *
-   * @param to
-   * @param tokenId
+   * @param to - account address that will be approved
+   * @param tokenId - ID of the token that will be approve to use
    * @param overrides - @see TxOverrides
    */
   public readonly approve: (
@@ -241,7 +264,9 @@ export class GatedNFT extends FactoryContract {
    *
    * - `tokenId` must exist.
    *
-   * @param tokenId
+   * @param tokenId - ID of the token to get what address is approved to use it
+   * @param overrides - @see ReadTxOverrides
+   * @returns The address that is approve to use the token
    */
   public readonly getApproved: (
     tokenId: BigNumberish,
@@ -251,8 +276,10 @@ export class GatedNFT extends FactoryContract {
   /**
    * Returns if the `operator` is allowed to manage all of the assets of `owner`.
    *
-   * @param owner
-   * @param operator
+   * @param owner - address that hold the tokens
+   * @param operator - address to check if it is approved to use all the tokens of the owner
+   * @param overrides - @see ReadTxOverrides
+   * @returns true if operator has approved for all
    */
   public readonly isApprovedForAll: (
     owner: string,
@@ -268,8 +295,9 @@ export class GatedNFT extends FactoryContract {
    *
    * - The `operator` cannot be the caller.
    *
-   * @param operator
-   * @param approved
+   * @param operator - address to approve/denied use all the token of the caller
+   * @param approved - boolean to specify if operator is allowed to use the token
+   * @param overrides - @see TxOverrides
    */
   public readonly setApprovalForAll: (
     operator: string,
@@ -287,11 +315,12 @@ export class GatedNFT extends FactoryContract {
    * - `from` cannot be the zero address.
    * - `to` cannot be the zero address.
    * - `tokenId` token must be owned by `from`.
-   * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+   * - If the caller is not `from`, it must be approved to move this token by either `approve()` or `setApprovalForAll()`.
    *
-   * @param from
-   * @param to
-   * @param tokenId
+   * @param from - address that have the token to transfer
+   * @param to - address that will receive the token
+   * @param tokenId - ID of token that will be transfer
+   * @param overrides - @see TxOverrides
    */
   public readonly transferFrom: (
     from: string,
@@ -312,9 +341,10 @@ export class GatedNFT extends FactoryContract {
    * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
    * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
    *
-   * @param from
-   * @param to
-   * @param tokenId
+   * @param from - address that have the token to transfer
+   * @param to - address that will receive the token
+   * @param tokenId - ID of token that will be transfer
+   * @param overrides - @see TxOverrides
    */
   public readonly safeTransferFrom: (
     from: string,
@@ -334,10 +364,11 @@ export class GatedNFT extends FactoryContract {
    * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
    * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
    *
-   * @param from
-   * @param to
-   * @param tokenId
-   * @param data
+   * @param from - address that have the token to transfer
+   * @param to - address that will receive the token
+   * @param tokenId - ID of token that will be transfer
+   * @param data - extra data for onERC721Received
+   * @param overrides - @see TxOverrides
    */
   public readonly safeTransferFromWithData: (
     from: string,
@@ -349,6 +380,9 @@ export class GatedNFT extends FactoryContract {
 
   /**
    * Returns the address of the current owner.
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns current owner address of the contract
    */
   public readonly owner: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -358,6 +392,8 @@ export class GatedNFT extends FactoryContract {
    *
    * NOTE: Renouncing ownership will leave the contract without an owner,
    * thereby removing any functionality that is only available to the owner.
+   *
+   * @param overrides - @see TxOverrides
    */
   public readonly renounceOwnership: (
     overrides?: TxOverrides
@@ -367,7 +403,8 @@ export class GatedNFT extends FactoryContract {
    * Transfers ownership of the contract to a new account (`newOwner`).
    * Can only be called by the current owner.
    *
-   * @param newOwner
+   * @param newOwner - address of the new owner
+   * @param overrides - @see TxOverrides
    */
   public readonly transferOwnership: (
     newOwner: string,
@@ -380,8 +417,9 @@ export class GatedNFT extends FactoryContract {
    * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
    * to learn more about how these ids are created.
    *
-   * @param interfaceId - The interfaceId that will be checked if it is supported
-   * @param overrides - @see TxOverrides
+   * @param interfaceId - interfaceId that will be checked if it is supported
+   * @param overrides - @see ReadTxOverrides
+   * @returns true if the contract support the inerfaceId
    */
   public readonly supportsInterface: (
     interfaceId: BytesLike,
@@ -390,6 +428,7 @@ export class GatedNFT extends FactoryContract {
 }
 
 /**
+ * @public
  * Determine the status about how the GatedNFT contract will handle the transfers
  */
 export enum Transferrable {
@@ -408,6 +447,7 @@ export enum Transferrable {
 }
 
 /**
+ * @public
  * Configuration of the basic information that will be added to the ERC721 NFT
  */
 export interface GatedConfig {
@@ -441,6 +481,9 @@ export interface GatedConfig {
   imageHash: BytesLike;
 }
 
+/**
+ * @public
+ */
 export interface GatedNFTDeployArguments {
   /**
    * Configuration of the basic information that will be added to the ERC721 NFT
@@ -476,6 +519,9 @@ export interface GatedNFTDeployArguments {
   royaltyBPS: BigNumberish;
 }
 
+/**
+ * @public
+ */
 export interface RoyaltyInfo {
   receiver: string;
   royaltyAmount: BigNumber;

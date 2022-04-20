@@ -18,9 +18,9 @@ import {
 } from '../typechain';
 
 /**
+ * @public
  * A class for calling methods on a EmissionsERC20.
  *
- *  *
  * @remarks
  *   This class provides an easy way to deploy and interact with EmissionsERC20's.
  *
@@ -128,7 +128,7 @@ export class EmissionsERC20 extends TierFactoryContract {
    * party accounts could grief claimants by claiming "early", thus forcing
    * opportunity cost on claimants who would have preferred to wait.
    *
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns A boolean as true if deledated claims is allowed
    */
   public readonly allowDelegatedClaims: (
@@ -142,9 +142,9 @@ export class EmissionsERC20 extends TierFactoryContract {
    *
    * This value changes when `approve()` or `transferFrom()` are called.
    *
-   * @param owner The owner of the tokens
-   * @param spender The address to check how much amount have allow to use
-   * @param overrides @see ReadTxOverrides
+   * @param owner - The owner of the tokens
+   * @param spender - The address to check how much amount have allow to use
+   * @param overrides - @see ReadTxOverrides
    * @returns Amount of tokens allow to expend
    */
   public readonly allowance: (
@@ -158,9 +158,9 @@ export class EmissionsERC20 extends TierFactoryContract {
    *
    * Returns a boolean value indicating whether the operation succeeded.
    *
-   * @param spender The addess that will get approved
-   * @param amount The amount that `spender` is allowed to spend
-   * @param overrides @see TxOverrides
+   * @param spender - The addess that will get approved
+   * @param amount - The amount that `spender` is allowed to spend
+   * @param overrides - @see TxOverrides
    */
   public readonly approve: (
     spender: string,
@@ -171,8 +171,9 @@ export class EmissionsERC20 extends TierFactoryContract {
   /**
    * Returns the amount of tokens owned by `account`.
    *
-   * @param account
-   * @param overrides @see ReadTxOverrides
+   * @param account - Account address to get the balance
+   * @param overrides - @see ReadTxOverrides
+   * @returns Amount of tokens that the owner have
    */
   public readonly balanceOf: (
     account: string,
@@ -189,8 +190,8 @@ export class EmissionsERC20 extends TierFactoryContract {
    * to process the claim with `claim` if `msg.sender` is not the
    * `claimant`.
    *
-   * @param claimant Address to calculate current claim for.
-   * @param overrides @see ReadTxOverrides
+   * @param claimant - - Address to calculate current claim for.
+   * @param overrides - - @see ReadTxOverrides
    * @returns the claim calculated
    */
   public readonly calculateClaim: (
@@ -206,11 +207,11 @@ export class EmissionsERC20 extends TierFactoryContract {
    * - Records the current block as the claim-tier for this contract.
    * - emits a `Claim` event as per `IClaim`.
    *
-   * @param claimant address receiving minted tokens. MUST be `msg.sender`
+   * @param claimant - address receiving minted tokens. MUST be `msg.sender`
    * if `allowDelegatedClaims` is `false`.
-   * @param data NOT used onchain. Forwarded to `Claim` event for potential
+   * @param data - NOT used onchain. Forwarded to `Claim` event for potential
    * additional offchain processing.
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   public readonly claim: (
     claimant: string,
@@ -221,7 +222,8 @@ export class EmissionsERC20 extends TierFactoryContract {
   /**
    * Returns the number of decimals used to get its user representation.
    *
-   * @param overrides @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
+   * @returns The decimals of the Emissions contract
    */
   public readonly decimals: (overrides?: ReadTxOverrides) => Promise<number>;
 
@@ -231,9 +233,9 @@ export class EmissionsERC20 extends TierFactoryContract {
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
    *
-   * @param spender
-   * @param subtractedValue
-   * @param overrides @see TxOverrides
+   * @param spender - address to decrease the allowance
+   * @param subtractedValue - amount to decrease
+   * @param overrides - @see TxOverrides
    */
   public readonly decreaseAllowance: (
     spender: string,
@@ -247,9 +249,9 @@ export class EmissionsERC20 extends TierFactoryContract {
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
    *
-   * @param spender
-   * @param addedValue
-   * @param overrides @see TxOverrides
+   * @param spender - address to increase the allowance
+   * @param addedValue - amount to increase
+   * @param overrides - @see TxOverrides
    */
   public readonly increaseAllowance: (
     spender: string,
@@ -260,18 +262,24 @@ export class EmissionsERC20 extends TierFactoryContract {
   /**
    *  Returns the name of the token.
    *
-   * @param overrides @see ReadTxOverrides
-   * @returns The name of the Redeemable
+   * @param overrides - @see ReadTxOverrides
+   * @returns The name of the Emissions contract
    */
   public readonly name: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
-   * @dev Returns the symbol of the token, usually a shorter version of the name.
+   * Returns the symbol of the token, usually a shorter version of the name.
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns The symbol of the Emissions contract
    */
   public readonly symbol: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * Returns the amount of tokens in existence.
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns The total supply that have the Emissions
    */
   public readonly totalSupply: (
     overrides?: ReadTxOverrides
@@ -285,9 +293,9 @@ export class EmissionsERC20 extends TierFactoryContract {
    * - `to` cannot be the zero address.
    * - the caller must have a balance of at least `amount`.
    *
-   * @param to
-   * @param amount
-   * @param overrides @see TxOverrides
+   * @param to - address that will receive the tokens
+   * @param amount - token amount to transfer
+   * @param overrides -  @see TxOverrides
    */
   public readonly transfer: (
     to: string,
@@ -307,10 +315,10 @@ export class EmissionsERC20 extends TierFactoryContract {
    * - `from` must have a balance of at least `amount`.
    * - the caller must have allowance for ``from``'s tokens of at least `amount`.
    *
-   * @param from
-   * @param to
-   * @param amount
-   * @param overrides @see TxOverrides
+   * @param from - address that have the tokens to transfer
+   * @param to - address that will receive the tokens
+   * @param amount - token amount to transfer
+   * @param overrides - @see TxOverrides
    */
   public readonly transferFrom: (
     from: string,
@@ -321,6 +329,7 @@ export class EmissionsERC20 extends TierFactoryContract {
 }
 
 /**
+ * @public
  * Everything required by the `EmissionsERC20` constructor.
  */
 export interface EmissionsERC20DeployArgs {

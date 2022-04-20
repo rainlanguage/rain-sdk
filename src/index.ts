@@ -1,3 +1,8 @@
+export * from './classes/factoryContract';
+export * from './classes/rainContract';
+export * from './classes/tierContract';
+export * from './classes/vm';
+
 export * from './addresses';
 export * from './contracts/emissionsERC20';
 export * from './contracts/gatednft';

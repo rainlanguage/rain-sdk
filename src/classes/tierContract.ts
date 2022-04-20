@@ -10,6 +10,7 @@ import { FactoryContract } from './factoryContract';
 import { ITier__factory } from '../typechain';
 
 /**
+ * @public
  * Combine the static methods that are present in factories with the ITier instance methods.
  * Should be use to the TierFactories.
  */
@@ -30,7 +31,7 @@ export abstract class TierFactoryContract extends FactoryContract {
    * @param account - Account to get the report for.
    * @param overrides - Specific transaction values to send it (e.g gasLimit,
    * nonce or gasPrice)
-   * @return The report blocks encoded as a uint256.
+   * @returns The report blocks encoded as a uint256.
    */
   public readonly report: (
     account: string,
@@ -46,12 +47,12 @@ export abstract class TierFactoryContract extends FactoryContract {
    * must ensure sufficient approvals before attempting to set a new tier. This throw
    * an error if the user attempts to return to the ZERO tier.
    *
-   * @param account Account to change the tier for.
-   * @param endTier Tier after the change.
-   * @param data Arbitrary input to disambiguate ownership
+   * @param account - Account to change the tier for.
+   * @param endTier - Tier after the change.
+   * @param data - Arbitrary input to disambiguate ownership
    * @param overrides - Specific transaction values to send it (e.g gasLimit,
    * nonce or gasPrice)
-   * @return The report blocks encoded as a uint256.
+   * @returns The report blocks encoded as a uint256.
    */
   public readonly setTier: (
     account: string,

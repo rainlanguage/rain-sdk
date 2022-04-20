@@ -1,12 +1,9 @@
-import { Signer, BigNumberish, ContractTransaction } from 'ethers';
-import {
-  ethersUtils,
-  RainContract,
-  TxOverrides,
-} from '../classes/rainContract';
+import { Signer, BigNumberish, utils, ContractTransaction } from 'ethers';
+import { RainContract, TxOverrides } from '../classes/rainContract';
 import { RedeemableERC20ClaimEscrow__factory } from '../typechain';
 
 /**
+ * @public
  * A class for calling methods on a RedeemableERC20ClaimEscrow.
  *
  * Escrow contract for ERC20 tokens to be deposited and withdrawn against
@@ -83,10 +80,10 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
       signer
     );
 
-    if (!ethersUtils.isAddress(saleAddress)) {
+    if (!utils.isAddress(saleAddress)) {
       throw new Error('SALE: NOT A VALID FORMAT ADDRESS');
     }
-    if (!ethersUtils.isAddress(tokenAddress)) {
+    if (!utils.isAddress(tokenAddress)) {
       throw new Error('TOKEN: NOT A VALID FORMAT ADDRESS');
     }
     this.sale = saleAddress;
@@ -130,7 +127,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   public readonly changeSale = (
     newSale: string
   ): RedeemableERC20ClaimEscrow => {
-    if (!ethersUtils.isAddress(newSale)) {
+    if (!utils.isAddress(newSale)) {
       throw new Error('SALE: NOT A VALID FORMAT ADDRESS');
     }
 
@@ -150,7 +147,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   public readonly changeToken = (
     newToken: string
   ): RedeemableERC20ClaimEscrow => {
-    if (!ethersUtils.isAddress(newToken)) {
+    if (!utils.isAddress(newToken)) {
       throw new Error('TOKEN: NOT A VALID FORMAT ADDRESS');
     }
 
@@ -190,7 +187,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * @param token The `IERC20` token to deposit to the escrow.
    * @param amount The amount of token to deposit. Requires depositor has
    * approved at least this amount to succeed.
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   public readonly deposit = async (
     amount: BigNumberish,
@@ -278,7 +275,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * @param token The `IERC20` token to deposit to the escrow.
    * @param amount The amount of token to deposit. Requires depositor has
    * approved at least this amount to succeed.
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   private readonly _deposit: (
     sale: string,
@@ -308,7 +305,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * @param token The `IERC20` token to deposit to the escrow.
    * @param amount The amount of token to despoit. Requires depositor has
    * approved at least this amount to succeed.
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   private readonly _depositPending: (
     sale: string,
@@ -333,7 +330,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * @param sale The sale to sweep all pending deposits for.
    * @param token The token to sweep into registered deposits.
    * @param depositor The depositor to sweep registered deposits under.
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   private readonly _sweepPending: (
     sale: string,
@@ -368,7 +365,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * @param supply The total supply of the sale token associated with the
    * deposit being undeposited.
    * @param amount The amount to undeposit.
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   private readonly _undeposit: (
     sale: string,
@@ -409,7 +406,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    * @param token The token to `withdraw`.
    * @param supply The total supply of the sale token at time of deposit
    * to process this withdrawal against.
-   * @param overrides @see TxOverrides
+   * @param overrides - @see TxOverrides
    */
   private readonly _withdraw: (
     sale: string,

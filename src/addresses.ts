@@ -36,8 +36,30 @@ const addressBook = [
   },
 ];
 
+/**
+ * @public
+ * Type for all the addresses stored in the Book
+ */
+export type Addresses = {
+  redeemableERC20Factory: string;
+  verifyFactory: string;
+  verifyTierFactory: string;
+  erc20BalanceTierFactory: string;
+  erc20TransferTierFactory: string;
+  combineTierFactory: string;
+  erc721BalanceTierFactory: string;
+  gatedNFTFactory: string;
+  redeemableERC20ClaimEscrow: string;
+  noticeBoard: string;
+  emissionsERC20Factory: string;
+  saleFactory: string;
+};
+
+/**
+ *  @public
+ */
 export class AddressBook {
-  public static getAddressesForChainId(chainId: number) {
+  public static getAddressesForChainId(chainId: number): Addresses {
     const network = addressBook.find(n => n.chainId === chainId);
     if (!network?.addresses) {
       throw new Error('No deployed contracts for this chain.');

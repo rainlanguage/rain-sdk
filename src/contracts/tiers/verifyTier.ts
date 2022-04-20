@@ -4,6 +4,7 @@ import { TxOverrides } from '../../classes/rainContract';
 import { VerifyTierFactory__factory } from '../../typechain';
 
 /**
+ * @public
  * A class for deploying and calling methods on a VerifyTier.
  *
  *   A contract that is `VerifyTier` expects to derive tiers from the time the account was

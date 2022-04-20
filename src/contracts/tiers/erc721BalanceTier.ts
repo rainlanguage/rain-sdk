@@ -7,6 +7,7 @@ import {
 } from '../../typechain';
 
 /**
+ * @public
  *   A class for deploying and calling methods on a ERC721BalanceTier.
  * The `ERC721BalanceTier` simply checks the current balance of an erc721 against tier values.
  * As the current balance is always read from the erc721contract directly there is no historical
@@ -56,7 +57,7 @@ export class ERC721BalanceTier extends TierFactoryContract {
    *
    * @param signer - An ethers.js Signer
    * @param args - Arguments for deploying a ERC721BalanceTier @see ERC721BalanceTierDeployArgs
-   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
+   * @param overrides - @see TxOverrides
    * @returns A new ERC721BalanceTier instance
    *
    */
@@ -109,7 +110,8 @@ export class ERC721BalanceTier extends TierFactoryContract {
    * Complements the default solidity accessor for `tierValues`. Returns all the values in a
    * listrather than requiring an index be specified.
    *
-   * @return The immutable `tierValues[8]`.
+   * @param overrides - @see ReadTxOverrides
+   * @returns The immutable `tierValues[8]`.
    */
   public readonly tierValues: (
     overrides?: ReadTxOverrides
@@ -117,6 +119,7 @@ export class ERC721BalanceTier extends TierFactoryContract {
 }
 
 /**
+ * @public
  * Constructor config for ERC721BalanceTier
  */
 export interface ERC721BalanceTierDeployArgs {

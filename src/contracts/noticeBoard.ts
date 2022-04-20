@@ -3,15 +3,33 @@ import { RainContract, TxOverrides } from '../classes/rainContract';
 import { NoticeBoard__factory } from '../typechain';
 
 /**
- * A class for Calling methods on a NoticeBoard.
- *
- * that the controller and the subject of an identity are two different entities.
+ * @public
+ * A class for calling method on a NoticeBoard.
  *
  * @remarks
+ * Anyone can emit a `Notice`.
+ *
+ * This is open ended content related to the subject.
+ * Some examples:
+ * - Raise descriptions/promises
+ * - Reviews/comments from token holders
+ * - Simple onchain voting/signalling
+ *
+ * GUIs/tooling/indexers reading this data are expected to know how to
+ * interpret it in context because the `NoticeBoard` contract does not.
  *
  * @example
  * ```typescript
  * import { NoticeBoard } from 'rain-sdk'
+ *
+ * const notice = new NoticeBoard(address, signer);
+ *
+ * const noticeArg = {
+ *   subject: signer.address; // Subject can be any address
+ *   data: "0x00"; // Can be any data
+ * }
+ *
+ * const tx = await notice.createNotices([noticeArg]);
  * ```
  *
  */
@@ -39,8 +57,8 @@ export class NoticeBoard extends RainContract {
    * the context to decode/interpret it. The indexer/GUI is strongly
    * recommended to filter out untrusted content.
    *
-   * @param notices All the notices to emit.
-   * @param overrides @see TxOverrides
+   * @param notices - All the notices to emit.
+   * @param overrides - @see TxOverrides
    */
   public readonly createNotices: (
     notices: NoticeStruct[],
@@ -48,6 +66,9 @@ export class NoticeBoard extends RainContract {
   ) => Promise<ContractTransaction>;
 }
 
+/**
+ * @public
+ */
 export interface NoticeStruct {
   subject: string;
   data: BytesLike;

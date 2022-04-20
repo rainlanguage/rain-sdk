@@ -1,5 +1,8 @@
 import { BytesLike, BigNumberish } from 'ethers';
 
+/**
+ * @public
+ */
 export interface State {
   sources: BytesLike[];
   constants: BigNumberish[];
@@ -7,4 +10,7 @@ export interface State {
   argumentsLength: BigNumberish;
 }
 
-class VM {}
+/**
+ * @public
+ */
+export class VM {}

@@ -13,6 +13,7 @@ import {
 } from '../../typechain';
 
 /**
+ * @public
  * A class for deploying and calling methods on a ERC20TransferTier.
  *
  *   The `ERC20TransferTier` takes ownership of an erc20 balance by transferring erc20 token to itself. The
@@ -72,7 +73,7 @@ export class ERC20TransferTier extends TierFactoryContract {
    *
    * @param signer - An ethers.js Signer
    * @param args - Arguments for deploying a ERC20TransferTier @see ERC20TransferTierDeployArgs
-   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
+   * @param overrides - @see TxOverrides
    * @returns A new ERC20TransferTier instance
    *
    */
@@ -113,7 +114,8 @@ export class ERC20TransferTier extends TierFactoryContract {
    * Complements the default solidity accessor for `tierValues`. Returns all the values in a
    * listrather than requiring an index be specified.
    *
-   * @return The immutable `tierValues[8]`.
+   * @param overrides - @see ReadTxOverrides
+   * @returns The immutable `tierValues[8]`.
    */
   public readonly tierValues: (
     overrides?: ReadTxOverrides
@@ -131,8 +133,7 @@ export class ERC20TransferTier extends TierFactoryContract {
    * @param account Account to change the tier for.
    * @param endTier Tier after the change.
    * @param data Arbitrary input to disambiguate ownership
-   * @param overrides - Specific transaction values to send it (e.g gasLimit,
-   * nonce or gasPrice)
+   * @param overrides - @see TxOverrides
    */
   public declare readonly setTier: (
     account: string,
@@ -143,6 +144,7 @@ export class ERC20TransferTier extends TierFactoryContract {
 }
 
 /**
+ * @public
  * Constructor config for ERC20TransferTier
  */
 export interface ERC20TransferTierDeployArgs {

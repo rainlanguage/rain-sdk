@@ -10,6 +10,7 @@ import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
 import { FactoryContract } from '../classes/factoryContract';
 
 /**
+ * @public
  * A class for deploying and calling methods on a Verify.
  *
  *   Trust-minimised contract to record the state of some verification process. When some off-chain
@@ -170,7 +171,7 @@ export class Verify extends FactoryContract {
 
   /**
    * @param overrides - @see ReadTxOverrides
-   * @return VerifyCallback contract address. MAY be address 0.
+   * @returns VerifyCallback contract address. MAY be address 0.
    */
   public readonly callback: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -274,7 +275,7 @@ export class Verify extends FactoryContract {
   public readonly state: (
     account: string,
     overrides?: ReadTxOverrides
-  ) => Promise<State>;
+  ) => Promise<VerifyState>;
 
   /**
    * Derives a single `Status` from a `State` and a reference block number.
@@ -285,7 +286,7 @@ export class Verify extends FactoryContract {
    * @returns A `BigNumber` that represent the `status` in `blockNumber`.
    */
   public readonly statusAtBlock: (
-    state: State,
+    state: VerifyState,
     blockNumber: BigNumberish,
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
@@ -388,6 +389,7 @@ export class Verify extends FactoryContract {
 }
 
 /**
+ * @public
  * Config to initialize a Verify contract with.
  */
 export interface VerifyDeployArgs {
@@ -405,6 +407,7 @@ export interface VerifyDeployArgs {
 }
 
 /**
+ * @public
  * Structure of arbitrary evidence to support any action taken. Priviledged roles are expected to
  * provide evidence just as applicants as an audit trail will be preserved permanently in the logs.
  */
@@ -421,11 +424,12 @@ export interface Evidence {
 }
 
 /**
+ * @public
  * Records the block a verify session reaches each status. If a status is not reached it is left as
  * UNINITIALIZED, i.e. 0xFFFFFFFF. Most accounts will never be banned so most accounts will never
  * reach every status, which is a good thing.
  */
-export interface State {
+export interface VerifyState {
   /**
    * Block the address was added else 0xFFFFFFFF.
    */

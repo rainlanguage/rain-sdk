@@ -7,6 +7,7 @@ import {
 } from '../../typechain';
 
 /**
+ * @public
  * A class for deploying and calling methods on a ERC20BalanceTier.
  *
  *   The `ERC20BalanceTier` simply checks the current balance of an erc20 against tier values.
@@ -57,7 +58,7 @@ export class ERC20BalanceTier extends TierFactoryContract {
    *
    * @param signer - An ethers.js Signer
    * @param args - Arguments for deploying a ERC20BalanceTier @see ERC20BalanceTierDeployArgs
-   * @param overrides - Specific transaction values to send it (e.g gasLimit, nonce or gasPrice)
+   * @param overrides - @see TxOverrides
    * @returns A new ERC20BalanceTier instance
    */
   public static deploy = async (
@@ -109,7 +110,8 @@ export class ERC20BalanceTier extends TierFactoryContract {
    * Complements the default solidity accessor for `tierValues`. Returns all the values in a
    * listrather than requiring an index be specified.
    *
-   * @return The immutable `tierValues[8]`.
+   * @param overrides - @see ReadTxOverrides
+   * @returns The immutable `tierValues[8]`.
    */
   public readonly tierValues: (
     overrides?: ReadTxOverrides
@@ -117,6 +119,7 @@ export class ERC20BalanceTier extends TierFactoryContract {
 }
 
 /**
+ * @public
  * Constructor config for ERC20BalanceTier
  */
 export interface ERC20BalanceTierDeployArgs {
