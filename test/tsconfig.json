@@ -1,0 +1,11 @@
+{
+  "include": ["./**/*.ts"],
+  "files": ["../hardhat.config.ts"],
+  "compilerOptions": {
+    "target": "es2018",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+  }
+}

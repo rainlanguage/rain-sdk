@@ -15,13 +15,11 @@
     "build": "tsdx build",
     "nix-build": "nix-shell --run yarn build",
     "test": "npx hardhat test",
-    "lint": "tsdx lint",
+    "lint": "tsdx lint src",
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "copy-typechain": "yarn compile-rain-protocol && yarn compile-statusfi",
-    "compile-rain-protocol": "cd node_modules/@beehiveinnovation/rain-protocol && yarn install --ignore-scripts && yarn build && mkdir -p $INIT_CWD/src/typechain/rain-protocol && scp -r typechain/. $INIT_CWD/src/typechain/rain-protocol",
-    "compile-statusfi": "cd node_modules/@beehiveinnovation/rain-statusfi && yarn install --ignore-scripts && yarn build && mkdir -p $INIT_CWD/src/typechain/rain-statusfi && scp -r typechain/. $INIT_CWD/src/typechain/rain-statusfi"
+    "generate-docs": "yarn build && api-extractor run --local && api-documenter markdown -i docs/input -o docs/markdown"
   },
   "peerDependencies": {},
   "husky": {
@@ -49,14 +47,19 @@
     }
   ],
   "devDependencies": {
-    "@beehiveinnovation/rain-protocol": "beehive-innovation/rain-protocol.git#2283124fe2d53d3fd878612ebc29950c33397ab0",
-    "@beehiveinnovation/rain-statusfi": "beehive-innovation/rain-statusfi.git#499b0a05e0bea8685dcd3b4b03af7da91fd31258",
+    "@beehiveinnovation/rain-protocol": "git+https://github.com/beehive-innovation/rain-protocol.git#2283124fe2d53d3fd878612ebc29950c33397ab0",
+    "@beehiveinnovation/rain-statusfi": "git+https://github.com/beehive-innovation/rain-statusfi.git#499b0a05e0bea8685dcd3b4b03af7da91fd31258",
+    "@microsoft/api-documenter": "^7.17.9",
+    "@microsoft/api-extractor": "^7.22.2",
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@size-limit/preset-small-lib": "^6.0.4",
+    "@typechain/ethers-v5": "^8.0.5",
+    "@typechain/hardhat": "^3.0.0",
     "@types/chai": "^4.2.22",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.11.11",
+    "@vishalkale15107/rain-protocol": "git+https://github.com/vishalkale151071/rain-protocol.git#3d0ee716430d28716365f0f1c999fe14c30f0b4b",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.7.0",
@@ -66,6 +69,7 @@
     "ts-node": "^10.4.0",
     "tsdx": "^0.14.1",
     "tslib": "^2.3.1",
+    "typechain": "^6.0.2",
     "typescript": "^4.5.2"
   },
   "dependencies": {

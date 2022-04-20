@@ -43,3 +43,22 @@ To run tests, use `yarn test`.
 ### Bundle Analysis
 
 [`size-limit`](https://github.com/ai/size-limit) is set up to calculate the library size with `yarn size` and visualize the bundle with `yarn analyze`.
+
+### Generate documentation
+
+To generate the documentation you should drop into nix-shell and run:
+
+```bash
+generate-docs
+```
+
+This will generate the docs files in the `docs/markdown` directory. You can change the output directory editing the `package.json` file, where the command `generate-docs` is set. For example, change the output folder from `docs/markdown` to `myDocs/` in the `-o` flag:
+
+Change this:
+```JSON
+"generate-docs": "yarn build && api-extractor run --local && api-documenter markdown -i docs/input -o docs/markdown"
+```
+To have this:
+```JSON
+"generate-docs": "yarn build && api-extractor run --local && api-documenter markdown -i docs/input -o myDocs"
+```

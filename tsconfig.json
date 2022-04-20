@@ -1,12 +1,15 @@
 {
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
-  "include": ["src", "types", "scripts", "test"],
+  "include": ["src", "types", "scripts"],
+  "exclude": ["**/test", "/test", "test", "**/test/**/*.ts"],
   "compilerOptions": {
     "target": "es2018",
     "lib": ["dom", "esnext"],
     "importHelpers": true,
     // output .d.ts declaration files for consumers
     "declaration": true,
+    // enables generation of .d.ts.map files
+    "declarationMap": true,
     // output .js.map sourcemap files for consumers
     "sourceMap": true,
     // match output dir to input dir. e.g. dist/index instead of dist/src/index
@@ -18,7 +21,7 @@
     "noFallthroughCasesInSwitch": true,
     // noUnused* overlap with @typescript-eslint/no-unused-vars, can disable if duplicative
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     // use Node's module resolution algorithm, instead of the legacy TS one
     "moduleResolution": "node",
     // transpile JSX to React.createElement

@@ -1,5 +1,5 @@
 let
- pkgs = import
+  pkgs = import
     (builtins.fetchTarball {
       name = "nixos-unstable-2021-10-01";
       url = "https://github.com/nixos/nixpkgs/archive/0f33d439a715688605402a450fba0382b658d581.tar.gz";
@@ -7,43 +7,61 @@ let
     })
     { };
 
- mnemonic = pkgs.writeShellScriptBin "mnemonic" ''
-  mnemonics
+ generate-docs = pkgs.writeShellScriptBin "generate-docs" ''
+  yarn generate-docs
  '';
 
- local-node = pkgs.writeShellScriptBin "local-node" ''
-  cd balancer-local-dev && npx hardhat node
+ lint-sdk = pkgs.writeShellScriptBin "lint-sdk" ''
+  yarn lint
  '';
 
- local-fork = pkgs.writeShellScriptBin "local-fork" ''
- hardhat node --fork https://eth-mainnet.alchemyapi.io/v2/G0Vg_iZFiAuUD6hjXqcVg-Nys-NGiTQy --fork-block-number 11833335
+ build-sdk = pkgs.writeShellScriptBin "build-sdk" ''
+  copy-typechain
+  yarn build
  '';
 
- local-test = pkgs.writeShellScriptBin "local-test" ''
- hardhat test --network localhost
+ test-sdk = pkgs.writeShellScriptBin "test-sdk" ''
+  yarn build
+  yarn test
  '';
 
- local-deploy = pkgs.writeShellScriptBin "local-deploy" ''
-  cd balancer-local-dev && npx hardhat run --network localhost scripts/deploy-local.ts
+ copy-contracts = pkgs.writeShellScriptBin "copy-contracts" ''
+  mkdir -p contracts && cp -r node_modules/@beehiveinnovation/rain-protocol/contracts .
+  mkdir -p contracts/rain-statusfi && cp node_modules/@beehiveinnovation/rain-statusfi/contracts/*.sol contracts/rain-statusfi
+  mkdir -p contracts/tier && cp node_modules/@vishalkale15107/rain-protocol/contracts/tier/ERC721BalanceTier*.sol contracts/tier
+  mkdir -p contracts/test && cp node_modules/@vishalkale15107/rain-protocol/contracts/test/ReserveNFT.sol contracts/test
+  hardhat compile --no-typechain
  '';
+
+ generate-typechain = pkgs.writeShellScriptBin "generate-typechain" ''
+  hardhat typechain 
+  rm -rf src/typechain && mkdir -p src/typechain
+  cp -r typechain src
+ '';
+
+ copy-typechain = pkgs.writeShellScriptBin "copy-typechain" ''
+  copy-contracts
+  generate-typechain
+ '';
+
 in
 pkgs.stdenv.mkDerivation {
  name = "shell";
  buildInputs = [
   pkgs.nodejs-14_x
-  mnemonic
-  local-node
-  local-deploy
-  local-test
-  local-fork
+  copy-contracts
+  generate-typechain
+  copy-typechain
+  generate-docs
+  lint-sdk
+  build-sdk
+  test-sdk
  ];
 
  shellHook = ''
-  source .env
   export PATH=$( npm bin ):$PATH
   # keep it fresh
   yarn install --ignore-scripts
-  yarn copy-typechain
-  yarn build
+  build-sdk
  '';
 }

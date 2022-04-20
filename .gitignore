@@ -6,3 +6,9 @@ dist
 ## IDE
 .idea
 .vscode
+
+## Generated
+artifacts
+cache
+/contracts
+/typechain
