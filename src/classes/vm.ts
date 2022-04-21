@@ -1,5 +1,6 @@
-import { BytesLike, BigNumberish } from 'ethers';
-import { concat, Hexable, hexlify, zeroPad } from 'ethers/lib/utils';
+import { BytesLike, BigNumberish, utils } from 'ethers';
+
+const { concat, hexlify, zeroPad } = utils;
 
 /**
  * @public
@@ -104,7 +105,7 @@ export enum StandardOps {
  */
 export function op(
   code: number,
-  erand: number | BytesLike | Hexable = 0
+  erand: number | BytesLike | utils.Hexable = 0
 ): Uint8Array {
   return concat([bytify(code), bytify(erand)]);
 }
@@ -118,7 +119,7 @@ export function op(
  * @returns raw bytes representation as Uint8Array
  */
 export function bytify(
-  value: number | BytesLike | Hexable,
+  value: number | BytesLike | utils.Hexable,
   bytesLength = 1
 ): BytesLike {
   return zeroPad(hexlify(value), bytesLength);

@@ -10,13 +10,6 @@ import {
   expectAsyncError,
 } from './utils';
 
-// import {
-//   ERC20BalanceTier,
-//   ERC20TransferTier,
-//   ERC721BalanceTier,
-//   VerifyTier,
-//   Verify,
-// } from '../dist';
 import {
   StandardOps,
   AddressBook,
@@ -32,7 +25,23 @@ import {
   ERC20TransferTier,
   ERC721BalanceTier,
   RedeemableERC20ClaimEscrow,
-} from '../src';
+} from '../dist';
+// import {
+//   StandardOps,
+//   AddressBook,
+//   Sale,
+//   Verify,
+//   GatedNFT,
+//   VerifyTier,
+//   CombineTier,
+//   NoticeBoard,
+//   EmissionsERC20,
+//   RedeemableERC20,
+//   ERC20BalanceTier,
+//   ERC20TransferTier,
+//   ERC721BalanceTier,
+//   RedeemableERC20ClaimEscrow,
+// } from '../src';
 
 /**
  * Addresses saved that are in SDK BookAddresses deployed to Hardhat network.
@@ -377,8 +386,8 @@ describe('SDK Test', () => {
         transferrable: 0,
         maxMintable: 1000,
         royaltyRecipient: receipient.address,
-        royaltyBPS: 1
-      }
+        royaltyBPS: 1,
+      };
 
       const gatedNFT = await GatedNFT.deploy(signer, deployArgs);
 

@@ -1,5 +1,10 @@
-import { BigNumberish, BigNumber, Signer, ContractTransaction } from 'ethers';
-import { concat } from 'ethers/lib/utils';
+import {
+  BigNumberish,
+  BigNumber,
+  Signer,
+  ContractTransaction,
+  utils,
+} from 'ethers';
 
 import {
   ERC20Config,
@@ -11,6 +16,8 @@ import { State, StandardOps, op } from '../classes/vm';
 import { FactoryContract } from '../classes/factoryContract';
 import { RedeemableERC20 } from './redeemableERC20';
 import { Sale__factory, SaleFactory__factory } from '../typechain';
+
+const { concat } = utils;
 
 // TODO: Add this type/interface inside VMState class
 
