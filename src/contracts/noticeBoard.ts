@@ -52,6 +52,16 @@ export class NoticeBoard extends RainContract {
   }
 
   /**
+   * Connect the current instance to a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The instance with a new signer
+   */
+  public readonly connect = (signer: Signer): NoticeBoard => {
+    return new NoticeBoard(this.address, signer);
+  };
+
+  /**
    * Anyone can create notices about some subject.
    * The notice is opaque bytes. The indexer/GUI is expected to understand
    * the context to decode/interpret it. The indexer/GUI is strongly

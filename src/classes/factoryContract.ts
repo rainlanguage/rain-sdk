@@ -15,10 +15,10 @@ export abstract class FactoryContract extends RainContract {
    * @param parentContract - Contract factory/parent that create the child. Can be the instance or the address
    * @returns The address of the child
    */
-  public static readonly getNewChildFromReceipt = (
+  public static getNewChildFromReceipt(
     receipt: ContractReceipt,
     parentContract: Contract | string
-  ): string => {
+  ): string {
     const parentAddress =
       parentContract instanceof Contract
         ? parentContract.address
@@ -35,7 +35,7 @@ export abstract class FactoryContract extends RainContract {
     } else {
       throw new Error('NewChild not found in the receipt');
     }
-  };
+  }
 
   /**
    * Checks if address is registered as a child contract of the factory in the chain.

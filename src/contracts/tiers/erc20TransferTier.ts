@@ -10,6 +10,7 @@ import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
 import {
   ERC20TransferTier__factory,
   ERC20TransferTierFactory__factory,
+  IERC20__factory,
 } from '../../typechain';
 
 /**
@@ -40,8 +41,8 @@ import {
  * // To deploy a new ERC20TransferTier, pass an ethers.js Signer and the config for the ERC20TransferTier.
  * const newTier = await ERC20TransferTier.deploy(signer, ERC20TransferTierConfigArgs);
  *
- * // To connect to an existing ERC20TransferTier just pass the address and an ethers.js Signer.
- * const existingTier = new ERC20TransferTier(address, signer);
+ * // To connect to an existing ERC20TransferTier just pass the tier address, token address and an ethers.js Signer.
+ * const existingTier = new ERC20TransferTier(address, tokenAddress, signer);
  *
  * // Once you have a ERC20TransferTier, you can call the smart contract methods:
  * const tierValues = await existingTier.tierValues();
@@ -59,14 +60,20 @@ export class ERC20TransferTier extends TierFactoryContract {
    * @returns A new ERC20TransferTier instance
    *
    */
-  constructor(address: string, signer: Signer) {
+  constructor(address: string, tokenAddress: string, signer: Signer) {
     super(address, signer);
     const _erc20TransferTier = ERC20TransferTier__factory.connect(
       address,
       signer
     );
     this.tierValues = _erc20TransferTier.tierValues;
+    this.token = tokenAddress;
   }
+
+  /**
+   * ERC20 Token address that holds the Tier
+   */
+  public readonly token: string;
 
   /**
    * Deploys a new ERC20TransferTier.
@@ -77,11 +84,11 @@ export class ERC20TransferTier extends TierFactoryContract {
    * @returns A new ERC20TransferTier instance
    *
    */
-  public static deploy = async (
+  public static async deploy(
     signer: Signer,
     args: ERC20TransferTierDeployArgs,
     overrides: TxOverrides = {}
-  ): Promise<ERC20TransferTier> => {
+  ): Promise<ERC20TransferTier> {
     const erc20TransferTierFactory = ERC20TransferTierFactory__factory.connect(
       this.getBookAddress(await this.getChainId(signer)),
       signer
@@ -93,7 +100,17 @@ export class ERC20TransferTier extends TierFactoryContract {
       receipt,
       erc20TransferTierFactory
     );
-    return new ERC20TransferTier(address, signer);
+    return new ERC20TransferTier(address, args.erc20, signer);
+  }
+
+  /**
+   * Connect the current instance to a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The instance with a new signer
+   */
+  public readonly connect = (signer: Signer): ERC20TransferTier => {
+    return new ERC20TransferTier(this.address, this.token, signer);
   };
 
   /**
@@ -109,6 +126,52 @@ export class ERC20TransferTier extends TierFactoryContract {
   ): Promise<boolean> => {
     return await this._isChild(signer, maybeChild);
   };
+
+  /**
+   * Calculate how much amount of the token needed transfer to the tier contract or how much tokens the
+   * `account` will get back to reach the `desiredLevel`.
+   *
+   * Take in mind:
+   * - If the `account` directly send tokens to the ERC20TransferTier contract, those tokens are lost. All
+   * the calcualtions are make it with the tokens transfered by the account with setTier method.
+   * - If the `desired level` is higher than the current level, the amount returned will be the amount
+   * needed to obtain tier.
+   * - If the `desired level` is lower than the current level, the amount returned will be the amount
+   * that will get back.
+   * - If already have the `desired` tier, will return 0.
+   *
+   * @param desiredLevel - the tier level desired to get
+   * @param account - (optional) the account address to calculate. If not provided will use the signer of
+   * the instance
+   * @returns The amount t
+   */
+  public async amountToTier(
+    desiredLevel: number,
+    account?: string
+  ): Promise<BigNumber> {
+    const values = await this.tierValues();
+    const currentTier = await this.currentTier(
+      account || (await this.signer.getAddress())
+    );
+
+    const amountDestiny = desiredLevel
+      ? values[desiredLevel - 1]
+      : BigNumber.from(0);
+
+    const amountOrigin = currentTier
+      ? values[currentTier - 1]
+      : BigNumber.from(0);
+
+    return amountDestiny.sub(amountOrigin).abs();
+  }
+
+  public async approveTokenForTier(
+    amount: BigNumberish,
+    overrides: ReadTxOverrides = {}
+  ): Promise<ContractTransaction> {
+    const token = IERC20__factory.connect(this.token, this.signer);
+    return await token.approve(this.address, amount, overrides);
+  }
 
   /**
    * Complements the default solidity accessor for `tierValues`. Returns all the values in a

@@ -30,12 +30,7 @@ export abstract class RainContract {
    * @param signer - The new signer which will be connected
    * @returns The instance with a new signer
    */
-  public readonly connect = (signer: Signer): this => {
-    return new (this.constructor as RainConstructable<this>)(
-      this.address,
-      signer
-    );
-  };
+  public abstract readonly connect: (signer: Signer) => RainContract;
 
   /**
    * Get the address stored in the book to this chain
@@ -110,11 +105,4 @@ export interface ERC20Config {
    * Initial supply to mint.
    */
   initialSupply: BigNumberish;
-}
-
-/**
- * Interface that represent a Rain contract that is constructable
- */
-interface RainConstructable<T> {
-  new (address: string, signer: Signer): T;
 }

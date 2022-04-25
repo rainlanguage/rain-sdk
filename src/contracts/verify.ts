@@ -105,6 +105,16 @@ export class Verify extends FactoryContract {
   };
 
   /**
+   * Connect the current instance to a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The instance with a new signer
+   */
+  public readonly connect = (signer: Signer): Verify => {
+    return new Verify(this.address, signer);
+  };
+
+  /**
    * Checks if address is registered as a child contract of this VerifyFactory on a specific network
    *
    * @param signer - An ethers.js Signer

@@ -5,7 +5,7 @@ const { concat, hexlify, zeroPad } = utils;
 /**
  * @public
  */
-export interface State {
+export interface StateConfig {
   sources: BytesLike[];
   constants: BigNumberish[];
   stackLength: BigNumberish;
@@ -15,14 +15,19 @@ export interface State {
 /**
  * @public
  */
-export class VM {}
+export interface State {
+  stackIndex: BigNumberish;
+  stack: BigNumberish[];
+  sources: BytesLike[];
+  constants: BigNumberish[];
+  arguments: BigNumberish[];
+}
 
 /**
- * @public
  *
  * All the standard Op Codes
  */
-export enum StandardOps {
+export enum AllStandardOps {
   /**
    * @deprecated **DONT USE SKIP!**
    *
@@ -98,29 +103,45 @@ export enum StandardOps {
 
 /**
  * @public
- * Converts an opcode and operand to bytes, and returns their concatenation.
  *
- * @param code - the opcode
- * @param erand - the operand, currently limited to 1 byte (defaults to 0)
+ *
  */
-export function op(
-  code: number,
-  erand: number | BytesLike | utils.Hexable = 0
-): Uint8Array {
-  return concat([bytify(code), bytify(erand)]);
-}
+export class VM {
+  /**
+   * All the standard Op Codes
+   */
+  public static Opcodes = { ...AllStandardOps };
 
-/**
- * @public
- * Converts a value to raw bytes representation. Assumes `value` is less than or equal to 1 byte, unless a desired `bytesLength` is specified.
- *
- * @param value - value to convert to raw bytes format
- * @param bytesLength - (defaults to 1) number of bytes to left pad if `value` doesn't completely fill the desired amount of memory. Will throw `InvalidArgument` error if value already exceeds bytes length.
- * @returns raw bytes representation as Uint8Array
- */
-export function bytify(
-  value: number | BytesLike | utils.Hexable,
-  bytesLength = 1
-): BytesLike {
-  return zeroPad(hexlify(value), bytesLength);
+  /**
+   * Converts an opcode and operand to bytes, and returns their concatenation.
+   *
+   * @param code - the opcode
+   * @param erand - the operand, currently limited to 1 byte (defaults to 0)
+   */
+  public static op = (
+    code: number,
+    erand: number | BytesLike | utils.Hexable = 0
+  ): Uint8Array => {
+    return concat([this.bytify(code), this.bytify(erand)]);
+  };
+
+  /**
+   * @public
+   * Converts a value to raw bytes representation. Assumes `value` is less than or equal to 1 byte,
+   * unless a desired `bytesLength` is specified.
+   *
+   * @param value - value to convert to raw bytes format
+   * @param bytesLength - (defaults to 1) number of bytes to left pad if `value` doesn't completely
+   * fill the desired amount of memory. Will throw `InvalidArgument` error if value already exceeds
+   * bytes length.
+   * @returns raw bytes representation as Uint8Array
+   */
+  public static bytify(
+    value: number | BytesLike | utils.Hexable,
+    bytesLength = 1
+  ): BytesLike {
+    return zeroPad(hexlify(value), bytesLength);
+  }
+
+  public static concat = concat;
 }

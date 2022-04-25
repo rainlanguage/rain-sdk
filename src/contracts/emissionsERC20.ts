@@ -10,7 +10,7 @@ import {
   TxOverrides,
   ReadTxOverrides,
 } from '../classes/rainContract';
-import { State } from '../classes/vm';
+import { StateConfig } from '../classes/vm';
 import { TierFactoryContract } from '../classes/tierContract';
 import {
   EmissionsERC20__factory,
@@ -89,6 +89,16 @@ export class EmissionsERC20 extends TierFactoryContract {
     const receipt = await tx.wait();
     const address = this.getNewChildFromReceipt(receipt, emissionsERC20Factory);
     return new EmissionsERC20(address, signer);
+  };
+
+  /**
+   * Connect the current instance to a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The instance with a new signer
+   */
+  public readonly connect = (signer: Signer): EmissionsERC20 => {
+    return new EmissionsERC20(this.address, signer);
   };
 
   /**
@@ -335,5 +345,5 @@ export class EmissionsERC20 extends TierFactoryContract {
 export interface EmissionsERC20DeployArgs {
   allowDelegatedClaims: boolean;
   erc20Config: ERC20Config;
-  vmStateConfig: State;
+  vmStateConfig: StateConfig;
 }

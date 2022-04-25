@@ -4,6 +4,7 @@ import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
 import {
   ERC20BalanceTier__factory,
   ERC20BalanceTierFactory__factory,
+  IERC20__factory,
 } from '../../typechain';
 
 /**
@@ -25,8 +26,8 @@ import {
  * // To deploy a new ERC20BalanceTier, pass an ethers.js Signer and the config for the ERC20BalanceTier.
  * const newTier = await ERC20BalanceTier.deploy(signer, ERC20BalanceTierArgs);
  *
- * // To connect to an existing ERC20BalanceTier just pass the address and an ethers.js Signer.
- * const existingTier = new ERC20BalanceTier(address, signer);
+ * // To connect to an existing ERC20BalanceTier just pass the tier address, token address and an ethers.js Signer.
+ * const existingTier = new ERC20BalanceTier(address, tokenAddrss, signer);
  *
  * // Once you have a ERC20BalanceTier, you can call the smart contract methods:
  * const tierValues = await existingTier.tierValues();
@@ -44,14 +45,20 @@ export class ERC20BalanceTier extends TierFactoryContract {
    * @returns A new ERC20BalanceTier instance
    *
    */
-  constructor(address: string, signer: Signer) {
+  constructor(address: string, tokenAddress: string, signer: Signer) {
     super(address, signer);
     const _erc20balanceTier = ERC20BalanceTier__factory.connect(
       address,
       signer
     );
     this.tierValues = _erc20balanceTier.tierValues;
+    this.token = tokenAddress;
   }
+
+  /**
+   * ERC20 Token address that track the Tier
+   */
+  public readonly token: string;
 
   /**
    * Deploys a new ERC20BalanceTier.
@@ -77,7 +84,17 @@ export class ERC20BalanceTier extends TierFactoryContract {
       receipt,
       erc20BalanceTierFactory
     );
-    return new ERC20BalanceTier(address, signer);
+    return new ERC20BalanceTier(address, args.erc20, signer);
+  };
+
+  /**
+   * Connect the current instance to a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The instance with a new signer
+   */
+  public readonly connect = (signer: Signer): ERC20BalanceTier => {
+    return new ERC20BalanceTier(this.address, this.token, signer);
   };
 
   /**
@@ -93,6 +110,39 @@ export class ERC20BalanceTier extends TierFactoryContract {
   ): Promise<boolean> => {
     return await this._isChild(signer, maybeChild);
   };
+
+  /**
+   * Calculate how much amount of the token needed transfer to or transfer out of the account to reach a `desiredLevel`.
+   *
+   * Take in mind:
+   *  - If the `desired level` is higher than the current level, the amount returned will be the amount
+   * needed to obtain or transfer to the `account`.
+   *  - If the `desired level` is lower than the current level, the amount returned will be the amount
+   * needed to remove or transfer out of the `account`.
+   * - If already have the `desired` tier, will return 0
+   *
+   * @param desiredLevel - the tier level desired to get
+   * @param account - (optional) the account address to calculate. If not provided will use the signer of
+   * the instance
+   * @returns The amount t
+   */
+  public async amountToTier(
+    desiredLevel: number,
+    account?: string
+  ): Promise<BigNumber> {
+    const token = IERC20__factory.connect(this.token, this.signer);
+    const values = await this.tierValues();
+
+    const amountDestiny = desiredLevel
+      ? values[desiredLevel - 1]
+      : BigNumber.from(0);
+
+    const amountOrigin = await token.balanceOf(
+      account || (await this.signer.getAddress())
+    );
+
+    return amountDestiny.sub(amountOrigin).abs();
+  }
 
   /**
    * It is NOT implemented in BalanceTiers. Always will throw an error

@@ -1,7 +1,7 @@
 import { Signer, BytesLike, BigNumberish } from 'ethers';
 import { TierFactoryContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
-import { State } from '../../classes/vm';
+import { StateConfig } from '../../classes/vm';
 import { CombineTierFactory__factory } from '../../typechain';
 
 /**
@@ -68,6 +68,16 @@ export class CombineTier extends TierFactoryContract {
   };
 
   /**
+   * Connect the current instance to a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The instance with a new signer
+   */
+  public readonly connect = (signer: Signer): CombineTier => {
+    return new CombineTier(this.address, signer);
+  };
+
+  /**
    * Checks if address is registered as a child contract of this CombineTierFactory on a specific network
    *
    * @param signer - An ethers.js Signer
@@ -98,4 +108,4 @@ export class CombineTier extends TierFactoryContract {
  * @public
  * The StateConfig will be deployed as a pointer under
  */
-export type CombineTierDeployArgs = State;
+export type CombineTierDeployArgs = StateConfig;

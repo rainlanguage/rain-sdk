@@ -11,15 +11,13 @@ import {
   TxOverrides,
   ReadTxOverrides,
 } from '../classes/rainContract';
-import { State, StandardOps, op } from '../classes/vm';
+import { StateConfig, VM } from '../classes/vm';
 
 import { FactoryContract } from '../classes/factoryContract';
 import { RedeemableERC20 } from './redeemableERC20';
 import { Sale__factory, SaleFactory__factory } from '../typechain';
 
 const { concat } = utils;
-
-// TODO: Add this type/interface inside VMState class
 
 /**
  * @public
@@ -72,29 +70,33 @@ export class Sale extends FactoryContract {
     this.token = _sale.token;
   }
 
-  public static Opcode = {
-    ...StandardOps,
+  public static Opcodes = {
+    ...VM.Opcodes,
     /**
      * local opcode to stack remaining rTKN units.
      */
-    REMAINING_UNITS: 0 + StandardOps.length,
+    REMAINING_UNITS: 0 + VM.Opcodes.length,
     /**
      * local opcode to stack total reserve taken in so far.
      */
-    TOTAL_RESERVE_IN: 1 + StandardOps.length,
+    TOTAL_RESERVE_IN: 1 + VM.Opcodes.length,
     /**
      * local opcode to stack the rTKN units/amount of the current buy.
      */
-    CURRENT_BUY_UNITS: 2 + StandardOps.length,
+    CURRENT_BUY_UNITS: 2 + VM.Opcodes.length,
     /**
      * local opcode to stack the address of the rTKN.
      */
-    TOKEN_ADDRESS: 3 + StandardOps.length,
+    TOKEN_ADDRESS: 3 + VM.Opcodes.length,
     /**
      * local opcode to stack the address of the reserve token.
      */
-    RESERVE_ADDRESS: 4 + StandardOps.length,
+    RESERVE_ADDRESS: 4 + VM.Opcodes.length,
   };
+
+  public static op = VM.op;
+
+  public static concat = VM.concat;
 
   /**
    * Deploys a new Sale.
@@ -117,14 +119,70 @@ export class Sale extends FactoryContract {
       signer
     );
 
+    const {
+      canStartStateConfig: canStart,
+      canEndStateConfig: canEnd,
+      calculatePriceStateConfig: priceConfig,
+      recipient,
+      reserve,
+      saleTimeout,
+      cooldownDuration,
+      minimumRaise,
+      dustSize,
+    } = saleConfig;
+
+    const canStartStateConfig =
+      typeof canStart === 'number'
+        ? this.afterBlockNumberConfig(canStart)
+        : canStart;
+
+    const canEndStateConfig =
+      typeof canEnd === 'number' ? Sale.afterBlockNumberConfig(canEnd) : canEnd;
+
+    let calculatePriceStateConfig: StateConfig;
+    if (typeof priceConfig === 'number' || BigNumber.isBigNumber(priceConfig)) {
+      const constants = [priceConfig];
+      const vBasePrice = this.op(this.Opcodes.VAL, 0);
+      const sources = [concat([vBasePrice])];
+
+      calculatePriceStateConfig = {
+        sources,
+        constants,
+        stackLength: 1,
+        argumentsLength: 0,
+      };
+    } else {
+      calculatePriceStateConfig = priceConfig;
+    }
+
     const tx = await saleFactory.createChildTyped(
-      saleConfig,
+      {
+        canStartStateConfig,
+        canEndStateConfig,
+        calculatePriceStateConfig,
+        recipient,
+        reserve,
+        saleTimeout,
+        cooldownDuration,
+        minimumRaise,
+        dustSize,
+      },
       saleRedeemableERC20Config,
       overrides
     );
     const receipt = await tx.wait();
     const address = this.getNewChildFromReceipt(receipt, saleFactory);
     return new Sale(address, signer);
+  };
+
+  /**
+   * Connect the current instance to a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The instance with a new signer
+   */
+  public readonly connect = (signer: Signer): Sale => {
+    return new Sale(this.address, signer);
   };
 
   /**
@@ -147,13 +205,13 @@ export class Sale extends FactoryContract {
    * @param blockNumber - block number that will be use as comparision
    * @returns A VM Configturation
    */
-  public static afterBlockNumberConfig = (blockNumber: number): State => {
+  public static afterBlockNumberConfig = (blockNumber: number): StateConfig => {
     return {
       sources: [
         concat([
-          op(this.Opcode.BLOCK_NUMBER),
-          op(this.Opcode.VAL, 0),
-          op(this.Opcode.GREATER_THAN),
+          VM.op(this.Opcodes.BLOCK_NUMBER),
+          VM.op(this.Opcodes.VAL, 0),
+          VM.op(this.Opcodes.GREATER_THAN),
         ]),
       ],
       constants: [blockNumber - 1],
@@ -328,16 +386,16 @@ export interface SaleConfig {
   /**
    * State config for the script that allows a Sale to start.
    */
-  canStartStateConfig: State;
+  canStartStateConfig: StateConfig | number;
   /**
    * State config for the script that allows a Sale to end. IMPORTANT: A Sale can always end if/when its rTKN sells out, regardless
    * of the result of this script.
    */
-  canEndStateConfig: State;
+  canEndStateConfig: StateConfig | number;
   /**
    * State config for the script that defines the current price quoted by a Sale.
    */
-  calculatePriceStateConfig: State;
+  calculatePriceStateConfig: StateConfig | number | BigNumber;
   /**
    * The recipient of the proceeds of a Sale, if/when the Sale is successful.
    */

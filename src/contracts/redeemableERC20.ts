@@ -114,6 +114,16 @@ export class RedeemableERC20 extends FactoryContract {
   };
 
   /**
+   * Connect the current instance to a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The instance with a new signer
+   */
+  public readonly connect = (signer: Signer): RedeemableERC20 => {
+    return new RedeemableERC20(this.address, signer);
+  };
+
+  /**
    * Checks if address is registered as a child contract of this RedeemableERC20Factory on a specific network
    *
    * @param signer - An ethers.js Signer

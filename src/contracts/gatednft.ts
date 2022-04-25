@@ -102,6 +102,16 @@ export class GatedNFT extends FactoryContract {
   };
 
   /**
+   * Connect the current instance to a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The instance with a new signer
+   */
+  public readonly connect = (signer: Signer): GatedNFT => {
+    return new GatedNFT(this.address, signer);
+  };
+
+  /**
    * Checks if address is registered as a child contract of this GatedNFTFactory on a specific network
    *
    * @param signer - An ethers.js Signer
