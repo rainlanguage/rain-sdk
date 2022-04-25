@@ -30,15 +30,8 @@
 
 |  Enumeration | Description |
 |  --- | --- |
-|  [StandardOps](./rain-sdk.standardops.md) | All the standard Op Codes |
+|  [AllStandardOps](./rain-sdk.allstandardops.md) | All the standard Op Codes |
 |  [Transferrable](./rain-sdk.transferrable.md) | Determine the status about how the GatedNFT contract will handle the transfers |
-
-## Functions
-
-|  Function | Description |
-|  --- | --- |
-|  [bytify(value, bytesLength)](./rain-sdk.bytify.md) | Converts a value to raw bytes representation. Assumes <code>value</code> is less than or equal to 1 byte, unless a desired <code>bytesLength</code> is specified. |
-|  [op(code, erand)](./rain-sdk.op.md) | Converts an opcode and operand to bytes, and returns their concatenation. |
 
 ## Interfaces
 
@@ -62,6 +55,7 @@
 |  [SaleDeployArguments](./rain-sdk.saledeployarguments.md) |  |
 |  [SaleRedeemableERC20Config](./rain-sdk.saleredeemableerc20config.md) |  |
 |  [State](./rain-sdk.state.md) |  |
+|  [StateConfig](./rain-sdk.stateconfig.md) |  |
 |  [TxOverrides](./rain-sdk.txoverrides.md) | More read about <code>TxOverrides</code> that comes from Overrides of ethers |
 |  [VerifyDeployArgs](./rain-sdk.verifydeployargs.md) | Config to initialize a Verify contract with. |
 |  [VerifyState](./rain-sdk.verifystate.md) | Records the block a verify session reaches each status. If a status is not reached it is left as UNINITIALIZED, i.e. 0xFFFFFFFF. Most accounts will never be banned so most accounts will never reach every status, which is a good thing. |

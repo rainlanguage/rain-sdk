@@ -47,6 +47,7 @@ const tx = await notice.createNotices([noticeArg]);
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
+|  [connect](./rain-sdk.noticeboard.connect.md) |  | (signer: Signer) =&gt; [NoticeBoard](./rain-sdk.noticeboard.md) | Connect the current instance to a new signer |
 |  [createNotices](./rain-sdk.noticeboard.createnotices.md) |  | (notices: [NoticeStruct](./rain-sdk.noticestruct.md)<!-- -->\[\], overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;ContractTransaction&gt; | Anyone can create notices about some subject. The notice is opaque bytes. The indexer/GUI is expected to understand the context to decode/interpret it. The indexer/GUI is strongly recommended to filter out untrusted content. |
 |  [nameBookReference](./rain-sdk.noticeboard.namebookreference.md) | <code>static</code> | (not declared) |  |
 

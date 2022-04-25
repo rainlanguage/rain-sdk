@@ -15,8 +15,9 @@ export interface State
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [argumentsLength](./rain-sdk.state.argumentslength.md) | BigNumberish |  |
+|  [arguments](./rain-sdk.state.arguments.md) | BigNumberish\[\] |  |
 |  [constants](./rain-sdk.state.constants.md) | BigNumberish\[\] |  |
 |  [sources](./rain-sdk.state.sources.md) | BytesLike\[\] |  |
-|  [stackLength](./rain-sdk.state.stacklength.md) | BigNumberish |  |
+|  [stack](./rain-sdk.state.stack.md) | BigNumberish\[\] |  |
+|  [stackIndex](./rain-sdk.state.stackindex.md) | BigNumberish |  |
 

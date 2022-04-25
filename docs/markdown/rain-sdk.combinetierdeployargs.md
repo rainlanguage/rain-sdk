@@ -9,7 +9,7 @@ The StateConfig will be deployed as a pointer under
 <b>Signature:</b>
 
 ```typescript
-export declare type CombineTierDeployArgs = State;
+export declare type CombineTierDeployArgs = StateConfig;
 ```
-<b>References:</b> [State](./rain-sdk.state.md)
+<b>References:</b> [StateConfig](./rain-sdk.stateconfig.md)
 

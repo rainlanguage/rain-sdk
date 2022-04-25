@@ -34,8 +34,8 @@ import { ERC20TransferTier } from 'rain-sdk'
 // To deploy a new ERC20TransferTier, pass an ethers.js Signer and the config for the ERC20TransferTier.
 const newTier = await ERC20TransferTier.deploy(signer, ERC20TransferTierConfigArgs);
 
-// To connect to an existing ERC20TransferTier just pass the address and an ethers.js Signer.
-const existingTier = new ERC20TransferTier(address, signer);
+// To connect to an existing ERC20TransferTier just pass the tier address, token address and an ethers.js Signer.
+const existingTier = new ERC20TransferTier(address, tokenAddress, signer);
 
 // Once you have a ERC20TransferTier, you can call the smart contract methods:
 const tierValues = await existingTier.tierValues();
@@ -45,15 +45,24 @@ const tierValues = await existingTier.tierValues();
 
 |  Constructor | Modifiers | Description |
 |  --- | --- | --- |
-|  [(constructor)(address, signer)](./rain-sdk.erc20transfertier._constructor_.md) |  | Constructs a new ERC20TransferTier from a known address. |
+|  [(constructor)(address, tokenAddress, signer)](./rain-sdk.erc20transfertier._constructor_.md) |  | Constructs a new ERC20TransferTier from a known address. |
 
 ## Properties
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
-|  [deploy](./rain-sdk.erc20transfertier.deploy.md) | <code>static</code> | (signer: Signer, args: [ERC20TransferTierDeployArgs](./rain-sdk.erc20transfertierdeployargs.md)<!-- -->, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;[ERC20TransferTier](./rain-sdk.erc20transfertier.md)<!-- -->&gt; | Deploys a new ERC20TransferTier. |
+|  [connect](./rain-sdk.erc20transfertier.connect.md) |  | (signer: Signer) =&gt; [ERC20TransferTier](./rain-sdk.erc20transfertier.md) | Connect the current instance to a new signer |
 |  [isChild](./rain-sdk.erc20transfertier.ischild.md) | <code>static</code> | (signer: Signer, maybeChild: string) =&gt; Promise&lt;boolean&gt; | Checks if address is registered as a child contract of this ERC20TransferTierFactory on a specific network |
 |  [nameBookReference](./rain-sdk.erc20transfertier.namebookreference.md) | <code>static</code> | (not declared) |  |
 |  [setTier](./rain-sdk.erc20transfertier.settier.md) |  | (account: string, endTier: BigNumberish, data: BytesLike, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;ContractTransaction&gt; | Users can set their own tier by calling <code>setTier</code>. Updates the tier of an account. Transfers balances of erc20 from/to the tiered account according to the difference in values.<!-- -->Any failure to transfer in/out will rollback the tier change. The tiered account must ensure sufficient approvals before attempting to set a new tier. This throw an error if the user attempts to return to the ZERO tier. |
 |  [tierValues](./rain-sdk.erc20transfertier.tiervalues.md) |  | (overrides?: [ReadTxOverrides](./rain-sdk.readtxoverrides.md)<!-- -->) =&gt; Promise&lt;BigNumber\[\]&gt; | Complements the default solidity accessor for <code>tierValues</code>. Returns all the values in a listrather than requiring an index be specified. |
+|  [token](./rain-sdk.erc20transfertier.token.md) |  | string | ERC20 Token address that holds the Tier |
+
+## Methods
+
+|  Method | Modifiers | Description |
+|  --- | --- | --- |
+|  [amountToTier(desiredLevel, account)](./rain-sdk.erc20transfertier.amounttotier.md) |  | Calculate how much amount of the token needed transfer to the tier contract or how much tokens the <code>account</code> will get back to reach the <code>desiredLevel</code>.<!-- -->Take in mind: - If the <code>account</code> directly send tokens to the ERC20TransferTier contract, those tokens are lost. All the calcualtions are make it with the tokens transfered by the account with setTier method. - If the <code>desired level</code> is higher than the current level, the amount returned will be the amount needed to obtain tier. - If the <code>desired level</code> is lower than the current level, the amount returned will be the amount that will get back. - If already have the <code>desired</code> tier, will return 0. |
+|  [approveTokenForTier(amount, overrides)](./rain-sdk.erc20transfertier.approvetokenfortier.md) |  |  |
+|  [deploy(signer, args, overrides)](./rain-sdk.erc20transfertier.deploy.md) | <code>static</code> | Deploys a new ERC20TransferTier. |
 

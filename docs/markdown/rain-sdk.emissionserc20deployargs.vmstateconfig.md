@@ -7,5 +7,5 @@
 <b>Signature:</b>
 
 ```typescript
-vmStateConfig: State;
+vmStateConfig: StateConfig;
 ```

@@ -13,15 +13,10 @@ export declare abstract class FactoryContract extends RainContract
 ```
 <b>Extends:</b> [RainContract](./rain-sdk.raincontract.md)
 
-## Properties
-
-|  Property | Modifiers | Type | Description |
-|  --- | --- | --- | --- |
-|  [getNewChildFromReceipt](./rain-sdk.factorycontract.getnewchildfromreceipt.md) | <code>static</code> | (receipt: ContractReceipt, parentContract: Contract \| string) =&gt; string | Get the child from a receipt obtain from a Factory transaction |
-
 ## Methods
 
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
 |  [\_isChild(signer, maybeChild)](./rain-sdk.factorycontract._ischild.md) | <code>static</code> | Checks if address is registered as a child contract of the factory in the chain. Should be implemented in sub-classes that repreent factories to expose it. |
+|  [getNewChildFromReceipt(receipt, parentContract)](./rain-sdk.factorycontract.getnewchildfromreceipt.md) | <code>static</code> | Get the child from a receipt obtain from a Factory transaction |
 

@@ -9,5 +9,5 @@ State config for the script that defines the current price quoted by a Sale.
 <b>Signature:</b>
 
 ```typescript
-calculatePriceStateConfig: State;
+calculatePriceStateConfig: StateConfig | number | BigNumber;
 ```

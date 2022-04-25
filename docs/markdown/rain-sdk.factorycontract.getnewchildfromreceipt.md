@@ -2,12 +2,26 @@
 
 [Home](./index.md) &gt; [rain-sdk](./rain-sdk.md) &gt; [FactoryContract](./rain-sdk.factorycontract.md) &gt; [getNewChildFromReceipt](./rain-sdk.factorycontract.getnewchildfromreceipt.md)
 
-## FactoryContract.getNewChildFromReceipt property
+## FactoryContract.getNewChildFromReceipt() method
 
 Get the child from a receipt obtain from a Factory transaction
 
 <b>Signature:</b>
 
 ```typescript
-static readonly getNewChildFromReceipt: (receipt: ContractReceipt, parentContract: Contract | string) => string;
+static getNewChildFromReceipt(receipt: ContractReceipt, parentContract: Contract | string): string;
 ```
+
+## Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  receipt | ContractReceipt | The receipt of the transaction |
+|  parentContract | Contract \| string | Contract factory/parent that create the child. Can be the instance or the address |
+
+<b>Returns:</b>
+
+string
+
+The address of the child
+

@@ -23,6 +23,13 @@ export declare abstract class TierFactoryContract extends FactoryContract
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
+|  [levels](./rain-sdk.tierfactorycontract.levels.md) |  | typeof Tier | All the contract tier levels. |
 |  [report](./rain-sdk.tierfactorycontract.report.md) |  | (account: string, overrides?: [ReadTxOverrides](./rain-sdk.readtxoverrides.md)<!-- -->) =&gt; Promise&lt;BigNumber&gt; | A tier report is a <code>uint256</code> that contains each of the block numbers each tier has been held continously since as a <code>uint32</code>. There are 9 possible tier, starting with tier 0 for <code>0</code> offset or "never held any tier" then working up through 8x 4 byte offsets to the full 256 bits. |
 |  [setTier](./rain-sdk.tierfactorycontract.settier.md) |  | (account: string, endTier: BigNumberish, data: BytesLike, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;ContractTransaction&gt; | Users can set their own tier by calling <code>setTier</code>. Updates the tier of an account. Transfers balances of erc20 from/to the tiered account according to the difference in values.<!-- -->Any failure to transfer in/out will rollback the tier change. The tiered account must ensure sufficient approvals before attempting to set a new tier. This throw an error if the user attempts to return to the ZERO tier. |
+
+## Methods
+
+|  Method | Modifiers | Description |
+|  --- | --- | --- |
+|  [currentTier(account, overrides)](./rain-sdk.tierfactorycontract.currenttier.md) |  | Get the current tier of an <code>account</code> in the Tier as an expression between <code>[0 - 8]</code>. Tier 0 is that a address has never interact with the Tier Contract. |
 

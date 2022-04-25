@@ -22,7 +22,7 @@ export declare abstract class RainContract
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
 |  [address](./rain-sdk.raincontract.address.md) |  | string |  |
-|  [connect](./rain-sdk.raincontract.connect.md) |  | (signer: Signer) =&gt; this | Connect the current instance to a new signer |
+|  [connect](./rain-sdk.raincontract.connect.md) |  | (signer: Signer) =&gt; [RainContract](./rain-sdk.raincontract.md) | Connect the current instance to a new signer |
 |  [getChainId](./rain-sdk.raincontract.getchainid.md) | <code>static</code> | (signerOrProvider: Signer \| Provider) =&gt; Promise&lt;number&gt; | Get the chain ID from a valid ethers provider.<!-- -->Request to the provider stored in the signer which is the chain ID. |
 |  [nameBookReference](./rain-sdk.raincontract.namebookreference.md) | <code>static</code> | string | Reference to find the address in the book address. Should be implemented and assign it to each subclass |
 |  [signer](./rain-sdk.raincontract.signer.md) |  | Signer |  |

@@ -16,8 +16,8 @@ constructor(address: string, saleAddress: string, tokenAddress: string, signer: 
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  address | string | The address of the NoticeBoard contract |
-|  saleAddress | string |  |
-|  tokenAddress | string |  |
+|  address | string | The address of the RedeemableERC20ClaimEscrow contract |
+|  saleAddress | string | The address of the Sale contract that will be use to interact |
+|  tokenAddress | string | The address of the tokenAddress contract that will be use to interact |
 |  signer | Signer | An ethers.js Signer |
 

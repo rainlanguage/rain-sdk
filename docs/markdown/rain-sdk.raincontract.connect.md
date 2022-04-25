@@ -9,5 +9,5 @@ Connect the current instance to a new signer
 <b>Signature:</b>
 
 ```typescript
-readonly connect: (signer: Signer) => this;
+abstract readonly connect: (signer: Signer) => RainContract;
 ```

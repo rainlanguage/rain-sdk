@@ -9,5 +9,5 @@ Create a condition as VM state configuration to that is true after a `blockNumbe
 <b>Signature:</b>
 
 ```typescript
-static afterBlockNumberConfig: (blockNumber: number) => State;
+static afterBlockNumberConfig: (blockNumber: number) => StateConfig;
 ```

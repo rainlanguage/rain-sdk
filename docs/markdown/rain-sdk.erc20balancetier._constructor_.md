@@ -9,7 +9,7 @@ Constructs a new ERC20BalanceTier from a known address.
 <b>Signature:</b>
 
 ```typescript
-constructor(address: string, signer: Signer);
+constructor(address: string, tokenAddress: string, signer: Signer);
 ```
 
 ## Parameters
@@ -17,5 +17,6 @@ constructor(address: string, signer: Signer);
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  address | string | The address of the ERC20BalanceTier contract |
+|  tokenAddress | string |  |
 |  signer | Signer | An ethers.js Signer |
 

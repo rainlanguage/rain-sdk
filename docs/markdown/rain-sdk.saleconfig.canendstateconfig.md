@@ -9,5 +9,5 @@ State config for the script that allows a Sale to end. IMPORTANT: A Sale can alw
 <b>Signature:</b>
 
 ```typescript
-canEndStateConfig: State;
+canEndStateConfig: StateConfig | number;
 ```

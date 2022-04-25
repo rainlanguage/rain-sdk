@@ -43,6 +43,7 @@ const tierValues = await existingTier.tierValues();
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
+|  [connect](./rain-sdk.erc721balancetier.connect.md) |  | (signer: Signer) =&gt; [ERC721BalanceTier](./rain-sdk.erc721balancetier.md) | Connect the current instance to a new signer |
 |  [deploy](./rain-sdk.erc721balancetier.deploy.md) | <code>static</code> | (signer: Signer, args: [ERC721BalanceTierDeployArgs](./rain-sdk.erc721balancetierdeployargs.md)<!-- -->, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;[ERC721BalanceTier](./rain-sdk.erc721balancetier.md)<!-- -->&gt; | Deploys a new ERC721BalanceTier. |
 |  [isChild](./rain-sdk.erc721balancetier.ischild.md) | <code>static</code> | (signer: Signer, maybeChild: string) =&gt; Promise&lt;boolean&gt; | Checks if address is registered as a child contract of this ERC721BalanceTierFactory on a specific network |
 |  [nameBookReference](./rain-sdk.erc721balancetier.namebookreference.md) | <code>static</code> | (not declared) |  |

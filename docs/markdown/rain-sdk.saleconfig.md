@@ -15,9 +15,9 @@ export interface SaleConfig
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [calculatePriceStateConfig](./rain-sdk.saleconfig.calculatepricestateconfig.md) | [State](./rain-sdk.state.md) | State config for the script that defines the current price quoted by a Sale. |
-|  [canEndStateConfig](./rain-sdk.saleconfig.canendstateconfig.md) | [State](./rain-sdk.state.md) | State config for the script that allows a Sale to end. IMPORTANT: A Sale can always end if/when its rTKN sells out, regardless of the result of this script. |
-|  [canStartStateConfig](./rain-sdk.saleconfig.canstartstateconfig.md) | [State](./rain-sdk.state.md) | State config for the script that allows a Sale to start. |
+|  [calculatePriceStateConfig](./rain-sdk.saleconfig.calculatepricestateconfig.md) | [StateConfig](./rain-sdk.stateconfig.md) \| number \| BigNumber | State config for the script that defines the current price quoted by a Sale. |
+|  [canEndStateConfig](./rain-sdk.saleconfig.canendstateconfig.md) | [StateConfig](./rain-sdk.stateconfig.md) \| number | State config for the script that allows a Sale to end. IMPORTANT: A Sale can always end if/when its rTKN sells out, regardless of the result of this script. |
+|  [canStartStateConfig](./rain-sdk.saleconfig.canstartstateconfig.md) | [StateConfig](./rain-sdk.stateconfig.md) \| number | State config for the script that allows a Sale to start. |
 |  [cooldownDuration](./rain-sdk.saleconfig.cooldownduration.md) | BigNumberish | The amount of blocks after each buy/refund, before a user is allowed another buy/refund. |
 |  [dustSize](./rain-sdk.saleconfig.dustsize.md) | BigNumberish | The minimum amount of rTKN that must remain in the Sale contract unless it is all purchased, clearing the raise to 0 stock and thus ending the raise. |
 |  [minimumRaise](./rain-sdk.saleconfig.minimumraise.md) | BigNumberish | defines the amount of reserve required to raise tha defines success/fail of the sale. Reaching the minimum raise DOES NOT cause the raise to end early (unless the "can end" script allows it of course). |

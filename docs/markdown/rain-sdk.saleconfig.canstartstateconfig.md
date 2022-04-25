@@ -9,5 +9,5 @@ State config for the script that allows a Sale to start.
 <b>Signature:</b>
 
 ```typescript
-canStartStateConfig: State;
+canStartStateConfig: StateConfig | number;
 ```

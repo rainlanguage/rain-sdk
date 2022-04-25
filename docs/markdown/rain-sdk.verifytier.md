@@ -38,6 +38,7 @@ const report = await existingTier.report(address);
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
+|  [connect](./rain-sdk.verifytier.connect.md) |  | (signer: Signer) =&gt; [VerifyTier](./rain-sdk.verifytier.md) | Connect the current instance to a new signer |
 |  [deploy](./rain-sdk.verifytier.deploy.md) | <code>static</code> | (signer: Signer, verifyAddress: string, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;[VerifyTier](./rain-sdk.verifytier.md)<!-- -->&gt; | Deploys a new VerifyTier. |
 |  [isChild](./rain-sdk.verifytier.ischild.md) | <code>static</code> | (signer: Signer, maybeChild: string) =&gt; Promise&lt;boolean&gt; | Checks if address is registered as a child contract of this VerifyTierFactory on a specific network |
 |  [nameBookReference](./rain-sdk.verifytier.namebookreference.md) | <code>static</code> | (not declared) |  |

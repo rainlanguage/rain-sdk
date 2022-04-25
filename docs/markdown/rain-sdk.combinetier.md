@@ -39,6 +39,7 @@ const report = await existingTier.report(address)
 
 |  Property | Modifiers | Type | Description |
 |  --- | --- | --- | --- |
+|  [connect](./rain-sdk.combinetier.connect.md) |  | (signer: Signer) =&gt; [CombineTier](./rain-sdk.combinetier.md) | Connect the current instance to a new signer |
 |  [deploy](./rain-sdk.combinetier.deploy.md) | <code>static</code> | (signer: Signer, args: [CombineTierDeployArgs](./rain-sdk.combinetierdeployargs.md)<!-- -->, overrides?: [TxOverrides](./rain-sdk.txoverrides.md)<!-- -->) =&gt; Promise&lt;[CombineTier](./rain-sdk.combinetier.md)<!-- -->&gt; | Deploys a new CombineTier. |
 |  [isChild](./rain-sdk.combinetier.ischild.md) | <code>static</code> | (signer: Signer, maybeChild: string) =&gt; Promise&lt;boolean&gt; | Checks if address is registered as a child contract of this CombineTierFactory on a specific network |
 |  [nameBookReference](./rain-sdk.combinetier.namebookreference.md) | <code>static</code> | (not declared) |  |

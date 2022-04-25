@@ -18,5 +18,5 @@ export interface EmissionsERC20DeployArgs
 |  --- | --- | --- |
 |  [allowDelegatedClaims](./rain-sdk.emissionserc20deployargs.allowdelegatedclaims.md) | boolean |  |
 |  [erc20Config](./rain-sdk.emissionserc20deployargs.erc20config.md) | [ERC20Config](./rain-sdk.erc20config.md) |  |
-|  [vmStateConfig](./rain-sdk.emissionserc20deployargs.vmstateconfig.md) | [State](./rain-sdk.state.md) |  |
+|  [vmStateConfig](./rain-sdk.emissionserc20deployargs.vmstateconfig.md) | [StateConfig](./rain-sdk.stateconfig.md) |  |
 
