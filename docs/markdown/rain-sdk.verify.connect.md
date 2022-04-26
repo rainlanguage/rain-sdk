@@ -4,8 +4,6 @@
 
 ## Verify.connect property
 
-Connect the current instance to a new signer
-
 <b>Signature:</b>
 
 ```typescript

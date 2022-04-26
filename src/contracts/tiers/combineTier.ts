@@ -67,12 +67,6 @@ export class CombineTier extends TierFactoryContract {
     return new CombineTier(address, signer);
   };
 
-  /**
-   * Connect the current instance to a new signer
-   *
-   * @param signer - The new signer which will be connected
-   * @returns The instance with a new signer
-   */
   public readonly connect = (signer: Signer): CombineTier => {
     return new CombineTier(this.address, signer);
   };

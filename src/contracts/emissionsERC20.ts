@@ -91,12 +91,6 @@ export class EmissionsERC20 extends TierFactoryContract {
     return new EmissionsERC20(address, signer);
   };
 
-  /**
-   * Connect the current instance to a new signer
-   *
-   * @param signer - The new signer which will be connected
-   * @returns The instance with a new signer
-   */
   public readonly connect = (signer: Signer): EmissionsERC20 => {
     return new EmissionsERC20(this.address, signer);
   };

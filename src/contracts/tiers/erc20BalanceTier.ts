@@ -87,12 +87,6 @@ export class ERC20BalanceTier extends TierFactoryContract {
     return new ERC20BalanceTier(address, args.erc20, signer);
   };
 
-  /**
-   * Connect the current instance to a new signer
-   *
-   * @param signer - The new signer which will be connected
-   * @returns The instance with a new signer
-   */
   public readonly connect = (signer: Signer): ERC20BalanceTier => {
     return new ERC20BalanceTier(this.address, this.token, signer);
   };

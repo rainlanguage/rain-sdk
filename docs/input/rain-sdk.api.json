@@ -13268,7 +13268,7 @@
             {
               "kind": "Property",
               "canonicalReference": "rain-sdk!Verify#connect:member",
-              "docComment": "/**\n * Connect the current instance to a new signer\n *\n * @param signer - The new signer which will be connected\n *\n * @returns The instance with a new signer\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",

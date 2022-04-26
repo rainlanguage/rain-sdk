@@ -103,12 +103,6 @@ export class ERC20TransferTier extends TierFactoryContract {
     return new ERC20TransferTier(address, args.erc20, signer);
   }
 
-  /**
-   * Connect the current instance to a new signer
-   *
-   * @param signer - The new signer which will be connected
-   * @returns The instance with a new signer
-   */
   public readonly connect = (signer: Signer): ERC20TransferTier => {
     return new ERC20TransferTier(this.address, this.token, signer);
   };

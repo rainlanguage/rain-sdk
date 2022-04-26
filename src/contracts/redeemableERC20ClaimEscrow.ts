@@ -107,12 +107,6 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
     );
   };
 
-  /**
-   * Connect the current instance to a new signer
-   *
-   * @param signer - The new signer which will be connected
-   * @returns The instance with a new signer
-   */
   public readonly connect = (signer: Signer): RedeemableERC20ClaimEscrow => {
     return new RedeemableERC20ClaimEscrow(
       this.address,

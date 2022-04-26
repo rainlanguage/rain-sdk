@@ -80,12 +80,6 @@ export class ERC721BalanceTier extends TierFactoryContract {
     return new ERC721BalanceTier(address, signer);
   };
 
-  /**
-   * Connect the current instance to a new signer
-   *
-   * @param signer - The new signer which will be connected
-   * @returns The instance with a new signer
-   */
   public readonly connect = (signer: Signer): ERC721BalanceTier => {
     return new ERC721BalanceTier(this.address, signer);
   };

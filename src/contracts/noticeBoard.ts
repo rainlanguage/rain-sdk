@@ -51,12 +51,6 @@ export class NoticeBoard extends RainContract {
     this.createNotices = _noticeBoard.createNotices;
   }
 
-  /**
-   * Connect the current instance to a new signer
-   *
-   * @param signer - The new signer which will be connected
-   * @returns The instance with a new signer
-   */
   public readonly connect = (signer: Signer): NoticeBoard => {
     return new NoticeBoard(this.address, signer);
   };

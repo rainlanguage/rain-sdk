@@ -113,12 +113,6 @@ export class RedeemableERC20 extends FactoryContract {
     return new RedeemableERC20(address, signer);
   };
 
-  /**
-   * Connect the current instance to a new signer
-   *
-   * @param signer - The new signer which will be connected
-   * @returns The instance with a new signer
-   */
   public readonly connect = (signer: Signer): RedeemableERC20 => {
     return new RedeemableERC20(this.address, signer);
   };

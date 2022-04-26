@@ -119,54 +119,8 @@ export class Sale extends FactoryContract {
       signer
     );
 
-    const {
-      canStartStateConfig: canStart,
-      canEndStateConfig: canEnd,
-      calculatePriceStateConfig: priceConfig,
-      recipient,
-      reserve,
-      saleTimeout,
-      cooldownDuration,
-      minimumRaise,
-      dustSize,
-    } = saleConfig;
-
-    const canStartStateConfig =
-      typeof canStart === 'number'
-        ? this.afterBlockNumberConfig(canStart)
-        : canStart;
-
-    const canEndStateConfig =
-      typeof canEnd === 'number' ? Sale.afterBlockNumberConfig(canEnd) : canEnd;
-
-    let calculatePriceStateConfig: StateConfig;
-    if (typeof priceConfig === 'number' || BigNumber.isBigNumber(priceConfig)) {
-      const constants = [priceConfig];
-      const vBasePrice = this.op(this.Opcodes.VAL, 0);
-      const sources = [concat([vBasePrice])];
-
-      calculatePriceStateConfig = {
-        sources,
-        constants,
-        stackLength: 1,
-        argumentsLength: 0,
-      };
-    } else {
-      calculatePriceStateConfig = priceConfig;
-    }
-
     const tx = await saleFactory.createChildTyped(
-      {
-        canStartStateConfig,
-        canEndStateConfig,
-        calculatePriceStateConfig,
-        recipient,
-        reserve,
-        saleTimeout,
-        cooldownDuration,
-        minimumRaise,
-        dustSize,
-      },
+      saleConfig,
       saleRedeemableERC20Config,
       overrides
     );
@@ -175,12 +129,6 @@ export class Sale extends FactoryContract {
     return new Sale(address, signer);
   };
 
-  /**
-   * Connect the current instance to a new signer
-   *
-   * @param signer - The new signer which will be connected
-   * @returns The instance with a new signer
-   */
   public readonly connect = (signer: Signer): Sale => {
     return new Sale(this.address, signer);
   };
@@ -205,7 +153,7 @@ export class Sale extends FactoryContract {
    * @param blockNumber - block number that will be use as comparision
    * @returns A VM Configturation
    */
-  public static afterBlockNumberConfig = (blockNumber: number): StateConfig => {
+  public static afterBlockNumberConfig(blockNumber: number): StateConfig {
     return {
       sources: [
         concat([
@@ -218,7 +166,28 @@ export class Sale extends FactoryContract {
       stackLength: 3,
       argumentsLength: 0,
     };
-  };
+  }
+
+  /**
+   * Create a condition as VM state configuration to that is true after a `timestamp` in the chain.
+   *
+   * @param timestamp - timestamp that will be use as comparision
+   * @returns A VM Configturation
+   */
+  public static afterTimestampConfig(timestamp: number): StateConfig {
+    return {
+      sources: [
+        concat([
+          VM.op(this.Opcodes.BLOCK_TIMESTAMP),
+          VM.op(this.Opcodes.VAL, 0),
+          VM.op(this.Opcodes.GREATER_THAN),
+        ]),
+      ],
+      constants: [timestamp],
+      stackLength: 3,
+      argumentsLength: 0,
+    };
+  }
 
   /**
    * Obtain the instance redeemable token from this sale.
@@ -386,16 +355,16 @@ export interface SaleConfig {
   /**
    * State config for the script that allows a Sale to start.
    */
-  canStartStateConfig: StateConfig | number;
+  canStartStateConfig: StateConfig;
   /**
    * State config for the script that allows a Sale to end. IMPORTANT: A Sale can always end if/when its rTKN sells out, regardless
    * of the result of this script.
    */
-  canEndStateConfig: StateConfig | number;
+  canEndStateConfig: StateConfig;
   /**
    * State config for the script that defines the current price quoted by a Sale.
    */
-  calculatePriceStateConfig: StateConfig | number | BigNumber;
+  calculatePriceStateConfig: StateConfig;
   /**
    * The recipient of the proceeds of a Sale, if/when the Sale is successful.
    */
