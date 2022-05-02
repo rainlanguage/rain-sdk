@@ -41,6 +41,7 @@ export interface Addresses {
   NoticeBoard: string;
   EmissionsERC20Factory: string;
   SaleFactory: string;
+  AlwaysTier: string;
 }
 
 export const sixZeros = '000000';
