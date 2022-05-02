@@ -144,5 +144,29 @@ export class VM {
     return zeroPad(hexlify(value), bytesLength);
   }
 
+  /**
+   * Concatenates all the BytesLike in array into a single Uint8Array.
+   */
   public static concat = concat;
+
+  /**
+   * Create a VM sources to be ready to use in any call just providing the combination desired.
+   *
+   * @param OPerands - All the configuration with the opcodes and operands. If any combination
+   * does not have an operand with an opcode, a 0 (zero) will be use with the opcode as the
+   * operand. Please @see OPerand
+   *
+   * @returns
+   */
+  public static createVMSources(OPerands: OPerand[]): [Uint8Array] {
+    return [VM.concat(OPerands.map(x => VM.op(x[0], x[1] || 0)))];
+  }
 }
+
+/**
+ * Parameter that will use to converted to the source.
+ *
+ * Use an opcode and operand to bytes ->  [opcodoperand]
+ *
+ */
+type OPerand = [number, (number | BytesLike | utils.Hexable)?];

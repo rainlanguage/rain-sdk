@@ -160,7 +160,6 @@ export class EmissionsERC20 extends TierFactoryContract {
   /**
    * Sets `amount` as the allowance of `spender` over the caller's tokens.
    *
-   * Returns a boolean value indicating whether the operation succeeded.
    *
    * @param spender - The addess that will get approved
    * @param amount - The amount that `spender` is allowed to spend

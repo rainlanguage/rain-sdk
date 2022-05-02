@@ -7,13 +7,12 @@ import {
   RESERVE_ONE,
   zeroAddress,
 } from './utils';
-// import * as Util from './utils';
 
 import { ReserveTokenTest } from '../typechain';
 
-import { Sale, ERC20BalanceTier } from '../src';
+import { VM, Sale, ERC20BalanceTier } from '../src';
 
-describe.only('SDK - Sale', () => {
+describe('SDK - Sale', () => {
   let reserve: ReserveTokenTest, tier: ERC20BalanceTier;
 
   before('deploy required contracts', async () => {
@@ -42,16 +41,8 @@ describe.only('SDK - Sale', () => {
     };
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
-
     const constants = [staticPrice];
-    const vBasePrice = Sale.op(Sale.Opcodes.VAL, 0);
-
-    /*
-      sources: rainSDK.VM.createVMSources([
-      [rainSDK.Sale.Opcode.VAL, 0],
-      [rainSDK.Sale.Opcode... ]
-    */
-    const sources = [Sale.concat([vBasePrice])];
+    const sources = VM.createVMSources([[Sale.Opcodes.VAL, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
@@ -86,7 +77,9 @@ describe.only('SDK - Sale', () => {
     ).to.be.true;
   });
 
-  it('should start and finish the sale based in blocknumber correctly');
+  xit('should start and finish the sale based in blocknumber correctly', async () => {
+    //
+  });
 
   it('should start and finish the sale based in timestamp correctly');
 });

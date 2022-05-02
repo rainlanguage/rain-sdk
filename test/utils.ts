@@ -2,7 +2,11 @@ import { ethers } from 'hardhat';
 import { BigNumberish, Signer } from 'ethers';
 import { assert } from 'chai';
 
-import { ReserveTokenTest, ReserveTokenERC721 } from '../typechain';
+import {
+  ReserveTokenTest,
+  ReserveTokenERC721,
+  ReserveTokenERC1155,
+} from '../typechain';
 
 /**
  * Hardhat network chainID
@@ -75,6 +79,16 @@ export async function deployErc721(
     signer
   );
   return (await TokenFactory.deploy()) as ReserveTokenERC721;
+}
+
+export async function deployErc1155(
+  signer?: Signer
+): Promise<ReserveTokenERC1155> {
+  const TokenFactory = await ethers.getContractFactory(
+    'ReserveTokenERC1155',
+    signer
+  );
+  return (await TokenFactory.deploy()) as ReserveTokenERC1155;
 }
 
 /**

@@ -1,6 +1,12 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { Addresses, chainId } from './utils';
+import {
+  Addresses,
+  chainId,
+  deployErc20,
+  deployErc721,
+  deployErc1155,
+} from './utils';
 
 import {
   AddressBook,
@@ -16,6 +22,9 @@ import {
   ERC20TransferTier,
   ERC721BalanceTier,
   RedeemableERC20ClaimEscrow,
+  ERC20,
+  ERC721,
+  ERC1155,
 } from '../src';
 
 /**
@@ -198,5 +207,100 @@ describe('SDK - BookAddress', () => {
   it('should get the AlwaysTier address', () => {
     const address = AddressBook.getAddressesForChainId(chainId).alwaysTier;
     expect(address).to.be.equals(addresses.AlwaysTier);
+  });
+});
+
+describe('SDK - Generics', () => {
+  it('should create and use an ERC20 instance correctly', async () => {
+    const [deployer, receiver] = await ethers.getSigners();
+
+    // The ERC20 Contract mint all the tokens to the deployer
+    const erc20Contract = await deployErc20(deployer);
+    const erc20Address = erc20Contract.address;
+
+    // Create the instances
+    const erc20Deployer = new ERC20(erc20Address, deployer);
+    const erc20Receiver = erc20Deployer.connect(receiver);
+
+    // Transfer tokens from the deployer to the receiver with the instances
+    const amountToTransfer = '50000000';
+    await erc20Deployer.approve(receiver.address, amountToTransfer);
+    await erc20Receiver.transferFrom(
+      deployer.address,
+      receiver.address,
+      amountToTransfer
+    );
+
+    expect(await erc20Deployer.balanceOf(receiver.address)).to.be.equals(
+      amountToTransfer
+    );
+  });
+
+  it('should create and use an ERC721 instance correctly', async () => {
+    const [deployer, minter, receiver] = await ethers.getSigners();
+
+    // The ERC721 mint a token (tokenId 0) when is deployed to the deployer address
+    const erc721Contract = await deployErc721(deployer);
+    const erc721Address = erc721Contract.address;
+
+    // The token work as normally in the chain. Minter address mint a token
+    await erc721Contract.connect(minter).mintNewToken();
+
+    // Then use the instances from the SDK to interact with the contract
+    const tokenID = 1;
+    const erc721Minter = new ERC721(erc721Address, minter);
+    const erc721Receiver = erc721Minter.connect(receiver);
+
+    expect(await erc721Minter.ownerOf(tokenID)).to.be.equals(minter.address);
+
+    // Minter set approval so receiver can manage his tokens
+    await erc721Minter.setApprovalForAll(receiver.address, true);
+
+    expect(
+      await erc721Minter.isApprovedForAll(minter.address, receiver.address)
+    ).to.be.true;
+    expect(await erc721Receiver.balanceOf(receiver.address)).to.be.equals(0);
+
+    // Receiver transfer the token from minter to his account
+    await erc721Receiver.safeTransferFrom(
+      minter.address,
+      receiver.address,
+      tokenID
+    );
+
+    expect(await erc721Receiver.balanceOf(receiver.address)).to.be.equals(1);
+    expect(await erc721Receiver.ownerOf(tokenID)).to.be.equals(
+      receiver.address
+    );
+  });
+
+  it('should create and use an ERC115 instance correctly', async () => {
+    const [deployer, receiver] = await ethers.getSigners();
+
+    // When this ERC1155 is deployed, mint `1*10**15` token of typeId `0` to the deployer as owner
+    const erc1155Contract = await deployErc1155(deployer);
+    const erc1155Address = erc1155Contract.address;
+
+    // Create new instance to interact with the contract in chain
+    const erc1555Deployer = new ERC1155(erc1155Address, deployer);
+    const erc1555Receiver = erc1555Deployer.connect(receiver);
+
+    // Approve to the receiver to use all the balance of the deployer
+    await erc1555Deployer.setApprovalForAll(receiver.address, true);
+
+    // Send the 5.000.000 of type 0 from deployer to the receiver
+    const tokenType = 0;
+    const amount = '5000000';
+    await erc1555Receiver.safeTransferFrom(
+      deployer.address,
+      receiver.address,
+      tokenType,
+      amount,
+      []
+    );
+
+    expect(
+      await erc1555Receiver.balanceOf(receiver.address, tokenType)
+    ).to.be.equals(amount);
   });
 });
