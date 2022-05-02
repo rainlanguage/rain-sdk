@@ -2,8 +2,6 @@ import { Signer, utils, BigNumberish, Overrides, CallOverrides } from 'ethers';
 import { Provider } from '@ethersproject/abstract-provider';
 import { AddressBook } from '../addresses';
 
-// TODO: script to get events
-
 /**
  * @public
  */

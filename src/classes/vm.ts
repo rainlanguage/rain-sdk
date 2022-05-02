@@ -24,6 +24,7 @@ export interface State {
 }
 
 /**
+ * @public
  *
  * All the standard Op Codes
  */

@@ -1,7 +1,7 @@
 import { Signer, BytesLike, BigNumberish } from 'ethers';
 import { TierFactoryContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
-import { StateConfig } from '../../classes/vm';
+import { StateConfig, VM } from '../../classes/vm';
 import { CombineTierFactory__factory } from '../../typechain';
 
 /**
@@ -41,6 +41,15 @@ export class CombineTier extends TierFactoryContract {
    * @param signer - An ethers.js Signer
    * @returns A new CombineTier instance
    */
+
+  public static Opcodes = {
+    ...VM.Opcodes,
+    ACCOUNT: 0 + VM.Opcodes.length,
+  };
+
+  public static op = VM.op;
+
+  public static concat = VM.concat;
 
   /**
    * Deploys a new CombineTier.

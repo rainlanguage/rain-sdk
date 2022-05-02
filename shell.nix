@@ -8,6 +8,7 @@ let
     { };
 
  generate-docs = pkgs.writeShellScriptBin "generate-docs" ''
+  yarn build
   yarn generate-docs
  '';
 

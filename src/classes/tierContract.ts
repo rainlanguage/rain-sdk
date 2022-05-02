@@ -10,9 +10,11 @@ import { FactoryContract } from './factoryContract';
 import { ITier__factory } from '../typechain';
 
 /**
+ * @public
+ *
  * All the contract tier levels.
  */
-enum Tier {
+export enum Tier {
   /**
    * Contract tier level 0. This users with this level are those that never has been
    * interacted with the Tier contract.

@@ -56,9 +56,9 @@ This will generate the docs files in the `docs/markdown` directory. You can chan
 
 Change this:
 ```JSON
-"generate-docs": "yarn build && api-extractor run --local && api-documenter markdown -i docs/input -o docs/markdown"
+"generate-docs": "api-extractor run --local && api-documenter markdown -i docs/input -o docs/markdown"
 ```
 To have this:
 ```JSON
-"generate-docs": "yarn build && api-extractor run --local && api-documenter markdown -i docs/input -o myDocs"
+"generate-docs": "api-extractor run --local && api-documenter markdown -i docs/input -o myDocs"
 ```

@@ -5,7 +5,8 @@
   "typings": "dist/index.d.ts",
   "files": [
     "dist",
-    "src"
+    "src",
+    "docs"
   ],
   "engines": {
     "node": ">=12"
@@ -19,7 +20,7 @@
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "generate-docs": "yarn build && api-extractor run --local && api-documenter markdown -i docs/input -o docs/markdown"
+    "generate-docs": "api-extractor run --local && api-documenter markdown -i ./ -o ./docs"
   },
   "peerDependencies": {},
   "husky": {

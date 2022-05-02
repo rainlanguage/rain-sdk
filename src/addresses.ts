@@ -2,7 +2,8 @@ const addressBook = [
   {
     chainId: 80001,
     addresses: {
-      combineTierFactory: '0x89a1d3680e108c553a58a14efdbbac92d6d3cdd4',
+      alwaysTier: '0xCA1666Fecc36b016578796F658A0889Bce796582',
+      combineTierFactory: '0xf163E422eaa4e7b38b392a0Ab663d92c17cEC364',
       erc20BalanceTierFactory: '0xe662E03b0039d5B82DA705B0c15BE581900EE6bE',
       erc20TransferTierFactory: '0x56c338900BC7BC43CaE1De519B63D075075Fbd5F',
       erc721BalanceTierFactory: '0x119ec54eFDf4acbc0e5fa920a5eaA28D5F6695b1',
@@ -20,6 +21,7 @@ const addressBook = [
     // These addresess are deployed in HH Network (test)
     chainId: 31337,
     addresses: {
+      alwaysTier: '0x23dB4a08f2272df049a4932a4Cc3A6Dc1002B33E',
       redeemableERC20Factory: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       verifyFactory: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       verifyTierFactory: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
@@ -54,6 +56,7 @@ export type Addresses = {
   noticeBoard: string;
   emissionsERC20Factory: string;
   saleFactory: string;
+  alwaysTier: string;
 };
 
 /**
