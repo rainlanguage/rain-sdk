@@ -1,7 +1,9 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
+import { BigNumber } from 'ethers';
 import {
-  TierLevels,
+  TierLevelsERC20,
+  TierLevelsERC721,
   deployErc20,
   deployErc721,
   expectAsyncError,
@@ -15,13 +17,32 @@ import {
   ERC721BalanceTier,
 } from '../src';
 
-describe('SDK - ERC20BalanceTier', () => {
-  it('should deploy an ERC20BalanceTier child', async () => {
+function tierReport(report: string): number[] {
+  const parsedReport: number[] = [];
+  const arrStatus = [0, 1, 2, 3, 4, 5, 6, 7]
+    .map(i =>
+      BigInt(report)
+        .toString(16)
+        .padStart(64, '0')
+        .slice(i * 8, i * 8 + 8)
+    )
+    .reverse();
+  //arrStatus = arrStatus.reverse();
+
+  for (const i in arrStatus) {
+    parsedReport.push(parseInt('0x' + arrStatus[i]));
+  }
+
+  return parsedReport;
+}
+
+describe.only('SDK - ERC20BalanceTier', () => {
+  xit('should deploy an ERC20BalanceTier child', async () => {
     const [signer] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     expect(
@@ -30,23 +51,23 @@ describe('SDK - ERC20BalanceTier', () => {
     ).to.be.true;
   });
 
-  it('should get the corrects tier values from SDK', async () => {
+  xit('should get the corrects tier values from SDK', async () => {
     const [signer] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
-    expect(TierLevels).to.be.deep.equal(await tier.tierValues());
+    expect(TierLevelsERC20).to.be.deep.equal(await tier.tierValues());
   });
 
-  it('should throw an error if try to call setTier from SDK', async () => {
+  xit('should throw an error if try to call setTier from SDK', async () => {
     const [signer] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     await expectAsyncError(
@@ -55,14 +76,14 @@ describe('SDK - ERC20BalanceTier', () => {
     );
   });
 
-  it('should calculate the amounts to reach a tier for different addresses and signers using connect', async () => {
+  xit('should calculate the amounts to reach a tier for different addresses and signers using connect', async () => {
     const [deployer, user1, user2] = await ethers.getSigners();
     const token = await deployErc20(deployer);
 
     // Tier connected to the deployer token and tier contracts
     const tierDeployer = await ERC20BalanceTier.deploy(deployer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     const tierUser1 = tierDeployer.connect(user1);
@@ -77,15 +98,23 @@ describe('SDK - ERC20BalanceTier', () => {
     );
   });
 
-  it('should get the current tier as numeric readable expression levels', async () => {
+  it('should get the current/latest tier as numeric readable expression levels', async () => {
     const [deployer, user] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(deployer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
+    console.log(await ethers.provider.getBlockNumber());
+
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
+
+    const rep1 = await tier.report(user.address);
+    console.log(rep1.toHexString());
+
+    console.log(tierReport(rep1.toString()));
+    console.log(await ethers.provider.getBlockNumber());
 
     // Provide to user tokens to get a tier 3
     const amount = await tier.connect(user).amountToTier(tier.levels.THREE);
@@ -95,14 +124,21 @@ describe('SDK - ERC20BalanceTier', () => {
     expect(await tier.currentTier(user.address)).to.be.equals(
       tier.levels.THREE
     );
+    console.log(await ethers.provider.getBlockNumber());
+
+    const rep2 = await tier.report(user.address);
+    console.log(rep2.toHexString());
+
+    console.log(tierReport(rep2.toString()));
+    console.log(await ethers.provider.getBlockNumber());
   });
 
-  it('should obtain the amount required to level up tiers with the current instance signer', async () => {
+  xit('should obtain the amount required to level up tiers with the current instance signer', async () => {
     const [signer, user] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     // user want level four
@@ -136,12 +172,12 @@ describe('SDK - ERC20BalanceTier', () => {
     expect(await tier.currentTier(user.address)).to.be.equals(levelFive);
   });
 
-  it('should obtain the amount that should be remove/burned to downgrade tiers', async () => {
+  xit('should obtain the amount that should be remove/burned to downgrade tiers', async () => {
     const [signer, user] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     // Set as Tier 7 to user with an extra amount
@@ -165,12 +201,13 @@ describe('SDK - ERC20BalanceTier', () => {
 });
 
 describe('SDK - ERC20TransferTier', () => {
+  // TODO: Re-test tier levels with report
   it('should deploy an ERC20TransferTier child', async () => {
     const [signer] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20TransferTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     expect(
@@ -184,10 +221,10 @@ describe('SDK - ERC20TransferTier', () => {
     const token = await deployErc20();
     const tier = await ERC20TransferTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
-    expect(TierLevels).to.be.deep.equal(await tier.tierValues());
+    expect(TierLevelsERC20).to.be.deep.equal(await tier.tierValues());
   });
 
   it('should calculate the amounts to reach a tier for different addresses and signers using connect', async () => {
@@ -197,7 +234,7 @@ describe('SDK - ERC20TransferTier', () => {
     // Tier connected to the deployer token and tier contracts
     const tierDeployer = await ERC20TransferTier.deploy(deployer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     const tierUser1 = tierDeployer.connect(user1);
@@ -217,7 +254,7 @@ describe('SDK - ERC20TransferTier', () => {
     const token = await deployErc20();
     const tier = await ERC20TransferTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     expect(await token.allowance(signer.address, tier.address)).to.be.equals(0);
@@ -238,7 +275,7 @@ describe('SDK - ERC20TransferTier', () => {
     const token = await deployErc20();
     const tier = await ERC20TransferTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     const tierUser = tier.connect(user);
@@ -287,7 +324,7 @@ describe('SDK - ERC20TransferTier', () => {
     const token = await deployErc20();
     const tierDeployer = await ERC20TransferTier.deploy(deployer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     // Connecting the instance to a new signer
@@ -316,36 +353,220 @@ describe('SDK - ERC20TransferTier', () => {
   });
 });
 
-describe('SDK - Tiers', () => {
-  it('Deploying ERC721BalanceTierChild', async () => {
-    const token = await deployErc721();
-
+describe('SDK - ERC721BalanceTier', () => {
+  it('should deploy an ERC721BalanceTier child', async () => {
     const [signer] = await ethers.getSigners();
+    const token = await deployErc721(signer);
+
     const tier = await ERC721BalanceTier.deploy(signer, {
       erc721: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC721,
     });
 
-    expect(TierLevels).to.be.deep.equal(await tier.tierValues());
+    expect(await ERC721BalanceTier.isChild(signer, tier.address)).to.be.true;
+  });
+
+  it('should get the corrects tier values from SDK', async () => {
+    const [signer] = await ethers.getSigners();
+    const token = await deployErc721(signer);
+
+    const tier = await ERC721BalanceTier.deploy(signer, {
+      erc721: token.address,
+      tierValues: TierLevelsERC721,
+    });
+
+    expect(TierLevelsERC721).to.be.deep.equal(await tier.tierValues());
+  });
+
+  it('should throw an error if try to call setTier from SDK', async () => {
+    const [signer] = await ethers.getSigners();
+    const token = await deployErc721(signer);
+
+    const tier = await ERC721BalanceTier.deploy(signer, {
+      erc721: token.address,
+      tierValues: TierLevelsERC721,
+    });
+
     await expectAsyncError(
       tier.setTier('', 2, []),
       'SET TIER: NOT IMPLEMENTED'
     );
   });
 
-  it('Deploying VerifyTierChild', async () => {
-    const [signer] = await ethers.getSigners();
+  it('should calculate the amounts to reach a tier for different addresses and signers using connect', async () => {
+    const [deployer, user1, user2] = await ethers.getSigners();
+    const token = await deployErc721(deployer);
 
-    const verify = await Verify.deploy(signer, {
-      admin: signer.address,
+    // Tier connected to the deployer token and tier contracts
+    const tierDeployer = await ERC721BalanceTier.deploy(deployer, {
+      erc721: token.address,
+      tierValues: TierLevelsERC721,
+    });
+
+    // Connect to differents users
+    const tierUser1 = tierDeployer.connect(user1);
+    const tierUser2 = tierDeployer.connect(user2);
+
+    expect(await tierUser1.amountToTier(tierUser1.levels.FIVE)).to.be.equals(
+      await tierDeployer.amountToTier(tierDeployer.levels.FIVE, user1.address)
+    );
+
+    expect(await tierUser2.amountToTier(tierUser2.levels.TWO)).to.be.equals(
+      await tierDeployer.amountToTier(tierDeployer.levels.TWO, user2.address)
+    );
+  });
+
+  it('should get the current/latest tier as numeric readable expression levels', async () => {
+    const [deployer, user] = await ethers.getSigners();
+    const token = await deployErc721(deployer);
+
+    const tier = await ERC721BalanceTier.deploy(deployer, {
+      erc721: token.address,
+      tierValues: TierLevelsERC721, // +1 token in the balance, +1 level tier
+    });
+
+    // Increase the user to level tier 4 minting four tokens
+    while ((await token.balanceOf(user.address)).lt(4)) {
+      await token.connect(user).mintNewToken();
+    }
+
+    expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.FOUR);
+  });
+
+  it('should obtain the amount required to level up tiers with the current instance signer', async () => {
+    const [signer, user] = await ethers.getSigners();
+    const token = await deployErc721(signer);
+
+    const tier = await ERC721BalanceTier.deploy(signer, {
+      erc721: token.address,
+      tierValues: TierLevelsERC721,
+    });
+
+    // user want level four
+    const levelFour = tier.levels.FOUR;
+    const tierUser = tier.connect(user);
+
+    // User start as Tier zero because does not have tokens
+    expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
+    expect(await tier.amountToTier(levelFour, user.address)).to.be.equals(4);
+
+    // Minting tokens to user to get Tier four
+    while (!(await tierUser.amountToTier(levelFour)).isZero()) {
+      await token.connect(user).mintNewToken();
+    }
+
+    expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.FOUR);
+    expect(await tier.amountToTier(levelFour, user.address)).to.be.equals(0);
+  });
+
+  it('should obtain the amount that should be remove/burned to downgrade tiers', async () => {
+    const [signer, user] = await ethers.getSigners();
+    const token = await deployErc721(signer);
+
+    const tier = await ERC721BalanceTier.deploy(signer, {
+      erc721: token.address,
+      tierValues: TierLevelsERC721,
+    });
+
+    const tierUser = tier.connect(user);
+
+    // Set as Tier 5 to the user. Mint tokens id from 1 to 5
+    while ((await token.balanceOf(user.address)).lt(5)) {
+      await token.connect(user).mintNewToken();
+    }
+    const tokenIds = [1, 2, 3, 4, 5];
+
+    for (let i = 0; i < tokenIds.length; i++) {
+      expect(await token.ownerOf(tokenIds[i])).to.be.equals(user.address);
+    }
+
+    expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.FIVE);
+
+    // burn until reach the correct balance
+    let i = 0;
+    while (!(await tierUser.amountToTier(tier.levels.TWO)).isZero()) {
+      await token.connect(user).burn(tokenIds[i]);
+      i++;
+    }
+
+    expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.TWO);
+  });
+});
+
+describe('SDK - VerifyTier', () => {
+  xit('should deploy an VerifyTier child', async () => {
+    const [deployer, signer] = await ethers.getSigners();
+
+    const verify = await Verify.deploy(deployer, {
+      admin: deployer.address,
       callback: ethers.constants.AddressZero,
     });
 
-    const tier = await VerifyTier.deploy(signer, verify.address);
+    const tier = await VerifyTier.deploy(deployer, verify.address);
+
+    expect(await VerifyTier.isChild(signer, tier.address)).to.be.true;
+  });
+
+  xit('should throw an error if try to call setTier from SDK', async () => {
+    const [deployer] = await ethers.getSigners();
+
+    const verify = await Verify.deploy(deployer, {
+      admin: deployer.address,
+      callback: ethers.constants.AddressZero,
+    });
+
+    const tier = await VerifyTier.deploy(deployer, verify.address);
 
     await expectAsyncError(
       tier.setTier('', 2, []),
       'SET TIER: NOT IMPLEMENTED'
     );
   });
+
+  it('', async () => {
+    function zeroPad32(hex: BigNumber): string {
+      return ethers.utils.hexZeroPad(hex.toHexString(), 32);
+    }
+    function zeroPad4(hex: BigNumber): string {
+      return ethers.utils.hexZeroPad(hex.toHexString(), 4);
+    }
+    //
+    const [deployer, admin, user] = await ethers.getSigners();
+
+    const verify = await Verify.deploy(deployer, {
+      admin: admin.address,
+      callback: ethers.constants.AddressZero,
+    });
+
+    // Connect the instance to the admin and grant the approver role to himself
+    const verifyAdmin = verify.connect(admin);
+    await verifyAdmin.grantRole(await verifyAdmin.APPROVER(), admin.address);
+
+    // Grant to uset as approve
+    await verifyAdmin.approve([{ account: user.address, data: [] }]);
+    const blockApproved = await ethers.provider.getBlockNumber();
+
+    const tier = await VerifyTier.deploy(deployer, verify.address);
+
+    console.log(blockApproved);
+    const a = await tier.report(user.address);
+    console.log('--');
+    console.log(a.toHexString());
+
+    const tierReportApprovedActual = zeroPad32(a);
+    const tierReportApprovedExpected =
+      '0x' +
+      zeroPad4(ethers.BigNumber.from(blockApproved))
+        .slice(2)
+        .repeat(8);
+
+    console.log('--');
+    console.log(tierReportApprovedActual);
+    console.log('--');
+    console.log(tierReportApprovedExpected);
+  });
+});
+
+describe('SDK - Tiers', () => {
+  // TODO: ADD combine tier
 });

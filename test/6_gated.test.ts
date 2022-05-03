@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
-import { TierLevels, deployErc20 } from './utils';
+import { TierLevelsERC20, deployErc20 } from './utils';
 
 import { GatedNFT, ERC20BalanceTier } from '../src';
 
@@ -11,7 +11,7 @@ describe('GatedNFT', () => {
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
       erc20: token.address,
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
     });
 
     const gatedConfig = {

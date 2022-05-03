@@ -1,5 +1,5 @@
 import { Signer, BytesLike, BigNumberish } from 'ethers';
-import { TierFactoryContract } from '../../classes/tierContract';
+import { TierContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
 import { VerifyTierFactory__factory } from '../../typechain';
 
@@ -29,7 +29,7 @@ import { VerifyTierFactory__factory } from '../../typechain';
  * ```
  *
  */
-export class VerifyTier extends TierFactoryContract {
+export class VerifyTier extends TierContract {
   protected static readonly nameBookReference = 'verifyTierFactory';
   /**
    * Constructs a new VerifyTier from a known address.

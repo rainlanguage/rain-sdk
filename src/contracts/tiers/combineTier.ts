@@ -1,5 +1,5 @@
 import { Signer, BytesLike, BigNumberish } from 'ethers';
-import { TierFactoryContract } from '../../classes/tierContract';
+import { TierContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
 import { StateConfig, VM } from '../../classes/vm';
 import { CombineTierFactory__factory } from '../../typechain';
@@ -31,7 +31,7 @@ import { CombineTierFactory__factory } from '../../typechain';
  * ```
  *
  */
-export class CombineTier extends TierFactoryContract {
+export class CombineTier extends TierContract {
   protected static readonly nameBookReference = 'combineTierFactory';
 
   /**

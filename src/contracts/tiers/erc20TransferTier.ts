@@ -5,7 +5,7 @@ import {
   BigNumberish,
   ContractTransaction,
 } from 'ethers';
-import { TierFactoryContract } from '../../classes/tierContract';
+import { TierContract } from '../../classes/tierContract';
 import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
 import {
   ERC20TransferTier__factory,
@@ -49,7 +49,7 @@ import {
  * ```
  *
  */
-export class ERC20TransferTier extends TierFactoryContract {
+export class ERC20TransferTier extends TierContract {
   protected static readonly nameBookReference = 'erc20TransferTierFactory';
 
   /**
