@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import {
-  TierLevels,
+  TierLevelsERC20,
   deployErc20,
   ONE,
   RESERVE_ONE,
@@ -19,7 +19,7 @@ describe('SDK - Sale', () => {
     const [deployer] = await ethers.getSigners();
     reserve = await deployErc20(deployer);
     tier = await ERC20BalanceTier.deploy(deployer, {
-      tierValues: TierLevels,
+      tierValues: TierLevelsERC20,
       erc20: reserve.address,
     });
   });

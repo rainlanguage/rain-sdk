@@ -56,12 +56,16 @@ export const ONE = ethers.BigNumber.from('1' + eighteenZeros);
 export const zeroAddress = ethers.constants.AddressZero;
 
 /**
- * Return the Levels tier used by default. LEVELS always will be an array with 8 elements to
+ * Return the Levels tier used by default with ERC20 tokens. LEVELS always will be an array with 8 elements to
  * correspond to the 8 TierLevels
  */
-export const TierLevels: BigNumberish[] = Array.from(
+export const TierLevelsERC20: BigNumberish[] = Array.from(
   Array(8).keys()
-).map(value => ethers.BigNumber.from(++value + eighteenZeros)); // [1,2,3,4,5,6,7,8]
+).map(value => ethers.BigNumber.from(++value + eighteenZeros)); // [1,2,3,4,5,6,7,8] each mul by 1*10**18
+
+export const TierLevelsERC721 = Array.from(Array(8).keys()).map((value) =>
+  ethers.BigNumber.from(++value)
+); // [1,2,3,4,5,6,7,8]
 
 export async function deployErc20(signer?: Signer): Promise<ReserveTokenTest> {
   const TokenFactory = await ethers.getContractFactory(

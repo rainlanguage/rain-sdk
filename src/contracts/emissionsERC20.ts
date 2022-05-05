@@ -11,7 +11,7 @@ import {
   ReadTxOverrides,
 } from '../classes/rainContract';
 import { StateConfig } from '../classes/vm';
-import { TierFactoryContract } from '../classes/tierContract';
+import { TierContract } from '../classes/tierContract';
 import {
   EmissionsERC20__factory,
   EmissionsERC20Factory__factory,
@@ -36,7 +36,7 @@ import {
  *```
  */
 
-export class EmissionsERC20 extends TierFactoryContract {
+export class EmissionsERC20 extends TierContract {
   protected static readonly nameBookReference = 'emissionsERC20Factory';
 
   /**

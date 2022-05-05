@@ -59,7 +59,7 @@ export enum Tier {
  * Combine the static methods that are present in factories with the ITier instance methods.
  * Should be use to the TierFactories.
  */
-export abstract class TierFactoryContract extends FactoryContract {
+export abstract class TierContract extends FactoryContract {
   constructor(address: string, signer: Signer) {
     super(address, signer);
     const tier = ITier__factory.connect(address, signer);
@@ -122,6 +122,8 @@ export abstract class TierFactoryContract extends FactoryContract {
     overrides: ReadTxOverrides = {}
   ): Promise<number> {
     const currentTier = await this.report(account, overrides);
+    console.log('report: ');
+    console.log(currentTier.toHexString());
     return 8 - (currentTier.toHexString().match(/ffffffff/g) || []).length;
   }
 }

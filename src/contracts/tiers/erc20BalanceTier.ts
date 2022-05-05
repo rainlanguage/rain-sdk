@@ -1,5 +1,5 @@
 import { Signer, BigNumberish, BigNumber, BytesLike } from 'ethers';
-import { TierFactoryContract } from '../../classes/tierContract';
+import { TierContract } from '../../classes/tierContract';
 import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
 import {
   ERC20BalanceTier__factory,
@@ -34,7 +34,7 @@ import {
  * ```
  *
  */
-export class ERC20BalanceTier extends TierFactoryContract {
+export class ERC20BalanceTier extends TierContract {
   protected static readonly nameBookReference = 'erc20BalanceTierFactory';
 
   /**
