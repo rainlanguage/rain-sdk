@@ -4,6 +4,7 @@ import {
   BytesLike,
   BigNumberish,
   ContractTransaction,
+  utils,
 } from 'ethers';
 import { TxOverrides, ReadTxOverrides } from './rainContract';
 import { FactoryContract } from './factoryContract';
@@ -114,16 +115,31 @@ export abstract class TierContract extends FactoryContract {
    * Tier 0 is that a address has never interact with the Tier Contract.
    *
    * @param account - address to check the current tier
-   * @param overrides - @see ReadTxOverrides
+   * @param block - (optional) check the level tier of an account with respect to a specific block
    * @returns current tier level of the account
    */
-  public async currentTier(
-    account: string,
-    overrides: ReadTxOverrides = {}
-  ): Promise<number> {
-    const currentTier = await this.report(account, overrides);
-    console.log('report: ');
-    console.log(currentTier.toHexString());
-    return 8 - (currentTier.toHexString().match(/ffffffff/g) || []).length;
+  public async currentTier(account: string, block?: number): Promise<number> {
+    const currentTier = await this.report(account);
+    const againstBlock = block
+      ? block
+      : await this.signer.provider.getBlockNumber();
+
+    const parsedReport = utils
+      .hexZeroPad(currentTier.toHexString(), 32)
+      .substring(2)
+      .match(/.{1,8}/g)
+      .reverse()
+      .map(x => parseInt('0x' + x));
+
+    let eligibleStatus = 0;
+    for (let i = 0; i < 8; i++) {
+      if (parsedReport[i] <= againstBlock) {
+        eligibleStatus = i + 1;
+      } else {
+        break;
+      }
+    }
+
+    return eligibleStatus;
   }
 }

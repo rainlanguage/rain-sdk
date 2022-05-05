@@ -1,6 +1,5 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { BigNumber } from 'ethers';
 import {
   TierLevelsERC20,
   TierLevelsERC721,
@@ -17,27 +16,8 @@ import {
   ERC721BalanceTier,
 } from '../src';
 
-function tierReport(report: string): number[] {
-  const parsedReport: number[] = [];
-  const arrStatus = [0, 1, 2, 3, 4, 5, 6, 7]
-    .map(i =>
-      BigInt(report)
-        .toString(16)
-        .padStart(64, '0')
-        .slice(i * 8, i * 8 + 8)
-    )
-    .reverse();
-  //arrStatus = arrStatus.reverse();
-
-  for (const i in arrStatus) {
-    parsedReport.push(parseInt('0x' + arrStatus[i]));
-  }
-
-  return parsedReport;
-}
-
-describe.only('SDK - ERC20BalanceTier', () => {
-  xit('should deploy an ERC20BalanceTier child', async () => {
+describe('SDK - ERC20BalanceTier', () => {
+  it('should deploy an ERC20BalanceTier child', async () => {
     const [signer] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
@@ -51,7 +31,7 @@ describe.only('SDK - ERC20BalanceTier', () => {
     ).to.be.true;
   });
 
-  xit('should get the corrects tier values from SDK', async () => {
+  it('should get the corrects tier values from SDK', async () => {
     const [signer] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
@@ -62,7 +42,7 @@ describe.only('SDK - ERC20BalanceTier', () => {
     expect(TierLevelsERC20).to.be.deep.equal(await tier.tierValues());
   });
 
-  xit('should throw an error if try to call setTier from SDK', async () => {
+  it('should throw an error if try to call setTier from SDK', async () => {
     const [signer] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
@@ -76,7 +56,7 @@ describe.only('SDK - ERC20BalanceTier', () => {
     );
   });
 
-  xit('should calculate the amounts to reach a tier for different addresses and signers using connect', async () => {
+  it('should calculate the amounts to reach a tier for different addresses and signers using connect', async () => {
     const [deployer, user1, user2] = await ethers.getSigners();
     const token = await deployErc20(deployer);
 
@@ -105,35 +85,7 @@ describe.only('SDK - ERC20BalanceTier', () => {
       erc20: token.address,
       tierValues: TierLevelsERC20,
     });
-    console.log('- getBlockNumber1: ', await ethers.provider.getBlockNumber());
-
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
-
-    const rep1 = await tier.report(user.address);
-    console.log('BigInt(rep1.toString())');
-    console.log(rep1.toString());
-    console.log(BigInt(rep1.toString()));
-    console.log(BigInt(rep1.toString()).toString(16));
-    console.log(
-      BigInt(rep1.toString())
-        .toString(16)
-        .padStart(64, '0')
-    );
-    console.log(
-      BigInt(rep1.toString())
-        .toString(16)
-        .padStart(64, '0')
-        .slice(0 * 8, 0 * 8 + 8)
-    );
-    console.log(
-      BigInt(rep1.toString())
-        .toString(16)
-        .padStart(64, '0')
-        .slice(3 * 8, 3 * 8 + 8)
-    );
-    console.log('---');
-    console.log(rep1.toHexString());
-    console.log(tierReport(rep1.toString()));
 
     // Provide to user tokens to get a tier 3
     const amount = await tier.connect(user).amountToTier(tier.levels.FIVE);
@@ -142,7 +94,7 @@ describe.only('SDK - ERC20BalanceTier', () => {
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.FIVE);
   });
 
-  xit('should obtain the amount required to level up tiers with the current instance signer', async () => {
+  it('should obtain the amount required to level up tiers with the current instance signer', async () => {
     const [signer, user] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
@@ -181,7 +133,7 @@ describe.only('SDK - ERC20BalanceTier', () => {
     expect(await tier.currentTier(user.address)).to.be.equals(levelFive);
   });
 
-  xit('should obtain the amount that should be remove/burned to downgrade tiers', async () => {
+  it('should obtain the amount that should be remove/burned to downgrade tiers', async () => {
     const [signer, user] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
@@ -532,11 +484,7 @@ describe.only('SDK - VerifyTier', () => {
     );
   });
 
-  it('', async () => {
-    function zeroPad32(hex: BigNumber): string {
-      return ethers.utils.hexZeroPad(hex.toHexString(), 32);
-    }
-    //
+  it('should get correct tier after been approved', async () => {
     const [deployer, admin, user] = await ethers.getSigners();
 
     const verify = await Verify.deploy(deployer, {
@@ -548,29 +496,17 @@ describe.only('SDK - VerifyTier', () => {
     const verifyAdmin = verify.connect(admin);
     await verifyAdmin.grantRole(await verifyAdmin.APPROVER(), admin.address);
 
-    // Grant to uset as approve
-    await verifyAdmin.approve([{ account: user.address, data: [] }]);
-    const blockApproved = await ethers.provider.getBlockNumber();
-
+    // Deploy the verifyTier
     const tier = await VerifyTier.deploy(deployer, verify.address);
 
-    console.log(blockApproved);
-    const a = await tier.report(user.address);
-    console.log('--');
-    console.log(a.toHexString());
-    const tierReportApprovedActual = zeroPad32(a);
-    console.log('--');
-    console.log(tierReportApprovedActual.substring(2).match(/.{1,8}/g)); // This one
+    expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
 
-    // '0x0000001000000010000000100000001000000010000000100000001000000010';
-    // '0x00000010'
-    // '0x00000010'
-    // '0x00000010'
-    // '0x00000010'
-    // '0x00000010'
-    // '0x00000010'
-    // '0x00000010'
-    // '0x00000010';
+    // Grant to uset as approve
+    await verifyAdmin.approve([{ account: user.address, data: [] }]);
+
+    expect(await tier.currentTier(user.address)).to.be.equals(
+      tier.levels.EIGHT
+    );
   });
 });
 
