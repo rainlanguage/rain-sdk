@@ -83,10 +83,10 @@ export abstract class RainContract {
     signerOrProvider: Signer | Provider
   ): Promise<number> => {
     let id;
-    if (signerOrProvider instanceof Signer) {
-      id = (await signerOrProvider.provider?.getNetwork())?.chainId;
-    } else {
+    if (signerOrProvider instanceof Provider) {
       id = (await signerOrProvider.getNetwork()).chainId;
+    } else {
+      id = (await signerOrProvider.provider?.getNetwork())?.chainId;
     }
 
     if (id) {

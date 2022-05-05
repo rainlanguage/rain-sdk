@@ -105,32 +105,41 @@ describe.only('SDK - ERC20BalanceTier', () => {
       erc20: token.address,
       tierValues: TierLevelsERC20,
     });
-
-    console.log(await ethers.provider.getBlockNumber());
+    console.log('- getBlockNumber1: ', await ethers.provider.getBlockNumber());
 
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
 
     const rep1 = await tier.report(user.address);
+    console.log('BigInt(rep1.toString())');
+    console.log(rep1.toString());
+    console.log(BigInt(rep1.toString()));
+    console.log(BigInt(rep1.toString()).toString(16));
+    console.log(
+      BigInt(rep1.toString())
+        .toString(16)
+        .padStart(64, '0')
+    );
+    console.log(
+      BigInt(rep1.toString())
+        .toString(16)
+        .padStart(64, '0')
+        .slice(0 * 8, 0 * 8 + 8)
+    );
+    console.log(
+      BigInt(rep1.toString())
+        .toString(16)
+        .padStart(64, '0')
+        .slice(3 * 8, 3 * 8 + 8)
+    );
+    console.log('---');
     console.log(rep1.toHexString());
-
     console.log(tierReport(rep1.toString()));
-    console.log(await ethers.provider.getBlockNumber());
 
     // Provide to user tokens to get a tier 3
-    const amount = await tier.connect(user).amountToTier(tier.levels.THREE);
-
+    const amount = await tier.connect(user).amountToTier(tier.levels.FIVE);
     await token.transfer(user.address, amount);
 
-    expect(await tier.currentTier(user.address)).to.be.equals(
-      tier.levels.THREE
-    );
-    console.log(await ethers.provider.getBlockNumber());
-
-    const rep2 = await tier.report(user.address);
-    console.log(rep2.toHexString());
-
-    console.log(tierReport(rep2.toString()));
-    console.log(await ethers.provider.getBlockNumber());
+    expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.FIVE);
   });
 
   xit('should obtain the amount required to level up tiers with the current instance signer', async () => {
@@ -493,7 +502,7 @@ describe('SDK - ERC721BalanceTier', () => {
   });
 });
 
-describe('SDK - VerifyTier', () => {
+describe.only('SDK - VerifyTier', () => {
   xit('should deploy an VerifyTier child', async () => {
     const [deployer, signer] = await ethers.getSigners();
 
@@ -527,9 +536,6 @@ describe('SDK - VerifyTier', () => {
     function zeroPad32(hex: BigNumber): string {
       return ethers.utils.hexZeroPad(hex.toHexString(), 32);
     }
-    function zeroPad4(hex: BigNumber): string {
-      return ethers.utils.hexZeroPad(hex.toHexString(), 4);
-    }
     //
     const [deployer, admin, user] = await ethers.getSigners();
 
@@ -552,18 +558,19 @@ describe('SDK - VerifyTier', () => {
     const a = await tier.report(user.address);
     console.log('--');
     console.log(a.toHexString());
-
     const tierReportApprovedActual = zeroPad32(a);
-    const tierReportApprovedExpected =
-      '0x' +
-      zeroPad4(ethers.BigNumber.from(blockApproved))
-        .slice(2)
-        .repeat(8);
+    console.log('--');
+    console.log(tierReportApprovedActual.substring(2).match(/.{1,8}/g)); // This one
 
-    console.log('--');
-    console.log(tierReportApprovedActual);
-    console.log('--');
-    console.log(tierReportApprovedExpected);
+    // '0x0000001000000010000000100000001000000010000000100000001000000010';
+    // '0x00000010'
+    // '0x00000010'
+    // '0x00000010'
+    // '0x00000010'
+    // '0x00000010'
+    // '0x00000010'
+    // '0x00000010'
+    // '0x00000010';
   });
 });
 
