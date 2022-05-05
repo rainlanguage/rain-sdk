@@ -4,21 +4,6 @@ import { BigNumber, Contract, ethers } from "ethers";
 import { State, StandardOps, op } from '../src/classes/vm';
 
 
-/**
- * Converts a value to raw bytes representation. Assumes `value` is less than or equal to 1 byte, unless a desired `bytesLength` is specified.
- *
- * @param value - value to convert to raw bytes format
- * @param bytesLength - (defaults to 1) number of bytes to left pad if `value` doesn't completely fill the desired amount of memory. Will throw `InvalidArgument` error if value already exceeds bytes length.
- * @returns {Uint8Array} - raw bytes representation
- */
-export function bytify(
-  value: number | BytesLike | Hexable,
-  bytesLength = 1
-): BytesLike {
-  return zeroPad(hexlify(value), bytesLength);
-};
-
-
 export const paddedUInt256 = (report: BigNumber): string => {
   if (report.gt(ethers.constants.MaxUint256)) {
     throw new Error(`${report} exceeds max uint256`);
@@ -110,26 +95,26 @@ export enum selectLteMode {
 
 
 /**
- * VM Script to deduct a percentage off of the main script that it is been called for based on a tiers.
+ * VM Script to deduct a percentage off of the main script that it is been called for based on the holding tier of a tier contract.
  *
  * @param config - the main VM script
- * @param tierParams - an array of 9 items - the tier contract address is the first item and the percentage(range between 0 - 99) of each tier are the next 8 items of the array.
- * @param args - an array of 8 items each holding the activation time (in days) of each tier, if the tier has been held more than this duration then the percentage will be applied, if passed to the function. 
+ * @param tierAddress - the contract address of the tier contract.
+ * @param tierMultiplier - an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array.
+ * @param args - (optional) 1. an array of 8 items each holding the activation time (in days) of each tier, if the tier has been held more than this duration then the percentage will be applied - 2. avg block per second. 
  * @returns {State} - a VM state
  */
-export function tierBasedDiscounter(config: State, tierParams, ...args) : State {
-  const tierAddress = tierParams[0]
-  const tierDiscount = paddedUInt256(
+export function tierBasedDiscounter(config: State, tierAddress: string, tierDiscount: number[], ...args) : State {
+  const TierDiscount = paddedUInt256(
     ethers.BigNumber.from(
       "0x" + 
-      paddedUInt32(100 - tierParams[8]) +
-      paddedUInt32(100 - tierParams[7]) +
-      paddedUInt32(100 - tierParams[6]) +
-      paddedUInt32(100 - tierParams[5]) +
-      paddedUInt32(100 - tierParams[4]) +
-      paddedUInt32(100 - tierParams[3]) +
-      paddedUInt32(100 - tierParams[2]) +
-      paddedUInt32(100 - tierParams[1])
+      paddedUInt32(100 - tierDiscount[7]) +
+      paddedUInt32(100 - tierDiscount[6]) +
+      paddedUInt32(100 - tierDiscount[5]) +
+      paddedUInt32(100 - tierDiscount[4]) +
+      paddedUInt32(100 - tierDiscount[3]) +
+      paddedUInt32(100 - tierDiscount[2]) +
+      paddedUInt32(100 - tierDiscount[1]) +
+      paddedUInt32(100 - tierDiscount[0])
     )
   )
 
@@ -185,20 +170,21 @@ export function tierBasedDiscounter(config: State, tierParams, ...args) : State 
     ])
 
   if (args[0]) {
-    const tierDiscountActtivation = paddedUInt256(
+    const avgBlockPerDay = args[1] ? (86400 / args[1]) : 43200;  // 43200 - avg number of blocks per day for polygon network
+    const TierDiscountActivation = paddedUInt256(
       ethers.BigNumber.from(
         "0x" + 
-        paddedUInt32(args[0][7] * 43200) +
-        paddedUInt32(args[0][6] * 43200) +
-        paddedUInt32(args[0][5] * 43200) +
-        paddedUInt32(args[0][4] * 43200) +
-        paddedUInt32(args[0][3] * 43200) +
-        paddedUInt32(args[0][2] * 43200) +
-        paddedUInt32(args[0][1] * 43200) +
-        paddedUInt32(args[0][0] * 43200)
+        paddedUInt32(args[0][7] * avgBlockPerDay) +
+        paddedUInt32(args[0][6] * avgBlockPerDay) +
+        paddedUInt32(args[0][5] * avgBlockPerDay) +
+        paddedUInt32(args[0][4] * avgBlockPerDay) +
+        paddedUInt32(args[0][3] * avgBlockPerDay) +
+        paddedUInt32(args[0][2] * avgBlockPerDay) +
+        paddedUInt32(args[0][1] * avgBlockPerDay) +
+        paddedUInt32(args[0][0] * avgBlockPerDay)
       )
     )
-    const constants = [...config.constants, tierDiscountActtivation, tierAddress, tierDiscount, "100"]
+    const constants = [...config.constants, TierDiscountActivation, tierAddress, TierDiscount, "100"]
     config.sources[0] =
       concat([
         config.sources[0],
@@ -223,7 +209,7 @@ export function tierBasedDiscounter(config: State, tierParams, ...args) : State 
     }
   }
   else {
-    const constants = [...config.constants, tierAddress, tierDiscount, "100"]
+    const constants = [...config.constants, tierAddress, TierDiscount, "100"]
     config.sources[0] =
       concat([
         config.sources[0],
@@ -245,26 +231,26 @@ export function tierBasedDiscounter(config: State, tierParams, ...args) : State 
 
 
 /**
- * VM Script to multiply the main script that it is been called for based on a tiers.
+ * VM Script to multiply the main script that it is been called for based on the holding tier of a tier contract.
  *
  * @param config - the main VM script
- * @param tierParams - an array of 9 items - the tier contract address is the first item and the multiplier (2 decimals max) of each tier are the next 8 items of the array.
- * @param args - an array of 8 items each holding the activation time (in days) of each tier, if the tier has been held more than this duration then the multiplier will be applied, if passed to the function. 
+ * @param tierAddress - the contract address of the tier contract.
+ * @param tierMultiplier - an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array.
+ * @param args - (optional) 1. an array of 8 items each holding the activation time (in days) of each tier, if the tier has been held more than this duration then the multiplier will be applied - 2. avg block per second. 
  * @returns {State} - a VM state
  */
-export function tierBasedMultiplier(config: State, tierParams, ...args) : State {
-  const tierAddress = tierParams[0]
-  const tierMultiplier = paddedUInt256(
+export function tierBasedMultiplier(config: State, tierAddress: string, tierMultiplier: number[], ...args) : State {
+  const TierMultiplier = paddedUInt256(
     ethers.BigNumber.from(
       "0x" + 
-      paddedUInt32(tierParams[8] * 100) +
-      paddedUInt32(tierParams[7] * 100) +
-      paddedUInt32(tierParams[6] * 100) +
-      paddedUInt32(tierParams[5] * 100) +
-      paddedUInt32(tierParams[4] * 100) +
-      paddedUInt32(tierParams[3] * 100) +
-      paddedUInt32(tierParams[2] * 100) +
-      paddedUInt32(tierParams[1] * 100)
+      paddedUInt32(tierMultiplier[7] * 100) +
+      paddedUInt32(tierMultiplier[6] * 100) +
+      paddedUInt32(tierMultiplier[5] * 100) +
+      paddedUInt32(tierMultiplier[4] * 100) +
+      paddedUInt32(tierMultiplier[3] * 100) +
+      paddedUInt32(tierMultiplier[2] * 100) +
+      paddedUInt32(tierMultiplier[1] * 100) +
+      paddedUInt32(tierMultiplier[0] * 100)
     )
   )
 
@@ -276,9 +262,6 @@ export function tierBasedMultiplier(config: State, tierParams, ...args) : State 
       op(StandardOps.REPORT),
       op(StandardOps.BLOCK_NUMBER),
       op(StandardOps.SELECT_LTE, selectLte(selectLteLogic.every, selectLteMode.first, 2)),
-      op(StandardOps.NEVER),
-      op(StandardOps.BLOCK_NUMBER),
-      op(StandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE,tierRange(0, 8)),
     ])
 
   const TIER_BASED_MUL_ZIPMAP = (i, sourceIndex, valSize) =>
@@ -292,6 +275,9 @@ export function tierBasedMultiplier(config: State, tierParams, ...args) : State 
 
   const ACTIVATION_TIME = (i) =>
     concat([
+      op(StandardOps.NEVER),
+      op(StandardOps.BLOCK_NUMBER),
+      op(StandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE,tierRange(0, 8)),
       op(StandardOps.VAL, i - 4),
       op(StandardOps.SENDER),
       op(StandardOps.REPORT),
@@ -318,20 +304,21 @@ export function tierBasedMultiplier(config: State, tierParams, ...args) : State 
     ])
     
   if(args[0]) {
-    const tierMultiplierActivation = paddedUInt256(
+    const avgBlockPerDay = args[1] ? (86400 / args[1]) : 43200;  // 43200 - avg number of blocks per day for polygon network
+    const TierMultiplierActivation = paddedUInt256(
       ethers.BigNumber.from(
         "0x" + 
-        paddedUInt32(args[0][7] * 43200) +
-        paddedUInt32(args[0][6] * 43200) +
-        paddedUInt32(args[0][5] * 43200) +
-        paddedUInt32(args[0][4] * 43200) +
-        paddedUInt32(args[0][3] * 43200) +
-        paddedUInt32(args[0][2] * 43200) +
-        paddedUInt32(args[0][1] * 43200) +
-        paddedUInt32(args[0][0] * 43200)
+        paddedUInt32(args[0][7] * avgBlockPerDay) +
+        paddedUInt32(args[0][6] * avgBlockPerDay) +
+        paddedUInt32(args[0][5] * avgBlockPerDay) +
+        paddedUInt32(args[0][4] * avgBlockPerDay) +
+        paddedUInt32(args[0][3] * avgBlockPerDay) +
+        paddedUInt32(args[0][2] * avgBlockPerDay) +
+        paddedUInt32(args[0][1] * avgBlockPerDay) +
+        paddedUInt32(args[0][0] * avgBlockPerDay)
       )
     )
-    const constants = [...config.constants, tierMultiplier, tierAddress, tierMultiplierActivation, "100", "0xffffffff"]
+    const constants = [...config.constants, TierMultiplierActivation, tierAddress, TierMultiplier, "100", "0xffffffff"]
     config.sources[0]= 
       concat([
         config.sources[0],
@@ -355,7 +342,7 @@ export function tierBasedMultiplier(config: State, tierParams, ...args) : State 
     }
   }
   else {
-    const constants = [...config.constants, tierAddress, tierMultiplier, "100", "0xffffffff"]
+    const constants = [...config.constants, tierAddress, TierMultiplier, "100", "0xffffffff"]
     config.sources[0]= 
       concat([
         config.sources[0],
