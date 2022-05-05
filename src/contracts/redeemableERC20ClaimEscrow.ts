@@ -61,18 +61,16 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
     tokenAddress: string,
     signer: Signer
   ) {
+    RedeemableERC20ClaimEscrow.checkAddress(address);
+
     super(address, signer);
     const _claimEsrow = RedeemableERC20ClaimEscrow__factory.connect(
       address,
       signer
     );
 
-    if (!utils.isAddress(saleAddress)) {
-      throw new Error('SALE: NOT A VALID FORMAT ADDRESS');
-    }
-    if (!utils.isAddress(tokenAddress)) {
-      throw new Error('TOKEN: NOT A VALID FORMAT ADDRESS');
-    }
+    this.checkAddress(saleAddress, 'SALE: NOT A VALID FORMAT ADDRESS');
+    this.checkAddress(tokenAddress, 'TOKEN: NOT A VALID FORMAT ADDRESS');
     this.sale = saleAddress;
     this.token = tokenAddress;
 

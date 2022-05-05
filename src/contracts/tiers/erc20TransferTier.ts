@@ -61,6 +61,7 @@ export class ERC20TransferTier extends TierFactoryContract {
    *
    */
   constructor(address: string, tokenAddress: string, signer: Signer) {
+    ERC20TransferTier.checkAddress(address);
     super(address, signer);
     const _erc20TransferTier = ERC20TransferTier__factory.connect(
       address,

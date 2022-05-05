@@ -46,10 +46,27 @@ export class NoticeBoard extends RainContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    NoticeBoard.checkAddress(address);
     super(address, signer);
     const _noticeBoard = NoticeBoard__factory.connect(address, signer);
     this.createNotices = _noticeBoard.createNotices;
   }
+
+  /**
+   * Create the NoticeBoard instance.
+   *
+   * The function ask to the provider inside of the ethers signer what is the chain
+   * identifier to get the address in this chain.
+   *
+   * @param signer - ethers signer connected to the instance
+   * @returns A NoticeBoard instance
+   */
+  public static get = async (signer: Signer): Promise<NoticeBoard> => {
+    return new NoticeBoard(
+      this.getBookAddress(await this.getChainId(signer)),
+      signer
+    );
+  };
 
   public readonly connect = (signer: Signer): NoticeBoard => {
     return new NoticeBoard(this.address, signer);

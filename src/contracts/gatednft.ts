@@ -24,6 +24,7 @@ export class GatedNFT extends FactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    GatedNFT.checkAddress(address);
     super(address, signer);
     const _gatedNFT = GatedNFT__factory.connect(address, signer);
 

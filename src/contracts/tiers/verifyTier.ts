@@ -39,6 +39,10 @@ export class VerifyTier extends TierFactoryContract {
    * @returns A new VerifyTier instance
    *
    */
+  constructor(address: string, signer: Signer) {
+    VerifyTier.checkAddress(address);
+    super(address, signer);
+  }
 
   /**
    * Deploys a new VerifyTier.

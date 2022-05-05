@@ -48,6 +48,7 @@ export class EmissionsERC20 extends TierFactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    EmissionsERC20.checkAddress(address);
     super(address, signer);
     const _emission = EmissionsERC20__factory.connect(address, signer);
     this.allowDelegatedClaims = _emission.allowDelegatedClaims;

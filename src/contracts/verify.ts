@@ -4,6 +4,7 @@ import {
   BigNumber,
   BigNumberish,
   ContractTransaction,
+  constants,
 } from 'ethers';
 import { Verify__factory, VerifyFactory__factory } from '../typechain';
 import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
@@ -49,6 +50,8 @@ export class Verify extends FactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    Verify.checkAddress(address);
+
     super(address, signer);
     const _verify = Verify__factory.connect(address, signer);
 
@@ -98,7 +101,15 @@ export class Verify extends FactoryContract {
       signer
     );
 
-    const tx = await verifyFactory.createChildTyped(args, overrides);
+    let { admin, callback } = args;
+    if (!callback) {
+      callback = constants.AddressZero;
+    }
+
+    const tx = await verifyFactory.createChildTyped(
+      { admin, callback },
+      overrides
+    );
     const receipt = await tx.wait();
     const address = this.getNewChildFromReceipt(receipt, verifyFactory);
     return new Verify(address, signer);
@@ -426,7 +437,7 @@ export interface VerifyDeployArgs {
    * The address of the `IVerifyCallback` contract if it exists. MAY be
    * `address(0)` to signify that callbacks should NOT run.
    */
-  callback: string;
+  callback?: string;
 }
 
 /**

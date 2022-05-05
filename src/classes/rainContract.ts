@@ -23,6 +23,37 @@ export abstract class RainContract {
   }
 
   /**
+   * @public @static
+   * Check if an address is correctly formatted and throw an error if it is not an valid address
+   *
+   * @param address - address to be evaluated
+   * @param message - optional message to throw in case if it's not
+   */
+  public static checkAddress(address: string, message?: string) {
+    this._isAddress(address, message);
+  }
+
+  /**
+   * @public
+   * Check if an address is correctly formatted and throw an error if it is not an valid address
+   *
+   * @param address - address to be evaluated
+   * @param message - optional message to throw in case if it's not
+   */
+  public checkAddress(address: string, message?: string) {
+    RainContract._isAddress(address, message);
+  }
+
+  private static _isAddress(
+    address: string,
+    message: string = 'TOKEN: NOT A VALID FORMAT ADDRESS'
+  ) {
+    if (!utils.isAddress(address)) {
+      throw new Error(message);
+    }
+  }
+
+  /**
    * Connect the current instance to a new signer
    *
    * @param signer - The new signer which will be connected

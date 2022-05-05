@@ -44,6 +44,7 @@ export class ERC721BalanceTier extends TierFactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    ERC721BalanceTier.checkAddress(address);
     super(address, signer);
     const _erc721BalanceTier = ERC721BalanceTier__factory.connect(
       address,

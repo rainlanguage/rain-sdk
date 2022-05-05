@@ -51,6 +51,11 @@ export class CombineTier extends TierFactoryContract {
 
   public static concat = VM.concat;
 
+  constructor(address: string, signer: Signer) {
+    CombineTier.checkAddress(address);
+    super(address, signer);
+  }
+
   /**
    * Deploys a new CombineTier.
    *

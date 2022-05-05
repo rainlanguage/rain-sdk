@@ -46,6 +46,7 @@ export class ERC20BalanceTier extends TierFactoryContract {
    *
    */
   constructor(address: string, tokenAddress: string, signer: Signer) {
+    ERC20BalanceTier.checkAddress(address);
     super(address, signer);
     const _erc20balanceTier = ERC20BalanceTier__factory.connect(
       address,
