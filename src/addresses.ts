@@ -2,24 +2,26 @@ const addressBook = [
   {
     chainId: 80001,
     addresses: {
-      combineTierFactory: '0x975520345dA72EBc02713e10D8Bc117a4ADe94e7',
-      erc20BalanceTierFactory: '0x493DA4e4690b0dedC3C16ddD6308ea101f182240',
-      erc20TransferTierFactory: '0xc45d346c43Fad2eb8b5E3A3833BB2225Da992B3d',
-      erc721BalanceTierFactory: '0x72de0FC71B8870Dfd5e766A0EA08A3077F405dF4',
-      emissionsERC20Factory: '0x92666d3e73e876D5f8Be2E6B79989A6A81e8F3FB',
-      gatedNFTFactory: '0x87115DfC71B8e4691a692dbF6cDD8a54C12b208C',
-      noticeBoard: '0xe0d0B33A3cA373bf89Ef100B0F2eF8196F2652FE',
-      redeemableERC20ClaimEscrow: '0x9AA51395f1Ab80a02Bf6F4553A89dE9Fd71B1844',
-      redeemableERC20Factory: '0xdaCD5d24b876e3BbebE9619a28CdeEa26117Bf64',
-      saleFactory: '0xcb7A7ce54EE654A0018E7FC48ADa0C0DCF634a2C',
-      verifyFactory: '0x9718Fb2F6669b38F3caEbbD6d113cA33499E0F87',
-      verifyTierFactory: '0xfA4482A7F559367A3c0c0968926D9c08c4deeB86',
+      alwaysTier: '0xCA1666Fecc36b016578796F658A0889Bce796582',
+      combineTierFactory: '0xf163E422eaa4e7b38b392a0Ab663d92c17cEC364',
+      erc20BalanceTierFactory: '0xe662E03b0039d5B82DA705B0c15BE581900EE6bE',
+      erc20TransferTierFactory: '0x56c338900BC7BC43CaE1De519B63D075075Fbd5F',
+      erc721BalanceTierFactory: '0x119ec54eFDf4acbc0e5fa920a5eaA28D5F6695b1',
+      emissionsERC20Factory: '0x859D847B9E7B94c74A128cA9E23C96C98cb34Aa8',
+      gatedNFTFactory: '0xB4a49642F1bA29c2e812975708FB3BC43242A31f',
+      noticeBoard: '0x5d6bBefbA77A20e84b447e0c567A27a71270dd78',
+      redeemableERC20ClaimEscrow: '0x7B9a17983De09e97039868692531aD669Ba3238c',
+      redeemableERC20Factory: '0xb41c9f5f71ED81406A16C03676bAd5BCBB75B661',
+      saleFactory: '0x272a42AcfdDb7d88d65aeC2e462d5dFC764A25e6',
+      verifyFactory: '0x42Bfc1742A20005D7E8b6Bf085B8877fC96C61ae',
+      verifyTierFactory: '0xd56A49817C6C50B420F1AC75049E710456b0A9D6',
     },
   },
   {
     // These addresess are deployed in HH Network (test)
     chainId: 31337,
     addresses: {
+      alwaysTier: '0x23dB4a08f2272df049a4932a4Cc3A6Dc1002B33E',
       redeemableERC20Factory: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
       verifyFactory: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
       verifyTierFactory: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
@@ -54,6 +56,7 @@ export type Addresses = {
   noticeBoard: string;
   emissionsERC20Factory: string;
   saleFactory: string;
+  alwaysTier: string;
 };
 
 /**

@@ -1,5 +1,5 @@
 import { Signer, BytesLike, BigNumberish } from 'ethers';
-import { TierFactoryContract } from '../../classes/tierContract';
+import { TierContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
 import { VerifyTierFactory__factory } from '../../typechain';
 
@@ -29,7 +29,7 @@ import { VerifyTierFactory__factory } from '../../typechain';
  * ```
  *
  */
-export class VerifyTier extends TierFactoryContract {
+export class VerifyTier extends TierContract {
   protected static readonly nameBookReference = 'verifyTierFactory';
   /**
    * Constructs a new VerifyTier from a known address.
@@ -39,6 +39,10 @@ export class VerifyTier extends TierFactoryContract {
    * @returns A new VerifyTier instance
    *
    */
+  constructor(address: string, signer: Signer) {
+    VerifyTier.checkAddress(address);
+    super(address, signer);
+  }
 
   /**
    * Deploys a new VerifyTier.
@@ -66,6 +70,10 @@ export class VerifyTier extends TierFactoryContract {
     const receipt = await tx.wait();
     const address = this.getNewChildFromReceipt(receipt, verifyTierFactory);
     return new VerifyTier(address, signer);
+  };
+
+  public readonly connect = (signer: Signer): VerifyTier => {
+    return new VerifyTier(this.address, signer);
   };
 
   /**

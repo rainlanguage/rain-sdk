@@ -2,8 +2,6 @@ import { Signer, utils, BigNumberish, Overrides, CallOverrides } from 'ethers';
 import { Provider } from '@ethersproject/abstract-provider';
 import { AddressBook } from '../addresses';
 
-// TODO: script to get events
-
 /**
  * @public
  */
@@ -25,17 +23,43 @@ export abstract class RainContract {
   }
 
   /**
+   * @public
+   * Check if an address is correctly formatted and throw an error if it is not an valid address
+   *
+   * @param address - address to be evaluated
+   * @param message - optional message to throw in case if it's not
+   */
+  public static checkAddress(address: string, message?: string) {
+    this._isAddress(address, message);
+  }
+
+  /**
+   * @public
+   * Check if an address is correctly formatted and throw an error if it is not an valid address
+   *
+   * @param address - address to be evaluated
+   * @param message - optional message to throw in case if it's not
+   */
+  public checkAddress(address: string, message?: string) {
+    RainContract._isAddress(address, message);
+  }
+
+  private static _isAddress(
+    address: string,
+    message: string = 'TOKEN: NOT A VALID FORMAT ADDRESS'
+  ) {
+    if (!utils.isAddress(address)) {
+      throw new Error(message);
+    }
+  }
+
+  /**
    * Connect the current instance to a new signer
    *
    * @param signer - The new signer which will be connected
    * @returns The instance with a new signer
    */
-  public readonly connect = (signer: Signer): this => {
-    return new (this.constructor as RainConstructable<this>)(
-      this.address,
-      signer
-    );
-  };
+  public abstract readonly connect: (signer: Signer) => RainContract;
 
   /**
    * Get the address stored in the book to this chain
@@ -59,10 +83,10 @@ export abstract class RainContract {
     signerOrProvider: Signer | Provider
   ): Promise<number> => {
     let id;
-    if (signerOrProvider instanceof Signer) {
-      id = (await signerOrProvider.provider?.getNetwork())?.chainId;
-    } else {
+    if (signerOrProvider instanceof Provider) {
       id = (await signerOrProvider.getNetwork()).chainId;
+    } else {
+      id = (await signerOrProvider.provider?.getNetwork())?.chainId;
     }
 
     if (id) {
@@ -110,11 +134,4 @@ export interface ERC20Config {
    * Initial supply to mint.
    */
   initialSupply: BigNumberish;
-}
-
-/**
- * Interface that represent a Rain contract that is constructable
- */
-interface RainConstructable<T> {
-  new (address: string, signer: Signer): T;
 }

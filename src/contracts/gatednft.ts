@@ -24,6 +24,7 @@ export class GatedNFT extends FactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    GatedNFT.checkAddress(address);
     super(address, signer);
     const _gatedNFT = GatedNFT__factory.connect(address, signer);
 
@@ -99,6 +100,10 @@ export class GatedNFT extends FactoryContract {
     const receipt = await tx.wait();
     const address = this.getNewChildFromReceipt(receipt, gatedNFTFactory);
     return new GatedNFT(address, signer);
+  };
+
+  public readonly connect = (signer: Signer): GatedNFT => {
+    return new GatedNFT(this.address, signer);
   };
 
   /**

@@ -57,6 +57,7 @@ export class RedeemableERC20 extends FactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    RedeemableERC20.checkAddress(address);
     super(address, signer);
     const _redeemable = RedeemableERC20__factory.connect(address, signer);
 
@@ -113,6 +114,10 @@ export class RedeemableERC20 extends FactoryContract {
     return new RedeemableERC20(address, signer);
   };
 
+  public readonly connect = (signer: Signer): RedeemableERC20 => {
+    return new RedeemableERC20(this.address, signer);
+  };
+
   /**
    * Checks if address is registered as a child contract of this RedeemableERC20Factory on a specific network
    *
@@ -148,7 +153,6 @@ export class RedeemableERC20 extends FactoryContract {
   /**
    * Sets `amount` as the allowance of `spender` over the caller's tokens.
    *
-   * Returns a boolean value indicating whether the operation succeeded.
    *
    * @param spender - The addess that will get approved
    * @param amount - The amount that `spender` is allowed to spend

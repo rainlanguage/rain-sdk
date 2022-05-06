@@ -12,3 +12,5 @@ artifacts
 cache
 /contracts
 /typechain
+
+rain-sdk.api.json

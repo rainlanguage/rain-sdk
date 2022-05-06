@@ -48,9 +48,11 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   /**
    * Constructs a new RedeemableERC20ClaimEscrow from a known address.
    *
-   * @param address - The address of the NoticeBoard contract
+   * @param address - The address of the RedeemableERC20ClaimEscrow contract
+   * @param saleAddress - The address of the Sale contract that will be use to interact
+   * @param tokenAddress - The address of the tokenAddress contract that will be use to interact
    * @param signer - An ethers.js Signer
-   * @returns A new NoticeBoard instance
+   * @returns A new RedeemableERC20ClaimEscrow instance
    *
    */
   constructor(
@@ -59,18 +61,16 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
     tokenAddress: string,
     signer: Signer
   ) {
+    RedeemableERC20ClaimEscrow.checkAddress(address);
+
     super(address, signer);
     const _claimEsrow = RedeemableERC20ClaimEscrow__factory.connect(
       address,
       signer
     );
 
-    if (!utils.isAddress(saleAddress)) {
-      throw new Error('SALE: NOT A VALID FORMAT ADDRESS');
-    }
-    if (!utils.isAddress(tokenAddress)) {
-      throw new Error('TOKEN: NOT A VALID FORMAT ADDRESS');
-    }
+    this.checkAddress(saleAddress, 'SALE: NOT A VALID FORMAT ADDRESS');
+    this.checkAddress(tokenAddress, 'TOKEN: NOT A VALID FORMAT ADDRESS');
     this.sale = saleAddress;
     this.token = tokenAddress;
 
@@ -101,6 +101,15 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
       this.getBookAddress(await this.getChainId(signer)),
       saleAddress,
       tokenAddress,
+      signer
+    );
+  };
+
+  public readonly connect = (signer: Signer): RedeemableERC20ClaimEscrow => {
+    return new RedeemableERC20ClaimEscrow(
+      this.address,
+      this.sale,
+      this.token,
       signer
     );
   };

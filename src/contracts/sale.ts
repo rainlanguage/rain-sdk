@@ -11,15 +11,13 @@ import {
   TxOverrides,
   ReadTxOverrides,
 } from '../classes/rainContract';
-import { State, StandardOps, op } from '../classes/vm';
+import { StateConfig, VM } from '../classes/vm';
 
 import { FactoryContract } from '../classes/factoryContract';
 import { RedeemableERC20 } from './redeemableERC20';
 import { Sale__factory, SaleFactory__factory } from '../typechain';
 
 const { concat } = utils;
-
-// TODO: Add this type/interface inside VMState class
 
 /**
  * @public
@@ -55,6 +53,8 @@ export class Sale extends FactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    Sale.checkAddress(address);
+
     super(address, signer);
     const _sale = Sale__factory.connect(address, signer);
 
@@ -72,29 +72,33 @@ export class Sale extends FactoryContract {
     this.token = _sale.token;
   }
 
-  public static Opcode = {
-    ...StandardOps,
+  public static Opcodes = {
+    ...VM.Opcodes,
     /**
      * local opcode to stack remaining rTKN units.
      */
-    REMAINING_UNITS: 0 + StandardOps.length,
+    REMAINING_UNITS: 0 + VM.Opcodes.length,
     /**
      * local opcode to stack total reserve taken in so far.
      */
-    TOTAL_RESERVE_IN: 1 + StandardOps.length,
+    TOTAL_RESERVE_IN: 1 + VM.Opcodes.length,
     /**
      * local opcode to stack the rTKN units/amount of the current buy.
      */
-    CURRENT_BUY_UNITS: 2 + StandardOps.length,
+    CURRENT_BUY_UNITS: 2 + VM.Opcodes.length,
     /**
      * local opcode to stack the address of the rTKN.
      */
-    TOKEN_ADDRESS: 3 + StandardOps.length,
+    TOKEN_ADDRESS: 3 + VM.Opcodes.length,
     /**
      * local opcode to stack the address of the reserve token.
      */
-    RESERVE_ADDRESS: 4 + StandardOps.length,
+    RESERVE_ADDRESS: 4 + VM.Opcodes.length,
   };
+
+  public static op = VM.op;
+
+  public static concat = VM.concat;
 
   /**
    * Deploys a new Sale.
@@ -127,6 +131,10 @@ export class Sale extends FactoryContract {
     return new Sale(address, signer);
   };
 
+  public readonly connect = (signer: Signer): Sale => {
+    return new Sale(this.address, signer);
+  };
+
   /**
    * Checks if address is registered as a child contract of this SaleFactory on a specific network
    *
@@ -147,20 +155,41 @@ export class Sale extends FactoryContract {
    * @param blockNumber - block number that will be use as comparision
    * @returns A VM Configturation
    */
-  public static afterBlockNumberConfig = (blockNumber: number): State => {
+  public static afterBlockNumberConfig(blockNumber: number): StateConfig {
     return {
       sources: [
         concat([
-          op(this.Opcode.BLOCK_NUMBER),
-          op(this.Opcode.VAL, 0),
-          op(this.Opcode.GREATER_THAN),
+          VM.op(this.Opcodes.BLOCK_NUMBER),
+          VM.op(this.Opcodes.VAL, 0),
+          VM.op(this.Opcodes.GREATER_THAN),
         ]),
       ],
       constants: [blockNumber - 1],
       stackLength: 3,
       argumentsLength: 0,
     };
-  };
+  }
+
+  /**
+   * Create a condition as VM state configuration to that is true after a `timestamp` in the chain.
+   *
+   * @param timestamp - timestamp that will be use as comparision
+   * @returns A VM Configturation
+   */
+  public static afterTimestampConfig(timestamp: number): StateConfig {
+    return {
+      sources: [
+        concat([
+          VM.op(this.Opcodes.BLOCK_TIMESTAMP),
+          VM.op(this.Opcodes.VAL, 0),
+          VM.op(this.Opcodes.GREATER_THAN),
+        ]),
+      ],
+      constants: [timestamp],
+      stackLength: 3,
+      argumentsLength: 0,
+    };
+  }
 
   /**
    * Obtain the instance redeemable token from this sale.
@@ -328,16 +357,16 @@ export interface SaleConfig {
   /**
    * State config for the script that allows a Sale to start.
    */
-  canStartStateConfig: State;
+  canStartStateConfig: StateConfig;
   /**
    * State config for the script that allows a Sale to end. IMPORTANT: A Sale can always end if/when its rTKN sells out, regardless
    * of the result of this script.
    */
-  canEndStateConfig: State;
+  canEndStateConfig: StateConfig;
   /**
    * State config for the script that defines the current price quoted by a Sale.
    */
-  calculatePriceStateConfig: State;
+  calculatePriceStateConfig: StateConfig;
   /**
    * The recipient of the proceeds of a Sale, if/when the Sale is successful.
    */

@@ -1,11 +1,12 @@
 import { ethers } from 'hardhat';
-import { BigNumberish } from 'ethers';
+import { BigNumberish, Signer } from 'ethers';
 import { assert } from 'chai';
 
-import { ReserveTokenTest, ReserveTokenERC721 } from '../typechain';
-
-
-export const eighteenZeros = '000000000000000000';
+import {
+  ReserveTokenTest,
+  ReserveTokenERC721,
+  ReserveTokenERC1155,
+} from '../typechain';
 
 /**
  * Hardhat network chainID
@@ -28,14 +29,6 @@ export enum Tier {
 }
 
 /**
- * Return the Levels tier used by default. LEVELS always will be an array with 8 elements to
- * correspond to the 8 TierLevels
- */
-export const TierLevels: BigNumberish[] = Array.from(
-  Array(8).keys()
-).map(value => ethers.BigNumber.from(++value + eighteenZeros)); // [1,2,3,4,5,6,7,8]
-
-/**
  * Addresses saved that are in SDK BookAddresses deployed to Hardhat network.
  * **These addresses are deterministically generated with the HH signers.**
  */
@@ -52,16 +45,54 @@ export interface Addresses {
   NoticeBoard: string;
   EmissionsERC20Factory: string;
   SaleFactory: string;
+  AlwaysTier: string;
 }
 
-export async function deployErc20(): Promise<ReserveTokenTest> {
-  const TokenFactory = await ethers.getContractFactory('ReserveTokenTest');
+export const sixZeros = '000000';
+export const eighteenZeros = '000000000000000000';
+
+export const RESERVE_ONE = ethers.BigNumber.from('1' + sixZeros);
+export const ONE = ethers.BigNumber.from('1' + eighteenZeros);
+export const zeroAddress = ethers.constants.AddressZero;
+
+/**
+ * Return the Levels tier used by default with ERC20 tokens. LEVELS always will be an array with 8 elements to
+ * correspond to the 8 TierLevels
+ */
+export const TierLevelsERC20: BigNumberish[] = Array.from(
+  Array(8).keys()
+).map(value => ethers.BigNumber.from(++value + eighteenZeros)); // [1,2,3,4,5,6,7,8] each mul by 1*10**18
+
+export const TierLevelsERC721 = Array.from(Array(8).keys()).map((value) =>
+  ethers.BigNumber.from(++value)
+); // [1,2,3,4,5,6,7,8]
+
+export async function deployErc20(signer?: Signer): Promise<ReserveTokenTest> {
+  const TokenFactory = await ethers.getContractFactory(
+    'ReserveTokenTest',
+    signer
+  );
   return (await TokenFactory.deploy()) as ReserveTokenTest;
 }
 
-export async function deployErc721(): Promise<ReserveTokenERC721> {
-  const TokenFactory = await ethers.getContractFactory('ReserveTokenERC721');
+export async function deployErc721(
+  signer?: Signer
+): Promise<ReserveTokenERC721> {
+  const TokenFactory = await ethers.getContractFactory(
+    'ReserveTokenERC721',
+    signer
+  );
   return (await TokenFactory.deploy()) as ReserveTokenERC721;
+}
+
+export async function deployErc1155(
+  signer?: Signer
+): Promise<ReserveTokenERC1155> {
+  const TokenFactory = await ethers.getContractFactory(
+    'ReserveTokenERC1155',
+    signer
+  );
+  return (await TokenFactory.deploy()) as ReserveTokenERC1155;
 }
 
 /**

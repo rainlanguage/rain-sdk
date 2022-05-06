@@ -1,7 +1,7 @@
 import { Signer, BytesLike, BigNumberish } from 'ethers';
-import { TierFactoryContract } from '../../classes/tierContract';
+import { TierContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
-import { State } from '../../classes/vm';
+import { StateConfig, VM } from '../../classes/vm';
 import { CombineTierFactory__factory } from '../../typechain';
 
 /**
@@ -31,7 +31,7 @@ import { CombineTierFactory__factory } from '../../typechain';
  * ```
  *
  */
-export class CombineTier extends TierFactoryContract {
+export class CombineTier extends TierContract {
   protected static readonly nameBookReference = 'combineTierFactory';
 
   /**
@@ -41,6 +41,20 @@ export class CombineTier extends TierFactoryContract {
    * @param signer - An ethers.js Signer
    * @returns A new CombineTier instance
    */
+
+  public static Opcodes = {
+    ...VM.Opcodes,
+    ACCOUNT: 0 + VM.Opcodes.length,
+  };
+
+  public static op = VM.op;
+
+  public static concat = VM.concat;
+
+  constructor(address: string, signer: Signer) {
+    CombineTier.checkAddress(address);
+    super(address, signer);
+  }
 
   /**
    * Deploys a new CombineTier.
@@ -65,6 +79,10 @@ export class CombineTier extends TierFactoryContract {
     const receipt = await tx.wait();
     const address = this.getNewChildFromReceipt(receipt, combineTierFactory);
     return new CombineTier(address, signer);
+  };
+
+  public readonly connect = (signer: Signer): CombineTier => {
+    return new CombineTier(this.address, signer);
   };
 
   /**
@@ -98,4 +116,4 @@ export class CombineTier extends TierFactoryContract {
  * @public
  * The StateConfig will be deployed as a pointer under
  */
-export type CombineTierDeployArgs = State;
+export type CombineTierDeployArgs = StateConfig;

@@ -10,8 +10,8 @@ import {
   TxOverrides,
   ReadTxOverrides,
 } from '../classes/rainContract';
-import { State } from '../classes/vm';
-import { TierFactoryContract } from '../classes/tierContract';
+import { StateConfig } from '../classes/vm';
+import { TierContract } from '../classes/tierContract';
 import {
   EmissionsERC20__factory,
   EmissionsERC20Factory__factory,
@@ -36,7 +36,7 @@ import {
  *```
  */
 
-export class EmissionsERC20 extends TierFactoryContract {
+export class EmissionsERC20 extends TierContract {
   protected static readonly nameBookReference = 'emissionsERC20Factory';
 
   /**
@@ -48,6 +48,7 @@ export class EmissionsERC20 extends TierFactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    EmissionsERC20.checkAddress(address);
     super(address, signer);
     const _emission = EmissionsERC20__factory.connect(address, signer);
     this.allowDelegatedClaims = _emission.allowDelegatedClaims;
@@ -89,6 +90,10 @@ export class EmissionsERC20 extends TierFactoryContract {
     const receipt = await tx.wait();
     const address = this.getNewChildFromReceipt(receipt, emissionsERC20Factory);
     return new EmissionsERC20(address, signer);
+  };
+
+  public readonly connect = (signer: Signer): EmissionsERC20 => {
+    return new EmissionsERC20(this.address, signer);
   };
 
   /**
@@ -156,7 +161,6 @@ export class EmissionsERC20 extends TierFactoryContract {
   /**
    * Sets `amount` as the allowance of `spender` over the caller's tokens.
    *
-   * Returns a boolean value indicating whether the operation succeeded.
    *
    * @param spender - The addess that will get approved
    * @param amount - The amount that `spender` is allowed to spend
@@ -335,5 +339,5 @@ export class EmissionsERC20 extends TierFactoryContract {
 export interface EmissionsERC20DeployArgs {
   allowDelegatedClaims: boolean;
   erc20Config: ERC20Config;
-  vmStateConfig: State;
+  vmStateConfig: StateConfig;
 }

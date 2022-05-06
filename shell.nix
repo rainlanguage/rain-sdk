@@ -8,6 +8,7 @@ let
     { };
 
  generate-docs = pkgs.writeShellScriptBin "generate-docs" ''
+  yarn build
   yarn generate-docs
  '';
 
@@ -40,8 +41,7 @@ let
  '';
 
  copy-typechain = pkgs.writeShellScriptBin "copy-typechain" ''
-  copy-contracts
-  generate-typechain
+  copy-contracts && generate-typechain
  '';
 
 in
@@ -61,7 +61,6 @@ pkgs.stdenv.mkDerivation {
  shellHook = ''
   export PATH=$( npm bin ):$PATH
   # keep it fresh
-  yarn install --ignore-scripts
-  build-sdk
+  yarn install --ignore-scripts && build-sdk
  '';
 }
