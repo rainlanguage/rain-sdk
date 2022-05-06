@@ -25,7 +25,7 @@ describe('SDK - Sale', () => {
   });
 
   it('should deploy a Sale child correctly', async () => {
-    const [deployer, recipient] = await ethers.getSigners();
+    const [deployer, recipient, signer] = await ethers.getSigners();
 
     // 5 blocks from now
     const startBlock = (await ethers.provider.getBlockNumber()) + 5;

@@ -185,7 +185,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    */
   public readonly deposit = async (
     amount: BigNumberish,
-    overrides?: TxOverrides
+    overrides: TxOverrides = {}
   ): Promise<ContractTransaction> => {
     return await this._deposit(this.sale, this.token, amount, overrides);
   };
@@ -213,7 +213,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    */
   public readonly depositPending = async (
     amount: BigNumberish,
-    overrides?: TxOverrides
+    overrides: TxOverrides = {}
   ): Promise<ContractTransaction> => {
     const tx = await this._depositPending(
       this.sale,
@@ -242,7 +242,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    */
   public readonly sweepPending = async (
     depositor: string,
-    overrides?: TxOverrides
+    overrides: TxOverrides = {}
   ): Promise<ContractTransaction> => {
     const tx = await this._sweepPending(
       this.sale,
@@ -282,7 +282,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   public readonly undeposit = async (
     supply: BigNumberish,
     amount: BigNumberish,
-    overrides?: TxOverrides
+    overrides: TxOverrides = {}
   ): Promise<ContractTransaction> => {
     const tx = await this._undeposit(
       this.sale,
@@ -327,7 +327,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
    */
   public readonly withdraw = async (
     supply: BigNumberish,
-    overrides?: TxOverrides
+    overrides: TxOverrides = {}
   ): Promise<ContractTransaction> => {
     const tx = await this._withdraw(this.sale, this.token, supply, overrides);
     return tx;

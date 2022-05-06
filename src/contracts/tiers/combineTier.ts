@@ -47,10 +47,6 @@ export class CombineTier extends TierContract {
     ACCOUNT: 0 + VM.Opcodes.length,
   };
 
-  public static op = VM.op;
-
-  public static concat = VM.concat;
-
   constructor(address: string, signer: Signer) {
     CombineTier.checkAddress(address);
     super(address, signer);

@@ -6,6 +6,7 @@ import {
   deployErc20,
   deployErc721,
   expectAsyncError,
+  chainId,
 } from './utils';
 
 import {
@@ -546,10 +547,10 @@ describe('SDK - VerifyTier', () => {
 describe('SDK - CombineTier', () => {
   it('should use always tier correctly', async () => {
     const [deployer, user1, user2, recipient] = await ethers.getSigners();
-
+    (await deployer.provider?.getNetwork())?.chainId;
     // Get the always tier from book
     const alwaysTierAddress = AddressBook.getAddressesForChainId(
-      (await deployer.provider.getNetwork()).chainId
+      (await deployer.provider?.getNetwork())?.chainId || chainId
     ).alwaysTier;
 
     const tier = new CombineTier(alwaysTierAddress, deployer);

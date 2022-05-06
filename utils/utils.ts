@@ -1,7 +1,9 @@
 import { concat, Hexable, hexlify, zeroPad } from "ethers/lib/utils";
 import type { BytesLike } from "ethers";
 import { BigNumber, Contract, ethers } from "ethers";
-import { State, StandardOps, op } from '../src/classes/vm';
+import { StateConfig, AllStandardOps, VM } from '../src';
+
+const op = VM.op;
 
 
 export const paddedUInt256 = (report: BigNumber): string => {
@@ -41,7 +43,7 @@ export function tierRange(startTier: number, endTier: number): number {
 };
 
 /**
- * Constructs the operand for RainVM's `call` StandardOps by packing 3 numbers into a single byte. All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 * 32 bytes) on the stack.
+ * Constructs the operand for RainVM's `call` AllStandardOps by packing 3 numbers into a single byte. All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 * 32 bytes) on the stack.
  *
  * @param sourceIndex - index of function source in `immutableSourceConfig.sources`
  * @param loopSize - number of times to subdivide vals, reduces uint size but allows for more vals (range 0-7)
@@ -101,9 +103,9 @@ export enum selectLteMode {
  * @param tierAddress - the contract address of the tier contract.
  * @param tierMultiplier - an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array.
  * @param args - (optional) 1. an array of 8 items each holding the activation time (in days) of each tier, if the tier has been held more than this duration then the percentage will be applied - 2. avg block per second. 
- * @returns {State} - a VM state
+ * @returns {StateConfig} - a VM state
  */
-export function tierBasedDiscounter(config: State, tierAddress: string, tierDiscount: number[], ...args) : State {
+export function tierBasedDiscounter(config: StateConfig, tierAddress: string, tierDiscount: number[], ...args) : StateConfig {
   const TierDiscount = paddedUInt256(
     ethers.BigNumber.from(
       "0x" + 
@@ -120,53 +122,53 @@ export function tierBasedDiscounter(config: State, tierAddress: string, tierDisc
 
   const TIER_BASED_DIS = (i) => 
     concat([ 
-      op(StandardOps.NEVER),
-      op(StandardOps.VAL, i - 1),
-      op(StandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE,tierRange(0, 8)),
-      op(StandardOps.VAL, i - 2),
-      op(StandardOps.VAL, i - 3),
-      op(StandardOps.SENDER),
-      op(StandardOps.REPORT),
-      op(StandardOps.BLOCK_NUMBER),
-      op(StandardOps.SELECT_LTE, selectLte(selectLteLogic.every, selectLteMode.first, 2)),
-      op(StandardOps.SATURATING_DIFF),
+      op(AllStandardOps.NEVER),
+      op(AllStandardOps.VAL, i - 1),
+      op(AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE,tierRange(0, 8)),
+      op(AllStandardOps.VAL, i - 2),
+      op(AllStandardOps.VAL, i - 3),
+      op(AllStandardOps.SENDER),
+      op(AllStandardOps.REPORT),
+      op(AllStandardOps.BLOCK_NUMBER),
+      op(AllStandardOps.SELECT_LTE, selectLte(selectLteLogic.every, selectLteMode.first, 2)),
+      op(AllStandardOps.SATURATING_DIFF),
     ])
 
   const TIER_BASED_DIS_ZIMAP = (i, sourceIndex, valSize) => 
     concat([
-      op(StandardOps.ZIPMAP, callSize(sourceIndex, 3, valSize)),
-      op(StandardOps.MIN, 8),
-      op(StandardOps.MUL, 2),
-      op(StandardOps.VAL, i - 1),
-      op(StandardOps.DIV, 2)
+      op(AllStandardOps.ZIPMAP, callSize(sourceIndex, 3, valSize)),
+      op(AllStandardOps.MIN, 8),
+      op(AllStandardOps.MUL, 2),
+      op(AllStandardOps.VAL, i - 1),
+      op(AllStandardOps.DIV, 2)
     ])
 
   const ACTIVATION_TIME = (i) => 
     concat([
-      op(StandardOps.NEVER),
-      op(StandardOps.BLOCK_NUMBER),
-      op(StandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE,tierRange(0, 8)),
-      op(StandardOps.VAL, i - 3),
-      op(StandardOps.SENDER),
-      op(StandardOps.REPORT),
-      op(StandardOps.SATURATING_DIFF),
-      op(StandardOps.VAL, i - 4),
+      op(AllStandardOps.NEVER),
+      op(AllStandardOps.BLOCK_NUMBER),
+      op(AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE,tierRange(0, 8)),
+      op(AllStandardOps.VAL, i - 3),
+      op(AllStandardOps.SENDER),
+      op(AllStandardOps.REPORT),
+      op(AllStandardOps.SATURATING_DIFF),
+      op(AllStandardOps.VAL, i - 4),
     ])
 
   const TIER_BASED_DIS_FN = (i) => 
     concat([
-      op(StandardOps.VAL, i - 1),
-      op(StandardOps.VAL, arg(0)),
-      op(StandardOps.SUB, 2),
-      op(StandardOps.EAGER_IF)
+      op(AllStandardOps.VAL, i - 1),
+      op(AllStandardOps.VAL, arg(0)),
+      op(AllStandardOps.SUB, 2),
+      op(AllStandardOps.EAGER_IF)
     ])
 
   const ACTIVATION_TIME_FN = (i) => 
     concat([
-      op(StandardOps.VAL, arg(1)),
-      op(StandardOps.VAL, arg(2)),
-      op(StandardOps.LESS_THAN),
-      op(StandardOps.VAL, i - 1),
+      op(AllStandardOps.VAL, arg(1)),
+      op(AllStandardOps.VAL, arg(2)),
+      op(AllStandardOps.LESS_THAN),
+      op(AllStandardOps.VAL, i - 1),
     ])
 
   if (args[0]) {
@@ -198,7 +200,7 @@ export function tierBasedDiscounter(config: State, tierAddress: string, tierDisc
         concat([
           ACTIVATION_TIME_FN(constants.length),
           TIER_BASED_DIS_FN(constants.length),
-          op(StandardOps.EAGER_IF)
+          op(AllStandardOps.EAGER_IF)
         ])
       ];
     return {
@@ -237,9 +239,9 @@ export function tierBasedDiscounter(config: State, tierAddress: string, tierDisc
  * @param tierAddress - the contract address of the tier contract.
  * @param tierMultiplier - an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array.
  * @param args - (optional) 1. an array of 8 items each holding the activation time (in days) of each tier, if the tier has been held more than this duration then the multiplier will be applied - 2. avg block per second. 
- * @returns {State} - a VM state
+ * @returns {StateConfig} - a VM state
  */
-export function tierBasedMultiplier(config: State, tierAddress: string, tierMultiplier: number[], ...args) : State {
+export function tierBasedMultiplier(config: StateConfig, tierAddress: string, tierMultiplier: number[], ...args) : StateConfig {
   const TierMultiplier = paddedUInt256(
     ethers.BigNumber.from(
       "0x" + 
@@ -256,51 +258,51 @@ export function tierBasedMultiplier(config: State, tierAddress: string, tierMult
 
   const TIER_BASED_MUL = (i) =>
     concat([
-      op(StandardOps.VAL, i - 3),
-      op(StandardOps.VAL, i - 4),
-      op(StandardOps.SENDER),
-      op(StandardOps.REPORT),
-      op(StandardOps.BLOCK_NUMBER),
-      op(StandardOps.SELECT_LTE, selectLte(selectLteLogic.every, selectLteMode.first, 2)),
+      op(AllStandardOps.VAL, i - 3),
+      op(AllStandardOps.VAL, i - 4),
+      op(AllStandardOps.SENDER),
+      op(AllStandardOps.REPORT),
+      op(AllStandardOps.BLOCK_NUMBER),
+      op(AllStandardOps.SELECT_LTE, selectLte(selectLteLogic.every, selectLteMode.first, 2)),
     ])
 
   const TIER_BASED_MUL_ZIPMAP = (i, sourceIndex, valSize) =>
     concat([
-      op(StandardOps.ZIPMAP, callSize(sourceIndex, 3, valSize)),
-      op(StandardOps.MAX, 8),
-      op(StandardOps.MUL, 2),
-      op(StandardOps.VAL, i - 2),
-      op(StandardOps.DIV, 2),
+      op(AllStandardOps.ZIPMAP, callSize(sourceIndex, 3, valSize)),
+      op(AllStandardOps.MAX, 8),
+      op(AllStandardOps.MUL, 2),
+      op(AllStandardOps.VAL, i - 2),
+      op(AllStandardOps.DIV, 2),
     ])
 
   const ACTIVATION_TIME = (i) =>
     concat([
-      op(StandardOps.NEVER),
-      op(StandardOps.BLOCK_NUMBER),
-      op(StandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE,tierRange(0, 8)),
-      op(StandardOps.VAL, i - 4),
-      op(StandardOps.SENDER),
-      op(StandardOps.REPORT),
-      op(StandardOps.SATURATING_DIFF),
-      op(StandardOps.VAL, i - 5),
+      op(AllStandardOps.NEVER),
+      op(AllStandardOps.BLOCK_NUMBER),
+      op(AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE,tierRange(0, 8)),
+      op(AllStandardOps.VAL, i - 4),
+      op(AllStandardOps.SENDER),
+      op(AllStandardOps.REPORT),
+      op(AllStandardOps.SATURATING_DIFF),
+      op(AllStandardOps.VAL, i - 5),
     ])
 
   const TIER_BASED_MUL_FN = (i) =>
     concat([
-      op(StandardOps.VAL, arg(0)),
-      op(StandardOps.VAL, i - 1),
-      op(StandardOps.LESS_THAN),
-      op(StandardOps.VAL, arg(0)),
-      op(StandardOps.VAL, i - 2),
-      op(StandardOps.EAGER_IF),
+      op(AllStandardOps.VAL, arg(0)),
+      op(AllStandardOps.VAL, i - 1),
+      op(AllStandardOps.LESS_THAN),
+      op(AllStandardOps.VAL, arg(0)),
+      op(AllStandardOps.VAL, i - 2),
+      op(AllStandardOps.EAGER_IF),
     ])
 
   const ACTIVATION_TIME_FN = (i) =>
     concat([
-      op(StandardOps.VAL, arg(1)),
-      op(StandardOps.VAL, arg(2)),
-      op(StandardOps.LESS_THAN),
-      op(StandardOps.VAL, i - 2),
+      op(AllStandardOps.VAL, arg(1)),
+      op(AllStandardOps.VAL, arg(2)),
+      op(AllStandardOps.LESS_THAN),
+      op(AllStandardOps.VAL, i - 2),
     ])
     
   if(args[0]) {
@@ -331,7 +333,7 @@ export function tierBasedMultiplier(config: State, tierAddress: string, tierMult
       concat([
         ACTIVATION_TIME_FN(constants.length),  
         TIER_BASED_MUL_FN(constants.length),
-        op(StandardOps.EAGER_IF),
+        op(AllStandardOps.EAGER_IF),
       ])
     ];
     return {

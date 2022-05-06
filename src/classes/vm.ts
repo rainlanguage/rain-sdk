@@ -1,25 +1,65 @@
 import { BytesLike, BigNumberish, utils } from 'ethers';
-
-const { concat, hexlify, zeroPad } = utils;
+import { op, concat } from '../utils';
 
 /**
  * @public
+ *
+ * Config required to build a new `State`.
  */
 export interface StateConfig {
+  /**
+   * Sources verbatim.
+   */
   sources: BytesLike[];
+  /**
+   * Constants verbatim.
+   */
   constants: BigNumberish[];
+  /**
+   * Sets the length of the uint256[] of the stack.
+   */
   stackLength: BigNumberish;
+  /**
+   * Sets the length of the uint256[] of the arguments.
+   */
   argumentsLength: BigNumberish;
 }
 
 /**
  * @public
+ *
+ * Everything required to evaluate and track the state of a rain script.
+ * As this is a struct it will be in memory when passed to `RainVM` and so
+ * will be modified by reference internally. This is important for gas
+ * efficiency; the stack, arguments and stackIndex will likely be mutated by
+ * the running script.
  */
 export interface State {
+  /**
+   * Opcodes write to the stack at the stack index and can
+   * consume from the stack by decrementing the index and reading between the
+   * old and new stack index.
+   * IMPORANT: The stack is never zeroed out so the index must be used to
+   * find the "top" of the stack as the result of an `eval`.
+   */
   stackIndex: BigNumberish;
+  /**
+   * Stack is the general purpose runtime state that opcodes can
+   * read from and write to according to their functionality.
+   */
   stack: BigNumberish[];
+  /**
+   * Sources available to be executed by `eval`.
+   * Notably `ZIPMAP` can also select a source to execute by index.
+   */
   sources: BytesLike[];
+  /**
+   * Constants that can be copied to the stack by index by `VAL`.
+   */
   constants: BigNumberish[];
+  /**
+   * `ZIPMAP` populates arguments which can be copied to the stack by `VAL`.
+   */
   arguments: BigNumberish[];
 }
 
@@ -114,42 +154,6 @@ export class VM {
   public static Opcodes = { ...AllStandardOps };
 
   /**
-   * Converts an opcode and operand to bytes, and returns their concatenation.
-   *
-   * @param code - the opcode
-   * @param erand - the operand, currently limited to 1 byte (defaults to 0)
-   */
-  public static op = (
-    code: number,
-    erand: number | BytesLike | utils.Hexable = 0
-  ): Uint8Array => {
-    return concat([this.bytify(code), this.bytify(erand)]);
-  };
-
-  /**
-   * @public
-   * Converts a value to raw bytes representation. Assumes `value` is less than or equal to 1 byte,
-   * unless a desired `bytesLength` is specified.
-   *
-   * @param value - value to convert to raw bytes format
-   * @param bytesLength - (defaults to 1) number of bytes to left pad if `value` doesn't completely
-   * fill the desired amount of memory. Will throw `InvalidArgument` error if value already exceeds
-   * bytes length.
-   * @returns raw bytes representation as Uint8Array
-   */
-  public static bytify(
-    value: number | BytesLike | utils.Hexable,
-    bytesLength = 1
-  ): BytesLike {
-    return zeroPad(hexlify(value), bytesLength);
-  }
-
-  /**
-   * Concatenates all the BytesLike in array into a single Uint8Array.
-   */
-  public static concat = concat;
-
-  /**
    * Create a VM sources to be ready to use in any call just providing the combination desired.
    *
    * @param OPerands - All the configuration with the opcodes and operands. If any combination
@@ -159,7 +163,7 @@ export class VM {
    * @returns
    */
   public static createVMSources(OPerands: OPerand[]): [Uint8Array] {
-    return [VM.concat(OPerands.map(x => VM.op(x[0], x[1] || 0)))];
+    return [concat(OPerands.map((x) => op(x[0], x[1] || 0)))];
   }
 }
 

@@ -1,10 +1,4 @@
-import {
-  BigNumberish,
-  BigNumber,
-  Signer,
-  ContractTransaction,
-  utils,
-} from 'ethers';
+import { BigNumberish, BigNumber, Signer, ContractTransaction } from 'ethers';
 
 import {
   ERC20Config,
@@ -15,9 +9,9 @@ import { StateConfig, VM } from '../classes/vm';
 
 import { FactoryContract } from '../classes/factoryContract';
 import { RedeemableERC20 } from './redeemableERC20';
-import { Sale__factory, SaleFactory__factory } from '../typechain';
+// import { concat, op } from '../utils';
 
-const { concat } = utils;
+import { Sale__factory, SaleFactory__factory } from '../typechain';
 
 /**
  * @public
@@ -96,10 +90,6 @@ export class Sale extends FactoryContract {
     RESERVE_ADDRESS: 4 + VM.Opcodes.length,
   };
 
-  public static op = VM.op;
-
-  public static concat = VM.concat;
-
   /**
    * Deploys a new Sale.
    *
@@ -157,13 +147,11 @@ export class Sale extends FactoryContract {
    */
   public static afterBlockNumberConfig(blockNumber: number): StateConfig {
     return {
-      sources: [
-        concat([
-          VM.op(this.Opcodes.BLOCK_NUMBER),
-          VM.op(this.Opcodes.VAL, 0),
-          VM.op(this.Opcodes.GREATER_THAN),
-        ]),
-      ],
+      sources: VM.createVMSources([
+        [this.Opcodes.BLOCK_NUMBER],
+        [this.Opcodes.VAL, 0],
+        [this.Opcodes.GREATER_THAN],
+      ]),
       constants: [blockNumber - 1],
       stackLength: 3,
       argumentsLength: 0,
@@ -178,13 +166,11 @@ export class Sale extends FactoryContract {
    */
   public static afterTimestampConfig(timestamp: number): StateConfig {
     return {
-      sources: [
-        concat([
-          VM.op(this.Opcodes.BLOCK_TIMESTAMP),
-          VM.op(this.Opcodes.VAL, 0),
-          VM.op(this.Opcodes.GREATER_THAN),
-        ]),
-      ],
+      sources: VM.createVMSources([
+        [this.Opcodes.BLOCK_TIMESTAMP],
+        [this.Opcodes.VAL, 0],
+        [this.Opcodes.GREATER_THAN],
+      ]),
       constants: [timestamp],
       stackLength: 3,
       argumentsLength: 0,

@@ -4,11 +4,11 @@ import {
   BytesLike,
   BigNumberish,
   ContractTransaction,
-  utils,
 } from 'ethers';
 import { TxOverrides, ReadTxOverrides } from './rainContract';
 import { FactoryContract } from './factoryContract';
 import { ITier__factory } from '../typechain';
+import { paddedUInt256 } from '../utils';
 
 /**
  * @public
@@ -122,21 +122,22 @@ export abstract class TierContract extends FactoryContract {
     const currentTier = await this.report(account);
     const againstBlock = block
       ? block
-      : await this.signer.provider.getBlockNumber();
+      : await this.signer.provider?.getBlockNumber();
 
-    const parsedReport = utils
-      .hexZeroPad(currentTier.toHexString(), 32)
+    const parsedReport = paddedUInt256(currentTier)
       .substring(2)
       .match(/.{1,8}/g)
-      .reverse()
-      .map(x => parseInt('0x' + x));
+      ?.reverse()
+      .map((x) => parseInt('0x' + x));
 
     let eligibleStatus = 0;
-    for (let i = 0; i < 8; i++) {
-      if (parsedReport[i] <= againstBlock) {
-        eligibleStatus = i + 1;
-      } else {
-        break;
+    if (parsedReport && againstBlock) {
+      for (let i = 0; i < 8; i++) {
+        if (parsedReport[i] <= againstBlock) {
+          eligibleStatus = i + 1;
+        } else {
+          break;
+        }
       }
     }
 
