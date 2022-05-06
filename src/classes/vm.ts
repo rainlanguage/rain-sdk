@@ -164,9 +164,11 @@ export class VM {
 }
 
 /**
+ * @public
+ *
  * Parameter that will use to converted to the source.
  *
- * Use an opcode and operand to bytes ->  [opcodoperand]
+ * Use an opcode and operand (optional)
  *
  */
-type OPerand = [number, (number | BytesLike | utils.Hexable)?];
+export type OPerand = [number, (number | BytesLike | utils.Hexable)?];

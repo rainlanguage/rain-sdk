@@ -8,6 +8,13 @@ import {
 } from 'ethers';
 import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
 
+/**
+ * @public
+ *
+ * Generic ERC1155 interface to get connected to any ERC1155 address and make transactions.
+ *
+ * Take in mind that only have generics function calls.
+ */
 export class ERC1155 {
   public readonly signer: Signer;
   public readonly address: string;
@@ -144,7 +151,7 @@ export class ERC1155 {
    * Requirements:
    *
    * - `to` cannot be the zero address.
-   * - If the caller is not `from`, it must be have been approved to spend ``from``'s tokens via `setApprovalForAll()`.
+   * - If the caller is not `from`, it must be have been approved to spend `from`'s tokens via `setApprovalForAll()`.
    * - `from` must have a balance of tokens of type `id` of at least `amount`.
    *
    * @param from - owner of the tokens
@@ -169,7 +176,7 @@ export class ERC1155 {
    * Requirements:
    *
    * - `to` cannot be the zero address.
-   * - If the caller is not `from`, it must be have been approved to spend ``from``'s tokens via `setApprovalForAll()`.
+   * - If the caller is not `from`, it must be have been approved to spend `from`'s tokens via `setApprovalForAll()`.
    * - `from` must have a balance of tokens of type `id` of at least `amount`.
    *
    * @param from - owner of the tokens

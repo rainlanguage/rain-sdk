@@ -8,6 +8,13 @@ import {
 } from 'ethers';
 import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
 
+/**
+ * @public
+ *
+ * Generic ERC721 interface to get connected to any ERC721 address and make transactions.
+ *
+ * Take in mind that only have generics function calls.
+ */
 export class ERC721 {
   public readonly signer: Signer;
   public readonly address: string;
@@ -88,7 +95,7 @@ export class ERC721 {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Returns the number of tokens in ``owner``'s account.
+   * Returns the number of tokens in `owner`'s account.
    *
    * @param account - Account address to get the balance
    * @param overrides - @see ReadTxOverrides
@@ -226,7 +233,7 @@ export class ERC721 {
    * - The `operator` cannot be the caller.
    *
    * @param operator - the account to be approved/removed for all
-   * @parm approved - boolean to set (true) or remove (false) the operator
+   * @param approved - boolean to set (true) or remove (false) the operator
    * @param overrides - @see TxOverrides
    */
   public readonly setApprovalForAll: (
