@@ -50,10 +50,10 @@
   "devDependencies": {
     "@beehiveinnovation/rain-protocol": "git+https://github.com/beehive-innovation/rain-protocol.git#2dd7102e9addf0662bc0aef2a6aacb8b82edf089",
     "@beehiveinnovation/rain-statusfi": "git+https://github.com/beehive-innovation/rain-statusfi.git#499b0a05e0bea8685dcd3b4b03af7da91fd31258",
-    "@microsoft/api-documenter": "^7.17.9",
     "@microsoft/api-extractor": "^7.22.2",
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@princjef/api-documenter": "^1.0.2",
     "@size-limit/preset-small-lib": "^6.0.4",
     "@typechain/ethers-v5": "^8.0.5",
     "@typechain/hardhat": "^3.0.0",
