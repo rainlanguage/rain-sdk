@@ -9,11 +9,14 @@ import {
 } from './utils';
 
 import {
+  AddressBook,
   Verify,
   VerifyTier,
   ERC20BalanceTier,
   ERC20TransferTier,
   ERC721BalanceTier,
+  CombineTier,
+  GatedNFT,
 } from '../src';
 
 describe('SDK - ERC20BalanceTier', () => {
@@ -162,7 +165,6 @@ describe('SDK - ERC20BalanceTier', () => {
 });
 
 describe('SDK - ERC20TransferTier', () => {
-  // TODO: Re-test tier levels with report
   it('should deploy an ERC20TransferTier child', async () => {
     const [signer] = await ethers.getSigners();
     const token = await deployErc20();
@@ -454,8 +456,8 @@ describe('SDK - ERC721BalanceTier', () => {
   });
 });
 
-describe.only('SDK - VerifyTier', () => {
-  xit('should deploy an VerifyTier child', async () => {
+describe('SDK - VerifyTier', () => {
+  it('should deploy an VerifyTier child', async () => {
     const [deployer, signer] = await ethers.getSigners();
 
     const verify = await Verify.deploy(deployer, {
@@ -468,7 +470,7 @@ describe.only('SDK - VerifyTier', () => {
     expect(await VerifyTier.isChild(signer, tier.address)).to.be.true;
   });
 
-  xit('should throw an error if try to call setTier from SDK', async () => {
+  it('should throw an error if try to call setTier from SDK', async () => {
     const [deployer] = await ethers.getSigners();
 
     const verify = await Verify.deploy(deployer, {
@@ -501,15 +503,99 @@ describe.only('SDK - VerifyTier', () => {
 
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
 
-    // Grant to uset as approve
+    // Approve the user
     await verifyAdmin.approve([{ account: user.address, data: [] }]);
 
     expect(await tier.currentTier(user.address)).to.be.equals(
       tier.levels.EIGHT
     );
   });
+
+  it('should get correct tier after been removed', async () => {
+    const [deployer, admin, user] = await ethers.getSigners();
+
+    const verify = await Verify.deploy(deployer, {
+      admin: admin.address,
+      callback: ethers.constants.AddressZero,
+    });
+
+    // Connect the instance to the admin and grant the approver role to himself
+    const verifyAdmin = verify.connect(admin);
+    await verifyAdmin.grantRole(await verifyAdmin.APPROVER(), admin.address);
+    await verifyAdmin.grantRole(await verifyAdmin.REMOVER(), admin.address);
+
+    // Deploy the verifyTier
+    const tier = await VerifyTier.deploy(deployer, verify.address);
+
+    expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
+
+    // Approve the user
+    await verifyAdmin.approve([{ account: user.address, data: [] }]);
+
+    expect(await tier.currentTier(user.address)).to.be.equals(
+      tier.levels.EIGHT
+    );
+
+    // Remove the user
+    await verifyAdmin.remove([{ account: user.address, data: [] }]);
+
+    expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
+  });
 });
 
-describe('SDK - Tiers', () => {
-  // TODO: ADD combine tier
+describe('SDK - CombineTier', () => {
+  it('should use always tier correctly', async () => {
+    const [deployer, user1, user2, recipient] = await ethers.getSigners();
+
+    // Get the always tier from book
+    const alwaysTierAddress = AddressBook.getAddressesForChainId(
+      (await deployer.provider.getNetwork()).chainId
+    ).alwaysTier;
+
+    const tier = new CombineTier(alwaysTierAddress, deployer);
+
+    // Any address should be allowed in all tiers
+    expect(await tier.currentTier(user1.address)).to.be.equals(
+      tier.levels.EIGHT
+    );
+    expect(await tier.currentTier(user2.address)).to.be.equals(
+      tier.levels.EIGHT
+    );
+
+    // Deploy a GatedNFT with a minimum status as 7 tier
+    const gatedConfig = {
+      name: 'TestTier',
+      symbol: 'TTIER',
+      description: 'Testing the tier',
+      animationUrl:
+        'https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy',
+      imageUrl:
+        'https://ipfs.io/ipfsbafybeify52a63pgcshhbtkff4nxxxp2zp5yjn2xw43jcy4knwful7ymmgy',
+      animationHash:
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+      imageHash:
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+    };
+
+    const deployArgs = {
+      config: gatedConfig,
+      tier: tier.address,
+      minimumStatus: tier.levels.SEVEN,
+      maxPerAddress: 1,
+      transferrable: 0,
+      maxMintable: 1000,
+      royaltyRecipient: recipient.address,
+      royaltyBPS: 1,
+    };
+
+    const gatedNFT = await GatedNFT.deploy(deployer, deployArgs);
+
+    // Both user should be able to mint
+    await gatedNFT.connect(user1).mint(user1.address);
+
+    await gatedNFT.connect(user2).mint(user2.address);
+
+    expect(await gatedNFT.balanceOf(user1.address)).to.be.equals(1);
+    expect(await gatedNFT.balanceOf(user2.address)).to.be.equals(1);
+  });
 });

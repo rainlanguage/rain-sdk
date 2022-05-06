@@ -9,6 +9,7 @@ import {
 } from './utils';
 
 import {
+  VM,
   AddressBook,
   Sale,
   Verify,
@@ -96,13 +97,11 @@ before('Initializing and deploying contracts to hardhat network', async () => {
   });
 
   // Deploying AlwaysTier
-  const sourceAlways = CombineTier.concat([
-    CombineTier.op(CombineTier.Opcodes.ALWAYS),
-  ]);
+  const sourceAlways = VM.createVMSources([[CombineTier.Opcodes.ALWAYS]]);
   const alwaysArg = {
-    sources: [sourceAlways],
+    sources: sourceAlways,
     constants: [],
-    stackLength: 8,
+    stackLength: 1,
     argumentsLength: 0,
   };
 

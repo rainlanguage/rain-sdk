@@ -7,7 +7,7 @@ import { GatedNFT, ERC20BalanceTier } from '../src';
 
 describe('GatedNFT', () => {
   it('should deploy a GatedNFTChild', async () => {
-    const [signer, receipient] = await ethers.getSigners();
+    const [signer, recipient] = await ethers.getSigners();
     const token = await deployErc20();
     const tier = await ERC20BalanceTier.deploy(signer, {
       erc20: token.address,
@@ -35,7 +35,7 @@ describe('GatedNFT', () => {
       maxPerAddress: 1,
       transferrable: 0,
       maxMintable: 1000,
-      royaltyRecipient: receipient.address,
+      royaltyRecipient: recipient.address,
       royaltyBPS: 1,
     };
 

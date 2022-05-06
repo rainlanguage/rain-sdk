@@ -23,7 +23,7 @@ export abstract class RainContract {
   }
 
   /**
-   * @public @static
+   * @public
    * Check if an address is correctly formatted and throw an error if it is not an valid address
    *
    * @param address - address to be evaluated
