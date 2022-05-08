@@ -159,8 +159,7 @@ export class VM {
    * @param OPerands - All the configuration with the opcodes and operands. If any combination
    * does not have an operand with an opcode, a 0 (zero) will be use with the opcode as the
    * operand. Please @see OPerand
-   *
-   * @returns
+   * @returns A source
    */
   public static createVMSources(OPerands: OPerand[]): [Uint8Array] {
     return [concat(OPerands.map((x) => op(x[0], x[1] || 0)))];

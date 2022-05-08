@@ -83,11 +83,14 @@ before('Initializing and deploying contracts to hardhat network', async () => {
   const VerifyFactory = await VerifyFactoryFactory.deploy();
   const VerifyTierFactory = await VerifyTierFactoryFactory.deploy();
   const ERC20BalanceTierFactory = await ERC20BalanceTierFactoryFactory.deploy();
-  const ERC20TransferTierFactory = await ERC20TransferTierFactoryFactory.deploy();
+  const ERC20TransferTierFactory =
+    await ERC20TransferTierFactoryFactory.deploy();
   const CombineTierFactory = await CombineTierFactoryFactory.deploy();
-  const ERC721BalanceTierFactory = await ERC721BalanceTierFactoryFactory.deploy();
+  const ERC721BalanceTierFactory =
+    await ERC721BalanceTierFactoryFactory.deploy();
   const GatedNFTFactory = await GatedNFTFactoryFactory.deploy();
-  const RedeemableERC20ClaimEscrow = await RedeemableERC20ClaimEscrowFactory.deploy();
+  const RedeemableERC20ClaimEscrow =
+    await RedeemableERC20ClaimEscrowFactory.deploy();
   const NoticeBoard = await NoticeBoardFactory.deploy();
   const EmissionsERC20Factory = await EmissionsERC20FactoryFactory.deploy();
   const SaleFactory = await SaleFactoryFactory.deploy({
