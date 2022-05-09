@@ -140,7 +140,7 @@ export class Sale extends FactoryContract {
   };
 
   /**
-   * Create a condition as VM state configuration to that is true after a `blockNumber` in the chain.
+   * Create a condition as VM state configuration to that is true AFTER a `blockNumber` in the chain.
    *
    * @param blockNumber - block number that will be use as comparision
    * @returns A VM Configturation
@@ -159,7 +159,7 @@ export class Sale extends FactoryContract {
   }
 
   /**
-   * Create a condition as VM state configuration to that is true after a `timestamp` in the chain.
+   * Create a condition as VM state configuration to that is true AFTER a `timestamp` in the chain.
    *
    * @param timestamp - timestamp that will be use as comparision
    * @returns A VM Configturation

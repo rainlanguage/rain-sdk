@@ -2,6 +2,7 @@ import { Signer, BytesLike, BigNumberish } from 'ethers';
 import { TierContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
 import { StateConfig, VM } from '../../classes/vm';
+import { AddressBook } from '../../addresses';
 import { CombineTierFactory__factory } from '../../typechain';
 
 /**
@@ -93,6 +94,24 @@ export class CombineTier extends TierContract {
     maybeChild: string
   ): Promise<boolean> => {
     return await this._isChild(signer, maybeChild);
+  };
+
+  /**
+   * Get the instance Combine Tier connected to the deployed always tier in the current
+   * chain ID obtained with the provider
+   *
+   * @param signer - An ethers.js Signer
+   * @returns New instance connected to the AlwaysTier
+   */
+  public static getAlwaysTier = async (
+    signer: Signer
+  ): Promise<CombineTier> => {
+    return new CombineTier(
+      AddressBook.getAddressesForChainId(
+        await this.getChainId(signer)
+      ).alwaysTier,
+      signer
+    );
   };
 
   /**

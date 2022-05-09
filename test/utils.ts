@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat';
-import { BigNumberish, Signer } from 'ethers';
+import { BigNumber, BigNumberish, Signer } from 'ethers';
 import { assert } from 'chai';
 
 import {
@@ -26,6 +26,13 @@ export enum Tier {
   SIX,
   SEVEN,
   EIGHT,
+}
+
+export enum SaleStatus {
+  Pending,
+  Active,
+  Success,
+  Fail,
 }
 
 /**
@@ -59,9 +66,9 @@ export const zeroAddress = ethers.constants.AddressZero;
  * Return the Levels tier used by default with ERC20 tokens. LEVELS always will be an array with 8 elements to
  * correspond to the 8 TierLevels
  */
-export const TierLevelsERC20: BigNumberish[] = Array.from(
-  Array(8).keys()
-).map(value => ethers.BigNumber.from(++value + eighteenZeros)); // [1,2,3,4,5,6,7,8] each mul by 1*10**18
+export const TierLevelsERC20: BigNumberish[] = Array.from(Array(8).keys()).map(
+  (value) => ethers.BigNumber.from(++value + eighteenZeros)
+); // [1,2,3,4,5,6,7,8] each mul by 1*10**18
 
 export const TierLevelsERC721 = Array.from(Array(8).keys()).map((value) =>
   ethers.BigNumber.from(++value)
@@ -135,3 +142,78 @@ export async function expectAsyncError(
 }
 
 export const mockSubgraphReceipt = () => {};
+
+/**
+ * Time related helpers
+ */
+export class Time {
+  /** Helper to convert between time units */
+  public static duration = {
+    seconds: function (val: BigNumberish) {
+      return BigNumber.from(val);
+    },
+    minutes: function (val: BigNumberish) {
+      return BigNumber.from(val).mul(this.seconds('60'));
+    },
+    hours: function (val: BigNumberish) {
+      return BigNumber.from(val).mul(this.minutes(60));
+    },
+    days: function (val: BigNumberish) {
+      return BigNumber.from(val).mul(this.hours('24'));
+    },
+    weeks: function (val: BigNumberish) {
+      return BigNumber.from(val).mul(this.days('7'));
+    },
+    years: function (val: BigNumberish) {
+      return BigNumber.from(val).mul(this.days('365'));
+    },
+  };
+
+  /**
+   * Returns the time of the last mined block in seconds
+   */
+  public static async currentTime(): Promise<number> {
+    return (
+      await ethers.provider.getBlock(await ethers.provider.getBlockNumber())
+    ).timestamp;
+  }
+
+  /**
+   * Return the current block
+   */
+  public static async currentBlock(): Promise<number> {
+    return await ethers.provider.getBlockNumber();
+  }
+
+  /**
+   * Advance an amount of block(s) mine them
+   */
+  public static async advanceBlock(amount: number = 1) {
+    if (amount < 0) {
+      throw new Error(`Cannot mine negative blocks: ${amount}`);
+    }
+
+    await ethers.provider.send('evm_mine', []);
+    if (amount > 1) {
+      await this.advanceBlock(amount - 1);
+    }
+  }
+
+  /**
+   * Increases time by the passed duration in seconds. Note that could exist a gap between the timestamp
+   * mined in the block
+   */
+  public static async increase(duration: BigNumberish) {
+    if (!BigNumber.isBigNumber(duration)) {
+      duration = BigNumber.from(duration);
+    }
+
+    if (duration.isNegative()) {
+      throw Error(`Cannot increase time by a negative amount (${duration})`);
+    }
+
+    await ethers.provider.send('evm_increaseTime', [duration.toNumber()]);
+
+    await this.advanceBlock();
+  }
+}

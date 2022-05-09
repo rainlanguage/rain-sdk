@@ -210,6 +210,17 @@ describe('SDK - BookAddress', () => {
     const address = AddressBook.getAddressesForChainId(chainId).alwaysTier;
     expect(address).to.be.equals(addresses.AlwaysTier);
   });
+
+  it('should get the correct AlwaysTier instance with SDK', async () => {
+    const [signer] = await ethers.getSigners();
+    const address = AddressBook.getAddressesForChainId(chainId).alwaysTier;
+    expect(address).to.be.equals(addresses.AlwaysTier);
+
+    const AlwaysInstance = await CombineTier.getAlwaysTier(signer);
+
+    expect(await CombineTier.isChild(signer, address)).to.be.true;
+    expect(AlwaysInstance.address).to.be.equals(address);
+  });
 });
 
 describe('SDK - Generics', () => {
