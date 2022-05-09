@@ -145,14 +145,14 @@ export class Sale extends FactoryContract {
    * @param blockNumber - block number that will be use as comparision
    * @returns A VM Configturation
    */
-  public static afterBlockNumberConfig(blockNumber: number): StateConfig {
+  public static afterBlockNumberConfig(blockNumber: BigNumberish): StateConfig {
     return {
       sources: VM.createVMSources([
         [this.Opcodes.BLOCK_NUMBER],
         [this.Opcodes.VAL, 0],
         [this.Opcodes.GREATER_THAN],
       ]),
-      constants: [blockNumber - 1],
+      constants: [BigNumber.from(blockNumber).sub(1)],
       stackLength: 3,
       argumentsLength: 0,
     };
@@ -164,14 +164,14 @@ export class Sale extends FactoryContract {
    * @param timestamp - timestamp that will be use as comparision
    * @returns A VM Configturation
    */
-  public static afterTimestampConfig(timestamp: number): StateConfig {
+  public static afterTimestampConfig(timestamp: BigNumberish): StateConfig {
     return {
       sources: VM.createVMSources([
         [this.Opcodes.BLOCK_TIMESTAMP],
         [this.Opcodes.VAL, 0],
         [this.Opcodes.GREATER_THAN],
       ]),
-      constants: [timestamp],
+      constants: [BigNumber.from(timestamp)],
       stackLength: 3,
       argumentsLength: 0,
     };
