@@ -14,7 +14,7 @@ import { ReserveTokenTest } from '../typechain';
 import { VM, Sale, CombineTier } from '../src';
 import { BigNumber } from 'ethers';
 
-describe.only('SDK - Sale', () => {
+describe('SDK - Sale', () => {
   let reserve: ReserveTokenTest, tier: CombineTier;
 
   before('deploy required contracts', async () => {
@@ -41,7 +41,7 @@ describe.only('SDK - Sale', () => {
     // console.log(utils.arrayify(value));
   });
 
-  xit('should deploy a Sale child correctly', async () => {
+  it('should deploy a Sale child correctly', async () => {
     const [deployer, recipient] = await ethers.getSigners();
 
     // 5 blocks from now
@@ -94,7 +94,7 @@ describe.only('SDK - Sale', () => {
     ).to.be.true;
   });
 
-  xit('should start and finish the sale based in blocknumber correctly', async () => {
+  it('should start and finish the sale based in blocknumber correctly', async () => {
     const [deployer, recipient] = await ethers.getSigners();
 
     // 5 blocks from now
@@ -169,7 +169,7 @@ describe.only('SDK - Sale', () => {
     await sale.end();
   });
 
-  xit('should start and finish the sale based in timestamp correctly', async () => {
+  it('should start and finish the sale based in timestamp correctly', async () => {
     const [deployer, recipient] = await ethers.getSigners();
 
     const startTimestamp = (await Time.currentTime()) + 30; // 30 seconds from now
@@ -240,7 +240,7 @@ describe.only('SDK - Sale', () => {
     await sale.end();
   });
 
-  xit('should be able to buy in the sale with the SDK', async () => {
+  it('should be able to buy in the sale with the SDK', async () => {
     const [deployer, recipient, buyer] = await ethers.getSigners();
 
     // 5 blocks from now
