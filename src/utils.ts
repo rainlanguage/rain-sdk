@@ -2,7 +2,7 @@ import { BigNumber, ethers, utils } from 'ethers';
 import { StateConfig, AllStandardOps } from '../src/classes/vm';
 
 import type { BytesLike } from 'ethers';
-type Hexable = utils.Hexable;
+export type Hexable = utils.Hexable;
 
 export enum selectLteLogic {
   every,
@@ -14,7 +14,7 @@ export enum selectLteMode {
   first,
 }
 
-export const { concat, hexlify, zeroPad, hexZeroPad } = utils;
+export const { concat, hexlify, zeroPad, hexZeroPad, arrayify } = utils;
 
 /**
  * Converts an opcode and operand to bytes, and returns their concatenation.
@@ -133,6 +133,7 @@ export function selectLte(logic: number, mode: number, length: number): number {
 }
 
 /**
+ * // TODO: Move to CombineTier file
  * deducts percentage off of the results of a VM script based on the holding tier of a tier contract.
  *
  * @param config - the main VM script
@@ -283,6 +284,7 @@ export function tierBasedDiscounter(
 }
 
 /**
+ * // TODO: Move to CombineTier file
  * multiples the results of a VM script based on the holding tier of a tier contract.
  *
  * @param config - the main VM script
@@ -575,10 +577,7 @@ export function vmStateCombiner(
   if (position && position.length == numberOfSources) {
     for (let i = 0; i < numberOfSources; i++) {
       const sources1 = config1.sources[Index1 + i];
-      const arrSource1 =
-        typeof sources1 === 'string'
-          ? Uint8Array.from(sources1.split('').map((x) => parseInt(x)))
-          : Uint8Array.from(sources1);
+      const arrSource1 = toUint8Array(sources1);
 
       config1.sources[Index1 + i] = concat([
         arrSource1.subarray(0, position[i] * 2),
@@ -620,20 +619,44 @@ export function vmStateCombiner(
  * @param replacement - the new value to replace
  * @returns BytesLike with the value replaced
  */
-const replaceAt = (
+export const replaceAt = (
   original: BytesLike,
   index: number,
   replacement: string | number
 ): BytesLike => {
-  if (typeof original === 'string') {
-    return (
-      original.toString().substring(0, index) +
-      replacement +
-      original.toString().substring(index + replacement.toString().length)
-    );
-  } else {
-    const originalParsed = Array.from(original);
-    originalParsed[index] = parseInt(replacement.toString());
-    return originalParsed;
-  }
+  original = toUint8Array(original);
+  const originalParsed = Array.from(original);
+  originalParsed[index] = parseInt(replacement.toString());
+  return originalParsed;
 };
+
+export function skip(places: number, conditional = false): number {
+  let skip = conditional ? 1 : 0;
+  skip <<= 7;
+  // JS ints are already signed.
+  skip |= places & 0x7f;
+  return skip;
+}
+
+/**
+ * @public
+ * Check and convert any type of `BytesLike` to an `Uint8Array`
+ *
+ * @param data - Byteslike to convert
+ * @returns An Uint8Array
+ */
+export function toUint8Array(data: BytesLike): Uint8Array {
+  if (!utils.isBytes(data)) {
+    if (utils.isHexString(data)) {
+      data = utils.arrayify(data);
+    } else {
+      if (utils.isHexString('0x' + data)) {
+        data = utils.arrayify('0x' + data);
+      } else {
+        throw new Error(`Invalid Hexadecimal expression ${'0x' + data}`);
+      }
+    }
+  }
+
+  return Uint8Array.from(data);
+}
