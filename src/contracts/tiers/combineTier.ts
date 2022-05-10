@@ -7,6 +7,12 @@ import { CombineTierFactory__factory } from '../../typechain';
 
 /**
  * @public
+ * The StateConfig will be deployed as a pointer under
+ */
+export type CombineTierDeployArgs = StateConfig;
+
+/**
+ * @public
  * A class for deploying and calling methods on a CombineTier.
  *
  *   Implements `ReadOnlyTier` over RainVM. Allows combining the reports from any other `ITier`
@@ -126,9 +132,3 @@ export class CombineTier extends TierContract {
     throw new Error('SET TIER: NOT IMPLEMENTED');
   };
 }
-
-/**
- * @public
- * The StateConfig will be deployed as a pointer under
- */
-export type CombineTierDeployArgs = StateConfig;

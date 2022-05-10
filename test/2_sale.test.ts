@@ -14,7 +14,7 @@ import { ReserveTokenTest } from '../typechain';
 import { VM, Sale, CombineTier } from '../src';
 import { BigNumber } from 'ethers';
 
-describe('SDK - Sale', () => {
+describe.only('SDK - Sale', () => {
   let reserve: ReserveTokenTest, tier: CombineTier;
 
   before('deploy required contracts', async () => {
@@ -24,7 +24,24 @@ describe('SDK - Sale', () => {
     tier = await CombineTier.getAlwaysTier(deployer);
   });
 
-  it('should deploy a Sale child correctly', async () => {
+  it('', async () => {
+    const value = '0x0100050104110a0f';
+    let value2 = '0100050104110a0f';
+    // const value2 = '0x0100050104110a0f1';
+    const utils = ethers.utils;
+
+    console.log(utils.isHexString(value));
+    console.log(utils.isHexString(value2));
+    value2 += '0x';
+
+    console.log(value2);
+
+    // console.log(utils.hexValue(value));
+    // console.log(utils.hexlify(value));
+    // console.log(utils.arrayify(value));
+  });
+
+  xit('should deploy a Sale child correctly', async () => {
     const [deployer, recipient] = await ethers.getSigners();
 
     // 5 blocks from now
@@ -77,7 +94,7 @@ describe('SDK - Sale', () => {
     ).to.be.true;
   });
 
-  it('should start and finish the sale based in blocknumber correctly', async () => {
+  xit('should start and finish the sale based in blocknumber correctly', async () => {
     const [deployer, recipient] = await ethers.getSigners();
 
     // 5 blocks from now
@@ -152,7 +169,7 @@ describe('SDK - Sale', () => {
     await sale.end();
   });
 
-  it('should start and finish the sale based in timestamp correctly', async () => {
+  xit('should start and finish the sale based in timestamp correctly', async () => {
     const [deployer, recipient] = await ethers.getSigners();
 
     const startTimestamp = (await Time.currentTime()) + 30; // 30 seconds from now
@@ -223,7 +240,7 @@ describe('SDK - Sale', () => {
     await sale.end();
   });
 
-  it('should be able to buy in the sale with the SDK', async () => {
+  xit('should be able to buy in the sale with the SDK', async () => {
     const [deployer, recipient, buyer] = await ethers.getSigners();
 
     // 5 blocks from now
