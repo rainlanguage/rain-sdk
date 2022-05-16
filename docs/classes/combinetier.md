@@ -2,11 +2,11 @@
 
 # Class CombineTier
 
-A class for deploying and calling methods on a CombineTier.
+Class for deploying and calling methods on a CombineTier contract, providin easy way to interact with deployed CombineTiers.
 
-Implements `ReadOnlyTier` over RainVM. Allows combining the reports from any other `ITier` contracts referenced in the `ImmutableSource` set at construction. value at the top of the stack after executing the rain script will be used as the return of `report`<!-- -->.
+Since provide an easy way to deploy CombineTiers using Rain's canonical factories and methods for interacting with an already deployed CombineTier, will reduce the code use to instanciate contract.
 
-This class provides an easy way to deploy CombineTiers using Rain's canonical factories, and methods for interacting with an already deployed CombineTier.
+The combine tiers implements the `ReadOnlyTier` over RainVM. Allows combining the reports from any other `ITier` contracts referenced in the `ImmutableSource` set at construction. value at the top of the stack after executing the rain script will be used as the return of `report`<!-- -->.
 
 <b>Signature:</b>
 
@@ -20,14 +20,20 @@ class CombineTier extends TierContract
 ```typescript
 import { CombineTier } from 'rain-sdk'
 
-// To deploy a new CombineTier, pass an ethers.js Signer and the config for the CombineTier.
-const newTier = await CombineTier.deploy(signer, CombineTierConfigArgs)
+// Deploy a new CombineTier using the existing factory. Require an ethers signer and the config desired for the CombineTier.
+const newCombineTier = await CombineTier.deploy(signer, CombineTierConfigArgs);
 
-// To connect to an existing CombineTier just pass the address and an ethers.js Signer.
-const existingTier = new CombineTier(address, signer)
+// Connect to an existing CombineTier. Required the address and an ethers signer.
+const existingCombineTier  = new CombineTier(address, signer)
 
-// Once you have a CombineTier, you can call the smart contract methods:
+// With a CombineTier instance, you can call the smart contract methods:
 const report = await existingTier.report(address)
+
+// Access to static methods in CombineTier
+const accountOP = CombineTier.Opcodes.ACCOUNT;
+
+// Obtaian default AlwaysTier instance with an ethers signer
+const alwaysTier = await CombineTier.getAlwaysTier(signer);
 
 ```
 
@@ -35,51 +41,42 @@ const report = await existingTier.report(address)
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [concat](./combinetier.md#concat-property-static) | `typeof import("@ethersproject/bytes").concat` |  |
 |  [deploy](./combinetier.md#deploy-property-static) | `(signer: Signer, args: CombineTierDeployArgs, overrides?: TxOverrides) => Promise<CombineTier>` | Deploys a new CombineTier. |
-|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br><br>Request to the provider stored in the signer which is the chain ID.<br><br><i>Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)</i> |
-|  [isChild](./combinetier.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this CombineTierFactory on a specific network |
-|  [nameBookReference](./combinetier.md#nameBookReference-property-static) | `` | Reference to find the address in the book address. Should be implemented and assign it to each subclass<br><br><i>Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)</i> |
-|  [op](./combinetier.md#op-property-static) | `(code: number, erand?: number \| BytesLike \| import("@ethersproject/bytes").Hexable) => Uint8Array` |  |
-|  [Opcodes](./combinetier.md#Opcodes-property-static) | <pre>{&#010;    ACCOUNT: number;&#010;    SKIP: import("../../classes/vm").AllStandardOps.SKIP;&#010;    VAL: import("../../classes/vm").AllStandardOps.VAL;&#010;    DUP: import("../../classes/vm").AllStandardOps.DUP;&#010;    ZIPMAP: import("../../classes/vm").AllStandardOps.ZIPMAP;&#010;    DEBUG: import("../../classes/vm").AllStandardOps.DEBUG;&#010;    BLOCK_NUMBER: import("../../classes/vm").AllStandardOps.BLOCK_NUMBER;&#010;    BLOCK_TIMESTAMP: import("../../classes/vm").AllStandardOps.BLOCK_TIMESTAMP;&#010;    SENDER: import("../../classes/vm").AllStandardOps.SENDER;&#010;    THIS_ADDRESS: import("../../classes/vm").AllStandardOps.THIS_ADDRESS;&#010;    SCALE18_MUL: import("../../classes/vm").AllStandardOps.SCALE18_MUL;&#010;    SCALE18_DIV: import("../../classes/vm").AllStandardOps.SCALE18_DIV;&#010;    SCALE18: import("../../classes/vm").AllStandardOps.SCALE18;&#010;    SCALEN: import("../../classes/vm").AllStandardOps.SCALEN;&#010;    SCALE_BY: import("../../classes/vm").AllStandardOps.SCALE_BY;&#010;    SCALE18_ONE: import("../../classes/vm").AllStandardOps.SCALE18_ONE;&#010;    SCALE18_DECIMALS: import("../../classes/vm").AllStandardOps.SCALE18_DECIMALS;&#010;    ADD: import("../../classes/vm").AllStandardOps.ADD;&#010;    SATURATING_ADD: import("../../classes/vm").AllStandardOps.SATURATING_ADD;&#010;    SUB: import("../../classes/vm").AllStandardOps.SUB;&#010;    SATURATING_SUB: import("../../classes/vm").AllStandardOps.SATURATING_SUB;&#010;    MUL: import("../../classes/vm").AllStandardOps.MUL;&#010;    SATURATING_MUL: import("../../classes/vm").AllStandardOps.SATURATING_MUL;&#010;    DIV: import("../../classes/vm").AllStandardOps.DIV;&#010;    MOD: import("../../classes/vm").AllStandardOps.MOD;&#010;    EXP: import("../../classes/vm").AllStandardOps.EXP;&#010;    MIN: import("../../classes/vm").AllStandardOps.MIN;&#010;    MAX: import("../../classes/vm").AllStandardOps.MAX;&#010;    ISZERO: import("../../classes/vm").AllStandardOps.ISZERO;&#010;    EAGER_IF: import("../../classes/vm").AllStandardOps.EAGER_IF;&#010;    EQUAL_TO: import("../../classes/vm").AllStandardOps.EQUAL_TO;&#010;    LESS_THAN: import("../../classes/vm").AllStandardOps.LESS_THAN;&#010;    GREATER_THAN: import("../../classes/vm").AllStandardOps.GREATER_THAN;&#010;    EVERY: import("../../classes/vm").AllStandardOps.EVERY;&#010;    ANY: import("../../classes/vm").AllStandardOps.ANY;&#010;    REPORT: import("../../classes/vm").AllStandardOps.REPORT;&#010;    NEVER: import("../../classes/vm").AllStandardOps.NEVER;&#010;    ALWAYS: import("../../classes/vm").AllStandardOps.ALWAYS;&#010;    SATURATING_DIFF: import("../../classes/vm").AllStandardOps.SATURATING_DIFF;&#010;    UPDATE_BLOCKS_FOR_TIER_RANGE: import("../../classes/vm").AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE;&#010;    SELECT_LTE: import("../../classes/vm").AllStandardOps.SELECT_LTE;&#010;    IERC20_BALANCE_OF: import("../../classes/vm").AllStandardOps.IERC20_BALANCE_OF;&#010;    IERC20_TOTAL_SUPPLY: import("../../classes/vm").AllStandardOps.IERC20_TOTAL_SUPPLY;&#010;    IERC721_BALANCE_OF: import("../../classes/vm").AllStandardOps.IERC721_BALANCE_OF;&#010;    IERC721_OWNER_OF: import("../../classes/vm").AllStandardOps.IERC721_OWNER_OF;&#010;    IERC1155_BALANCE_OF: import("../../classes/vm").AllStandardOps.IERC1155_BALANCE_OF;&#010;    IERC1155_BALANCE_OF_BATCH: import("../../classes/vm").AllStandardOps.IERC1155_BALANCE_OF_BATCH;&#010;    length: import("../../classes/vm").AllStandardOps.length;&#010;}</pre> | Constructs a new CombineTier from a known address. |
+|  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br><i>Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)</i> |
+|  [getAlwaysTier](./combinetier.md#getAlwaysTier-property-static) | `(signer: Signer) => Promise<CombineTier>` | Get the instance Combine Tier connected to the deployed always tier in the current chain ID obtained with the provider |
+|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br>Request to the provider stored in the signer which is the chain ID.<br></br><i>Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)</i> |
+|  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><i>Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)</i> |
+|  [isChild](./combinetier.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this contract in a specific network.<br></br><i>Overrides [FactoryContract.isChild](./factorycontract.md#isChild-property-static)</i> |
+|  [nameBookReference](./combinetier.md#nameBookReference-property-static) | `` | Name reference to find the address of the contract in the book address.<br></br><i>Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)</i> |
+|  [Opcodes](./combinetier.md#Opcodes-property-static) | [CombineTierOpcodes](../types/combinetieropcodes.md) | All the opcodes avaialbles in the CombineTier contract. |
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [address](./raincontract.md#address-property) | `string` | <i>Inherited from [RainContract.address](./raincontract.md#address-property)</i> |
-|  [connect](./combinetier.md#connect-property) | `(signer: Signer) => CombineTier` | Connect the current instance to a new signer<br><br><i>Overrides [RainContract.connect](./raincontract.md#connect-property)</i> |
-|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels.<br><br><i>Inherited from [TierContract.levels](./tiercontract.md#levels-property)</i> |
-|  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->. There are 9 possible tier, starting with tier 0 for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the full 256 bits.<br><br><i>Inherited from [TierContract.report](./tiercontract.md#report-property)</i> |
-|  [setTier](./combinetier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>` | It is NOT implemented in CombineTiers. Always will throw an error<br><br><i>Overrides [TierContract.setTier](./tiercontract.md#setTier-property)</i> |
+|  [connect](./combinetier.md#connect-property) | `(signer: Signer) => CombineTier` | Connect the current instance to a new signer<br></br><i>Overrides [RainContract.connect](./raincontract.md#connect-property)</i> |
+|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels.<br></br><i>Inherited from [TierContract.levels](./tiercontract.md#levels-property)</i> |
+|  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->. There are 9 possible tier, starting with tier 0 for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the full 256 bits.<br></br><i>Inherited from [TierContract.report](./tiercontract.md#report-property)</i> |
+|  [setTier](./combinetier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides \| undefined) => Promise<never>` | It is NOT implemented in CombineTiers. Always will throw an error<br></br><i>Overrides [TierContract.setTier](./tiercontract.md#setTier-property)</i> |
 |  [signer](./raincontract.md#signer-property) | `Signer` | <i>Inherited from [RainContract.signer](./raincontract.md#signer-property)</i> |
 
 ## Static Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [\_isChild(signer, maybeChild)](./factorycontract.md#_isChild-method-static-1) | Checks if address is registered as a child contract of the factory in the chain. Should be implemented in sub-classes that repreent factories to expose it.<br><br><i>Inherited from [FactoryContract.\_isChild()](./factorycontract.md#_isChild-method-static-1)</i> |
-|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book to this chain<br><br><i>Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)</i> |
-|  [getNewChildFromReceipt(receipt, parentContract)](./factorycontract.md#getNewChildFromReceipt-method-static-1) | Get the child from a receipt obtain from a Factory transaction<br><br><i>Inherited from [FactoryContract.getNewChildFromReceipt()](./factorycontract.md#getNewChildFromReceipt-method-static-1)</i> |
+|  [\_isChild(signer, maybeChild)](./factorycontract.md#_isChild-method-static-1) | Checks if address is registered as a child contract of the factory in the chain.<br></br><i>Inherited from [FactoryContract.\_isChild()](./factorycontract.md#_isChild-method-static-1)</i> |
+|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book to this chain<br></br><i>Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)</i> |
+|  [getNewChildFromReceipt(receipt, parentContract)](./factorycontract.md#getNewChildFromReceipt-method-static-1) | Get the child from a receipt obtain from a Factory transaction<br></br><i>Inherited from [FactoryContract.getNewChildFromReceipt()](./factorycontract.md#getNewChildFromReceipt-method-static-1)</i> |
 
 ## Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br><br><i>Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)</i> |
-|  [currentTier(account, block)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br><br><i>Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)</i> |
+|  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br><i>Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)</i> |
+|  [currentTier(account, block)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br><i>Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)</i> |
 
 ## Static Property Details
-
-<a id="concat-property-static"></a>
-
-### concat
-
-<b>Signature:</b>
-
-```typescript
-static concat: typeof import("@ethersproject/bytes").concat;
-```
 
 <a id="deploy-property-static"></a>
 
@@ -93,11 +90,27 @@ Deploys a new CombineTier.
 static deploy: (signer: Signer, args: CombineTierDeployArgs, overrides?: TxOverrides) => Promise<CombineTier>;
 ```
 
+<a id="getAlwaysTier-property-static"></a>
+
+### getAlwaysTier
+
+Get the instance Combine Tier connected to the deployed always tier in the current chain ID obtained with the provider
+
+<b>Signature:</b>
+
+```typescript
+static getAlwaysTier: (signer: Signer) => Promise<CombineTier>;
+```
+
 <a id="isChild-property-static"></a>
 
 ### isChild
 
-Checks if address is registered as a child contract of this CombineTierFactory on a specific network
+Checks if address is registered as a child contract of this contract in a specific network.
+
+<i>Overrides [FactoryContract.isChild](./factorycontract.md#isChild-property-static)</i>
+
+The methods require a signer that will be used to call to the Factory Contract and ask if thea address provided is a child. Also it is necessary to get the current Chain ID using the provider in the signer.
 
 <b>Signature:</b>
 
@@ -109,9 +122,11 @@ static isChild: (signer: Signer, maybeChild: string) => Promise<boolean>;
 
 ### nameBookReference
 
-Reference to find the address in the book address. Should be implemented and assign it to each subclass
+Name reference to find the address of the contract in the book address.
 
 <i>Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)</i>
+
+Should be implemented in each class to find the factory address in the book.
 
 <b>Signature:</b>
 
@@ -119,75 +134,18 @@ Reference to find the address in the book address. Should be implemented and ass
 protected static readonly nameBookReference = "combineTierFactory";
 ```
 
-<a id="op-property-static"></a>
-
-### op
-
-<b>Signature:</b>
-
-```typescript
-static op: (code: number, erand?: number | BytesLike | import("@ethersproject/bytes").Hexable) => Uint8Array;
-```
-
 <a id="Opcodes-property-static"></a>
 
 ### Opcodes
 
-Constructs a new CombineTier from a known address.
+All the opcodes avaialbles in the CombineTier contract.
+
+This expose all the standard opcodes along with the specific opcodes of the CombineTier
 
 <b>Signature:</b>
 
 ```typescript
-static Opcodes: {
-        ACCOUNT: number;
-        SKIP: import("../../classes/vm").AllStandardOps.SKIP;
-        VAL: import("../../classes/vm").AllStandardOps.VAL;
-        DUP: import("../../classes/vm").AllStandardOps.DUP;
-        ZIPMAP: import("../../classes/vm").AllStandardOps.ZIPMAP;
-        DEBUG: import("../../classes/vm").AllStandardOps.DEBUG;
-        BLOCK_NUMBER: import("../../classes/vm").AllStandardOps.BLOCK_NUMBER;
-        BLOCK_TIMESTAMP: import("../../classes/vm").AllStandardOps.BLOCK_TIMESTAMP;
-        SENDER: import("../../classes/vm").AllStandardOps.SENDER;
-        THIS_ADDRESS: import("../../classes/vm").AllStandardOps.THIS_ADDRESS;
-        SCALE18_MUL: import("../../classes/vm").AllStandardOps.SCALE18_MUL;
-        SCALE18_DIV: import("../../classes/vm").AllStandardOps.SCALE18_DIV;
-        SCALE18: import("../../classes/vm").AllStandardOps.SCALE18;
-        SCALEN: import("../../classes/vm").AllStandardOps.SCALEN;
-        SCALE_BY: import("../../classes/vm").AllStandardOps.SCALE_BY;
-        SCALE18_ONE: import("../../classes/vm").AllStandardOps.SCALE18_ONE;
-        SCALE18_DECIMALS: import("../../classes/vm").AllStandardOps.SCALE18_DECIMALS;
-        ADD: import("../../classes/vm").AllStandardOps.ADD;
-        SATURATING_ADD: import("../../classes/vm").AllStandardOps.SATURATING_ADD;
-        SUB: import("../../classes/vm").AllStandardOps.SUB;
-        SATURATING_SUB: import("../../classes/vm").AllStandardOps.SATURATING_SUB;
-        MUL: import("../../classes/vm").AllStandardOps.MUL;
-        SATURATING_MUL: import("../../classes/vm").AllStandardOps.SATURATING_MUL;
-        DIV: import("../../classes/vm").AllStandardOps.DIV;
-        MOD: import("../../classes/vm").AllStandardOps.MOD;
-        EXP: import("../../classes/vm").AllStandardOps.EXP;
-        MIN: import("../../classes/vm").AllStandardOps.MIN;
-        MAX: import("../../classes/vm").AllStandardOps.MAX;
-        ISZERO: import("../../classes/vm").AllStandardOps.ISZERO;
-        EAGER_IF: import("../../classes/vm").AllStandardOps.EAGER_IF;
-        EQUAL_TO: import("../../classes/vm").AllStandardOps.EQUAL_TO;
-        LESS_THAN: import("../../classes/vm").AllStandardOps.LESS_THAN;
-        GREATER_THAN: import("../../classes/vm").AllStandardOps.GREATER_THAN;
-        EVERY: import("../../classes/vm").AllStandardOps.EVERY;
-        ANY: import("../../classes/vm").AllStandardOps.ANY;
-        REPORT: import("../../classes/vm").AllStandardOps.REPORT;
-        NEVER: import("../../classes/vm").AllStandardOps.NEVER;
-        ALWAYS: import("../../classes/vm").AllStandardOps.ALWAYS;
-        SATURATING_DIFF: import("../../classes/vm").AllStandardOps.SATURATING_DIFF;
-        UPDATE_BLOCKS_FOR_TIER_RANGE: import("../../classes/vm").AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE;
-        SELECT_LTE: import("../../classes/vm").AllStandardOps.SELECT_LTE;
-        IERC20_BALANCE_OF: import("../../classes/vm").AllStandardOps.IERC20_BALANCE_OF;
-        IERC20_TOTAL_SUPPLY: import("../../classes/vm").AllStandardOps.IERC20_TOTAL_SUPPLY;
-        IERC721_BALANCE_OF: import("../../classes/vm").AllStandardOps.IERC721_BALANCE_OF;
-        IERC721_OWNER_OF: import("../../classes/vm").AllStandardOps.IERC721_OWNER_OF;
-        IERC1155_BALANCE_OF: import("../../classes/vm").AllStandardOps.IERC1155_BALANCE_OF;
-        IERC1155_BALANCE_OF_BATCH: import("../../classes/vm").AllStandardOps.IERC1155_BALANCE_OF_BATCH;
-        length: import("../../classes/vm").AllStandardOps.length;
-    };
+static Opcodes: CombineTierOpcodes;
 ```
 
 ## Property Details
@@ -217,5 +175,5 @@ It is NOT implemented in CombineTiers. Always will throw an error
 <b>Signature:</b>
 
 ```typescript
-readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>;
+readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides | undefined) => Promise<never>;
 ```

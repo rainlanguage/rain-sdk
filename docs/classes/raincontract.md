@@ -6,15 +6,17 @@
 <b>Signature:</b>
 
 ```typescript
-abstract class RainContract 
+abstract class RainContract extends AddressBook 
 ```
 
 ## Static Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br><br>Request to the provider stored in the signer which is the chain ID. |
-|  [nameBookReference](./raincontract.md#nameBookReference-property-static) | `string` | Reference to find the address in the book address. Should be implemented and assign it to each subclass |
+|  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br><i>Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)</i> |
+|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br>Request to the provider stored in the signer which is the chain ID. |
+|  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><i>Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)</i> |
+|  [nameBookReference](./raincontract.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address. |
 
 ## Properties
 
@@ -57,7 +59,9 @@ static getChainId: (signerOrProvider: Signer | Provider) => Promise<number>;
 
 ### nameBookReference
 
-Reference to find the address in the book address. Should be implemented and assign it to each subclass
+Name reference to find the address of the contract in the book address.
+
+Should be implemented in each class to find the factory or main address in the book.
 
 <b>Signature:</b>
 

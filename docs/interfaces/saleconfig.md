@@ -2,6 +2,7 @@
 
 # Interface SaleConfig
 
+The configuration of the sale
 
 <b>Signature:</b>
 

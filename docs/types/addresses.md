@@ -2,7 +2,7 @@
 
 # Type Addresses
 
-Type for all the addresses stored in the Book
+Type for all the addresses stored in the Book.
 
 <b>Signature:</b>
 

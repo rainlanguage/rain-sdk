@@ -2,6 +2,7 @@
 
 # Interface SaleRedeemableERC20Config
 
+Configuration that will have the Redeemable of the Sale
 
 <b>Signature:</b>
 

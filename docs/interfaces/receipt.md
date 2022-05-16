@@ -2,6 +2,7 @@
 
 # Interface Receipt
 
+The receipt that contain the information of the buy
 
 <b>Signature:</b>
 

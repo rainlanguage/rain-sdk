@@ -13,42 +13,19 @@ class VM
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [concat](./vm.md#concat-property-static) | `typeof utils.concat` | Concatenates all the BytesLike in array into a single Uint8Array. |
-|  [op](./vm.md#op-property-static) | `(code: number, erand?: number \| BytesLike \| utils.Hexable) => Uint8Array` | Converts an opcode and operand to bytes, and returns their concatenation. |
-|  [Opcodes](./vm.md#Opcodes-property-static) | <pre>{&#010;    [x: number]: string;&#010;    SKIP: AllStandardOps.SKIP;&#010;    VAL: AllStandardOps.VAL;&#010;    DUP: AllStandardOps.DUP;&#010;    ZIPMAP: AllStandardOps.ZIPMAP;&#010;    DEBUG: AllStandardOps.DEBUG;&#010;    BLOCK_NUMBER: AllStandardOps.BLOCK_NUMBER;&#010;    BLOCK_TIMESTAMP: AllStandardOps.BLOCK_TIMESTAMP;&#010;    SENDER: AllStandardOps.SENDER;&#010;    THIS_ADDRESS: AllStandardOps.THIS_ADDRESS;&#010;    SCALE18_MUL: AllStandardOps.SCALE18_MUL;&#010;    SCALE18_DIV: AllStandardOps.SCALE18_DIV;&#010;    SCALE18: AllStandardOps.SCALE18;&#010;    SCALEN: AllStandardOps.SCALEN;&#010;    SCALE_BY: AllStandardOps.SCALE_BY;&#010;    SCALE18_ONE: AllStandardOps.SCALE18_ONE;&#010;    SCALE18_DECIMALS: AllStandardOps.SCALE18_DECIMALS;&#010;    ADD: AllStandardOps.ADD;&#010;    SATURATING_ADD: AllStandardOps.SATURATING_ADD;&#010;    SUB: AllStandardOps.SUB;&#010;    SATURATING_SUB: AllStandardOps.SATURATING_SUB;&#010;    MUL: AllStandardOps.MUL;&#010;    SATURATING_MUL: AllStandardOps.SATURATING_MUL;&#010;    DIV: AllStandardOps.DIV;&#010;    MOD: AllStandardOps.MOD;&#010;    EXP: AllStandardOps.EXP;&#010;    MIN: AllStandardOps.MIN;&#010;    MAX: AllStandardOps.MAX;&#010;    ISZERO: AllStandardOps.ISZERO;&#010;    EAGER_IF: AllStandardOps.EAGER_IF;&#010;    EQUAL_TO: AllStandardOps.EQUAL_TO;&#010;    LESS_THAN: AllStandardOps.LESS_THAN;&#010;    GREATER_THAN: AllStandardOps.GREATER_THAN;&#010;    EVERY: AllStandardOps.EVERY;&#010;    ANY: AllStandardOps.ANY;&#010;    REPORT: AllStandardOps.REPORT;&#010;    NEVER: AllStandardOps.NEVER;&#010;    ALWAYS: AllStandardOps.ALWAYS;&#010;    SATURATING_DIFF: AllStandardOps.SATURATING_DIFF;&#010;    UPDATE_BLOCKS_FOR_TIER_RANGE: AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE;&#010;    SELECT_LTE: AllStandardOps.SELECT_LTE;&#010;    IERC20_BALANCE_OF: AllStandardOps.IERC20_BALANCE_OF;&#010;    IERC20_TOTAL_SUPPLY: AllStandardOps.IERC20_TOTAL_SUPPLY;&#010;    IERC721_BALANCE_OF: AllStandardOps.IERC721_BALANCE_OF;&#010;    IERC721_OWNER_OF: AllStandardOps.IERC721_OWNER_OF;&#010;    IERC1155_BALANCE_OF: AllStandardOps.IERC1155_BALANCE_OF;&#010;    IERC1155_BALANCE_OF_BATCH: AllStandardOps.IERC1155_BALANCE_OF_BATCH;&#010;    length: AllStandardOps.length;&#010;}</pre> | All the standard Op Codes |
+|  [Opcodes](./vm.md#Opcodes-property-static) | `typeof AllStandardOps` | All the standard Op Codes |
 
 ## Static Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [bytify(value, bytesLength)](./vm.md#bytify-method-static-1) | Converts a value to raw bytes representation. Assumes `value` is less than or equal to 1 byte, unless a desired `bytesLength` is specified. |
 |  [createVMSources(OPerands)](./vm.md#createVMSources-method-static-1) | Create a VM sources to be ready to use in any call just providing the combination desired. |
+|  [makeOwner(config, ownerAddress, notOwnerVar, index)](./vm.md#makeOwner-method-static-1) | Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default. |
+|  [tierBasedDiscounter(config, tierAddress, tierDiscount, tierActivation, index)](./vm.md#tierBasedDiscounter-method-static-1) | Deducts percentage off of the result of a VM script based on the holding tier of a tier contract. |
+|  [tierBasedMultiplier(config, tierAddress, tierMultiplier, tierActivation, index)](./vm.md#tierBasedMultiplier-method-static-1) | Multiply the result of a VM script based on the holding tier of a tier contract. |
+|  [vmStateCombiner(config1, config2, numberOfSources, position, index1, index2)](./vm.md#vmStateCombiner-method-static-1) | Combines 2 individual VM scripts |
 
 ## Static Property Details
-
-<a id="concat-property-static"></a>
-
-### concat
-
-Concatenates all the BytesLike in array into a single Uint8Array.
-
-<b>Signature:</b>
-
-```typescript
-static concat: typeof utils.concat;
-```
-
-<a id="op-property-static"></a>
-
-### op
-
-Converts an opcode and operand to bytes, and returns their concatenation.
-
-<b>Signature:</b>
-
-```typescript
-static op: (code: number, erand?: number | BytesLike | utils.Hexable) => Uint8Array;
-```
 
 <a id="Opcodes-property-static"></a>
 
@@ -59,84 +36,10 @@ All the standard Op Codes
 <b>Signature:</b>
 
 ```typescript
-static Opcodes: {
-        [x: number]: string;
-        SKIP: AllStandardOps.SKIP;
-        VAL: AllStandardOps.VAL;
-        DUP: AllStandardOps.DUP;
-        ZIPMAP: AllStandardOps.ZIPMAP;
-        DEBUG: AllStandardOps.DEBUG;
-        BLOCK_NUMBER: AllStandardOps.BLOCK_NUMBER;
-        BLOCK_TIMESTAMP: AllStandardOps.BLOCK_TIMESTAMP;
-        SENDER: AllStandardOps.SENDER;
-        THIS_ADDRESS: AllStandardOps.THIS_ADDRESS;
-        SCALE18_MUL: AllStandardOps.SCALE18_MUL;
-        SCALE18_DIV: AllStandardOps.SCALE18_DIV;
-        SCALE18: AllStandardOps.SCALE18;
-        SCALEN: AllStandardOps.SCALEN;
-        SCALE_BY: AllStandardOps.SCALE_BY;
-        SCALE18_ONE: AllStandardOps.SCALE18_ONE;
-        SCALE18_DECIMALS: AllStandardOps.SCALE18_DECIMALS;
-        ADD: AllStandardOps.ADD;
-        SATURATING_ADD: AllStandardOps.SATURATING_ADD;
-        SUB: AllStandardOps.SUB;
-        SATURATING_SUB: AllStandardOps.SATURATING_SUB;
-        MUL: AllStandardOps.MUL;
-        SATURATING_MUL: AllStandardOps.SATURATING_MUL;
-        DIV: AllStandardOps.DIV;
-        MOD: AllStandardOps.MOD;
-        EXP: AllStandardOps.EXP;
-        MIN: AllStandardOps.MIN;
-        MAX: AllStandardOps.MAX;
-        ISZERO: AllStandardOps.ISZERO;
-        EAGER_IF: AllStandardOps.EAGER_IF;
-        EQUAL_TO: AllStandardOps.EQUAL_TO;
-        LESS_THAN: AllStandardOps.LESS_THAN;
-        GREATER_THAN: AllStandardOps.GREATER_THAN;
-        EVERY: AllStandardOps.EVERY;
-        ANY: AllStandardOps.ANY;
-        REPORT: AllStandardOps.REPORT;
-        NEVER: AllStandardOps.NEVER;
-        ALWAYS: AllStandardOps.ALWAYS;
-        SATURATING_DIFF: AllStandardOps.SATURATING_DIFF;
-        UPDATE_BLOCKS_FOR_TIER_RANGE: AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE;
-        SELECT_LTE: AllStandardOps.SELECT_LTE;
-        IERC20_BALANCE_OF: AllStandardOps.IERC20_BALANCE_OF;
-        IERC20_TOTAL_SUPPLY: AllStandardOps.IERC20_TOTAL_SUPPLY;
-        IERC721_BALANCE_OF: AllStandardOps.IERC721_BALANCE_OF;
-        IERC721_OWNER_OF: AllStandardOps.IERC721_OWNER_OF;
-        IERC1155_BALANCE_OF: AllStandardOps.IERC1155_BALANCE_OF;
-        IERC1155_BALANCE_OF_BATCH: AllStandardOps.IERC1155_BALANCE_OF_BATCH;
-        length: AllStandardOps.length;
-    };
+static Opcodes: typeof AllStandardOps;
 ```
 
 ## Static Method Details
-
-<a id="bytify-method-static-1"></a>
-
-### bytify(value, bytesLength)
-
-Converts a value to raw bytes representation. Assumes `value` is less than or equal to 1 byte, unless a desired `bytesLength` is specified.
-
-<b>Signature:</b>
-
-```typescript
-static bytify(value: number | BytesLike | utils.Hexable, bytesLength?: number): BytesLike;
-```
-
-#### Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  value | `number \| BytesLike \| utils.Hexable` | value to convert to raw bytes format |
-|  bytesLength | `number` | (defaults to 1) number of bytes to left pad if `value` doesn't completely fill the desired amount of memory. Will throw `InvalidArgument` error if value already exceeds bytes length. |
-
-<b>Returns:</b>
-
-`BytesLike`
-
-raw bytes representation as Uint8Array
 
 <a id="createVMSources-method-static-1"></a>
 
@@ -160,4 +63,117 @@ static createVMSources(OPerands: OPerand[]): [Uint8Array];
 
 `[Uint8Array]`
 
+A source
+
+<a id="makeOwner-method-static-1"></a>
+
+### makeOwner(config, ownerAddress, notOwnerVar, index)
+
+Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default.
+
+<b>Signature:</b>
+
+```typescript
+static makeOwner(config: StateConfig, ownerAddress: string, notOwnerVar?: number | string | StateConfig, index?: number): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
+|  ownerAddress | `string` | the address that is going to be the owner of the main VM script. |
+|  notOwnerVar | `number \| string \| StateConfig` | (optional) - the value or a 2nd VM script, that will be the final result in case that the sender is not the owner ,the default result value if no args passed and the check fails is 0. |
+|  index | `number` | (optional) the index of the config sources array that determines where the makeOwner sources apply to, default index is 0. |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script.
+
+<a id="tierBasedDiscounter-method-static-1"></a>
+
+### tierBasedDiscounter(config, tierAddress, tierDiscount, tierActivation, index)
+
+Deducts percentage off of the result of a VM script based on the holding tier of a tier contract.
+
+<b>Signature:</b>
+
+```typescript
+static tierBasedDiscounter(config: StateConfig, tierAddress: string, tierDiscount: number[], tierActivation?: (number | string)[], index?: number): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
+|  tierAddress | `string` | the contract address of the tier contract. |
+|  tierDiscount | `number[]` | an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array. |
+|  tierActivation | `(number \| string)[]` | (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the percentage will be applied. |
+|  index | `number` | (optional) the index of the config sources array that the discount applies to, the default index is 0. |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
+
+<a id="tierBasedMultiplier-method-static-1"></a>
+
+### tierBasedMultiplier(config, tierAddress, tierMultiplier, tierActivation, index)
+
+Multiply the result of a VM script based on the holding tier of a tier contract.
+
+<b>Signature:</b>
+
+```typescript
+static tierBasedMultiplier(config: StateConfig, tierAddress: string, tierMultiplier: number[], tierActivation?: (number | string)[], index?: number): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
+|  tierAddress | `string` | the contract address of the tier contract. |
+|  tierMultiplier | `number[]` | an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array. |
+|  tierActivation | `(number \| string)[]` | (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the multiplier will be applied. |
+|  index | `number` | (optional) the index of the config sources array that the multiplier applies to, the default index is 0. |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
+
+<a id="vmStateCombiner-method-static-1"></a>
+
+### vmStateCombiner(config1, config2, numberOfSources, position, index1, index2)
+
+Combines 2 individual VM scripts
+
+<b>Signature:</b>
+
+```typescript
+static vmStateCombiner(config1: StateConfig, config2: StateConfig, numberOfSources: number, position?: number[], index1?: number, index2?: number): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config1 | [StateConfig](../interfaces/stateconfig.md) | the first VM script that will be combined. (default sits at top) |
+|  config2 | [StateConfig](../interfaces/stateconfig.md) | the second VM script that will be combined. (default sits at bottom) |
+|  numberOfSources | `number` | number of sources to combine, starting from sources index of each script. |
+|  position | `number[]` | (optional) an array representing the positions of config1 script where config2 script will be merged at; default setting will apply if not specified; position array length must be equal to sourcesNo or else it will be ignored. |
+|  index1 | `number` | (optional) - the index of the config1 sources array that will be combined, the default index is 0. |
+|  index2 | `number` | (optional) - the index of the config2 sources array that will be combined, the default index is 0. |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+combined VM script.
 
