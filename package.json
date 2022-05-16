@@ -20,7 +20,7 @@
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "generate-docs": "api-extractor run --local && api-documenter markdown -i ./ -o ./docs"
+    "generate-docs": "api-extractor run --local && api-documenter -i ./ -o ./docs"
   },
   "peerDependencies": {},
   "husky": {
@@ -37,6 +37,7 @@
   "name": "rain-sdk",
   "author": "Beehive Innovation",
   "module": "dist/rain-sdk.esm.js",
+  "homepage": "https://github.com/beehive-innovation/rain-sdk#readme",
   "size-limit": [
     {
       "path": "dist/rain-sdk.cjs.production.min.js",

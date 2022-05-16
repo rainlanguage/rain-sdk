@@ -304,7 +304,7 @@ export class VM {
   /**
    * All the standard Op Codes
    */
-  public static Opcodes = { ...AllStandardOps };
+  public static Opcodes = AllStandardOps;
 
   /**
    * Create a VM sources to be ready to use in any call just providing the combination desired.

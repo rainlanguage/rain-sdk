@@ -34,7 +34,7 @@ await EmissionsERC20.isChild(signer, newEmission.address);
 |  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br><i>Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)</i> |
 |  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br>Request to the provider stored in the signer which is the chain ID.<br></br><i>Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)</i> |
 |  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><i>Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)</i> |
-|  [isChild](./emissionserc20.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this RedeemableERC20Factory on a specific network<br></br><i>Overrides [FactoryContract.isChild](./factorycontract.md#isChild-property-static)</i> |
+|  [isChild](./emissionserc20.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this RedeemableERC20Factory on a specific network |
 |  [nameBookReference](./emissionserc20.md#nameBookReference-property-static) | `` | Name reference to find the address of the contract in the book address.<br></br><i>Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)</i> |
 
 ## Properties
@@ -96,10 +96,6 @@ static deploy: (signer: Signer, args: EmissionsERC20DeployArgs, overrides?: TxOv
 ### isChild
 
 Checks if address is registered as a child contract of this RedeemableERC20Factory on a specific network
-
-<i>Overrides [FactoryContract.isChild](./factorycontract.md#isChild-property-static)</i>
-
-The methods require a signer that will be used to call to the Factory Contract and ask if thea address provided is a child. Also it is necessary to get the current Chain ID using the provider in the signer.
 
 <b>Signature:</b>
 

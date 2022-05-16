@@ -5,16 +5,20 @@ import { AddressBook } from '../addresses';
 /**
  * @public
  */
-export abstract class RainContract {
+export abstract class RainContract extends AddressBook {
   public readonly signer: Signer;
   public readonly address: string;
+
   /**
-   * Reference to find the address in the book address.
-   * Should be implemented and assign it to each subclass
+   * Name reference to find the address of the contract in the book address.
+   *
+   * @remarks
+   * Should be implemented in each class to find the factory or main address in the book.
    */
   protected static readonly nameBookReference: string;
 
   constructor(address: string, signer: Signer) {
+    super();
     if (!utils.isAddress(address.toLowerCase())) {
       throw new Error('NOT A VALID FORMAT ADDRESS');
     }
@@ -68,7 +72,7 @@ export abstract class RainContract {
    * @returns The address for this contract
    */
   public static getBookAddress(chainId: number): string {
-    return AddressBook.getAddressesForChainId(chainId)[this.nameBookReference];
+    return this.getAddressesForChainId(chainId)[this.nameBookReference];
   }
 
   /**

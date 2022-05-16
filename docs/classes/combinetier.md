@@ -46,7 +46,7 @@ const alwaysTier = await CombineTier.getAlwaysTier(signer);
 |  [getAlwaysTier](./combinetier.md#getAlwaysTier-property-static) | `(signer: Signer) => Promise<CombineTier>` | Get the instance Combine Tier connected to the deployed always tier in the current chain ID obtained with the provider |
 |  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br>Request to the provider stored in the signer which is the chain ID.<br></br><i>Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)</i> |
 |  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><i>Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)</i> |
-|  [isChild](./combinetier.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this contract in a specific network.<br></br><i>Overrides [FactoryContract.isChild](./factorycontract.md#isChild-property-static)</i> |
+|  [isChild](./combinetier.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this contract in a specific network. |
 |  [nameBookReference](./combinetier.md#nameBookReference-property-static) | `` | Name reference to find the address of the contract in the book address.<br></br><i>Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)</i> |
 |  [Opcodes](./combinetier.md#Opcodes-property-static) | [CombineTierOpcodes](../types/combinetieropcodes.md) | All the opcodes avaialbles in the CombineTier contract. |
 
@@ -108,9 +108,7 @@ static getAlwaysTier: (signer: Signer) => Promise<CombineTier>;
 
 Checks if address is registered as a child contract of this contract in a specific network.
 
-<i>Overrides [FactoryContract.isChild](./factorycontract.md#isChild-property-static)</i>
-
-The methods require a signer that will be used to call to the Factory Contract and ask if thea address provided is a child. Also it is necessary to get the current Chain ID using the provider in the signer.
+The methods require a signer that will be used to call to the Factory Contract and ask if the address provided is a child. Also it is necessary to get the current Chain ID using the provider in the signer.
 
 <b>Signature:</b>
 

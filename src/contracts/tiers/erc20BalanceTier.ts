@@ -93,7 +93,12 @@ export class ERC20BalanceTier extends TierContract {
   };
 
   /**
-   * Checks if address is registered as a child contract of this ERC20BalanceTierFactory on a specific network
+   * Checks if address is registered as a child contract of this contract in a specific network.
+   *
+   * @remarks
+   * The methods require a signer that will be used to call to the Factory Contract and ask if the
+   * address provided is a child. Also it is necessary to get the current Chain ID using the provider
+   * in the signer.
    *
    * @param signer - An ethers.js Signer
    * @param maybeChild - Address to check registration for.

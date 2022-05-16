@@ -10,6 +10,8 @@ let
  generate-docs = pkgs.writeShellScriptBin "generate-docs" ''
   yarn build
   yarn generate-docs
+  # Remove issues with missing close tags
+  find ./docs/ -name "*.md" -exec sed -i 's/<br><br>/<br><\/br>/g' {} +
  '';
 
  lint-sdk = pkgs.writeShellScriptBin "lint-sdk" ''

@@ -24,23 +24,6 @@ describe('SDK - Sale', () => {
     tier = await CombineTier.getAlwaysTier(deployer);
   });
 
-  it('', async () => {
-    const value = '0x0100050104110a0f';
-    let value2 = '0100050104110a0f';
-    // const value2 = '0x0100050104110a0f1';
-    const utils = ethers.utils;
-
-    console.log(utils.isHexString(value));
-    console.log(utils.isHexString(value2));
-    value2 += '0x';
-
-    console.log(value2);
-
-    // console.log(utils.hexValue(value));
-    // console.log(utils.hexlify(value));
-    // console.log(utils.arrayify(value));
-  });
-
   it('should deploy a Sale child correctly', async () => {
     const [deployer, recipient] = await ethers.getSigners();
 
