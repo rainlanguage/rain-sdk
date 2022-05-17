@@ -14,14 +14,14 @@ import { FactoryContract } from '../classes/factoryContract';
  * @public
  * A class for deploying and calling methods on a Verify.
  *
- *   Trust-minimised contract to record the state of some verification process. When some off-chain
+ * @remarks
+ * This class provides an easy way to deploy Verifies using Rain's canonical factories, and methods for interacting
+ * with an already deployed Verify.
+ *
+ * Trust-minimised contract to record the state of some verification process. When some off-chain
  * identity is to be reified on chain there is inherently some multi-party, multi-faceted trust
  * relationship. For example, the DID (Decentralized Identifiers) specification from W3C outlines
  * that the controller and the subject of an identity are two different entities.
- *
- * @remarks
- *   This class provides an easy way to deploy Verifies using Rain's canonical factories, and methods for interacting
- * with an already deployed Verify.
  *
  * @example
  * ```typescript
@@ -39,7 +39,7 @@ import { FactoryContract } from '../classes/factoryContract';
  */
 
 export class Verify extends FactoryContract {
-  protected static readonly nameBookReference = 'verifyFactory';
+  protected static readonly nameBookReference: string = 'verifyFactory';
 
   /**
    * Constructs a new Verify from a known address.

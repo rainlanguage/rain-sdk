@@ -1,6 +1,7 @@
 
 # Type utils.Hexable
 
+
 <b>Signature:</b>
 
 ```typescript

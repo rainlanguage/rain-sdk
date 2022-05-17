@@ -1,6 +1,7 @@
 
 # Class GatedNFT
 
+//TODO: Add doc
 
 <b>Signature:</b>
 
@@ -17,16 +18,16 @@ class GatedNFT extends FactoryContract
 |  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br><br></br>Request to the provider stored in the signer which is the chain ID.<br></br><br></br>*Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)* |
 |  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
 |  [isChild](./gatednft.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this GatedNFTFactory on a specific network |
-|  [nameBookReference](./gatednft.md#nameBookReference-property-static) | `` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
+|  [nameBookReference](./gatednft.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [address](./raincontract.md#address-property) | `string` | *Inherited from [RainContract.address](./raincontract.md#address-property)* |
+|  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br><br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
 |  [approve](./gatednft.md#approve-property) | `(to: string, tokenId: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Gives permission to `to` to transfer `tokenId` token to another account. The approval is cleared when the token is transferred.<br></br><br></br>Only a single account can be approved at a time, so approving the zero address clears previous approvals.<br></br><br></br>Requirements:<br></br><br></br>- The caller must own the token or be an approved operator. - `tokenId` must exist. |
 |  [balanceOf](./gatednft.md#balanceOf-property) | `(owner: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the number of tokens in `owner`<!-- -->'s account. |
-|  [connect](./gatednft.md#connect-property) | `(signer: Signer) => GatedNFT` | Connect the current instance to a new signer<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./gatednft.md#connect-property) | `(signer: Signer) => GatedNFT` | Connect the current contract instance to a new ethers signer.<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [getApproved](./gatednft.md#getApproved-property) | `(tokenId: BigNumberish, overrides?: ReadTxOverrides) => Promise<string>` | Returns the account approved for `tokenId` token.<br></br><br></br>Requirements:<br></br><br></br>- `tokenId` must exist. |
 |  [isApprovedForAll](./gatednft.md#isApprovedForAll-property) | `(owner: string, operator: string, overrides?: ReadTxOverrides) => Promise<boolean>` | Returns if the `operator` is allowed to manage all of the assets of `owner`<!-- -->. |
 |  [mint](./gatednft.md#mint-property) | `(to: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | Mint a token and transfers it to `to`<!-- -->.<br></br><br></br>Requirements: - `to` should have the required tier - `to` should not exhausted his allowance |
@@ -38,7 +39,7 @@ class GatedNFT extends FactoryContract
 |  [safeTransferFrom](./gatednft.md#safeTransferFrom-property) | `(from: string, to: string, tokenId: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Safely transfers `tokenId` token from `from` to `to`<!-- -->, checking first that contract recipients are aware of the ERC721 protocol to prevent tokens from being forever locked.<br></br><br></br>Requirements:<br></br><br></br>- `from` cannot be the zero address. - `to` cannot be the zero address. - `tokenId` token must exist and be owned by `from`<!-- -->. - If the caller is not `from`<!-- -->, it must be have been allowed to move this token by either approve() or setApprovalForAll(). - If `to` refers to a smart contract, it must implement `IERC721Receiver-onERC721Received`<!-- -->, which is called upon a safe transfer. |
 |  [safeTransferFromWithData](./gatednft.md#safeTransferFromWithData-property) | `(from: string, to: string, tokenId: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<ContractTransaction>` | Safely transfers `tokenId` token from `from` to `to`<!-- -->.<br></br><br></br>Requirements:<br></br><br></br>- `from` cannot be the zero address. - `to` cannot be the zero address. - `tokenId` token must exist and be owned by `from`<!-- -->. - If the caller is not `from`<!-- -->, it must be approved to move this token by either approve() or setApprovalForAll(). - If `to` refers to a smart contract, it must implement `IERC721Receiver-onERC721Received`<!-- -->, which is called upon a safe transfer. |
 |  [setApprovalForAll](./gatednft.md#setApprovalForAll-property) | `(operator: string, approved: boolean, overrides?: TxOverrides) => Promise<ContractTransaction>` | Approve or remove `operator` as an operator for the caller. Operators can call `transferFrom()` or `safeTransferFrom()` for any token owned by the caller.<br></br><br></br>Requirements:<br></br><br></br>- The `operator` cannot be the caller. |
-|  [signer](./raincontract.md#signer-property) | `Signer` | *Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
+|  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br><br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [supportsInterface](./gatednft.md#supportsInterface-property) | `(interfaceId: BytesLike, overrides?: ReadTxOverrides) => Promise<boolean>` | Returns true if this contract implements the interface defined by `interfaceId`<!-- -->. See the corresponding https://eips.ethereum.org/EIPS/eip-165\#how-interfaces-are-identified\[EIP section\] to learn more about how these ids are created. |
 |  [symbol](./gatednft.md#symbol-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the token collection symbol. |
 |  [tier](./gatednft.md#tier-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Tier contract to compare statuses against on transfer. |
@@ -53,7 +54,7 @@ class GatedNFT extends FactoryContract
 |  Method | Description |
 |  --- | --- |
 |  [\_isChild(signer, maybeChild)](./factorycontract.md#_isChild-method-static-1) | Checks if address is registered as a child contract of the factory in the chain.<br></br><br></br>*Inherited from [FactoryContract.\_isChild()](./factorycontract.md#_isChild-method-static-1)* |
-|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book to this chain<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
+|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book for a determined chain if it is available.<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
 |  [getNewChildFromReceipt(receipt, parentContract)](./factorycontract.md#getNewChildFromReceipt-method-static-1) | Get the child from a receipt obtain from a Factory transaction<br></br><br></br>*Inherited from [FactoryContract.getNewChildFromReceipt()](./factorycontract.md#getNewChildFromReceipt-method-static-1)* |
 
 ## Methods
@@ -101,7 +102,7 @@ Should be implemented in each class to find the factory or main address in the b
 <b>Signature:</b>
 
 ```typescript
-protected static readonly nameBookReference = "gatedNFTFactory";
+protected static readonly nameBookReference: string;
 ```
 
 ## Property Details
@@ -140,7 +141,7 @@ readonly balanceOf: (owner: string, overrides?: ReadTxOverrides) => Promise<BigN
 
 ### connect
 
-Connect the current instance to a new signer
+Connect the current contract instance to a new ethers signer.
 
 *Overrides [RainContract.connect](./raincontract.md#connect-property)*
 

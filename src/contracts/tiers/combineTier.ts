@@ -67,19 +67,13 @@ export class CombineTier extends TierContract {
     super(address, signer);
   }
 
-  /**
-   * Name reference to find the address of the contract in the book address.
-   *
-   * @remarks
-   * Should be implemented in each class to find the factory address in the book.
-   */
-  protected static readonly nameBookReference = 'combineTierFactory';
+  protected static readonly nameBookReference: string = 'combineTierFactory';
 
   /**
    * All the opcodes avaialbles in the CombineTier contract.
    *
    * @remarks
-   * This expose all the standard opcodes along with the specific opcodes of the CombineTier
+   * This expose all the standard opcodes along with the specific opcodes of the CombineTier.
    */
   public static Opcodes: CombineTierOpcodes = {
     ...AllStandardOps,
@@ -106,8 +100,12 @@ export class CombineTier extends TierContract {
   };
 
   /**
-   * Get the instance Combine Tier connected to the deployed always tier in the current
-   * chain ID obtained with the provider
+   * Get an instance of a CombineTier contract that represent an AlwaysTier contract.
+   *
+   * @remarks
+   * An AlwaysTier is a ITier contract made with a script that set any address with a level tier eight. The
+   * ethers signer provided will be connected to the instance and will be used to get the chain ID and search
+   * the AlwaysTier deployed in that chain in the book address.
    *
    * @param signer - An ethers.js Signer
    * @returns New instance connected to the AlwaysTier
@@ -122,13 +120,16 @@ export class CombineTier extends TierContract {
   };
 
   /**
-   * Deploys a new CombineTier.
+   * Deploy a new CombineTier contract from the factory.
+   *
+   * @remarks
+   * Use the factory stored in the book addresses and use the provided signer as deployer. Also obtain the child
+   * after creation as a new instance connected to the deployer.
    *
    * @param signer - An ethers.js Signer
    * @param args - Arguments for deploying a CombineTier @see CombineTierDeployArgs
    * @param overrides - @see TxOverrides
    * @returns A new CombineTier instance
-   *
    */
   public static deploy = async (
     signer: Signer,

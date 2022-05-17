@@ -1,21 +1,58 @@
 import { BigNumber, ethers, utils } from 'ethers';
 
 import type { BytesLike } from 'ethers';
+
+/**
+ * @public
+ */
 export type Hexable = utils.Hexable;
 
+/**
+ * @public
+ */
 export enum selectLteLogic {
   every,
   any,
 }
+
+/**
+ * @public
+ */
 export enum selectLteMode {
   min,
   max,
   first,
 }
 
-export const { concat, hexlify, zeroPad, hexZeroPad, arrayify, parseUnits } = utils;
+export const {
+  /**
+   * @public
+   */
+  concat,
+  /**
+   * @public
+   */
+  hexlify,
+  /**
+   * @public
+   */
+  zeroPad,
+  /**
+   * @public
+   */
+  hexZeroPad,
+  /**
+   * @public
+   */
+  arrayify,
+  /**
+   * @public
+   */
+  parseUnits,
+} = utils;
 
 /**
+ * @public
  * Converts an opcode and operand to bytes, and returns their concatenation.
  *
  * @param code - the opcode
@@ -48,8 +85,8 @@ export const bytify = (
 
 /**
  * @public
- *
  * Utility function that transforms a BigNumber from the output of the ITier contract report
+ *
  * @param report - report as bignumber from the ITier contract
  * @returns hexadecimal string of the report already padded
  */
@@ -60,6 +97,9 @@ export const paddedUInt256 = (report: BigNumber): string => {
   return '0x' + report.toHexString().substring(2).padStart(64, '0');
 };
 
+/**
+ * @public
+ */
 export const paddedUInt32 = (number: number | BytesLike | Hexable): string => {
   if (ethers.BigNumber.from(number).gt(ethers.constants.MaxUint256)) {
     throw new Error(`${number} exceeds max uint32`);
@@ -67,6 +107,9 @@ export const paddedUInt32 = (number: number | BytesLike | Hexable): string => {
   return hexlify(number).substring(2).padStart(8, '0');
 };
 
+/**
+ * @public
+ */
 export function arg(valIndex: number): number {
   let arg = 1;
   arg <<= 7;
@@ -74,6 +117,9 @@ export function arg(valIndex: number): number {
   return arg;
 }
 
+/**
+ * @public
+ */
 export function tierRange(startTier: number, endTier: number): number {
   //   op_.val & 0x0f, //     00001111
   //   op_.val & 0xf0, //     11110000
@@ -90,6 +136,7 @@ export function tierRange(startTier: number, endTier: number): number {
 }
 
 /**
+ * @public
  * Constructs the operand for RainVM's `call` AllStandardOps by packing 3 numbers into a single byte. All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 * 32 bytes) on the stack.
  *
  * @param sourceIndex - index of function source in `immutableSourceConfig.sources`
@@ -122,6 +169,9 @@ export function callSize(
   return callSize;
 }
 
+/**
+ * @public
+ */
 export function selectLte(logic: number, mode: number, length: number): number {
   let lte = logic;
   lte <<= 2;
@@ -132,7 +182,9 @@ export function selectLte(logic: number, mode: number, length: number): number {
 }
 
 /**
+ * @public
  * Replace a value in a BytesLike. Set `replacement` in the `index` on the `original` BytesLike value
+ *
  * @param original - Value that will be changed
  * @param index - index/position where the new value will be set
  * @param replacement - the new value to replace
@@ -149,6 +201,9 @@ export const replaceAt = (
   return originalParsed;
 };
 
+/**
+ * @public
+ */
 export function skip(places: number, conditional = false): number {
   let skip = conditional ? 1 : 0;
   skip <<= 7;

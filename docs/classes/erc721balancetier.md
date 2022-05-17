@@ -37,18 +37,18 @@ const tierValues = await existingTier.tierValues();
 |  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br><br></br>Request to the provider stored in the signer which is the chain ID.<br></br><br></br>*Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)* |
 |  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
 |  [isChild](./erc721balancetier.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this ERC721BalanceTierFactory on a specific network |
-|  [nameBookReference](./erc721balancetier.md#nameBookReference-property-static) | `` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
+|  [nameBookReference](./erc721balancetier.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [address](./raincontract.md#address-property) | `string` | *Inherited from [RainContract.address](./raincontract.md#address-property)* |
-|  [connect](./erc721balancetier.md#connect-property) | `(signer: Signer) => ERC721BalanceTier` | Connect the current instance to a new signer<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
-|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels.<br></br><br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
+|  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br><br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
+|  [connect](./erc721balancetier.md#connect-property) | `(signer: Signer) => ERC721BalanceTier` | Connect the current contract instance to a new ethers signer.<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br><br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
 |  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->. There are 9 possible tier, starting with tier 0 for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the full 256 bits.<br></br><br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
 |  [setTier](./erc721balancetier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides \| undefined) => Promise<never>` | It is NOT implemented in BalanceTiers. Always will throw an error<br></br><br></br>*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)* |
-|  [signer](./raincontract.md#signer-property) | `Signer` | *Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
+|  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br><br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [tierValues](./erc721balancetier.md#tierValues-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber[]>` | Complements the default solidity accessor for `tierValues`<!-- -->. Returns all the values in a listrather than requiring an index be specified. |
 |  [token](./erc721balancetier.md#token-property) | `string` | ERC721 Token address that track the Tier |
 
@@ -57,7 +57,7 @@ const tierValues = await existingTier.tierValues();
 |  Method | Description |
 |  --- | --- |
 |  [\_isChild(signer, maybeChild)](./factorycontract.md#_isChild-method-static-1) | Checks if address is registered as a child contract of the factory in the chain.<br></br><br></br>*Inherited from [FactoryContract.\_isChild()](./factorycontract.md#_isChild-method-static-1)* |
-|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book to this chain<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
+|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book for a determined chain if it is available.<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
 |  [getNewChildFromReceipt(receipt, parentContract)](./factorycontract.md#getNewChildFromReceipt-method-static-1) | Get the child from a receipt obtain from a Factory transaction<br></br><br></br>*Inherited from [FactoryContract.getNewChildFromReceipt()](./factorycontract.md#getNewChildFromReceipt-method-static-1)* |
 
 ## Methods
@@ -107,7 +107,7 @@ Should be implemented in each class to find the factory or main address in the b
 <b>Signature:</b>
 
 ```typescript
-protected static readonly nameBookReference = "erc721BalanceTierFactory";
+protected static readonly nameBookReference: string;
 ```
 
 ## Property Details
@@ -116,7 +116,7 @@ protected static readonly nameBookReference = "erc721BalanceTierFactory";
 
 ### connect
 
-Connect the current instance to a new signer
+Connect the current contract instance to a new ethers signer.
 
 *Overrides [RainContract.connect](./raincontract.md#connect-property)*
 

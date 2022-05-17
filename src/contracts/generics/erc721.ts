@@ -11,9 +11,11 @@ import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
 /**
  * @public
  *
- * Generic ERC721 interface to get connected to any ERC721 address and make transactions.
+ * A generic ERC721 interface to get connected to any ERC721 address and make transactions.
  *
- * Take in mind that only have generics function calls.
+ * @remarks
+ * The interface only have and provide generic and common methods calls. Remember that any specific
+ * method implemented in the contract will NOT be available in this interface.
  */
 export class ERC721 {
   public readonly signer: Signer;

@@ -1,6 +1,7 @@
 
 # Variable utils.concat
 
+
 <b>Signature:</b>
 
 ```typescript

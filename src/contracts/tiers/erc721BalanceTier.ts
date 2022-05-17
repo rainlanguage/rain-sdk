@@ -34,7 +34,8 @@ import {
  *
  */
 export class ERC721BalanceTier extends TierContract {
-  protected static readonly nameBookReference = 'erc721BalanceTierFactory';
+  protected static readonly nameBookReference: string =
+    'erc721BalanceTierFactory';
 
   /**
    * Constructs a new ERC721BalanceTier from a known address.

@@ -1,6 +1,8 @@
 
 # Type SaleParams
 
+The parameters necessaries to use the sale script generator
+
 <b>Signature:</b>
 
 ```typescript

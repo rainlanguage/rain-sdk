@@ -17,23 +17,24 @@ import {
  * @public
  * A class for deploying and calling methods on a ERC20TransferTier.
  *
- *   The `ERC20TransferTier` takes ownership of an erc20 balance by transferring erc20 token to itself. The
+ * @remarks
+ * This class provides an easy way to deploy ERC20TransferTiers using Rain's canonical factories, and methods for
+ * interacting with an already deployed ERC20TransferTier.
+ *
+ * The `ERC20TransferTier` takes ownership of an erc20 balance by transferring erc20 token to itself. The
  * `msg.sender` must pay the difference on upgrade; the tiered address receives refunds on downgrade. This
  * allows users to "gift" tiers to each other. As the transfer is a state changing event we can track
  * historical block times.
  *
- *   As the tiered address moves up/down tiers it sends/receives the value difference between its current tier
+ * As the tiered address moves up/down tiers it sends/receives the value difference between its current tier
  * only.The user is required to preapprove enough erc20 to cover the tier change or they will fail and lose gas.
  *
- *   In addition to the standard accounting it requires that users transfer erc20 tokens to achieve a tier.
+ * In addition to the standard accounting it requires that users transfer erc20 tokens to achieve a tier.
  * Data is ignored, the only requirement is that the user has approved sufficient balance to gain the next tier.
  * The 8 values for gainable tiers and erc20 contract must be set upon construction and are immutable.
  *
  * `⚠️ WARNING:` If a user sends erc20 tokens directly to the contract without calling `setTier` the FUNDS ARE LOST. ⚠️
  *
- * @remarks
- * This class provides an easy way to deploy ERC20TransferTiers using Rain's canonical factories, and methods for
- * interacting with an already deployed ERC20TransferTier.
  * @example
  * ```typescript
  * import { ERC20TransferTier } from 'rain-sdk'
@@ -50,7 +51,8 @@ import {
  *
  */
 export class ERC20TransferTier extends TierContract {
-  protected static readonly nameBookReference = 'erc20TransferTierFactory';
+  protected static readonly nameBookReference: string =
+    'erc20TransferTierFactory';
 
   /**
    * Constructs a new ERC20TransferTier from a known address.
@@ -72,7 +74,7 @@ export class ERC20TransferTier extends TierContract {
   }
 
   /**
-   * ERC20 Token address that holds the Tier
+   * The ERC20 Token address that holds the Tier.
    */
   public readonly token: string;
 
@@ -126,6 +128,7 @@ export class ERC20TransferTier extends TierContract {
    * Calculate how much amount of the token needed transfer to the tier contract or how much tokens the
    * `account` will get back to reach the `desiredLevel`.
    *
+   * @remarks
    * Take in mind:
    * - If the `account` directly send tokens to the ERC20TransferTier contract, those tokens are lost. All
    * the calcualtions are make it with the tokens transfered by the account with setTier method.

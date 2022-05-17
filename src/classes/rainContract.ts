@@ -4,9 +4,20 @@ import { AddressBook } from '../addresses';
 
 /**
  * @public
+ * 	//TODO: Add doc
  */
 export abstract class RainContract extends AddressBook {
+  /**
+   * The ethers signer that is connected to the instance.
+   *
+   * @remarks
+   * This signer will be used to call and sign the tranasctions.
+   */
   public readonly signer: Signer;
+
+  /**
+   * The contract address of the instance.
+   */
   public readonly address: string;
 
   /**
@@ -58,7 +69,7 @@ export abstract class RainContract extends AddressBook {
   }
 
   /**
-   * Connect the current instance to a new signer
+   * Connect the current contract instance to a new ethers signer.
    *
    * @param signer - The new signer which will be connected
    * @returns The instance with a new signer
@@ -66,7 +77,11 @@ export abstract class RainContract extends AddressBook {
   public abstract readonly connect: (signer: Signer) => RainContract;
 
   /**
-   * Get the address stored in the book to this chain
+   * Get the address stored in the book for a determined chain if it is available.
+   *
+   * @remarks
+   * If any address is deployed to the determined chain, an error will be throwed with
+   * `No deployed contracts for this chain.`
    *
    * @param chainId - The chain ID where is deployed the contract
    * @returns The address for this contract

@@ -40,32 +40,32 @@ const alwaysTier = await CombineTier.getAlwaysTier(signer);
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [deploy](./combinetier.md#deploy-property-static) | `(signer: Signer, args: CombineTierDeployArgs, overrides?: TxOverrides) => Promise<CombineTier>` | Deploys a new CombineTier. |
+|  [deploy](./combinetier.md#deploy-property-static) | `(signer: Signer, args: CombineTierDeployArgs, overrides?: TxOverrides) => Promise<CombineTier>` | Deploy a new CombineTier contract from the factory. |
 |  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br><br></br>*Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)* |
-|  [getAlwaysTier](./combinetier.md#getAlwaysTier-property-static) | `(signer: Signer) => Promise<CombineTier>` | Get the instance Combine Tier connected to the deployed always tier in the current chain ID obtained with the provider |
+|  [getAlwaysTier](./combinetier.md#getAlwaysTier-property-static) | `(signer: Signer) => Promise<CombineTier>` | Get an instance of a CombineTier contract that represent an AlwaysTier contract. |
 |  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br><br></br>Request to the provider stored in the signer which is the chain ID.<br></br><br></br>*Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)* |
 |  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
 |  [isChild](./combinetier.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this contract in a specific network. |
-|  [nameBookReference](./combinetier.md#nameBookReference-property-static) | `` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
+|  [nameBookReference](./combinetier.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
 |  [Opcodes](./combinetier.md#Opcodes-property-static) | [CombineTierOpcodes](../types/combinetieropcodes.md) | All the opcodes avaialbles in the CombineTier contract. |
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [address](./raincontract.md#address-property) | `string` | *Inherited from [RainContract.address](./raincontract.md#address-property)* |
-|  [connect](./combinetier.md#connect-property) | `(signer: Signer) => CombineTier` | Connect the current instance to a new signer<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
-|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels.<br></br><br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
+|  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br><br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
+|  [connect](./combinetier.md#connect-property) | `(signer: Signer) => CombineTier` | Connect the current contract instance to a new ethers signer.<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br><br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
 |  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->. There are 9 possible tier, starting with tier 0 for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the full 256 bits.<br></br><br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
 |  [setTier](./combinetier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides \| undefined) => Promise<never>` | It is NOT implemented in CombineTiers. Always will throw an error<br></br><br></br>*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)* |
-|  [signer](./raincontract.md#signer-property) | `Signer` | *Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
+|  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br><br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 
 ## Static Methods
 
 |  Method | Description |
 |  --- | --- |
 |  [\_isChild(signer, maybeChild)](./factorycontract.md#_isChild-method-static-1) | Checks if address is registered as a child contract of the factory in the chain.<br></br><br></br>*Inherited from [FactoryContract.\_isChild()](./factorycontract.md#_isChild-method-static-1)* |
-|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book to this chain<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
+|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book for a determined chain if it is available.<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
 |  [getNewChildFromReceipt(receipt, parentContract)](./factorycontract.md#getNewChildFromReceipt-method-static-1) | Get the child from a receipt obtain from a Factory transaction<br></br><br></br>*Inherited from [FactoryContract.getNewChildFromReceipt()](./factorycontract.md#getNewChildFromReceipt-method-static-1)* |
 
 ## Methods
@@ -81,7 +81,9 @@ const alwaysTier = await CombineTier.getAlwaysTier(signer);
 
 ### deploy
 
-Deploys a new CombineTier.
+Deploy a new CombineTier contract from the factory.
+
+Use the factory stored in the book addresses and use the provided signer as deployer. Also obtain the child after creation as a new instance connected to the deployer.
 
 <b>Signature:</b>
 
@@ -93,7 +95,9 @@ static deploy: (signer: Signer, args: CombineTierDeployArgs, overrides?: TxOverr
 
 ### getAlwaysTier
 
-Get the instance Combine Tier connected to the deployed always tier in the current chain ID obtained with the provider
+Get an instance of a CombineTier contract that represent an AlwaysTier contract.
+
+An AlwaysTier is a ITier contract made with a script that set any address with a level tier eight. The ethers signer provided will be connected to the instance and will be used to get the chain ID and search the AlwaysTier deployed in that chain in the book address.
 
 <b>Signature:</b>
 
@@ -123,12 +127,12 @@ Name reference to find the address of the contract in the book address.
 
 *Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)*
 
-Should be implemented in each class to find the factory address in the book.
+Should be implemented in each class to find the factory or main address in the book.
 
 <b>Signature:</b>
 
 ```typescript
-protected static readonly nameBookReference = "combineTierFactory";
+protected static readonly nameBookReference: string;
 ```
 
 <a id="Opcodes-property-static"></a>
@@ -137,7 +141,7 @@ protected static readonly nameBookReference = "combineTierFactory";
 
 All the opcodes avaialbles in the CombineTier contract.
 
-This expose all the standard opcodes along with the specific opcodes of the CombineTier
+This expose all the standard opcodes along with the specific opcodes of the CombineTier.
 
 <b>Signature:</b>
 
@@ -151,7 +155,7 @@ static Opcodes: CombineTierOpcodes;
 
 ### connect
 
-Connect the current instance to a new signer
+Connect the current contract instance to a new ethers signer.
 
 *Overrides [RainContract.connect](./raincontract.md#connect-property)*
 

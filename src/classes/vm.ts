@@ -288,7 +288,7 @@ export interface State {
 
 /**
  * @public
- *2
+ *
  * Parameter that will use to converted to the source.
  *
  * Use an opcode and operand (optional)
@@ -298,7 +298,7 @@ export type OPerand = [number, (number | BytesLike | utils.Hexable)?];
 /**
  * @public
  *
- *
+ * //TODO: Add doc
  */
 export class VM {
   /**

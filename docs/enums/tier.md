@@ -1,7 +1,7 @@
 
 # Enum Tier
 
-All the contract tier levels.
+All the contract tier levels availables in all ITier contracts.
 
 <b>Signature:</b>
 
@@ -21,5 +21,5 @@ enum Tier
 |  SIX | `6` | Contract tier level 6. |
 |  THREE | `3` | Contract tier level 3. |
 |  TWO | `2` | Contract tier level 2. |
-|  ZERO | `0` | Contract tier level 0. This users with this level are those that never has been interacted with the Tier contract. |
+|  ZERO | `0` | Contract tier level 0. This represent that the uset never has been interacted with the Tier contract. |
 

@@ -3,7 +3,9 @@
 
 A class for calling methods on a RedeemableERC20.
 
-This is the ERC20 token that is minted and distributed.
+This class provides an easy way to interact with RedeemableERC20 contracts.
+
+An RedeemableERC20 is the ERC20 token that is minted and distributed in the ISale contract.
 
 During `Phase.ZERO` the token can be traded and so compatible with the Balancer pool mechanics. During `Phase.ONE` the token is frozen and no longer able to be traded on any AMM or transferred directly.
 
@@ -12,8 +14,6 @@ The token can be redeemed during `Phase.ONE` which burns the token in exchange f
 The token balances can be used indirectly for other claims, promotions and events as a proof of participation in the original distribution by token holders.
 
 The token can optionally be restricted by the `ITier` contract to only allow receipients with a specified membership status.
-
-This class provides an easy way to interact with RedeemableERC20's.
 
 <b>Signature:</b>
 
@@ -44,20 +44,20 @@ await RedeemableERC20.isChild(signer, maybeChildAddress);
 |  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br><br></br>Request to the provider stored in the signer which is the chain ID.<br></br><br></br>*Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)* |
 |  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
 |  [isChild](./redeemableerc20.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this RedeemableERC20Factory on a specific network |
-|  [nameBookReference](./redeemableerc20.md#nameBookReference-property-static) | `` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
+|  [nameBookReference](./redeemableerc20.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [address](./raincontract.md#address-property) | `string` | *Inherited from [RainContract.address](./raincontract.md#address-property)* |
+|  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br><br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
 |  [allowance](./redeemableerc20.md#allowance-property) | `(owner: string, spender: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom()`<!-- -->. This is zero by default.<br></br><br></br>This value changes when `approve()` or `transferFrom()` are called. |
 |  [approve](./redeemableerc20.md#approve-property) | `(spender: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Sets `amount` as the allowance of `spender` over the caller's tokens. |
 |  [balanceOf](./redeemableerc20.md#balanceOf-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens owned by `account`<!-- -->. |
 |  [blockNumberForPhase](./redeemableerc20.md#blockNumberForPhase-property) | `(phaseBlocks: BigNumberish[], phase: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Pure function to reduce an array of phase blocks and phase to a specific block number. `Phase.ZERO` will always return block `0`<!-- -->. Every other phase will map to a block number in `phaseBlocks`<!-- -->. |
 |  [burn](./redeemableerc20.md#burn-property) | `(amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Destroys `amount` tokens from the caller, reducing the total supply. Emits a `Transfer` event with `to` set to the zero address.<br></br><br></br>Requirements: - Caller MUST have at least `amount` tokens. |
 |  [burnFrom](./redeemableerc20.md#burnFrom-property) | `(account: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Destroys `amount` tokens from `account`<!-- -->, deducting from the caller's allowance.<br></br><br></br>Requirements: - The caller must have allowance for `accounts`<!-- -->'s tokens of at least `amount`<!-- -->. |
-|  [connect](./redeemableerc20.md#connect-property) | `(signer: Signer) => RedeemableERC20` | Connect the current instance to a new signer<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./redeemableerc20.md#connect-property) | `(signer: Signer) => RedeemableERC20` | Connect the current contract instance to a new ethers signer.<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [currentPhase](./redeemableerc20.md#currentPhase-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | Impure read-only function to return the "current" phase from internal contract state. Simply wraps `phaseAtBlockNumber` for current values of `phaseBlocks` and `block.number`<!-- -->. |
 |  [decimals](./redeemableerc20.md#decimals-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the number of decimals used to get its user representation. |
 |  [decreaseAllowance](./redeemableerc20.md#decreaseAllowance-property) | `(spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically decreases the allowance granted to `spender` by the caller.<br></br><br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
@@ -73,7 +73,7 @@ await RedeemableERC20.isChild(signer, maybeChildAddress);
 |  [phaseAtBlockNumber](./redeemableerc20.md#phaseAtBlockNumber-property) | `(phaseBlocks: BigNumberish[], blockNumber: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Pure function to reduce an array of phase blocks and block number to a specific `Phase`<!-- -->.<br></br><br></br>The phase will be the highest attained even if several phases have the same block number.<br></br><br></br>If every phase block is after the block number then `0` is returned.<br></br><br></br>If every phase block is before the block number then `MAX_PHASE` is returned. |
 |  [phaseBlocks](./redeemableerc20.md#phaseBlocks-property) | `(index: BigNumberish, overrides?: ReadTxOverrides) => Promise<number>` | Get a phaseBlock |
 |  [redeem](./redeemableerc20.md#redeem-property) | `(treasuryAssets: string[], redeemAmount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Burn tokens for a prorata share of the current treasury. The assets to be redeemed for must be specified as an array. This keeps the redeem functionality:<br></br><br></br>- Gas efficient as we avoid tracking assets in storage - Decentralised as any user can deposit any asset to be redeemed - Error resistant as any individual asset reverting can be avoided by redeeming againt sans the problematic asset.<br></br><br></br>It is also a super sharp edge if someone burns their tokens prematurely or with an incorrect asset list. Implementing contracts are strongly encouraged to implement additional safety rails to prevent high value mistakes.<br></br><br></br>Only "vanilla" erc20 token balances are supported as treasury assets. I.e. if the balance is changing such as due to a rebasing token or other mechanism then the WRONG token amounts will be redeemed. The redemption calculation is very simple and naive in that it takes the current balance of this contract of the assets being claimed via redemption to calculate the "prorata" entitlement. If the contract's balance of the claimed token is changing between redemptions (other than due to the redemption itself) then each redemption will send incorrect amounts. |
-|  [signer](./raincontract.md#signer-property) | `Signer` | *Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
+|  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br><br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [symbol](./redeemableerc20.md#symbol-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the symbol of the token, usually a shorter version of the name. |
 |  [tier](./redeemableerc20.md#tier-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Tier contract that produces the report that `minimumTier` is checked against. |
 |  [totalSupply](./redeemableerc20.md#totalSupply-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens in existence. |
@@ -85,7 +85,7 @@ await RedeemableERC20.isChild(signer, maybeChildAddress);
 |  Method | Description |
 |  --- | --- |
 |  [\_isChild(signer, maybeChild)](./factorycontract.md#_isChild-method-static-1) | Checks if address is registered as a child contract of the factory in the chain.<br></br><br></br>*Inherited from [FactoryContract.\_isChild()](./factorycontract.md#_isChild-method-static-1)* |
-|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book to this chain<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
+|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book for a determined chain if it is available.<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
 |  [getNewChildFromReceipt(receipt, parentContract)](./factorycontract.md#getNewChildFromReceipt-method-static-1) | Get the child from a receipt obtain from a Factory transaction<br></br><br></br>*Inherited from [FactoryContract.getNewChildFromReceipt()](./factorycontract.md#getNewChildFromReceipt-method-static-1)* |
 
 ## Methods
@@ -133,7 +133,7 @@ Should be implemented in each class to find the factory or main address in the b
 <b>Signature:</b>
 
 ```typescript
-protected static readonly nameBookReference = "redeemableERC20Factory";
+protected static readonly nameBookReference: string;
 ```
 
 ## Property Details
@@ -220,7 +220,7 @@ readonly burnFrom: (account: string, amount: BigNumberish, overrides?: TxOverrid
 
 ### connect
 
-Connect the current instance to a new signer
+Connect the current contract instance to a new ethers signer.
 
 *Overrides [RainContract.connect](./raincontract.md#connect-property)*
 

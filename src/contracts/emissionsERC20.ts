@@ -37,7 +37,7 @@ import {
  */
 
 export class EmissionsERC20 extends TierContract {
-  protected static readonly nameBookReference = 'emissionsERC20Factory';
+  protected static readonly nameBookReference: string = 'emissionsERC20Factory';
 
   /**
    * Constructs a new EmissionsERC20 from a known address.
