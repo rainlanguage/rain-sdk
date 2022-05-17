@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [VM](./vm.md)
 
 # Class VM
 

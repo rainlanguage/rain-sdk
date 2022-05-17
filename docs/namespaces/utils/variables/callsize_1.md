@@ -1,4 +1,3 @@
-[Home](../../../index.md) &gt; [utils](../../utils.md) &gt; [callSize](./callsize_1.md)
 
 # Function utils.callSize()
 

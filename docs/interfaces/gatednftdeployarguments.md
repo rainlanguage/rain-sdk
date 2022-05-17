@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [GatedNFTDeployArguments](./gatednftdeployarguments.md)
 
 # Interface GatedNFTDeployArguments
 

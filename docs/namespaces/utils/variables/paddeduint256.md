@@ -1,4 +1,3 @@
-[Home](../../../index.md) &gt; [utils](../../utils.md) &gt; [paddedUInt256](./paddeduint256.md)
 
 # Variable utils.paddedUInt256
 

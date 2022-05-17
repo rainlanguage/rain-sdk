@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [CombineTier](./combinetier.md)
 
 # Class CombineTier
 
@@ -42,39 +41,39 @@ const alwaysTier = await CombineTier.getAlwaysTier(signer);
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [deploy](./combinetier.md#deploy-property-static) | `(signer: Signer, args: CombineTierDeployArgs, overrides?: TxOverrides) => Promise<CombineTier>` | Deploys a new CombineTier. |
-|  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br><i>Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)</i> |
+|  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br><br></br>*Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)* |
 |  [getAlwaysTier](./combinetier.md#getAlwaysTier-property-static) | `(signer: Signer) => Promise<CombineTier>` | Get the instance Combine Tier connected to the deployed always tier in the current chain ID obtained with the provider |
-|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br>Request to the provider stored in the signer which is the chain ID.<br></br><i>Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)</i> |
-|  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><i>Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)</i> |
+|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br><br></br>Request to the provider stored in the signer which is the chain ID.<br></br><br></br>*Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)* |
+|  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
 |  [isChild](./combinetier.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this contract in a specific network. |
-|  [nameBookReference](./combinetier.md#nameBookReference-property-static) | `` | Name reference to find the address of the contract in the book address.<br></br><i>Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)</i> |
+|  [nameBookReference](./combinetier.md#nameBookReference-property-static) | `` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
 |  [Opcodes](./combinetier.md#Opcodes-property-static) | [CombineTierOpcodes](../types/combinetieropcodes.md) | All the opcodes avaialbles in the CombineTier contract. |
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [address](./raincontract.md#address-property) | `string` | <i>Inherited from [RainContract.address](./raincontract.md#address-property)</i> |
-|  [connect](./combinetier.md#connect-property) | `(signer: Signer) => CombineTier` | Connect the current instance to a new signer<br></br><i>Overrides [RainContract.connect](./raincontract.md#connect-property)</i> |
-|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels.<br></br><i>Inherited from [TierContract.levels](./tiercontract.md#levels-property)</i> |
-|  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->. There are 9 possible tier, starting with tier 0 for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the full 256 bits.<br></br><i>Inherited from [TierContract.report](./tiercontract.md#report-property)</i> |
-|  [setTier](./combinetier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides \| undefined) => Promise<never>` | It is NOT implemented in CombineTiers. Always will throw an error<br></br><i>Overrides [TierContract.setTier](./tiercontract.md#setTier-property)</i> |
-|  [signer](./raincontract.md#signer-property) | `Signer` | <i>Inherited from [RainContract.signer](./raincontract.md#signer-property)</i> |
+|  [address](./raincontract.md#address-property) | `string` | *Inherited from [RainContract.address](./raincontract.md#address-property)* |
+|  [connect](./combinetier.md#connect-property) | `(signer: Signer) => CombineTier` | Connect the current instance to a new signer<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels.<br></br><br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
+|  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->. There are 9 possible tier, starting with tier 0 for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the full 256 bits.<br></br><br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
+|  [setTier](./combinetier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides \| undefined) => Promise<never>` | It is NOT implemented in CombineTiers. Always will throw an error<br></br><br></br>*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)* |
+|  [signer](./raincontract.md#signer-property) | `Signer` | *Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 
 ## Static Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [\_isChild(signer, maybeChild)](./factorycontract.md#_isChild-method-static-1) | Checks if address is registered as a child contract of the factory in the chain.<br></br><i>Inherited from [FactoryContract.\_isChild()](./factorycontract.md#_isChild-method-static-1)</i> |
-|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book to this chain<br></br><i>Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)</i> |
-|  [getNewChildFromReceipt(receipt, parentContract)](./factorycontract.md#getNewChildFromReceipt-method-static-1) | Get the child from a receipt obtain from a Factory transaction<br></br><i>Inherited from [FactoryContract.getNewChildFromReceipt()](./factorycontract.md#getNewChildFromReceipt-method-static-1)</i> |
+|  [\_isChild(signer, maybeChild)](./factorycontract.md#_isChild-method-static-1) | Checks if address is registered as a child contract of the factory in the chain.<br></br><br></br>*Inherited from [FactoryContract.\_isChild()](./factorycontract.md#_isChild-method-static-1)* |
+|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book to this chain<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
+|  [getNewChildFromReceipt(receipt, parentContract)](./factorycontract.md#getNewChildFromReceipt-method-static-1) | Get the child from a receipt obtain from a Factory transaction<br></br><br></br>*Inherited from [FactoryContract.getNewChildFromReceipt()](./factorycontract.md#getNewChildFromReceipt-method-static-1)* |
 
 ## Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br><i>Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)</i> |
-|  [currentTier(account, block)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br><i>Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)</i> |
+|  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br><br></br>*Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)* |
+|  [currentTier(account, block)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br><br></br>*Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)* |
 
 ## Static Property Details
 
@@ -122,7 +121,7 @@ static isChild: (signer: Signer, maybeChild: string) => Promise<boolean>;
 
 Name reference to find the address of the contract in the book address.
 
-<i>Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)</i>
+*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)*
 
 Should be implemented in each class to find the factory address in the book.
 
@@ -154,7 +153,7 @@ static Opcodes: CombineTierOpcodes;
 
 Connect the current instance to a new signer
 
-<i>Overrides [RainContract.connect](./raincontract.md#connect-property)</i>
+*Overrides [RainContract.connect](./raincontract.md#connect-property)*
 
 <b>Signature:</b>
 
@@ -168,7 +167,7 @@ readonly connect: (signer: Signer) => CombineTier;
 
 It is NOT implemented in CombineTiers. Always will throw an error
 
-<i>Overrides [TierContract.setTier](./tiercontract.md#setTier-property)</i>
+*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)*
 
 <b>Signature:</b>
 

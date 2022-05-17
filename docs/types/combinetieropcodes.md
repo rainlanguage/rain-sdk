@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [CombineTierOpcodes](./combinetieropcodes.md)
 
 # Type CombineTierOpcodes
 

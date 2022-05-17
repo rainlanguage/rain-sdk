@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [AddressBook](./addressbook.md)
 
 # Class AddressBook
 

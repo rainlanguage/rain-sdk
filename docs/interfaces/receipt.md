@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [Receipt](./receipt.md)
 
 # Interface Receipt
 

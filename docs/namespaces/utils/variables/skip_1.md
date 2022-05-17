@@ -1,4 +1,3 @@
-[Home](../../../index.md) &gt; [utils](../../utils.md) &gt; [skip](./skip_1.md)
 
 # Function utils.skip()
 

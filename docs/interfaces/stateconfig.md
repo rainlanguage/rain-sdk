@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [StateConfig](./stateconfig.md)
 
 # Interface StateConfig
 

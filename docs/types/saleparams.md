@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [SaleParams](./saleparams.md)
 
 # Type SaleParams
 

@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [Tier](./tier.md)
 
 # Enum Tier
 

@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [ERC721BalanceTierDeployArgs](./erc721balancetierdeployargs.md)
 
 # Interface ERC721BalanceTierDeployArgs
 

@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [ERC20Config](./erc20config.md)
 
 # Interface ERC20Config
 

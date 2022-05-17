@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [SaleDeployArguments](./saledeployarguments.md)
 
 # Interface SaleDeployArguments
 

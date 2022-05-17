@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [SaleRedeemableERC20Config](./saleredeemableerc20config.md)
 
 # Interface SaleRedeemableERC20Config
 

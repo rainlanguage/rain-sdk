@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [State](./state.md)
 
 # Interface State
 

@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [Addresses](./addresses.md)
 
 # Type Addresses
 

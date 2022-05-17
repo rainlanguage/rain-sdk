@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [SubgraphBook](./subgraphbook.md)
 
 # Type SubgraphBook
 

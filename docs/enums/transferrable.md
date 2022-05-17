@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [Transferrable](./transferrable.md)
 
 # Enum Transferrable
 

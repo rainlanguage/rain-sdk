@@ -1,4 +1,3 @@
-[Home](../../../index.md) &gt; [utils](../../utils.md) &gt; [zeroPad](./zeropad.md)
 
 # Variable utils.zeroPad
 

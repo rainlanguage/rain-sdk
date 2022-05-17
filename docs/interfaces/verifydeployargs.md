@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [VerifyDeployArgs](./verifydeployargs.md)
 
 # Interface VerifyDeployArgs
 

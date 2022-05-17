@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [OPerand](./operand.md)
 
 # Type OPerand
 

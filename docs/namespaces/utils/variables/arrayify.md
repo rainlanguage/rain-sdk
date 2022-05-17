@@ -1,4 +1,3 @@
-[Home](../../../index.md) &gt; [utils](../../utils.md) &gt; [arrayify](./arrayify.md)
 
 # Variable utils.arrayify
 

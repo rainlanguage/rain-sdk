@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [AllStandardOps](./allstandardops.md)
 
 # Enum AllStandardOps
 

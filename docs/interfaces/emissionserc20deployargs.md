@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [EmissionsERC20DeployArgs](./emissionserc20deployargs.md)
 
 # Interface EmissionsERC20DeployArgs
 

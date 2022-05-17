@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [BuyConfig](./buyconfig.md)
 
 # Interface BuyConfig
 

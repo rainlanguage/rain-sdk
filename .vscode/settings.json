@@ -1,0 +1,6 @@
+{
+  "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
+  "[markdown]": {
+    "editor.defaultFormatter": "vscode.markdown-language-features"
+  }
+}

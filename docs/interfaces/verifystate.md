@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [VerifyState](./verifystate.md)
 
 # Interface VerifyState
 

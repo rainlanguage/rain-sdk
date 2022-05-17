@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [SaleConfig](./saleconfig.md)
 
 # Interface SaleConfig
 

@@ -1,4 +1,3 @@
-[Home](../../../index.md) &gt; [utils](../../utils.md) &gt; [op](./op.md)
 
 # Variable utils.op
 

@@ -1,4 +1,3 @@
-[Home](../../../index.md) &gt; [utils](../../utils.md) &gt; [toUint8Array](./touint8array_1.md)
 
 # Function utils.toUint8Array()
 
