@@ -20,31 +20,31 @@ export enum WalletCapMode {
 };
 
 /**
- * @public -  * PriceCurve is an abstract class that all the other sale types (sub-classes) will inherit from.
- * 
- * @remarks - It holds all the global methods for generating a sale script with different features to the sale
- * such as tier discount which makes depolying a new sale contracts with different features easy.
- * 
- * @important - the order of calling the methods of this class, meaning in order to get the 
- * desired result for the sale, order of calling the methods is important, although it is worth saying 
- * that even if the order is followed, the result will still be reliable. For example if we call 'applyExtraTime'
- * method after the the 'applyTierDiscount' method, the extra time discount will be applied to the result of 
- * tier discount result value and if before that, it will be vice versa. 
- * The general order for calling these methods is: 
- *    1.applyExtraTimeDiscount
- *    2.applyTierDiscount
- *    3.applyWalletCap
- * 
- * Must be newed by the extending sub-classes.
- *  
- */
+* @public - PriceCurve is an abstract class that all the other sale types (sub-classes) will inherit from.
+* 
+* @remarks - It holds all the global methods for generating a sale script with different features for a sale
+* such as tier discount which makes depolying a new sale contracts with different features easy.
+* 
+* @important - the order of calling the methods of this class is important, meaning in order to get the 
+* desired result for the sale, order of calling the methods is important, although it is worth saying 
+* that even if the order is not followed, the result will still be reliable but if that is been done by intention.
+* For example if we call 'applyExtraTime' method after the the 'applyTierDiscount' method, the extra 
+* time discount will be applied to the result of tier discount result value and if before that, it will be vice versa. 
+* The general order for calling these methods is: 
+*    1.applyExtraTimeDiscount
+*    2.applyTierDiscount
+*    3.applyWalletCap
+* 
+* Must be newed by the extending sub-classes.
+*  
+*/
 export abstract class PriceCurve{
 
   /**
-   * Constructor of PriceCurve class that must be instantiated by sun-classes.
-   * 
-   * @param saleStateConfig - Constructed by sub-classes
-   */
+  * Constructor of PriceCurve class that must be instantiated by sun-classes.
+  * 
+  * @param saleStateConfig - Constructed by sub-classes
+  */
   constructor(public saleStateConfig: StateConfig) {}
 
   /**
@@ -62,6 +62,7 @@ export abstract class PriceCurve{
   * @param extraTimeDiscount - The amount of discount the address will receive.
   * 
   * @returns a VM StateConfig
+  *
   */
   public applyExtraTimeDiscount(
     endTimestamp: number,
@@ -119,6 +120,7 @@ export abstract class PriceCurve{
   * of time for a tiered address which that tier's status needs to be held in order to be eligible for that tier's discount.
   * 
   * @returns a VM StateConfig
+  *
   */
   public applyTierDiscount(    
     tierAddress: string,
@@ -149,6 +151,7 @@ export abstract class PriceCurve{
   * of time for a tiered address which that tier's status needs to be held in order to be eligible for that tier's discount. 
   * 
   * @returns a VM StateConfig
+  *
   */
   public applyWalletCap(
     mode: WalletCapMode,
@@ -336,16 +339,16 @@ export abstract class PriceCurve{
 }
 
 
- /**
- * @public - A sub-class of PriceCurve for creating a Fixed Price sale type. 
- * The price is a constant value over the span of the sale.
- * 
- * @example
- * ```typescript
- * //For generating a Fixed Price sale type pass in the required arguments to the constructor.
- * const saleType = new FixedPrice(price) 
- * 
- */
+/**
+* @public - A sub-class of PriceCurve for creating a Fixed Price sale type. 
+* The price is a constant value over the span of the sale.
+* 
+* @example
+* ```typescript
+* //For generating a Fixed Price sale type pass in the required arguments to the constructor.
+* const saleType = new FixedPrice(price) 
+* 
+*/
 export class FixedPrice extends PriceCurve {
 
   /**
@@ -355,6 +358,7 @@ export class FixedPrice extends PriceCurve {
   * @param erc20decimals - (optional) Number of decimals of the reserve asset (default value 18). 
   *
   * @returns a VM StateConfig
+  *
   */ 
   constructor(price: number, erc20decimals: number = 18) {
     super(
@@ -376,18 +380,18 @@ export class FixedPrice extends PriceCurve {
 
 
 /**
- * @public - A sub-class of PriceCurve for creating an vFLO i.e virtual LBP sale type. 
- * 
- * @remark - It is called virtual FLO or LBP because there is no actual seeding required.
- * Price starts at 'startPrice' and goes to down over the span of the sale's duration
- * if no buys happen. If buys happen then price will go up (exactly like the real LBP)
- *
- * @example
- * ```typescript
- * //For generating a vFLO sale type pass in the required arguments to the constructor.
- * const saleType = new vFLO(startPrice, startTimestamp, endTimestamp, minimumRaise, initialSupply) 
- * 
- */
+* @public - A sub-class of PriceCurve for creating an vFLO i.e virtual LBP sale type. 
+* 
+* @remark - It is called virtual FLO or LBP because there is no actual seeding required.
+* Price starts at 'startPrice' and goes to down over the span of the sale's duration
+* if no buys happen. If buys happen then price will go up (exactly like the real LBP)
+*
+* @example
+* ```typescript
+* //For generating a vFLO sale type pass in the required arguments to the constructor.
+* const saleType = new vFLO(startPrice, startTimestamp, endTimestamp, minimumRaise, initialSupply) 
+* 
+*/
 export class vFLO extends PriceCurve {
 
   /**
@@ -401,6 +405,7 @@ export class vFLO extends PriceCurve {
   * @param erc20decimals - (optional) Number of decimals of the reserve asset. (default value 18)
   * 
   * @returns a VM StateConfig
+  *
   */ 
   constructor(
     startPrice: number,
@@ -452,16 +457,16 @@ export class vFLO extends PriceCurve {
 }
 
 /**
- * @public - A sub-class of PriceCurve for creating an linear Increasing sale type. 
- * 
- * @rematks - Price starts at 'startPrice' and goes to 'endPrice' over the span of the sale's duration.
- *
- * @example
- * ```typescript
- * //For generating a Increasing Price sale type pass in the required arguments to the constructor.
- * const saleType = new IncreasingPrice(startPrice, endPrice, startTimestamp, endTimestamp)
- * 
- */
+* @public - A sub-class of PriceCurve for creating an linear Increasing sale type. 
+* 
+* @rematks - Price starts at 'startPrice' and goes to 'endPrice' over the span of the sale's duration.
+*
+* @example
+* ```typescript
+* //For generating a Increasing Price sale type pass in the required arguments to the constructor.
+* const saleType = new IncreasingPrice(startPrice, endPrice, startTimestamp, endTimestamp)
+* 
+*/
 export class IncreasingPrice extends PriceCurve {
 
   /**
@@ -517,26 +522,26 @@ export class IncreasingPrice extends PriceCurve {
 
 
 /**
- * @public - A class used for creating a VM state for Sale's canEnd/StartStateConfig based on timestamp. 
- * 
- * @remarks - If the VM result is greater than '0' then sale can start/end and if it is '0' it simply 
- * cannot. The basic constructed object is a simple timestamp based condition for sale's 
- * canStart/EndStateConfig, but with using the methods in the class more complex conditions 
- * can be created for how the sale's duration will work.
- *
- * @important - Like all the method calls, order of calling methods in this class is important in order to produce
- * the desired result, although calling in any order will produce a reliable result, that depends on what is the 
- * desired result. For example 'applyOwner' should be called at last in order to apply the ownership over the whole script. 
- * The general methods calling order in this class is:
- *    1.applyExtarTime
- *    2.applyOwner
- * 
- * @example
- * ```typescript
- * //For generating a canStart/End StateConfig for the sale pass in the required arguments to the constructor.
- * const saleType = new SaleDuration(timestamp)
- * 
- */
+* @public - A class used for creating a VM state for Sale's canEnd/StartStateConfig based on timestamp. 
+* 
+* @remarks - If the VM result is greater than '0' then sale can start/end and if it is '0' it simply 
+* cannot. The basic constructed object is a simple timestamp based condition for sale's 
+* canStart/EndStateConfig, but with using the methods in the class more complex conditions 
+* can be created for how the sale's duration will work.
+*
+* @important - Like all the method calls, order of calling methods in this class is important in order to produce
+* the desired result, although calling in any order will produce a reliable result, that depends on what the 
+* intention is. For example 'applyOwner' should be called at last in order to apply the ownership over the whole script. 
+* The general methods calling order in this class is:
+*    1.applyExtarTime
+*    2.applyOwner
+* 
+* @example
+* ```typescript
+* //For generating a canStart/End StateConfig for the sale pass in the required arguments to the constructor.
+* const saleType = new SaleDuration(timestamp)
+* 
+*/
 export class SaleDuration {
 
   public canStartEndStateConfig: StateConfig;
@@ -575,6 +580,7 @@ export class SaleDuration {
   * @param extraTimeAmount - The criteria for extra time, if the raised amount exceeds this amount then the raise can continue into extra time.
   * 
   * @returns a VM StateConfig
+  *
   */
   public applyExtraTime(
     extraTime: number,
@@ -618,18 +624,20 @@ export class SaleDuration {
   * Sale's canStart/End functions are public and can be triggered by anyone when the criteria is met, but with using this method for sale's
   * canStart/EndStateConfig, it can configured in a way that only a certain address can actually trigger the sale's start/end functions.
   * 
-  * @important - applyOwner should be called at the end to be effective.
+  * @important - applyOwnership will apply the ownership over the StateConfig it is been called for, so the order of call is important to get
+  * the desired result.
   * 
-  * @param deployAddress - The address that will be the owner, only this wallet address can start or end a raise if this method is applied.
+  * @param ownerAddress - The address that will be the owner, only this wallet address can start or end a raise if this method is applied.
   * 
   * @returns a VM StateConfig
+  *
   */
-  public applyOwner(
-    deployAddress: string
+  public applyOwnership(
+    ownerAddress: string
   ) : StateConfig {
     this.canStartEndStateConfig = VM.makeOwner(
       this.canStartEndStateConfig,
-      deployAddress,
+      ownerAddress,
     )
     return this.canStartEndStateConfig; 
   };
