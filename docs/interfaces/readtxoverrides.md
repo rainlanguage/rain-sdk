@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [ReadTxOverrides](./readtxoverrides.md)
 
 # Interface ReadTxOverrides
 

@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [ERC20TransferTierDeployArgs](./erc20transfertierdeployargs.md)
 
 # Interface ERC20TransferTierDeployArgs
 

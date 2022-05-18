@@ -11,13 +11,13 @@ import {
  * @public
  * A class for deploying and calling methods on a ERC20BalanceTier.
  *
- *   The `ERC20BalanceTier` simply checks the current balance of an erc20 against tier values.
+ * @remarks
+ *  This class provides an easy way to deploy ERC20BalanceTiers using Rain's canonical factories,
+ * and methods for interacting with an already deployed ERC20BalanceTier.
+ *
+ * The `ERC20BalanceTier` simply checks the current balance of an erc20 against tier values.
  * As the current balance is always read from the erc20 contract directly there is no historical
  * block data.
- *
- * @remarks
- *   This class provides an easy way to deploy ERC20BalanceTiers using Rain's canonical factories,
- * and methods for interacting with an already deployed ERC20BalanceTier.
  *
  * @example
  * ```typescript
@@ -35,7 +35,8 @@ import {
  *
  */
 export class ERC20BalanceTier extends TierContract {
-  protected static readonly nameBookReference = 'erc20BalanceTierFactory';
+  protected static readonly nameBookReference: string =
+    'erc20BalanceTierFactory';
 
   /**
    * Constructs a new ERC20BalanceTier from a known address.
@@ -93,7 +94,12 @@ export class ERC20BalanceTier extends TierContract {
   };
 
   /**
-   * Checks if address is registered as a child contract of this ERC20BalanceTierFactory on a specific network
+   * Checks if address is registered as a child contract of this contract in a specific network.
+   *
+   * @remarks
+   * The methods require a signer that will be used to call to the Factory Contract and ask if the
+   * address provided is a child. Also it is necessary to get the current Chain ID using the provider
+   * in the signer.
    *
    * @param signer - An ethers.js Signer
    * @param maybeChild - Address to check registration for.

@@ -1,35 +1,37 @@
-[Home](../index.md) &gt; [RainContract](./raincontract.md)
 
 # Class RainContract
 
+//TODO: Add doc
 
 <b>Signature:</b>
 
 ```typescript
-abstract class RainContract 
+abstract class RainContract extends AddressBook 
 ```
 
 ## Static Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br><br>Request to the provider stored in the signer which is the chain ID. |
-|  [nameBookReference](./raincontract.md#nameBookReference-property-static) | `string` | Reference to find the address in the book address. Should be implemented and assign it to each subclass |
+|  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br><br></br>*Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)* |
+|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br><br></br>Request to the provider stored in the signer which is the chain ID. |
+|  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
+|  [nameBookReference](./raincontract.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address. |
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [address](./raincontract.md#address-property) | `string` |  |
-|  [connect](./raincontract.md#connect-property) | `(signer: Signer) => RainContract` | Connect the current instance to a new signer |
-|  [signer](./raincontract.md#signer-property) | `Signer` |  |
+|  [address](./raincontract.md#address-property) | `string` | The contract address of the instance. |
+|  [connect](./raincontract.md#connect-property) | `(signer: Signer) => RainContract` | Connect the current contract instance to a new ethers signer. |
+|  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance. |
 
 ## Static Methods
 
 |  Method | Description |
 |  --- | --- |
 |  [checkAddress(address, message)](./raincontract.md#checkAddress-method-static-1) | Check if an address is correctly formatted and throw an error if it is not an valid address |
-|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book to this chain |
+|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book for a determined chain if it is available. |
 
 ## Methods
 
@@ -57,7 +59,9 @@ static getChainId: (signerOrProvider: Signer | Provider) => Promise<number>;
 
 ### nameBookReference
 
-Reference to find the address in the book address. Should be implemented and assign it to each subclass
+Name reference to find the address of the contract in the book address.
+
+Should be implemented in each class to find the factory or main address in the book.
 
 <b>Signature:</b>
 
@@ -71,6 +75,8 @@ protected static readonly nameBookReference: string;
 
 ### address
 
+The contract address of the instance.
+
 <b>Signature:</b>
 
 ```typescript
@@ -81,7 +87,7 @@ readonly address: string;
 
 ### connect
 
-Connect the current instance to a new signer
+Connect the current contract instance to a new ethers signer.
 
 <b>Signature:</b>
 
@@ -92,6 +98,10 @@ abstract readonly connect: (signer: Signer) => RainContract;
 <a id="signer-property"></a>
 
 ### signer
+
+The ethers signer that is connected to the instance.
+
+This signer will be used to call and sign the tranasctions.
 
 <b>Signature:</b>
 
@@ -128,7 +138,9 @@ static checkAddress(address: string, message?: string): void;
 
 ### getBookAddress(chainId)
 
-Get the address stored in the book to this chain
+Get the address stored in the book for a determined chain if it is available.
+
+If any address is deployed to the determined chain, an error will be throwed with `No deployed contracts for this chain.`
 
 <b>Signature:</b>
 

@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [NoticeStruct](./noticestruct.md)
 
 # Interface NoticeStruct
 

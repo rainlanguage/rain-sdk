@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [ERC20BalanceTierDeployArgs](./erc20balancetierdeployargs.md)
 
 # Interface ERC20BalanceTierDeployArgs
 

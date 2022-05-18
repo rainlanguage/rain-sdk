@@ -1,7 +1,7 @@
-[Home](../index.md) &gt; [BuyConfig](./buyconfig.md)
 
 # Interface BuyConfig
 
+The configuration that is need it to buy in the sale
 
 <b>Signature:</b>
 

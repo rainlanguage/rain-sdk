@@ -1,6 +1,9 @@
-[Home](../index.md) &gt; [ERC20](./erc20.md)
 
 # Class ERC20
+
+A generic ERC20 interface to get connected to any ERC20 address and make transactions.
+
+The interface only have and provide generic and common methods calls. Remember that any specific method implemented in the contract will NOT be available in this interface.
 
 <b>Signature:</b>
 
@@ -13,22 +16,22 @@ class ERC20
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [address](./erc20.md#address-property) | `string` |  |
-|  [allowance](./erc20.md#allowance-property) | `(owner: string, spender: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom()`<!-- -->. This is zero by default.<br><br>This value changes when `approve()` or `transferFrom()` are called. |
+|  [allowance](./erc20.md#allowance-property) | `(owner: string, spender: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom()`<!-- -->. This is zero by default.<br></br><br></br>This value changes when `approve()` or `transferFrom()` are called. |
 |  [approve](./erc20.md#approve-property) | `(spender: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Sets `amount` as the allowance of `spender` over the caller's tokens. |
 |  [attach](./erc20.md#attach-property) | `(address: string) => ERC20` | Create new instance with same signer but different contract address |
 |  [balanceOf](./erc20.md#balanceOf-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens owned by `account`<!-- -->. |
 |  [burn](./erc20.md#burn-property) | `(amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Destroys `amount` tokens from the caller. |
-|  [burnFrom](./erc20.md#burnFrom-property) | `(account: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Destroys `amount` tokens from `account`<!-- -->, deducting from the caller's allowance. Requirements:<br><br>- the caller must have allowance for \`\`<!-- -->accounts<!-- -->\`\`<!-- -->'s tokens of at least `amount`<!-- -->. |
+|  [burnFrom](./erc20.md#burnFrom-property) | `(account: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Destroys `amount` tokens from `account`<!-- -->, deducting from the caller's allowance. Requirements:<br></br><br></br>- the caller must have allowance for `accounts`<!-- -->'s tokens of at least `amount`<!-- -->. |
 |  [connect](./erc20.md#connect-property) | `(signer: Signer) => ERC20` | Connect the current instance to a new signer |
 |  [decimals](./erc20.md#decimals-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the number of decimals used to get its user representation. |
-|  [decreaseAllowance](./erc20.md#decreaseAllowance-property) | `(spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically decreases the allowance granted to `spender` by the caller.<br><br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
-|  [increaseAllowance](./erc20.md#increaseAllowance-property) | `(spender: string, addedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically increases the allowance granted to `spender` by the caller.<br><br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
+|  [decreaseAllowance](./erc20.md#decreaseAllowance-property) | `(spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically decreases the allowance granted to `spender` by the caller.<br></br><br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
+|  [increaseAllowance](./erc20.md#increaseAllowance-property) | `(spender: string, addedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically increases the allowance granted to `spender` by the caller.<br></br><br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
 |  [name](./erc20.md#name-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the name of the token. |
 |  [signer](./erc20.md#signer-property) | `Signer` |  |
 |  [symbol](./erc20.md#symbol-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the symbol of the token, usually a shorter version of the name. |
 |  [totalSupply](./erc20.md#totalSupply-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens in existence. |
-|  [transfer](./erc20.md#transfer-property) | `(to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from the caller's account to `to`<!-- -->.<br><br>Requirements:<br><br>- `to` cannot be the zero address. - the caller must have a balance of at least `amount`<!-- -->. |
-|  [transferFrom](./erc20.md#transferFrom-property) | `(from: string, to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.<br><br>NOTE: Does not update the allowance if the current allowance is the maximum `uint256`<!-- -->.<br><br>Requirements:<br><br>- `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`<!-- -->. - the caller must have allowance for `from`<!-- -->'s tokens of at least `amount`<!-- -->. |
+|  [transfer](./erc20.md#transfer-property) | `(to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from the caller's account to `to`<!-- -->.<br></br><br></br>Requirements:<br></br><br></br>- `to` cannot be the zero address. - the caller must have a balance of at least `amount`<!-- -->. |
+|  [transferFrom](./erc20.md#transferFrom-property) | `(from: string, to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.<br></br><br></br>NOTE: Does not update the allowance if the current allowance is the maximum `uint256`<!-- -->.<br></br><br></br>Requirements:<br></br><br></br>- `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`<!-- -->. - the caller must have allowance for `from`<!-- -->'s tokens of at least `amount`<!-- -->. |
 
 ## Property Details
 
@@ -110,7 +113,7 @@ readonly burn: (amount: BigNumberish, overrides?: TxOverrides) => Promise<Contra
 
 Destroys `amount` tokens from `account`<!-- -->, deducting from the caller's allowance. Requirements:
 
-- the caller must have allowance for \`\`<!-- -->accounts<!-- -->\`\`<!-- -->'s tokens of at least `amount`<!-- -->.
+- the caller must have allowance for `accounts`<!-- -->'s tokens of at least `amount`<!-- -->.
 
 <b>Signature:</b>
 

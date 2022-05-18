@@ -1,7 +1,7 @@
-[Home](../index.md) &gt; [SaleDeployArguments](./saledeployarguments.md)
 
 # Interface SaleDeployArguments
 
+Arguments to deploy/create a new Sale
 
 <b>Signature:</b>
 

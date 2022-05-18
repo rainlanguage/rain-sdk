@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [RoyaltyInfo](./royaltyinfo.md)
 
 # Interface RoyaltyInfo
 

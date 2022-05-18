@@ -1,7 +1,7 @@
-[Home](../index.md) &gt; [SaleRedeemableERC20Config](./saleredeemableerc20config.md)
 
 # Interface SaleRedeemableERC20Config
 
+Configuration that will have the Redeemable of the Sale
 
 <b>Signature:</b>
 

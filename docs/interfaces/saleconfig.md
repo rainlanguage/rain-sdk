@@ -1,7 +1,7 @@
-[Home](../index.md) &gt; [SaleConfig](./saleconfig.md)
 
 # Interface SaleConfig
 
+The configuration of the sale
 
 <b>Signature:</b>
 

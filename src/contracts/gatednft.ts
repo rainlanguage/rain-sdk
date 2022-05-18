@@ -11,9 +11,10 @@ import { FactoryContract } from '../classes/factoryContract';
 
 /**
  * @public
+ * //TODO: Add doc
  */
 export class GatedNFT extends FactoryContract {
-  protected static readonly nameBookReference = 'gatedNFTFactory';
+  protected static readonly nameBookReference: string = 'gatedNFTFactory';
 
   /**
    * Constructs a new GatedNFT from a known address.

@@ -60,7 +60,7 @@ import { Sale__factory, SaleFactory__factory } from '../typechain';
  *
  */
 export class Sale extends FactoryContract {
-  protected static readonly nameBookReference = 'saleFactory';
+  protected static readonly nameBookReference: string = 'saleFactory';
 
   /**
    * Constructs a new Sale from a known address.
@@ -409,8 +409,8 @@ export class Sale extends FactoryContract {
 
   /**
    *
-   * @param i
-   * @returns
+   * @param i - The index where is the value
+   * @returns The creator control script
    */
   public static CREATOR_CONTROL = (i: number) =>
     VM.createVMSources([
@@ -1091,7 +1091,9 @@ export interface Receipt {
 }
 
 /**
+ * @public
  *
+ * The parameters necessaries to use the sale script generator
  */
 export type SaleParams = {
   inputValues: any;

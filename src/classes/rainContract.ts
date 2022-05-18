@@ -4,17 +4,32 @@ import { AddressBook } from '../addresses';
 
 /**
  * @public
+ * 	//TODO: Add doc
  */
-export abstract class RainContract {
-  public readonly signer: Signer;
-  public readonly address: string;
+export abstract class RainContract extends AddressBook {
   /**
-   * Reference to find the address in the book address.
-   * Should be implemented and assign it to each subclass
+   * The ethers signer that is connected to the instance.
+   *
+   * @remarks
+   * This signer will be used to call and sign the tranasctions.
+   */
+  public readonly signer: Signer;
+
+  /**
+   * The contract address of the instance.
+   */
+  public readonly address: string;
+
+  /**
+   * Name reference to find the address of the contract in the book address.
+   *
+   * @remarks
+   * Should be implemented in each class to find the factory or main address in the book.
    */
   protected static readonly nameBookReference: string;
 
   constructor(address: string, signer: Signer) {
+    super();
     if (!utils.isAddress(address.toLowerCase())) {
       throw new Error('NOT A VALID FORMAT ADDRESS');
     }
@@ -54,7 +69,7 @@ export abstract class RainContract {
   }
 
   /**
-   * Connect the current instance to a new signer
+   * Connect the current contract instance to a new ethers signer.
    *
    * @param signer - The new signer which will be connected
    * @returns The instance with a new signer
@@ -62,13 +77,17 @@ export abstract class RainContract {
   public abstract readonly connect: (signer: Signer) => RainContract;
 
   /**
-   * Get the address stored in the book to this chain
+   * Get the address stored in the book for a determined chain if it is available.
+   *
+   * @remarks
+   * If any address is deployed to the determined chain, an error will be throwed with
+   * `No deployed contracts for this chain.`
    *
    * @param chainId - The chain ID where is deployed the contract
    * @returns The address for this contract
    */
   public static getBookAddress(chainId: number): string {
-    return AddressBook.getAddressesForChainId(chainId)[this.nameBookReference];
+    return this.getAddressesForChainId(chainId)[this.nameBookReference];
   }
 
   /**

@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [GatedConfig](./gatedconfig.md)
 
 # Interface GatedConfig
 

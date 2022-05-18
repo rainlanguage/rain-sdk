@@ -1,4 +1,3 @@
-[Home](../index.md) &gt; [RedeemableERC20DeployArgs](./redeemableerc20deployargs.md)
 
 # Interface RedeemableERC20DeployArgs
 

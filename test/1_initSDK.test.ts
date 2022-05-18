@@ -221,6 +221,12 @@ describe('SDK - BookAddress', () => {
     expect(await CombineTier.isChild(signer, address)).to.be.true;
     expect(AlwaysInstance.address).to.be.equals(address);
   });
+
+  it('should get the url endpoint stored in the SDK', () => {
+    const urlEndpoint = AddressBook.getSubgraphEndpoint(chainId);
+
+    expect(urlEndpoint).to.be.equals('https://api.url-test');
+  });
 });
 
 describe('SDK - Generics', () => {

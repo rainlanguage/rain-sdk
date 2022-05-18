@@ -25,7 +25,7 @@ export abstract class FactoryContract extends RainContract {
         : parentContract;
 
     const data = receipt.events?.find(
-      x =>
+      (x) =>
         x.event === 'NewChild' &&
         x.address.toLowerCase() === parentAddress.toLowerCase()
     )?.data;
@@ -39,7 +39,6 @@ export abstract class FactoryContract extends RainContract {
 
   /**
    * Checks if address is registered as a child contract of the factory in the chain.
-   * Should be implemented in sub-classes that repreent factories to expose it.
    *
    * @param signer - An ethers.js Signer
    * @param maybeChild - Address to check registration for.

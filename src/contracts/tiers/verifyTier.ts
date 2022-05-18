@@ -30,7 +30,7 @@ import { VerifyTierFactory__factory } from '../../typechain';
  *
  */
 export class VerifyTier extends TierContract {
-  protected static readonly nameBookReference = 'verifyTierFactory';
+  protected static readonly nameBookReference: string = 'verifyTierFactory';
   /**
    * Constructs a new VerifyTier from a known address.
    *

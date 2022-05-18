@@ -12,12 +12,11 @@ import { paddedUInt256 } from '../utils';
 
 /**
  * @public
- *
- * All the contract tier levels.
+ * All the contract tier levels availables in all ITier contracts.
  */
 export enum Tier {
   /**
-   * Contract tier level 0. This users with this level are those that never has been
+   * Contract tier level 0. This represent that the uset never has been
    * interacted with the Tier contract.
    */
   ZERO,
@@ -68,9 +67,7 @@ export abstract class TierContract extends FactoryContract {
     this.setTier = tier.setTier;
   }
 
-  /**
-   * All the contract tier levels.
-   */
+  /** {@inheritDoc Tier} */
   public readonly levels = Tier;
 
   /**

@@ -1,7 +1,7 @@
-[Home](../index.md) &gt; [Receipt](./receipt.md)
 
 # Interface Receipt
 
+The receipt that contain the information of the buy
 
 <b>Signature:</b>
 

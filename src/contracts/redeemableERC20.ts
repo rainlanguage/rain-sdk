@@ -15,7 +15,10 @@ import {
  * @public
  * A class for calling methods on a RedeemableERC20.
  *
- * This is the ERC20 token that is minted and distributed.
+ * @remarks
+ * This class provides an easy way to interact with RedeemableERC20 contracts.
+ *
+ * An RedeemableERC20 is the ERC20 token that is minted and distributed in the ISale contract.
  *
  * During `Phase.ZERO` the token can be traded and so compatible with the Balancer pool mechanics.
  * During `Phase.ONE` the token is frozen and no longer able to be traded on any AMM or transferred
@@ -30,9 +33,6 @@ import {
  * The token can optionally be restricted by the `ITier` contract to only allow receipients with a
  * specified membership status.
  *
- * @remarks
- *   This class provides an easy way to interact with RedeemableERC20's.
- *
  * @example
  * ```typescript
  * import { RedeemableERC20 } from 'rain-sdk';
@@ -46,7 +46,8 @@ import {
  */
 
 export class RedeemableERC20 extends FactoryContract {
-  protected static readonly nameBookReference = 'redeemableERC20Factory';
+  protected static readonly nameBookReference: string =
+    'redeemableERC20Factory';
 
   /**
    * Constructs a new RedeemableERC20 from a known address.

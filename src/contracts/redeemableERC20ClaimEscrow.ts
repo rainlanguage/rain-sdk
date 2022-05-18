@@ -6,7 +6,10 @@ import { RedeemableERC20ClaimEscrow__factory } from '../typechain';
  * @public
  * A class for calling methods on a RedeemableERC20ClaimEscrow.
  *
- * Escrow contract for ERC20 tokens to be deposited and withdrawn against
+ * @remarks
+ * This class provides an easy way to interact with the Escrow Rain
+ *
+ * An Escrow contract for ERC20 tokens to be deposited and withdrawn against
  * redeemableERC20 tokens from a specific `Sale`.
  *
  * When some token is deposited the running total of that token against the
@@ -16,9 +19,6 @@ import { RedeemableERC20ClaimEscrow__factory } from '../typechain';
  * supply that they currently hold. As redeemable tokens are frozen after
  * distribution there are no issues with holders manipulating withdrawals by
  * transferring tokens to claim multiple times.
- *
- * @remarks
- *  This class provides an easy way to interact with the Escrow Rain
  *
  * @example
  * ```typescript
@@ -33,7 +33,8 @@ import { RedeemableERC20ClaimEscrow__factory } from '../typechain';
  */
 
 export class RedeemableERC20ClaimEscrow extends RainContract {
-  protected static readonly nameBookReference = 'redeemableERC20ClaimEscrow';
+  protected static readonly nameBookReference: string =
+    'redeemableERC20ClaimEscrow';
 
   /**
    * The `ISale` contract address that is used to interact with the Escrow contract.
@@ -84,6 +85,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   /**
    * Create the RedeemableERC20ClaimEscrow instance.
    *
+   * @remarks
    * The function ask to the provider inside of the ethers signer what is the chain
    * identifier to get the address in this chain.
    *
@@ -155,6 +157,9 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   };
 
   /**
+   * Make a deposit in the Escrow contract.
+   *
+   * @remarks
    * Any address can deposit any amount of the token`IERC20` under the `Sale`.
    * The `Sale` MUST be a child of the trusted factory.
    *
@@ -191,6 +196,9 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   };
 
   /**
+   * Make a deposit pending in the escrow
+   *
+   * @remarks
    * Depositor can set aside tokens during pending raise status to be swept
    * into a real deposit later.
    *
@@ -225,6 +233,9 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   };
 
   /**
+   * Make a sweep pending in the Escrow
+   *
+   * @remarks
    * Anon can convert any existing pending deposit to a deposit with known
    * rTKN supply once the escrow has moved out of pending status.
    *
@@ -254,6 +265,9 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   };
 
   /**
+   * Make an undeposit.
+   *
+   * @remarks
    * The inverse of `deposit`.
    *
    * In the case of a failed distribution the depositors can claim back any
@@ -297,6 +311,7 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
   /**
    * The successful handover of a `deposit` to a recipient.
    *
+   * @remarks
    * When a redeemable token distribution is successful the redeemable token
    * holders are automatically and immediately eligible to `withdraw` any
    * and all tokens previously deposited against the relevant `Sale`.

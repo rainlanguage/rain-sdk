@@ -35,7 +35,7 @@ import { NoticeBoard__factory } from '../typechain';
  */
 
 export class NoticeBoard extends RainContract {
-  protected static readonly nameBookReference = 'noticeBoard';
+  protected static readonly nameBookReference: string = 'noticeBoard';
 
   /**
    * Constructs a new NoticeBoard from a known address.

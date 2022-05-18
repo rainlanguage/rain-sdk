@@ -1,4 +1,6 @@
-export * as utils from './utils';
+import * as utils from './utils';
+
+export { utils };
 
 export * from './classes/factoryContract';
 export * from './classes/rainContract';
