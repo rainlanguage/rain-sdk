@@ -649,6 +649,3 @@ export class SaleDuration {
   };
 
 };
-
-let x = new FixedPrice(10).applyExtraTimeDiscount(10, 10, 10).applyWalletCap(1, {maxWalletCap:10, tierMultiplierMode:true, tierAddress:"sdvsfetb", tierMultiplier:[1,2,3,4,5,6,7,8]})
-console.log(x.stateConfig.sources);
