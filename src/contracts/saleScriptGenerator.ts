@@ -419,7 +419,7 @@ export class vLBP extends PriceCurve {
     minimumRaise: number,
     initialSupply: number,
     erc20decimals: number = 18
-    ) {
+  ) {
         let raiseDuration = endTimestamp - startTimestamp;
         let balanceReserve = minimumRaise * 5;
         let initWeight = (initialSupply * startPrice) / balanceReserve;
@@ -433,7 +433,7 @@ export class vLBP extends PriceCurve {
               startTimestamp,
               parseUnits(1 .toString())
             ],
-            sources: [vLBP.vFLO_SOURCES()],
+            sources: [vLBP.vLBP_SOURCES()],
             stackLength: 15,
             argumentsLength: 0
           }
@@ -441,7 +441,7 @@ export class vLBP extends PriceCurve {
       }
   
   //vLBP script
-  public static vFLO_SOURCES = () =>
+  public static vLBP_SOURCES = () =>
     concat([
       op(Sale.Opcodes.TOTAL_RESERVE_IN),
       op(Sale.Opcodes.VAL, 0),
@@ -492,7 +492,7 @@ export class IncreasingPrice extends PriceCurve {
     startTimestamp: number,
     endTimestamp: number,
     erc20decimals: number = 18
-    ) {
+  ) {
       let raiseDuration = endTimestamp - startTimestamp;
       let priceChange = (endPrice - startPrice) / raiseDuration;
       super(
