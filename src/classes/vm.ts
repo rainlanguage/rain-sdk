@@ -259,10 +259,10 @@ export interface StateConfig {
  */
 export interface State {
   /**
-   * Opcodes write to the stack at the stackoptions.index and can
-   * consume from the stack by decrementing theoptions.index and reading between the
-   * old and new stackoptions.index.
-   * IMPORANT: The stack is never zeroed out so theoptions.index must be used to
+   * Opcodes write to the stack at the stack index and can
+   * consume from the stack by decrementing the index and reading between the
+   * old and new stack index.
+   * IMPORANT: The stack is never zeroed out so the index must be used to
    * find the "top" of the stack as the result of an `eval`.
    */
   stackIndex: BigNumberish;
@@ -273,11 +273,11 @@ export interface State {
   stack: BigNumberish[];
   /**
    * Sources available to be executed by `eval`.
-   * Notably `ZIPMAP` can also select a source to execute byoptions.index.
+   * Notably `ZIPMAP` can also select a source to execute by index.
    */
   sources: BytesLike[];
   /**
-   * Constants that can be copied to the stack byoptions.index by `VAL`.
+   * Constants that can be copied to the stack by index by `VAL`.
    */
   constants: BigNumberish[];
   /**
