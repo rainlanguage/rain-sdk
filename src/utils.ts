@@ -195,10 +195,12 @@ export const replaceAt = (
   index: number,
   replacement: string | number
 ): BytesLike => {
-  original = toUint8Array(original);
-  const originalParsed = Array.from(original);
+  const originalParsed = arrayify(
+    original,
+    {allowMissingPrefix: true}
+  );
   originalParsed[index] = parseInt(replacement.toString());
-  return originalParsed;
+  return originalParsed; 
 };
 
 /**
@@ -212,25 +214,3 @@ export function skip(places: number, conditional = false): number {
   return skip;
 }
 
-/**
- * @public
- * Check and convert any type of `BytesLike` to an `Uint8Array`
- *
- * @param data - Byteslike to convert
- * @returns An Uint8Array
- */
-export function toUint8Array(data: BytesLike): Uint8Array {
-  if (!utils.isBytes(data)) {
-    if (utils.isHexString(data)) {
-      data = utils.arrayify(data);
-    } else {
-      if (utils.isHexString('0x' + data)) {
-        data = utils.arrayify('0x' + data);
-      } else {
-        throw new Error(`Invalid Hexadecimal expression ${'0x' + data}`);
-      }
-    }
-  }
-
-  return Uint8Array.from(data);
-}

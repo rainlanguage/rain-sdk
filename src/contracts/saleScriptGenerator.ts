@@ -11,13 +11,25 @@ import {
 
 
 /**
- * Standard cap per wallet modes
- */
+* Standard cap per wallet modes
+*/
 export enum WalletCapMode {
   min,
   max, 
   both
 };
+
+/**
+* applyWalletCap call options
+*/
+export type WalletCapOptions = {
+  minWalletCap?: number,
+  maxWalletCap?: number,
+  tierMultiplierMode?: boolean,
+  tierAddress?: string,
+  tierMultiplier?: number[],
+  tierActivation?: (number | string)[],
+}
 
 /**
 * @public - PriceCurve is an abstract class that all the other sale types (sub-classes) will inherit from.
@@ -26,10 +38,10 @@ export enum WalletCapMode {
 * such as tier discount which makes depolying a new sale contracts with different features easy.
 * 
 * @important - the order of calling the methods of this class is important, meaning in order to get the 
-* desired result for the sale, order of calling the methods is important, although it is worth saying 
-* that even if the order is not followed, the result will still be reliable but if that is been done by intention.
+* desired result for the sale, mthods should be called in correct order, although it is worth saying 
+* that even if the order is not followed, the result will still be reliable if that is been done by intention.
 * For example if we call 'applyExtraTime' method after the the 'applyTierDiscount' method, the extra 
-* time discount will be applied to the result of tier discount result value and if before that, it will be vice versa. 
+* time discount will be applied to the result of 'applyTierDiscount' and if before that, it will be vice versa. 
 * The general order for calling these methods is: 
 *    1.applyExtraTimeDiscount
 *    2.applyTierDiscount
@@ -43,9 +55,9 @@ export abstract class PriceCurve{
   /**
   * Constructor of PriceCurve class that must be instantiated by sun-classes.
   * 
-  * @param saleStateConfig - Constructed by sub-classes
+  * @param stateConfig - Constructed by sub-classes
   */
-  constructor(public saleStateConfig: StateConfig) {}
+  constructor(public stateConfig: StateConfig) {}
 
   /**
   * Method to apply extra time discount to the sale. if sale's continues into extra time 
@@ -68,7 +80,7 @@ export abstract class PriceCurve{
     endTimestamp: number,
     extraTimeDiscountThreshold: number,
     extraTimeDiscount: number
-  ) : StateConfig {
+  ) : this {
     const EXTRA_TIME_DISCOUNT = (i: number) =>
       concat([
         op(Sale.Opcodes.VAL, i - 4),
@@ -89,26 +101,25 @@ export abstract class PriceCurve{
         op(Sale.Opcodes.DIV, 2),
         op(Sale.Opcodes.EAGER_IF),
       ]);
-      this.saleStateConfig.constants = [
-      ...this.saleStateConfig.constants,
-      endTimestamp,
-      parseUnits(extraTimeDiscountThreshold.toString()),
-      100 - extraTimeDiscount,
-      100,
-    ];
-    this.saleStateConfig.sources = [
+      this.stateConfig.constants.push(
+        endTimestamp,
+        parseUnits(extraTimeDiscountThreshold.toString()),
+        100 - extraTimeDiscount,
+        100,
+      );
+    this.stateConfig.sources = [
       concat([
-        EXTRA_TIME_DISCOUNT(this.saleStateConfig.constants.length),
-        ...this.saleStateConfig.sources,
+        EXTRA_TIME_DISCOUNT(this.stateConfig.constants.length),
+        ...this.stateConfig.sources,
         op(Sale.Opcodes.DUP, 1),
-        DISCOUNT_CONDITION_SOURCES(this.saleStateConfig.constants.length),
+        DISCOUNT_CONDITION_SOURCES(this.stateConfig.constants.length),
       ])
     ];
-    this.saleStateConfig.stackLength = Number(
-      this.saleStateConfig.stackLength
+    this.stateConfig.stackLength = Number(
+      this.stateConfig.stackLength
     ) + 20;
 
-    return this.saleStateConfig;
+    return this;
   }
 
   /**
@@ -126,15 +137,15 @@ export abstract class PriceCurve{
     tierAddress: string,
     tierDiscount: number[],
     tierActivation?: (number | string)[],
-  ): StateConfig {
-    this.saleStateConfig = VM.tierBasedDiscounter(
-      this.saleStateConfig,
+  ): this {
+    this.stateConfig = VM.tierBasedDiscounter(
+      this.stateConfig,
       tierAddress,
       tierDiscount,
-      tierActivation
+      {tierActivation}
     );
 
-    return this.saleStateConfig;
+    return this;
   }
 
   /**
@@ -142,12 +153,12 @@ export abstract class PriceCurve{
   * With the option of applying multiplier for max cap per wallet. 
   * 
   * @param mode - The mode that determines if there is max or min cap per wallet or both.
-  * @param minWalletCap - (optional) The number for min cap per wallet, addresses cannot buy less number of rTKNs than this amount.
-  * @param maxWalletCap - (optional) The number for max cap per wallet, addresses cannot buy more number of rTKNs than this amount.
-  * @param tierMultiplierMode - (optional) Set true in order to apply Multiplier for max cap per wallet.
-  * @param tierAddress - (optional) The Tier contract address for tiers' max cap per wallet multiplier.
-  * @param tierMultiplier - (optional) An array of each tiers' Multiplier value.
-  * @param tierActivation - (optional) An array of number of blocks for each tier that will be the required period 
+  * @param options.minWalletCap - (optional) The number for min cap per wallet, addresses cannot buy less number of rTKNs than this amount.
+  * @param options.maxWalletCap - (optional) The number for max cap per wallet, addresses cannot buy more number of rTKNs than this amount.
+  * @param options.tierMultiplierMode - (optional) Set true in order to apply Multiplier for max cap per wallet.
+  * @param options.tierAddress - (optional) The Tier contract address for tiers' max cap per wallet multiplier.
+  * @param options.tierMultiplier - (optional) An array of each tiers' Multiplier value.
+  * @param options.tierActivation - (optional) An array of number of blocks for each tier that will be the required period 
   * of time for a tiered address which that tier's status needs to be held in order to be eligible for that tier's discount. 
   * 
   * @returns a VM StateConfig
@@ -155,13 +166,9 @@ export abstract class PriceCurve{
   */
   public applyWalletCap(
     mode: WalletCapMode,
-    minWalletCap?: number,
-    maxWalletCap?: number,
-    tierMultiplierMode?: boolean,
-    tierAddress?: string,
-    tierMultiplier?: number[],
-    tierActivation?: (number | string)[],
-  ) : StateConfig {
+    options?: WalletCapOptions
+  ) : this {
+    if (!options) { options = { }; }
 
     const MIN_CAP_SOURCES = (i: number) =>
       concat([
@@ -183,32 +190,31 @@ export abstract class PriceCurve{
         op(Sale.Opcodes.GREATER_THAN),
       ]);
 
-    if (mode == WalletCapMode.min && minWalletCap) {
-      this.saleStateConfig.constants = [
-        ...this.saleStateConfig.constants,
-        parseUnits(minWalletCap.toString()).sub(1),
+    if (mode == WalletCapMode.min && options.minWalletCap) {
+      this.stateConfig.constants.push(
+        parseUnits(options.minWalletCap.toString()).sub(1),
         ethers.constants.MaxUint256
-      ];
-      this.saleStateConfig.sources[0] = 
+      );
+      this.stateConfig.sources[0] = 
         concat([
-          this.saleStateConfig.sources[0],
-          MIN_CAP_SOURCES(this.saleStateConfig.constants.length - 2),
+          this.stateConfig.sources[0],
+          MIN_CAP_SOURCES(this.stateConfig.constants.length - 2),
           op(Sale.Opcodes.DUP, 0),
-          op(Sale.Opcodes.VAL, this.saleStateConfig.constants.length - 1),
+          op(Sale.Opcodes.VAL, this.stateConfig.constants.length - 1),
           op(Sale.Opcodes.EAGER_IF)
         ]);
-        this.saleStateConfig.stackLength = Number(
-          this.saleStateConfig.stackLength
+        this.stateConfig.stackLength = Number(
+          this.stateConfig.stackLength
         ) + 15;
 
-      return this.saleStateConfig  
+      return this;  
     }
 
-    else if (mode == WalletCapMode.max && maxWalletCap) {
-      if (tierMultiplierMode && tierAddress && tierMultiplier) {
+    else if (mode == WalletCapMode.max && options.maxWalletCap) {
+      if (options.tierMultiplierMode && options.tierAddress && options.tierMultiplier) {
         let maxCapConfig: StateConfig = {
           constants: [
-            parseUnits(maxWalletCap.toString())
+            parseUnits(options.maxWalletCap.toString())
           ],
           sources: [
             concat([
@@ -220,9 +226,9 @@ export abstract class PriceCurve{
         };
         maxCapConfig = VM.tierBasedMultiplier(
           maxCapConfig,
-          tierAddress,
-          tierMultiplier,
-          tierActivation
+          options.tierAddress,
+          options.tierMultiplier,
+          {tierActivation: options.tierActivation}
         );
         maxCapConfig.constants.push(
           ethers.constants.MaxUint256
@@ -235,40 +241,39 @@ export abstract class PriceCurve{
             op(Sale.Opcodes.VAL, maxCapConfig.constants.length - 1),
             op(Sale.Opcodes.EAGER_IF),
           ]);
-          this.saleStateConfig = VM.vmStateCombiner(
-            this.saleStateConfig,
+          this.stateConfig = VM.vmStateCombiner(
+            this.stateConfig,
             maxCapConfig,
-            1
           );
-        return this.saleStateConfig;
+
+        return this;
       }
       else {
-        this.saleStateConfig.constants = [
-          ...this.saleStateConfig.constants,
-          parseUnits(maxWalletCap.toString()).add(1),
+        this.stateConfig.constants.push(
+          parseUnits(options.maxWalletCap.toString()).add(1),
           ethers.constants.MaxUint256
-        ];
-        this.saleStateConfig.sources[0] = 
+        );
+        this.stateConfig.sources[0] = 
           concat([
-            this.saleStateConfig.sources[0],
-            op(Sale.Opcodes.VAL, this.saleStateConfig.constants.length - 2),
+            this.stateConfig.sources[0],
+            op(Sale.Opcodes.VAL, this.stateConfig.constants.length - 2),
             MAX_CAP_SOURCES(),
-            op(Sale.Opcodes.VAL, this.saleStateConfig.constants.length - 1),
+            op(Sale.Opcodes.VAL, this.stateConfig.constants.length - 1),
             op(Sale.Opcodes.EAGER_IF)
           ]);
-          this.saleStateConfig.stackLength = Number(
-            this.saleStateConfig.stackLength
+          this.stateConfig.stackLength = Number(
+            this.stateConfig.stackLength
           ) + 10;
           
-        return this.saleStateConfig;
+        return this;
       }
     }
 
-    else if (mode == WalletCapMode.both && minWalletCap && maxWalletCap) {
-      if (tierMultiplierMode && tierAddress && tierMultiplier) {
+    else if (mode == WalletCapMode.both && options.minWalletCap && options.maxWalletCap) {
+      if (options.tierMultiplierMode && options.tierAddress && options.tierMultiplier) {
         let bothCapConfig: StateConfig = {
           constants: [
-            parseUnits(maxWalletCap.toString())
+            parseUnits(options.maxWalletCap.toString())
           ],
           sources: [
             concat([
@@ -280,12 +285,12 @@ export abstract class PriceCurve{
         };
         bothCapConfig = VM.tierBasedMultiplier(
           bothCapConfig,
-          tierAddress,
-          tierMultiplier,
-          tierActivation
+          options.tierAddress,
+          options.tierMultiplier,
+          {tierActivation: options.tierActivation}
         );
         bothCapConfig.constants.push(
-          parseUnits(minWalletCap.toString()).sub(1),
+          parseUnits(options.minWalletCap.toString()).sub(1),
           ethers.constants.MaxUint256
         );
         bothCapConfig.sources[0] = 
@@ -299,36 +304,34 @@ export abstract class PriceCurve{
             op(Sale.Opcodes.EAGER_IF),
           ]);
 
-          this.saleStateConfig = VM.vmStateCombiner(
-            this.saleStateConfig,
+          this.stateConfig = VM.vmStateCombiner(
+            this.stateConfig,
             bothCapConfig,
-            1
           );
-        return this.saleStateConfig;
+        return this;
       }
       else {
-        this.saleStateConfig.constants = [
-          ...this.saleStateConfig.constants,
-          parseUnits(maxWalletCap.toString()).add(1),
-          parseUnits(minWalletCap.toString()).sub(1),
+        this.stateConfig.constants.push(
+          parseUnits(options.maxWalletCap.toString()).add(1),
+          parseUnits(options.minWalletCap.toString()).sub(1),
           ethers.constants.MaxUint256
-        ];
-        this.saleStateConfig.sources[0] = 
+        );
+        this.stateConfig.sources[0] = 
           concat([
-            this.saleStateConfig.sources[0],
-            op(Sale.Opcodes.VAL, this.saleStateConfig.constants.length - 3),
+            this.stateConfig.sources[0],
+            op(Sale.Opcodes.VAL, this.stateConfig.constants.length - 3),
             MAX_CAP_SOURCES(),
-            MIN_CAP_SOURCES(this.saleStateConfig.constants.length - 2),
+            MIN_CAP_SOURCES(this.stateConfig.constants.length - 2),
             op(Sale.Opcodes.EVERY, 2),
             op(Sale.Opcodes.DUP, 0),
-            op(Sale.Opcodes.VAL, this.saleStateConfig.constants.length - 1),
+            op(Sale.Opcodes.VAL, this.stateConfig.constants.length - 1),
             op(Sale.Opcodes.EAGER_IF)
           ]);
-          this.saleStateConfig.stackLength = Number(
-            this.saleStateConfig.stackLength
+          this.stateConfig.stackLength = Number(
+            this.stateConfig.stackLength
           ) + 25;
 
-        return this.saleStateConfig;
+        return this;
       }
     }
 
@@ -363,8 +366,10 @@ export class FixedPrice extends PriceCurve {
   constructor(price: number, erc20decimals: number = 18) {
     super(
       {
-        constants: [parseUnits(price.toString(), erc20decimals)],
-        sources: FixedPrice.FIXED_PRICE_SOURCES(),
+        constants: [
+          parseUnits(price.toString(), erc20decimals)
+        ],
+        sources: [FixedPrice.FIXED_PRICE_SOURCES()],
         stackLength: 1,
         argumentsLength: 0
       }
@@ -373,14 +378,14 @@ export class FixedPrice extends PriceCurve {
 
   // fixed price script
   public static FIXED_PRICE_SOURCES = () =>
-    VM.createVMSources([
-      [Sale.Opcodes.VAL, 0]
+    concat([
+      op(Sale.Opcodes.VAL, 0)
     ]);
 }
 
 
 /**
-* @public - A sub-class of PriceCurve for creating an vFLO i.e virtual LBP sale type. 
+* @public - A sub-class of PriceCurve for creating an vLBP i.e virtual LBP sale type. 
 * 
 * @remark - It is called virtual FLO or LBP because there is no actual seeding required.
 * Price starts at 'startPrice' and goes to down over the span of the sale's duration
@@ -388,14 +393,14 @@ export class FixedPrice extends PriceCurve {
 *
 * @example
 * ```typescript
-* //For generating a vFLO sale type pass in the required arguments to the constructor.
-* const saleType = new vFLO(startPrice, startTimestamp, endTimestamp, minimumRaise, initialSupply) 
+* //For generating a vLBP sale type pass in the required arguments to the constructor.
+* const saleType = new vLBP(startPrice, startTimestamp, endTimestamp, minimumRaise, initialSupply) 
 * 
 */
-export class vFLO extends PriceCurve {
+export class vLBP extends PriceCurve {
 
   /**
-  * Constructs a new raw vFLO sale type to be used in a Sale contract.
+  * Constructs a new raw vLBP sale type to be used in a Sale contract.
   * 
   * @param startPrice - The starting price of the sale for rTKN.
   * @param startTimestamp - Start timestamp of the sale for rTKN.
@@ -428,31 +433,31 @@ export class vFLO extends PriceCurve {
               startTimestamp,
               parseUnits(1 .toString())
             ],
-            sources: vFLO.vFLO_SOURCES(),
+            sources: [vLBP.vFLO_SOURCES()],
             stackLength: 15,
             argumentsLength: 0
           }
         )
       }
   
-  //vFLO script
+  //vLBP script
   public static vFLO_SOURCES = () =>
-    VM.createVMSources([
-      [Sale.Opcodes.TOTAL_RESERVE_IN],
-      [Sale.Opcodes.VAL, 0],
-      [Sale.Opcodes.ADD, 2],
-      [Sale.Opcodes.VAL, 1],
-      [Sale.Opcodes.BLOCK_TIMESTAMP],
-      [Sale.Opcodes.VAL, 3],
-      [Sale.Opcodes.SATURATING_SUB, 2],
-      [Sale.Opcodes.VAL, 2],
-      [Sale.Opcodes.MUL, 2],
-      [Sale.Opcodes.SATURATING_SUB, 2],
-      [Sale.Opcodes.VAL, 4],
-      [Sale.Opcodes.MAX, 2],
-      [Sale.Opcodes.MUL, 2],
-      [Sale.Opcodes.REMAINING_UNITS],
-      [Sale.Opcodes.DIV, 2],
+    concat([
+      op(Sale.Opcodes.TOTAL_RESERVE_IN),
+      op(Sale.Opcodes.VAL, 0),
+      op(Sale.Opcodes.ADD, 2),
+      op(Sale.Opcodes.VAL, 1),
+      op(Sale.Opcodes.BLOCK_TIMESTAMP),
+      op(Sale.Opcodes.VAL, 3),
+      op(Sale.Opcodes.SATURATING_SUB, 2),
+      op(Sale.Opcodes.VAL, 2),
+      op(Sale.Opcodes.MUL, 2),
+      op(Sale.Opcodes.SATURATING_SUB, 2),
+      op(Sale.Opcodes.VAL, 4),
+      op(Sale.Opcodes.MAX, 2),
+      op(Sale.Opcodes.MUL, 2),
+      op(Sale.Opcodes.REMAINING_UNITS),
+      op(Sale.Opcodes.DIV, 2),
     ]);
 }
 
@@ -498,7 +503,7 @@ export class IncreasingPrice extends PriceCurve {
             parseUnits(priceChange.toFixed(5).toString()),
             startTimestamp
           ],
-          sources: IncreasingPrice.INC_PRICE_SOURCES(),
+          sources: [IncreasingPrice.INC_PRICE_SOURCES()],
           stackLength: 10,
           argumentsLength: 0
         }
@@ -507,16 +512,16 @@ export class IncreasingPrice extends PriceCurve {
 
   // linear increasing price script
   public static INC_PRICE_SOURCES = () =>
-    VM.createVMSources([
-      [Sale.Opcodes.BLOCK_TIMESTAMP],
-      [Sale.Opcodes.VAL, 3],
-      [Sale.Opcodes.SUB, 2],
-      [Sale.Opcodes.VAL, 2],
-      [Sale.Opcodes.MUL, 2],
-      [Sale.Opcodes.VAL, 0],
-      [Sale.Opcodes.ADD, 2],
-      [Sale.Opcodes.VAL, 1],
-      [Sale.Opcodes.MIN, 2],
+    concat([
+      op(Sale.Opcodes.BLOCK_TIMESTAMP),
+      op(Sale.Opcodes.VAL, 3),
+      op(Sale.Opcodes.SUB, 2),
+      op(Sale.Opcodes.VAL, 2),
+      op(Sale.Opcodes.MUL, 2),
+      op(Sale.Opcodes.VAL, 0),
+      op(Sale.Opcodes.ADD, 2),
+      op(Sale.Opcodes.VAL, 1),
+      op(Sale.Opcodes.MIN, 2),
     ]);
 };
 
@@ -544,7 +549,7 @@ export class IncreasingPrice extends PriceCurve {
 */
 export class SaleDuration {
 
-  public canStartEndStateConfig: StateConfig;
+  public stateConfig: StateConfig;
 
   /**
   * Constructs a new canStart/End config to be used in a Sale contract's canStart/End functions.
@@ -556,13 +561,15 @@ export class SaleDuration {
   * 
   */
   constructor(readonly timestamp: number) {
-    this.canStartEndStateConfig = {
+    this.stateConfig = {
       constants: [timestamp],
-      sources: VM.createVMSources([
-        [Sale.Opcodes.BLOCK_TIMESTAMP],
-        [Sale.Opcodes.VAL, 0],
-        [Sale.Opcodes.GREATER_THAN],
-      ]),
+      sources: [
+        concat([
+          op(Sale.Opcodes.BLOCK_TIMESTAMP),
+          op(Sale.Opcodes.VAL, 0),
+          op(Sale.Opcodes.GREATER_THAN),
+        ])
+      ],
       stackLength: 3,
       argumentsLength: 0,
     }
@@ -585,38 +592,37 @@ export class SaleDuration {
   public applyExtraTime(
     extraTime: number,
     extraTimeAmount: number, 
-  ) : StateConfig {
-
+  ) : this {
   const EXTRA_TIME = () =>
-    VM.createVMSources([
-      [Sale.Opcodes.TOTAL_RESERVE_IN],
-      [Sale.Opcodes.VAL, 2],
-      [Sale.Opcodes.LESS_THAN],
-      [Sale.Opcodes.EVERY, 2],
-      [Sale.Opcodes.BLOCK_TIMESTAMP],
-      [Sale.Opcodes.VAL, 1],
-      [Sale.Opcodes.GREATER_THAN],
-      [Sale.Opcodes.ANY, 2],
-    ])[0];
+    concat([
+      op(Sale.Opcodes.TOTAL_RESERVE_IN),
+      op(Sale.Opcodes.VAL, 2),
+      op(Sale.Opcodes.LESS_THAN),
+      op(Sale.Opcodes.EVERY, 2),
+      op(Sale.Opcodes.BLOCK_TIMESTAMP),
+      op(Sale.Opcodes.VAL, 1),
+      op(Sale.Opcodes.GREATER_THAN),
+      op(Sale.Opcodes.ANY, 2),
+    ]);
 
     const ExtraTimeAmount = parseUnits(
       extraTimeAmount.toString()
     );
     const ExtraTime = extraTime * 60 + this.timestamp;
-    this.canStartEndStateConfig.constants.push(
+    this.stateConfig.constants.push(
       ExtraTime,
       ExtraTimeAmount
     );
-    this.canStartEndStateConfig.sources[0] = 
+    this.stateConfig.sources[0] = 
         concat([
-          this.canStartEndStateConfig.sources[0],
+          this.stateConfig.sources[0],
           EXTRA_TIME(),
         ]);
-    this.canStartEndStateConfig.stackLength = Number(
-      this.canStartEndStateConfig.stackLength
+    this.stateConfig.stackLength = Number(
+      this.stateConfig.stackLength
     ) + 10;
 
-    return this.canStartEndStateConfig;
+    return this;
   };  
 
   /**
@@ -634,13 +640,15 @@ export class SaleDuration {
   */
   public applyOwnership(
     ownerAddress: string
-  ) : StateConfig {
-    this.canStartEndStateConfig = VM.makeOwner(
-      this.canStartEndStateConfig,
+  ) : this {
+    this.stateConfig = VM.makeOwner(
+      this.stateConfig,
       ownerAddress,
     )
-    return this.canStartEndStateConfig; 
+    return this; 
   };
 
 };
 
+let x = new FixedPrice(10).applyExtraTimeDiscount(10, 10, 10).applyWalletCap(1, {maxWalletCap:10, tierMultiplierMode:true, tierAddress:"sdvsfetb", tierMultiplier:[1,2,3,4,5,6,7,8]})
+console.log(x.stateConfig.sources);
