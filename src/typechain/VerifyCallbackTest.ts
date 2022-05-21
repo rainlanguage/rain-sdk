@@ -26,7 +26,7 @@ export type EvidenceStructOutput = [string, string] & {
 export interface VerifyCallbackTestInterface extends utils.Interface {
   functions: {
     "additions(address)": FunctionFragment;
-    "afterAdd(address,(address,bytes))": FunctionFragment;
+    "afterAdd(address,(address,bytes)[])": FunctionFragment;
     "afterApprove(address,(address,bytes)[])": FunctionFragment;
     "afterBan(address,(address,bytes)[])": FunctionFragment;
     "afterRemove(address,(address,bytes)[])": FunctionFragment;
@@ -38,7 +38,7 @@ export interface VerifyCallbackTestInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "additions", values: [string]): string;
   encodeFunctionData(
     functionFragment: "afterAdd",
-    values: [string, EvidenceStruct]
+    values: [string, EvidenceStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "afterApprove",
@@ -105,7 +105,7 @@ export interface VerifyCallbackTest extends BaseContract {
 
     afterAdd(
       adder_: string,
-      evidence_: EvidenceStruct,
+      evidences_: EvidenceStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -138,7 +138,7 @@ export interface VerifyCallbackTest extends BaseContract {
 
   afterAdd(
     adder_: string,
-    evidence_: EvidenceStruct,
+    evidences_: EvidenceStruct[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -171,7 +171,7 @@ export interface VerifyCallbackTest extends BaseContract {
 
     afterAdd(
       adder_: string,
-      evidence_: EvidenceStruct,
+      evidences_: EvidenceStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -207,7 +207,7 @@ export interface VerifyCallbackTest extends BaseContract {
 
     afterAdd(
       adder_: string,
-      evidence_: EvidenceStruct,
+      evidences_: EvidenceStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -244,7 +244,7 @@ export interface VerifyCallbackTest extends BaseContract {
 
     afterAdd(
       adder_: string,
-      evidence_: EvidenceStruct,
+      evidences_: EvidenceStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

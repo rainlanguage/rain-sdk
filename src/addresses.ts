@@ -29,25 +29,51 @@ export type Addresses = {
 
 const addressBook = [
   {
-    chainId: 80001,
+    /**
+     * Goerli chain
+     */
+    chainId: 5,
     addresses: {
-      alwaysTier: '0xCA1666Fecc36b016578796F658A0889Bce796582',
-      combineTierFactory: '0xf163E422eaa4e7b38b392a0Ab663d92c17cEC364',
-      erc20BalanceTierFactory: '0xe662E03b0039d5B82DA705B0c15BE581900EE6bE',
-      erc20TransferTierFactory: '0x56c338900BC7BC43CaE1De519B63D075075Fbd5F',
-      erc721BalanceTierFactory: '0x119ec54eFDf4acbc0e5fa920a5eaA28D5F6695b1',
-      emissionsERC20Factory: '0x859D847B9E7B94c74A128cA9E23C96C98cb34Aa8',
-      gatedNFTFactory: '0xB4a49642F1bA29c2e812975708FB3BC43242A31f',
-      noticeBoard: '0x5d6bBefbA77A20e84b447e0c567A27a71270dd78',
-      redeemableERC20ClaimEscrow: '0x7B9a17983De09e97039868692531aD669Ba3238c',
-      redeemableERC20Factory: '0xb41c9f5f71ED81406A16C03676bAd5BCBB75B661',
-      saleFactory: '0x272a42AcfdDb7d88d65aeC2e462d5dFC764A25e6',
-      verifyFactory: '0x42Bfc1742A20005D7E8b6Bf085B8877fC96C61ae',
-      verifyTierFactory: '0xd56A49817C6C50B420F1AC75049E710456b0A9D6',
+      alwaysTier: '0x1Fcf1f92919F0E0023463234c78296E9517b56Ea',
+      combineTierFactory: '0x34A0946CEAD3417E629B2679D05C0A24d49a1eB4',
+      erc20BalanceTierFactory: '0xbA9Ce92a65e172ADd70A71B6E280D9941fb9185C',
+      erc20TransferTierFactory: '0xcF75a4bc22AD40D6DA6f57b5174D39D28bC85a96',
+      erc721BalanceTierFactory: '0xa76F06F09346141977cF652A1EDFD09D779AA22a',
+      emissionsERC20Factory: '0x586Fa008Ae3C1228B9E42452DfE04c99D7E97C35',
+      gatedNFTFactory: '0xE09f5c0bA8A3C59f3c7aFFB458058881413878a2',
+      noticeBoard: '0x25ACA096cbEF597Aa3B99CDD747805e58d1aea81',
+      redeemableERC20ClaimEscrow: '0x00DDE5505E0075C4bF7536d3d2014895D9cbE546',
+      redeemableERC20Factory: '0x16D33236D7Af17ca55E60EcE64e9F6CeD32Ba416',
+      saleFactory: '0xA54f23A7B650Ea510fCA651EAfc39BFA5a04010D',
+      verifyFactory: '0xa018eAB945De7e8073d1995284b78FC0cfE45B76',
+      verifyTierFactory: '0x333F9355Bc47A22f64ac5C5F3d7cC5408544851f',
     },
   },
   {
-    // These addresess are deployed in HH Network (test)
+    /**
+     * Polygon chain
+     */
+    chainId: 137,
+    addresses: {
+      alwaysTier: '0xF81572101B3bD379ADFddCBF4d46f40268475A14',
+      combineTierFactory: '0xaB9D00F59A8C45b8b20F060D5F7d97FdDbA2De19',
+      erc20BalanceTierFactory: '0xcCFa697D85771B67826cB7E1F7535576fA91b6b1',
+      erc20TransferTierFactory: '0x807FBB1515fcFD5574b8d5FfA6e4b831d7897987',
+      erc721BalanceTierFactory: '0x095Cc7BcA08F2A9c1059DE30631aA94fF9fca623',
+      emissionsERC20Factory: '0xED4f245C7Afc8b52295d4045929bbdd6ba722Eaa',
+      gatedNFTFactory: '0x1965F5943F8a6C18C444fad09094aB6cFfBe3F4a',
+      noticeBoard: '0x790Bfb7C3E07805F9880ece979ee2f3E19f524C2',
+      redeemableERC20ClaimEscrow: '0x588BFaF31410240A1A780dbd7078485A7A65305A',
+      redeemableERC20Factory: '0x84A35D90D5181473662e67eFE6e2de350F9918d7',
+      saleFactory: '0x6ab3Dde1e33F64F294a8b55321d345724C85E0A4',
+      verifyFactory: '0xe68B2ce23d959bEe80d92b25271B767AE7A6A79D',
+      verifyTierFactory: '0xB827ae1cD6D27abd56070d196A7175E02e531A5d',
+    },
+  },
+  {
+    /**
+     * Hardhat chain
+     */
     chainId: 31337,
     addresses: {
       alwaysTier: '0x23dB4a08f2272df049a4932a4Cc3A6Dc1002B33E',
@@ -65,12 +91,47 @@ const addressBook = [
       saleFactory: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
     },
   },
+  {
+    /**
+     * Mumbai chain
+     */
+    chainId: 80001,
+    addresses: {
+      alwaysTier: '0x051dC03ba4d33eCC59Fb23F506Fe1e67004F142C',
+      combineTierFactory: '0x21fC48631F0efA5EFe790b5c05929cEdc271dB43',
+      erc20BalanceTierFactory: '0xb1C8EA6E410a71290D5C21404D3324e61912e3c6',
+      erc20TransferTierFactory: '0x2f1554BF57a234828ca3D210bA65cF80d8e5073c',
+      erc721BalanceTierFactory: '0xC0E50AD884EBb7C2582677978d48338D46930a08',
+      emissionsERC20Factory: '0xE51BeE9adccBafc20507e01EAA4F5aA966306669',
+      gatedNFTFactory: '0xbfe6E65daB36FbdB14bC7979D5DE244628F4eD3a',
+      noticeBoard: '0x4B02C8ceF32db81D4918e1C5b4b16EBA6830872a',
+      redeemableERC20ClaimEscrow: '0xCd67b4ef5659B776e996Dd4Be371DCac4ABba6c8',
+      redeemableERC20Factory: '0x4127ea3daf008043a3783094064670d1330d53f0',
+      saleFactory: '0xE152e59e644e49AE5D73Df70658084DFc8b5CBb6',
+      verifyFactory: '0x6e55b00ecfc718d202e57709a747fe3fc7f6e61e',
+      verifyTierFactory: '0x2aAA6104B099B2d1DF1D984F67da042555506B71',
+    },
+  },
 ];
 
 const subgraphBook: SubgraphBook = {
+  /**
+   * Goerli chain
+   */
+  5: 'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-goerli-e590ce',
+  /**
+   * Polygon chain
+   */
+  137: 'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-polygon-e590ce',
+  /**
+   * Hardhat chain
+   */
   31337: 'https://api.url-test',
+  /**
+   * Mumbai chain
+   */
   80001:
-    'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-v2_2-mumbai',
+    'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-mumbai-e590ce',
 };
 
 /**

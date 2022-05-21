@@ -25,7 +25,7 @@ export type EvidenceStructOutput = [string, string] & {
 
 export interface IVerifyCallbackInterface extends utils.Interface {
   functions: {
-    "afterAdd(address,(address,bytes))": FunctionFragment;
+    "afterAdd(address,(address,bytes)[])": FunctionFragment;
     "afterApprove(address,(address,bytes)[])": FunctionFragment;
     "afterBan(address,(address,bytes)[])": FunctionFragment;
     "afterRemove(address,(address,bytes)[])": FunctionFragment;
@@ -33,7 +33,7 @@ export interface IVerifyCallbackInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "afterAdd",
-    values: [string, EvidenceStruct]
+    values: [string, EvidenceStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "afterApprove",
@@ -91,7 +91,7 @@ export interface IVerifyCallback extends BaseContract {
   functions: {
     afterAdd(
       adder_: string,
-      evidence_: EvidenceStruct,
+      evidences_: EvidenceStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -116,7 +116,7 @@ export interface IVerifyCallback extends BaseContract {
 
   afterAdd(
     adder_: string,
-    evidence_: EvidenceStruct,
+    evidences_: EvidenceStruct[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -141,7 +141,7 @@ export interface IVerifyCallback extends BaseContract {
   callStatic: {
     afterAdd(
       adder_: string,
-      evidence_: EvidenceStruct,
+      evidences_: EvidenceStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -169,7 +169,7 @@ export interface IVerifyCallback extends BaseContract {
   estimateGas: {
     afterAdd(
       adder_: string,
-      evidence_: EvidenceStruct,
+      evidences_: EvidenceStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -195,7 +195,7 @@ export interface IVerifyCallback extends BaseContract {
   populateTransaction: {
     afterAdd(
       adder_: string,
-      evidence_: EvidenceStruct,
+      evidences_: EvidenceStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
