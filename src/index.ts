@@ -14,6 +14,7 @@ export * from './contracts/noticeBoard';
 export * from './contracts/redeemableERC20';
 export * from './contracts/redeemableERC20ClaimEscrow';
 export * from './contracts/sale';
+export * from './contracts/saleScriptGenerator';
 export * from './contracts/verify';
 
 export * from './contracts/tiers/combineTier';
