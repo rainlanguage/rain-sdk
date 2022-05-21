@@ -1,7 +1,6 @@
 import { BytesLike, BigNumberish, BigNumber, utils } from 'ethers';
+//import { arrayBuffer } from 'stream/consumers';
 import {
-  replaceAt,
-  toUint8Array,
   paddedUInt256,
   paddedUInt32,
   concat,
@@ -12,6 +11,7 @@ import {
   selectLteLogic,
   callSize,
   arg,
+  arrayify,
 } from '../utils';
 
 /**
@@ -36,7 +36,7 @@ export enum AllStandardOps {
    */
   VAL,
   /**
-   * Duplicates the value at index `operand_` to the top of the stack
+   * Duplicates the value atoptions.index `operand_` to the top of the stack
    */
   DUP,
   /**
@@ -323,17 +323,19 @@ export class VM {
    *
    * @param config - the main VM script
    * @param ownerAddress - the address that is going to be the owner of the main VM script.
-   * @param notOwnerVar - (optional) - the value or a 2nd VM script, that will be the final result in case that the sender is not the owner ,the default result value if no args passed and the check fails is 0.
-   * @param index - (optional) the index of the config sources array that determines where the makeOwner sources apply to, default index is 0.
+   * @param options.notOwnerVar - (optional) - the value or a 2nd VM script, that will be the final result in case that the sender is not the owner ,the default result value if no args passed and the check fails is 0.
+   * @param options.index - (optional) the index of the config sources array that determines where the makeOwner sources apply to, default index is 0.
    * @returns a VM script. @see StateConfig
    */
   public static makeOwner(
     config: StateConfig,
     ownerAddress: string,
-    notOwnerVar?: number | string | StateConfig,
-    index?: number
+    options?: CallOptions
   ): StateConfig {
-    const Index = index ? index : 0;
+    if (!options) { options = { }; }
+
+    const Index = options.index ? options.index : 0;
+
     const MAKE_OWNER = (i: any) =>
       concat([
         op(AllStandardOps.VAL, i),
@@ -341,29 +343,29 @@ export class VM {
         op(AllStandardOps.EQUAL_TO),
       ]);
 
-    if (notOwnerVar && typeof notOwnerVar === 'object') {
+    if (options.notOwnerVar && typeof options.notOwnerVar === 'object') {
       const constants = [
         ...config.constants,
-        ...notOwnerVar.constants,
+        ...options.notOwnerVar.constants,
         ownerAddress,
       ];
-      for (let i = 0; i < notOwnerVar.sources.length; i++) {
-        for (let j = 0; j < notOwnerVar.sources[i].length; j++) {
-          if (notOwnerVar.sources[i][j] == 1) {
-            notOwnerVar.sources[i] = replaceAt(
-              notOwnerVar.sources[i],
-              j + 1,
-              +notOwnerVar.sources[i][j + 1] + config.constants.length
-            );
+      for (let i = 0; i < options.notOwnerVar.sources.length; i++) {
+        const sourceModify = arrayify(
+          options.notOwnerVar.sources[i],
+          {allowMissingPrefix: true}
+        );
+        for (let j = 0; j < sourceModify.length; j++) {
+          if (sourceModify[j] == 1) {
+            sourceModify[j+1] += config.constants.length;
+            options.notOwnerVar.sources[i] = sourceModify;
           }
-          if (notOwnerVar.sources[i][j] == 3) {
-            let srcIndex = config.sources.length - 1;
-            srcIndex <<= 5;
-            notOwnerVar.sources[i] = replaceAt(
-              notOwnerVar.sources[i],
-              j + 1,
-              +notOwnerVar.sources[i][j + 1] + srcIndex
-            );
+          if (sourceModify[j] == 3) {
+            const srcIndexIncrement = (config.sources.length - 1) << 5;
+            const srcIndex = sourceModify[j+1] >> 5;
+            sourceModify[j+1] = srcIndex < 1
+            ? sourceModify[j+1] + Index
+            : sourceModify[j+1] + srcIndexIncrement;
+            options.notOwnerVar.sources[i] = sourceModify;
           }
           j++;
         }
@@ -371,17 +373,17 @@ export class VM {
       config.sources[Index] = concat([
         MAKE_OWNER(constants.length - 1),
         config.sources[Index],
-        notOwnerVar.sources[0],
+        options.notOwnerVar.sources[0],
         op(AllStandardOps.EAGER_IF),
       ]);
-      notOwnerVar.sources.splice(0, 1);
-      const sources = [...config.sources, ...notOwnerVar.sources];
+      options.notOwnerVar.sources.splice(0, 1);
+      const sources = [...config.sources, ...options.notOwnerVar.sources];
 
       const finalStackLength = BigNumber.from(config.stackLength)
-        .add(notOwnerVar.stackLength)
+        .add(options.notOwnerVar.stackLength)
         .add(4);
       const finalArgumentsLength = BigNumber.from(config.argumentsLength).add(
-        notOwnerVar.argumentsLength
+        options.notOwnerVar.argumentsLength
       );
 
       return {
@@ -391,7 +393,7 @@ export class VM {
         argumentsLength: finalArgumentsLength,
       };
     } else {
-      const NotOwnerVar = notOwnerVar ? notOwnerVar : 0;
+      const NotOwnerVar = options.notOwnerVar ? options.notOwnerVar : 0;
       const constants = [...config.constants, ownerAddress, NotOwnerVar];
       config.sources[Index] = concat([
         MAKE_OWNER(constants.length - 2),
@@ -414,67 +416,67 @@ export class VM {
    *
    * @param config1 - the first VM script that will be combined. (default sits at top)
    * @param config2 - the second VM script that will be combined. (default sits at bottom)
-   * @param numberOfSources - number of sources to combine, starting from sources index of each script.
-   * @param position - (optional) an array representing the positions of config1 script where config2 script will be merged at; default setting will apply if not specified; position array length must be equal to sourcesNo or else it will be ignored.
-   * @param index1 - (optional) - the index of the config1 sources array that will be combined, the default index is 0.
-   * @param index2 - (optional) - the index of the config2 sources array that will be combined, the default index is 0.
+   * @param options.numberOfSources - (optional) number of sources to combine, default is 1.
+   * @param options.position - (optional) an array representing the positions of config1 script where config2 sources will be merged at; position array length must be equal to 'numberOfSources' or else it will be ignored.
+   * @param options.index - (optional) - the index of the config1 sources array that will be combined, the default index is 0.
    * @returns combined VM script. @see StateConfig
    */
   public static vmStateCombiner(
     config1: StateConfig,
     config2: StateConfig,
-    numberOfSources: number,
-    position?: number[],
-    index1?: number,
-    index2?: number
+    options?: CallOptions
   ): StateConfig {
-    const Index1 = index1 ? index1 : 0;
-    const Index2 = index2 ? index2 : 0;
+    if (!options) { options = { }; }
+
+    const Index = options.index ? options.index : 0;
+    const NumberOfSources = options.numberOfSources ? options.numberOfSources : 1;
+
     const constants = [...config1.constants, ...config2.constants];
 
     for (let i = 0; i < config2.sources.length; i++) {
-      for (let j = 0; j < config2.sources[i].length; j++) {
-        if (config2.sources[i][j] == 1) {
-          config2.sources[i] = replaceAt(
-            config2.sources[i],
-            j + 1,
-            +config2.sources[i][j + 1] + config1.constants.length
-          );
+      const sourceModify = arrayify(
+        config2.sources[i],
+        {allowMissingPrefix: true}
+      );
+      for (let j = 0; j < sourceModify.length; j++) {
+        if (sourceModify[j] == 1) {
+          sourceModify[j+1] += config1.constants.length
+          config2.sources[i] = sourceModify;
         }
-        if (config2.sources[i][j] == 3) {
-          let srcIndex = config1.sources.length - numberOfSources;
-          srcIndex <<= 5;
-          config2.sources[i] = replaceAt(
-            config2.sources[i],
-            j + 1,
-            +config2.sources[i][j + 1] + srcIndex
-          );
+        if (sourceModify[j] == 3) {
+          const srcIndexIncrement = (config1.sources.length - NumberOfSources) << 5;
+          const srcIndex = sourceModify[j+1] >> 5;
+          sourceModify[j+1] = srcIndex < NumberOfSources
+          ? sourceModify[j+1] + Index
+          : sourceModify[j+1] + srcIndexIncrement; 
+          config2.sources[i] = sourceModify;
         }
         j++;
       }
     }
 
-    if (position && position.length == numberOfSources) {
-      for (let i = 0; i < numberOfSources; i++) {
-        const sources1 = config1.sources[Index1 + i];
-        const arrSource1 = toUint8Array(sources1);
-
-        config1.sources[Index1 + i] = concat([
-          arrSource1.subarray(0, position[i] * 2),
-          config2.sources[Index2 + i],
-          arrSource1.subarray(position[i] * 2),
+    if (options.position && options.position.length == NumberOfSources) {
+      for (let i = 0; i < NumberOfSources; i++) {
+        const sourceModify = arrayify(
+          config1.sources[Index + i],
+          {allowMissingPrefix: true}
+        );
+        config1.sources[Index + i] = concat([
+          sourceModify.subarray(0, options.position[i] * 2),
+          config2.sources[i],
+          sourceModify.subarray(options.position[i] * 2),
         ]);
       }
     } else {
-      for (let i = 0; i < numberOfSources; i++) {
-        config1.sources[Index1 + i] = concat([
-          config1.sources[Index1 + i],
-          config2.sources[Index2 + i],
+      for (let i = 0; i < NumberOfSources; i++) {
+        config1.sources[Index + i] = concat([
+          config1.sources[Index + i],
+          config2.sources[i],
         ]);
       }
     }
 
-    config2.sources.splice(Index2, numberOfSources);
+    config2.sources.splice(0, NumberOfSources);
     const sources = [...config1.sources, ...config2.sources];
 
     const finalStackLength = BigNumber.from(config1.stackLength).add(
@@ -498,17 +500,20 @@ export class VM {
    * @param config - the main VM script
    * @param tierAddress - the contract address of the tier contract.
    * @param tierDiscount - an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array.
-   * @param tierActivation - (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the percentage will be applied.
-   * @param index - (optional) the index of the config sources array that the discount applies to, the default index is 0.
+   * @param options.tierActivation - (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the percentage will be applied.
+   * @param options.index - (optional) the index of the config sources array that the discount applies to, the default index is 0.
    * @returns a VM script @see StateConfig
    */
   public static tierBasedDiscounter(
     config: StateConfig,
     tierAddress: string,
     tierDiscount: number[],
-    tierActivation?: (number | string)[],
-    index?: number
+    options?: CallOptions
   ): StateConfig {
+    if (!options) { options = { }; }
+
+    const Index = options.index ? options.index : 0;
+
     const TierDiscount = paddedUInt256(
       BigNumber.from(
         '0x' +
@@ -581,19 +586,18 @@ export class VM {
         op(VM.Opcodes.VAL, i - 1),
       ]);
 
-    if (tierActivation && tierActivation.length > 7) {
-      const Index = index ? index : 0;
+    if (options.tierActivation && options.tierActivation.length > 7) {
       const TierDiscountActivation = paddedUInt256(
         BigNumber.from(
           '0x' +
-            paddedUInt32(tierActivation[7]) +
-            paddedUInt32(tierActivation[6]) +
-            paddedUInt32(tierActivation[5]) +
-            paddedUInt32(tierActivation[4]) +
-            paddedUInt32(tierActivation[3]) +
-            paddedUInt32(tierActivation[2]) +
-            paddedUInt32(tierActivation[1]) +
-            paddedUInt32(tierActivation[0])
+            paddedUInt32(options.tierActivation[7]) +
+            paddedUInt32(options.tierActivation[6]) +
+            paddedUInt32(options.tierActivation[5]) +
+            paddedUInt32(options.tierActivation[4]) +
+            paddedUInt32(options.tierActivation[3]) +
+            paddedUInt32(options.tierActivation[2]) +
+            paddedUInt32(options.tierActivation[1]) +
+            paddedUInt32(options.tierActivation[0])
         )
       );
       const constants = [
@@ -625,7 +629,6 @@ export class VM {
         argumentsLength: Number(config.argumentsLength) + 3,
       };
     } else {
-      const Index = index ? index : 0;
       const constants = [...config.constants, tierAddress, TierDiscount, '100'];
       config.sources[Index] = concat([
         config.sources[Index],
@@ -648,17 +651,20 @@ export class VM {
    * @param config - the main VM script
    * @param tierAddress - the contract address of the tier contract.
    * @param tierMultiplier - an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array.
-   * @param tierActivation - (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the multiplier will be applied.
-   * @param index - (optional) the index of the config sources array that the multiplier applies to, the default index is 0.
+   * @param options.tierActivation - (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the multiplier will be applied.
+   * @param options.index - (optional) the index of the config sources array that the multiplier applies to, the default index is 0.
    * @returns a VM script @see StateConfig
    */
   public static tierBasedMultiplier(
     config: StateConfig,
     tierAddress: string,
     tierMultiplier: number[],
-    tierActivation?: (number | string)[],
-    index?: number
+    options?: CallOptions
   ): StateConfig {
+    if (!options) { options = { }; }
+
+    const Index = options.index ? options.index : 0;
+
     const TierMultiplier = paddedUInt256(
       BigNumber.from(
         '0x' +
@@ -729,19 +735,18 @@ export class VM {
         op(VM.Opcodes.VAL, i - 2),
       ]);
 
-    if (tierActivation && tierActivation.length > 7) {
-      const Index = index ? index : 0;
+    if (options.tierActivation && options.tierActivation.length > 7) {
       const TierMultiplierActivation = paddedUInt256(
         BigNumber.from(
           '0x' +
-            paddedUInt32(tierActivation[7]) +
-            paddedUInt32(tierActivation[6]) +
-            paddedUInt32(tierActivation[5]) +
-            paddedUInt32(tierActivation[4]) +
-            paddedUInt32(tierActivation[3]) +
-            paddedUInt32(tierActivation[2]) +
-            paddedUInt32(tierActivation[1]) +
-            paddedUInt32(tierActivation[0])
+            paddedUInt32(options.tierActivation[7]) +
+            paddedUInt32(options.tierActivation[6]) +
+            paddedUInt32(options.tierActivation[5]) +
+            paddedUInt32(options.tierActivation[4]) +
+            paddedUInt32(options.tierActivation[3]) +
+            paddedUInt32(options.tierActivation[2]) +
+            paddedUInt32(options.tierActivation[1]) +
+            paddedUInt32(options.tierActivation[0])
         )
       );
       const constants = [
@@ -773,7 +778,6 @@ export class VM {
         argumentsLength: Number(config.argumentsLength) + 3,
       };
     } else {
-      const Index = index ? index : 0;
       const constants = [
         ...config.constants,
         tierAddress,
@@ -795,4 +799,12 @@ export class VM {
       };
     }
   }
+}
+
+export type CallOptions = {
+  numberOfSources?: number;
+  index?: number;
+  tierActivation?: (number | string)[];
+  position?: number[];
+  notOwnerVar?: number | string | StateConfig;
 }
