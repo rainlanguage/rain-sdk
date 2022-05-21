@@ -317,28 +317,6 @@ export class Sale extends FactoryContract {
    * @returns the token redeemable address
    */
   public readonly token: (overrides?: ReadTxOverrides) => Promise<string>;
-
-  // TODO: reorganize scripts positions (?)
-  // Scripts
-
-  /**
-   * Create a condition as VM state configuration to that is true AFTER a `blockNumber` in the chain.
-   *
-   * @param blockNumber - block number that will be use as comparision
-   * @returns A VM Configturation
-   */
-  public static afterBlockNumberConfig(blockNumber: BigNumberish): StateConfig {
-    return {
-      sources: VM.createVMSources([
-        [this.Opcodes.BLOCK_NUMBER],
-        [this.Opcodes.VAL, 0],
-        [this.Opcodes.GREATER_THAN],
-      ]),
-      constants: [BigNumber.from(blockNumber).sub(1)],
-      stackLength: 3,
-      argumentsLength: 0,
-    };
-  }
 }
 
 /**
