@@ -11,7 +11,13 @@ import {
 
 import { ReserveTokenTest } from '../typechain';
 
-import { VM, Sale, CombineTier, SaleDuration } from '../src';
+import {
+  VM,
+  Sale,
+  CombineTier,
+  SaleDurationInTimestamp,
+  SaleDurationInBlocks,
+} from '../src';
 import { BigNumber } from 'ethers';
 
 describe('SDK - Sale', () => {
@@ -46,8 +52,8 @@ describe('SDK - Sale', () => {
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      canStartStateConfig: Sale.afterBlockNumberConfig(startBlock),
-      canEndStateConfig: Sale.afterBlockNumberConfig(startBlock + saleDuration),
+      canStartStateConfig: new SaleDurationInBlocks(startBlock),
+      canEndStateConfig: new SaleDurationInBlocks(startBlock + saleDuration),
       calculatePriceStateConfig: {
         sources,
         constants,
@@ -100,8 +106,8 @@ describe('SDK - Sale', () => {
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      canStartStateConfig: Sale.afterBlockNumberConfig(startBlock),
-      canEndStateConfig: Sale.afterBlockNumberConfig(endBlock),
+      canStartStateConfig: new SaleDurationInBlocks(startBlock),
+      canEndStateConfig: new SaleDurationInBlocks(endBlock),
       calculatePriceStateConfig: {
         sources,
         constants,
@@ -175,8 +181,8 @@ describe('SDK - Sale', () => {
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      canStartStateConfig: new SaleDuration(startTimestamp).stateConfig,
-      canEndStateConfig: new SaleDuration(endTimestamp).stateConfig,
+      canStartStateConfig: new SaleDurationInTimestamp(startTimestamp),
+      canEndStateConfig: new SaleDurationInTimestamp(endTimestamp),
       calculatePriceStateConfig: {
         sources,
         constants,
@@ -246,8 +252,8 @@ describe('SDK - Sale', () => {
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      canStartStateConfig: Sale.afterBlockNumberConfig(startBlock),
-      canEndStateConfig: Sale.afterBlockNumberConfig(endBlock),
+      canStartStateConfig: new SaleDurationInBlocks(startBlock),
+      canEndStateConfig: new SaleDurationInBlocks(endBlock),
       calculatePriceStateConfig: {
         sources,
         constants,

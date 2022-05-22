@@ -11,6 +11,29 @@ import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
 import { FactoryContract } from '../classes/factoryContract';
 
 /**
+ * Summary statuses derived from a `State` by comparing the `Since` times
+ * against a specific block number.
+ */
+enum VerifyStatus {
+  /**
+   * Account has not interacted with the system yet or was removed.
+   */
+  NIL,
+  /**
+   * Account has added evidence for themselves.
+   */
+  ADDED,
+  /**
+   * Approver has reviewed added/approve evidence and approved the account.
+   */
+  APPROVED,
+  /**
+   * Banner has reviewed a request to ban an account and banned it.
+   */
+  BANNED,
+}
+
+/**
  * @public
  * A class for deploying and calling methods on a Verify.
  *
@@ -40,6 +63,12 @@ import { FactoryContract } from '../classes/factoryContract';
 
 export class Verify extends FactoryContract {
   protected static readonly nameBookReference: string = 'verifyFactory';
+
+  /** {@inheritDoc VerifyStatus} */
+  public static status = VerifyStatus;
+
+  /** {@inheritDoc VerifyStatus} */
+  public status = VerifyStatus;
 
   /**
    * Constructs a new Verify from a known address.
@@ -222,15 +251,18 @@ export class Verify extends FactoryContract {
   ) => Promise<ContractTransaction>;
 
   /**
-   *   An `APPROVER` can review added evidence and approve accounts. Typically many approvals would
-   * be submitted in a single call which is more convenient and gas efficient than sending individual
-   * transactions for every approval. However, as there are many individual agents acting concurrently
-   * and independently this requires that the approval process be infallible so that no individual
-   * approval can rollback the entire batch due to the actions of some other approver/banner. It is
-   * possible to approve an already approved or banned account. The `Approve` event will always emit but
-   * the approved block will only be set if it was previously uninitialized. A banned account will always
-   * be seen as banned when calling `statusAtBlock` regardless of the approval block, even if the approval
-   * is more recent than the ban. The only way to reset a ban is to remove and reapprove the account.
+   * An `APPROVER` can review added evidence and approve accounts.
+   *
+   * @remarks
+   * Typically many approvals would  be submitted in a single call which is more convenient and gas
+   * efficient than sending individual transactions for every approval. However, as there are many
+   * individual agents acting concurrently and independently this requires that the approval process
+   * be infallible so that no individual approval can rollback the entire batch due to the actions
+   * of some other approver/banner. It is possible to approve an already approved or banned account.
+   * The `Approve` event will always emit but the approved block will only be set if it was previously
+   * uninitialized. A banned account will always be seen as banned when calling `statusAtBlock`
+   * regardless of the approval block, even if the approval is more recent than the ban. The only way
+   * to reset a ban is to remove and reapprove the account.
    *
    * @param evidences - All evidence for all approvals. @see Evidence
    * @param overrides - @see TxOverrides

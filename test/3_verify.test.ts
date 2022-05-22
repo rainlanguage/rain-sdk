@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
 import { Verify } from '../src';
+import { Time } from './utils';
 
 describe('Verify', () => {
   it('should deploy a Verify child', async () => {
@@ -12,6 +13,29 @@ describe('Verify', () => {
     });
 
     expect(await Verify.isChild(verify.signer, verify.address)).to.be.true;
+  });
+
+  it('should grant roles correctly', async () => {
+    const [deployer, user1] = await ethers.getSigners();
+    const verify = await Verify.deploy(deployer, {
+      admin: deployer.address,
+      callback: ethers.constants.AddressZero,
+    });
+
+    // Grant approver role to deployer
+    await verify.grantRole(await verify.APPROVER(), deployer.address);
+
+    // Approving user1
+    await verify.approve([{ account: user1.address, data: [] }]);
+
+    // Obtaining the current state of user1
+    const stateUser1 = await verify.state(user1.address);
+    // Current block in chain
+    const currentBlock = await Time.currentBlock();
+
+    expect(await verify.statusAtBlock(stateUser1, currentBlock)).to.be.equals(
+      verify.status.APPROVED
+    );
   });
 
   it('should change the signer in a Verify instance correctly', async () => {

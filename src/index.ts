@@ -17,6 +17,7 @@ export * from './contracts/sale';
 export * from './contracts/saleScriptGenerator';
 export * from './contracts/verify';
 
+export * from './contracts/tiers/iTier';
 export * from './contracts/tiers/combineTier';
 export * from './contracts/tiers/erc20BalanceTier';
 export * from './contracts/tiers/erc20TransferTier';

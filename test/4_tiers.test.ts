@@ -11,6 +11,7 @@ import {
 
 import {
   AddressBook,
+  ITier,
   Verify,
   VerifyTier,
   ERC20BalanceTier,
@@ -598,5 +599,39 @@ describe('SDK - CombineTier', () => {
 
     expect(await gatedNFT.balanceOf(user1.address)).to.be.equals(1);
     expect(await gatedNFT.balanceOf(user2.address)).to.be.equals(1);
+  });
+});
+
+describe('SDK - ITier', () => {
+  it('should get the instance from an already deloyed ITier contract', async () => {
+    const [signer, user] = await ethers.getSigners();
+    const token = await deployErc20(signer);
+
+    // Deployed a Tier contract
+    const balanceTier = await ERC20BalanceTier.deploy(signer, {
+      erc20: token.address,
+      tierValues: TierLevelsERC20,
+    });
+
+    // Create the ITier instance
+    const iTier = new ITier(balanceTier.address, signer);
+
+    expect(await balanceTier.currentTier(user.address)).to.be.equals(
+      await iTier.currentTier(user.address),
+      `does not return the same report`
+    );
+
+    // Sending tokens to user to get Tier four
+    const levelFour = iTier.levels.FOUR;
+    await token.transfer(
+      user.address,
+      await balanceTier.amountToTier(levelFour, user.address)
+    );
+
+    expect(await iTier.currentTier(user.address)).to.be.equals(levelFour);
+    expect(await balanceTier.currentTier(user.address)).to.be.equals(
+      await iTier.currentTier(user.address),
+      `does not return the same report`
+    );
   });
 });

@@ -183,9 +183,11 @@ export class ERC20TransferTier extends TierContract {
   ) => Promise<BigNumber[]>;
 
   /**
-   * Users can set their own tier by calling `setTier`. Updates the tier of an account.
-   * Transfers balances of erc20 from/to the tiered account according to the difference
-   * in values.
+   * Updates the tier of an account tansfering balances of erc20 from/to the tiered account according
+   * to the difference in values.
+   *
+   * @remarks
+   * Users can set their own tier by calling `setTier`.
    *
    * Any failure to transfer in/out will rollback the tier change. The tiered account
    * must ensure sufficient approvals before attempting to set a new tier. This throw

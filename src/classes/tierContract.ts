@@ -72,7 +72,10 @@ export abstract class TierContract extends FactoryContract {
 
   /**
    * A tier report is a `uint256` that contains each of the block numbers each tier has been
-   * held continously since as a `uint32`. There are 9 possible tier, starting with tier 0
+   * held continously since as a `uint32`.
+   *
+   * @remarks
+   * There are 9 possible tier, starting with tier 0
    * for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the
    * full 256 bits.
    *
@@ -86,13 +89,11 @@ export abstract class TierContract extends FactoryContract {
   ) => Promise<BigNumber>;
 
   /**
-   * Users can set their own tier by calling `setTier`. Updates the tier of an account.
-   * Transfers balances of erc20 from/to the tiered account according to the difference
-   * in values.
+   * Updates the tier of an account.
    *
-   * Any failure to transfer in/out will rollback the tier change. The tiered account
-   * must ensure sufficient approvals before attempting to set a new tier. This throw
-   * an error if the user attempts to return to the ZERO tier.
+   * @remarks
+   * Users can set their own tier by calling `setTier` if is this option available on the Tier contract.
+   * ITier like BalanceTier does not allow this.
    *
    * @param account - Account to change the tier for.
    * @param endTier - Tier after the change.
