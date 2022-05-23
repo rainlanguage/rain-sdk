@@ -6,6 +6,7 @@ import {
   deployErc20,
   deployErc721,
   deployErc1155,
+  zeroAddress,
 } from './utils';
 
 import {
@@ -255,6 +256,30 @@ describe('SDK - Generics', () => {
     );
   });
 
+  it('should indentify if an address is a valid ERC20', async () => {
+    const [deployer, signer] = await ethers.getSigners();
+
+    // Any ERC20
+    const erc20Address = (await deployErc20(deployer)).address;
+
+    expect(
+      await ERC20.isERC20(erc20Address, signer),
+      'WRONG: address is an ERC20'
+    ).to.be.true;
+
+    // Any no-erc20 address
+    const erc721Address = (await deployErc721(deployer)).address;
+
+    expect(
+      await ERC20.isERC20(erc721Address, signer),
+      'WRONG:address is not an ERC20'
+    ).to.be.false;
+    expect(
+      await ERC20.isERC20(zeroAddress, signer),
+      'WRONG: address is not an ERC20'
+    ).to.be.false;
+  });
+
   it('should create and use an ERC721 instance correctly', async () => {
     const [deployer, minter, receiver] = await ethers.getSigners();
 
@@ -293,6 +318,31 @@ describe('SDK - Generics', () => {
     );
   });
 
+  it('should indentify if an address is a valid ERC721', async () => {
+    const [deployer, signer] = await ethers.getSigners();
+
+    // Any ERC721
+    const erc721Address = (await deployErc721(deployer)).address;
+
+    expect(
+      await ERC721.isERC721(erc721Address, signer),
+      'WRONG: the address is an ERC721'
+    ).to.be.true;
+
+    // any non-ERC721 address
+    const erc20Address = (await deployErc20(deployer)).address;
+
+    expect(
+      await ERC721.isERC721(erc20Address, signer),
+      'WRONG: the address is not an ERC721'
+    ).to.be.false;
+
+    expect(
+      await ERC721.isERC721(zeroAddress, signer),
+      'WRONG: the address is not an ERC721'
+    ).to.be.false;
+  });
+
   it('should create and use an ERC115 instance correctly', async () => {
     const [deployer, receiver] = await ethers.getSigners();
 
@@ -321,5 +371,29 @@ describe('SDK - Generics', () => {
     expect(
       await erc1555Receiver.balanceOf(receiver.address, tokenType)
     ).to.be.equals(amount);
+  });
+
+  it('should indentify if an address is a valid ERC1155', async () => {
+    const [deployer, signer] = await ethers.getSigners();
+
+    // Any ERC1155
+    const erc1155Address = (await deployErc1155(deployer)).address;
+
+    expect(
+      await ERC1155.isERC1155(erc1155Address, signer),
+      'WRONG: the address is an ERC1155'
+    ).to.be.true;
+
+    // any non-ERC1155 address
+    const erc20Address = (await deployErc20(deployer)).address;
+
+    expect(
+      await ERC1155.isERC1155(erc20Address, signer),
+      'WRONG: the address is not an ERC1155'
+    ).to.be.false;
+    expect(
+      await ERC1155.isERC1155(zeroAddress, signer),
+      'WRONG: the address is not an ERC1155'
+    ).to.be.false;
   });
 });

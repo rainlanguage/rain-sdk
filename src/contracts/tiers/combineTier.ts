@@ -19,7 +19,12 @@ export type CombineTierDeployArgs = StateConfig;
  * @public
  * Type for the opcodes availables in a CombineTier instance.
  */
-export type CombineTierOpcodes = typeof AllStandardOps & { ACCOUNT: number };
+export type CombineTierOpcodes = typeof AllStandardOps & {
+  /**
+   * local opcode to put tier report account on the stack
+   */
+  ACCOUNT: number;
+};
 
 /**
  * @public

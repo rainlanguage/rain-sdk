@@ -11,10 +11,11 @@ import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
 import { FactoryContract } from '../classes/factoryContract';
 
 /**
+ * @public
  * Summary statuses derived from a `State` by comparing the `Since` times
  * against a specific block number.
  */
-enum VerifyStatus {
+export enum VerifyStatus {
   /**
    * Account has not interacted with the system yet or was removed.
    */

@@ -10,12 +10,23 @@ import {
   TxOverrides,
   ReadTxOverrides,
 } from '../classes/rainContract';
-import { StateConfig } from '../classes/vm';
+import { StateConfig, AllStandardOps } from '../classes/vm';
 import { TierContract } from '../classes/tierContract';
 import {
   EmissionsERC20__factory,
   EmissionsERC20Factory__factory,
 } from '../typechain';
+
+/**
+ * @public
+ * Type for the opcodes availables in a EmissionsERC20 instance.
+ */
+export type EmissionsERC20Opcodes = typeof AllStandardOps & {
+  /**
+   * local opcode to put claimant account on the stack.
+   */
+  CLAIMANT_ACCOUNT: number;
+};
 
 /**
  * @public
@@ -66,6 +77,17 @@ export class EmissionsERC20 extends TierContract {
     this.transfer = _emission.transfer;
     this.transferFrom = _emission.transferFrom;
   }
+
+  /**
+   * All the opcodes avaialbles in the EmissionsERC20 contract.
+   *
+   * @remarks
+   * This expose all the standard opcodes along with the specific opcodes of the EmissionsERC20.
+   */
+  public static Opcodes: EmissionsERC20Opcodes = {
+    ...AllStandardOps,
+    CLAIMANT_ACCOUNT: 0 + AllStandardOps.length,
+  };
 
   /**
    * Deploys a new EmissionsERC20.

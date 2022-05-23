@@ -276,7 +276,6 @@ describe('SDK - Sale', () => {
     };
 
     const sale = await Sale.deploy(deployer, saleConfig, redeemableConfig);
-    // const redeemable = await sale.getRedeemable(deployer);
 
     expect(await sale.saleStatus()).to.be.equals(SaleStatus.Pending);
 

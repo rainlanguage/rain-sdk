@@ -20,7 +20,7 @@ enum AllStandardOps
 |  BLOCK\_TIMESTAMP | `6` | Opcode for the block timestamp. |
 |  DEBUG | `4` | ABI encodes the entire stack and logs it to the hardhat console. |
 |  DIV | `22` | Opcode for division |
-|  DUP | `2` | Duplicates the value at index `operand_` to the top of the stack |
+|  DUP | `2` | Duplicates the value atoptions.index `operand_` to the top of the stack |
 |  EAGER\_IF | `28` | Eager because BOTH x\_ and y\_ must be eagerly evaluated before EAGER\_IF will select one of them. If both x\_ and y\_ are cheap (e.g. constant values) then this may also be the simplest and cheapest way to select one of them. If either x\_ or y\_ is expensive consider using the conditional form of OP\_SKIP to carefully avoid it instead. |
 |  EQUAL\_TO | `29` | Opcode for EQUAL\_TO. |
 |  EVERY | `32` | Opcode for EVERY. |

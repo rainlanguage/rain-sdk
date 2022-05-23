@@ -17,7 +17,6 @@
 |  [selectLte(logic, mode, length)](./utils/variables/selectlte_1.md) |  |
 |  [skip(places, conditional)](./utils/variables/skip_1.md) |  |
 |  [tierRange(startTier, endTier)](./utils/variables/tierrange_1.md) |  |
-|  [toUint8Array(data)](./utils/variables/touint8array_1.md) | Check and convert any type of `BytesLike` to an `Uint8Array` |
 
 ## Variables
 

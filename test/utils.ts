@@ -1,5 +1,11 @@
 import { ethers } from 'hardhat';
-import { BigNumber, BigNumberish, Signer } from 'ethers';
+import {
+  BigNumber,
+  BigNumberish,
+  Signer,
+  ContractTransaction,
+  utils,
+} from 'ethers';
 import { assert } from 'chai';
 
 import {
@@ -7,6 +13,7 @@ import {
   ReserveTokenERC721,
   ReserveTokenERC1155,
 } from '../typechain';
+import { Interface } from 'ethers/lib/utils';
 
 /**
  * Hardhat network chainID
@@ -217,3 +224,34 @@ export class Time {
     await this.advanceBlock();
   }
 }
+
+/**
+ *
+ * @param tx transaction where event occurs
+ * @param eventName name of event
+ * @returns Event arguments, can be deconstructed by array index or by object key
+ */
+export const getEventArgs = async (
+  tx: ContractTransaction,
+  eventName: string,
+  contractAddress: string,
+  iface: Interface
+): Promise<utils.Result> => {
+  const receipt = await tx.wait();
+
+  const objectEvent = receipt.events?.find(
+    (x) =>
+      x.event === eventName &&
+      x.address.toLowerCase() === contractAddress.toLowerCase()
+  );
+
+  if (!objectEvent) {
+    throw new Error(`Could not find event with name ${eventName}`);
+  }
+
+  return iface.decodeEventLog(
+    iface.getEvent(eventName),
+    objectEvent.data,
+    objectEvent.topics
+  );
+};

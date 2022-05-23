@@ -44,6 +44,38 @@ export class ERC20 {
   }
 
   /**
+   * Check if the address is an IERC20.
+   *
+   * @remarks
+   * A valid IERC20 are those contracts that have generics methods in their interface with same signature.
+   *
+   * @param address - Address to check if is the IERC20
+   * @param signer - Signer necessary to valid the IERC20
+   * @returns True if the address is a valid IERC20
+   */
+  public static isERC20 = async (
+    address: string,
+    signer: Signer
+  ): Promise<boolean> => {
+    let erc20 = new ERC20(address, signer);
+
+    try {
+      await erc20.name();
+      await erc20.symbol();
+      await erc20.decimals();
+      const balance = await erc20.balanceOf(await signer.getAddress());
+
+      if (!balance) {
+        return Promise.resolve(false);
+      }
+      // It's a ERC20
+      return Promise.resolve(true);
+    } catch (error) {
+      return Promise.resolve(false);
+    }
+  };
+
+  /**
    * Connect the current instance to a new signer
    *
    * @param signer - The new signer which will be connected

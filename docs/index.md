@@ -14,15 +14,22 @@
 |  [ERC721](./classes/erc721.md) | A generic ERC721 interface to get connected to any ERC721 address and make transactions. |
 |  [ERC721BalanceTier](./classes/erc721balancetier.md) | A class for deploying and calling methods on a ERC721BalanceTier. The `ERC721BalanceTier` simply checks the current balance of an erc721 against tier values. As the current balance is always read from the erc721contract directly there is no historical block data. |
 |  [FactoryContract](./classes/factorycontract.md) | All contract factory should use this instead of directly Rain contract to take advantage of specific method to factories |
+|  [FixedPrice](./classes/fixedprice.md) | - A sub-class of PriceCurve for creating a Fixed Price sale type. The price is a constant value over the span of the sale. |
 |  [GatedNFT](./classes/gatednft.md) | //TODO: Add doc |
+|  [IncreasingPrice](./classes/increasingprice.md) | - A sub-class of PriceCurve for creating an linear Increasing sale type. |
+|  [ITier](./classes/itier.md) | Class to interact with ITier contracts |
 |  [NoticeBoard](./classes/noticeboard.md) | A class for calling method on a NoticeBoard. |
+|  [PriceCurve](./classes/pricecurve.md) | - PriceCurve is an class that all the other sale types (sub-classes) will inherit from. |
 |  [RainContract](./classes/raincontract.md) | //TODO: Add doc |
 |  [RedeemableERC20](./classes/redeemableerc20.md) | A class for calling methods on a RedeemableERC20. |
 |  [RedeemableERC20ClaimEscrow](./classes/redeemableerc20claimescrow.md) | A class for calling methods on a RedeemableERC20ClaimEscrow. |
 |  [Sale](./classes/sale.md) | A class for deploying and calling methods on a Sale. |
+|  [SaleDurationInBlocks](./classes/saledurationinblocks.md) | - A class used for creating a VM state for Sale's canEnd/StartStateConfig based on block number. |
+|  [SaleDurationInTimestamp](./classes/saledurationintimestamp.md) | - A class used for creating a VM state for Sale's canEnd/StartStateConfig based on timestamp. |
 |  [TierContract](./classes/tiercontract.md) | Combine the static methods that are present in factories with the ITier instance methods. Should be use to the TierFactories. |
 |  [Verify](./classes/verify.md) | A class for deploying and calling methods on a Verify. |
-|  [VerifyTier](./classes/verifytier.md) | A class for deploying and calling methods on a VerifyTier.<br></br><br></br>A contract that is `VerifyTier` expects to derive tiers from the time the account was approved by the underlying `Verify` contract. The approval block numbers defer to `State.since` returned from `Verify.state`<!-- -->. |
+|  [VerifyTier](./classes/verifytier.md) | A class for deploying and calling methods on a VerifyTier.<br></br>A contract that is `VerifyTier` expects to derive tiers from the time the account was approved by the underlying `Verify` contract. The approval block numbers defer to `State.since` returned from `Verify.state`<!-- -->. |
+|  [vLBP](./classes/vlbp.md) | - A sub-class of PriceCurve for creating an vLBP i.e virtual LBP sale type. |
 |  [VM](./classes/vm.md) | //TODO: Add doc |
 
 ## Enumerations
@@ -32,6 +39,8 @@
 |  [AllStandardOps](./enums/allstandardops.md) | All the standard Op Codes |
 |  [Tier](./enums/tier.md) | All the contract tier levels availables in all ITier contracts. |
 |  [Transferrable](./enums/transferrable.md) | Determine the status about how the GatedNFT contract will handle the transfers |
+|  [VerifyStatus](./enums/verifystatus.md) | Summary statuses derived from a `State` by comparing the `Since` times against a specific block number. |
+|  [WalletCapMode](./enums/walletcapmode.md) | Standard cap per wallet modes |
 
 ## Interfaces
 
@@ -71,9 +80,12 @@
 |  Type Alias | Description |
 |  --- | --- |
 |  [Addresses](./types/addresses.md) | Type for all the addresses stored in the Book. |
+|  [CallOptions](./types/calloptions.md) | Options to configurate the behaviour when some scripts are generated. |
 |  [CombineTierDeployArgs](./types/combinetierdeployargs.md) | The argument of the CombineTier. The StateConfig will be deployed as a pointer under VM State Pointer. |
 |  [CombineTierOpcodes](./types/combinetieropcodes.md) | Type for the opcodes availables in a CombineTier instance. |
-|  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br><br></br>Use an opcode and operand (optional) |
-|  [SaleParams](./types/saleparams.md) | The parameters necessaries to use the sale script generator |
+|  [EmissionsERC20Opcodes](./types/emissionserc20opcodes.md) | Type for the opcodes availables in a EmissionsERC20 instance. |
+|  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |
+|  [SaleOpcodes](./types/saleopcodes.md) | Type for the opcodes availables in a CombineTier instance. |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
+|  [WalletCapOptions](./types/walletcapoptions.md) | The options to configure the applyWalletCap call script |
 

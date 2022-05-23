@@ -323,8 +323,7 @@ export class VM {
    *
    * @param config - the main VM script
    * @param ownerAddress - the address that is going to be the owner of the main VM script.
-   * @param options.notOwnerVar - (optional) - the value or a 2nd VM script, that will be the final result in case that the sender is not the owner ,the default result value if no args passed and the check fails is 0.
-   * @param options.index - (optional) the index of the config sources array that determines where the makeOwner sources apply to, default index is 0.
+   * @param options - Values availables: index and notOwnerVar. @see CallOptions
    * @returns a VM script. @see StateConfig
    */
   public static makeOwner(
@@ -332,7 +331,9 @@ export class VM {
     ownerAddress: string,
     options?: CallOptions
   ): StateConfig {
-    if (!options) { options = { }; }
+    if (!options) {
+      options = {};
+    }
 
     const Index = options.index ? options.index : 0;
 
@@ -350,21 +351,21 @@ export class VM {
         ownerAddress,
       ];
       for (let i = 0; i < options.notOwnerVar.sources.length; i++) {
-        const sourceModify = arrayify(
-          options.notOwnerVar.sources[i],
-          {allowMissingPrefix: true}
-        );
+        const sourceModify = arrayify(options.notOwnerVar.sources[i], {
+          allowMissingPrefix: true,
+        });
         for (let j = 0; j < sourceModify.length; j++) {
           if (sourceModify[j] == 1) {
-            sourceModify[j+1] += config.constants.length;
+            sourceModify[j + 1] += config.constants.length;
             options.notOwnerVar.sources[i] = sourceModify;
           }
           if (sourceModify[j] == 3) {
             const srcIndexIncrement = (config.sources.length - 1) << 5;
-            const srcIndex = sourceModify[j+1] >> 5;
-            sourceModify[j+1] = srcIndex < 1
-            ? sourceModify[j+1] + Index
-            : sourceModify[j+1] + srcIndexIncrement;
+            const srcIndex = sourceModify[j + 1] >> 5;
+            sourceModify[j + 1] =
+              srcIndex < 1
+                ? sourceModify[j + 1] + Index
+                : sourceModify[j + 1] + srcIndexIncrement;
             options.notOwnerVar.sources[i] = sourceModify;
           }
           j++;
@@ -416,9 +417,7 @@ export class VM {
    *
    * @param config1 - the first VM script that will be combined. (default sits at top)
    * @param config2 - the second VM script that will be combined. (default sits at bottom)
-   * @param options.numberOfSources - (optional) number of sources to combine, default is 1.
-   * @param options.position - (optional) an array representing the positions of config1 script where config2 sources will be merged at; position array length must be equal to 'numberOfSources' or else it will be ignored.
-   * @param options.index - (optional) - the index of the config1 sources array that will be combined, the default index is 0.
+   * @param options - Values availables: index, position and numberOfSources. @see CallOptions
    * @returns combined VM script. @see StateConfig
    */
   public static vmStateCombiner(
@@ -426,29 +425,34 @@ export class VM {
     config2: StateConfig,
     options?: CallOptions
   ): StateConfig {
-    if (!options) { options = { }; }
+    if (!options) {
+      options = {};
+    }
 
     const Index = options.index ? options.index : 0;
-    const NumberOfSources = options.numberOfSources ? options.numberOfSources : 1;
+    const NumberOfSources = options.numberOfSources
+      ? options.numberOfSources
+      : 1;
 
     const constants = [...config1.constants, ...config2.constants];
 
     for (let i = 0; i < config2.sources.length; i++) {
-      const sourceModify = arrayify(
-        config2.sources[i],
-        {allowMissingPrefix: true}
-      );
+      const sourceModify = arrayify(config2.sources[i], {
+        allowMissingPrefix: true,
+      });
       for (let j = 0; j < sourceModify.length; j++) {
         if (sourceModify[j] == 1) {
-          sourceModify[j+1] += config1.constants.length
+          sourceModify[j + 1] += config1.constants.length;
           config2.sources[i] = sourceModify;
         }
         if (sourceModify[j] == 3) {
-          const srcIndexIncrement = (config1.sources.length - NumberOfSources) << 5;
-          const srcIndex = sourceModify[j+1] >> 5;
-          sourceModify[j+1] = srcIndex < NumberOfSources
-          ? sourceModify[j+1] + Index
-          : sourceModify[j+1] + srcIndexIncrement; 
+          const srcIndexIncrement =
+            (config1.sources.length - NumberOfSources) << 5;
+          const srcIndex = sourceModify[j + 1] >> 5;
+          sourceModify[j + 1] =
+            srcIndex < NumberOfSources
+              ? sourceModify[j + 1] + Index
+              : sourceModify[j + 1] + srcIndexIncrement;
           config2.sources[i] = sourceModify;
         }
         j++;
@@ -457,10 +461,9 @@ export class VM {
 
     if (options.position && options.position.length == NumberOfSources) {
       for (let i = 0; i < NumberOfSources; i++) {
-        const sourceModify = arrayify(
-          config1.sources[Index + i],
-          {allowMissingPrefix: true}
-        );
+        const sourceModify = arrayify(config1.sources[Index + i], {
+          allowMissingPrefix: true,
+        });
         config1.sources[Index + i] = concat([
           sourceModify.subarray(0, options.position[i] * 2),
           config2.sources[i],
@@ -500,8 +503,7 @@ export class VM {
    * @param config - the main VM script
    * @param tierAddress - the contract address of the tier contract.
    * @param tierDiscount - an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array.
-   * @param options.tierActivation - (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the percentage will be applied.
-   * @param options.index - (optional) the index of the config sources array that the discount applies to, the default index is 0.
+   * @param options - Values availables: index and tierActivation. @see CallOptions
    * @returns a VM script @see StateConfig
    */
   public static tierBasedDiscounter(
@@ -510,7 +512,9 @@ export class VM {
     tierDiscount: number[],
     options?: CallOptions
   ): StateConfig {
-    if (!options) { options = { }; }
+    if (!options) {
+      options = {};
+    }
 
     const Index = options.index ? options.index : 0;
 
@@ -651,8 +655,7 @@ export class VM {
    * @param config - the main VM script
    * @param tierAddress - the contract address of the tier contract.
    * @param tierMultiplier - an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array.
-   * @param options.tierActivation - (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the multiplier will be applied.
-   * @param options.index - (optional) the index of the config sources array that the multiplier applies to, the default index is 0.
+   * @param options - Values availables: index and tierActivation. @see CallOptions
    * @returns a VM script @see StateConfig
    */
   public static tierBasedMultiplier(
@@ -661,7 +664,9 @@ export class VM {
     tierMultiplier: number[],
     options?: CallOptions
   ): StateConfig {
-    if (!options) { options = { }; }
+    if (!options) {
+      options = {};
+    }
 
     const Index = options.index ? options.index : 0;
 
@@ -801,10 +806,30 @@ export class VM {
   }
 }
 
+/**
+ * @public
+ *
+ * Options to configurate the behaviour when some scripts are generated.
+ */
 export type CallOptions = {
+  /**
+   * `(optional)` Number of sources to combine, default is 1.
+   */
   numberOfSources?: number;
+  /**
+   * `(optional)` The index of the config1 sources array that will be combined, the default index is 0.
+   */
   index?: number;
+  /**
+   * `(optional)` The index of the config sources array that determines where the makeOwner sources apply to, default index is 0.
+   */
   tierActivation?: (number | string)[];
+  /**
+   * `(optional)` An array representing the positions of config1 script where config2 sources will be merged at; position array length must be equal to 'numberOfSources' or else it will be ignored.
+   */
   position?: number[];
+  /**
+   * `(optional)` The value or a 2nd VM script, that will be the final result in case that the sender is not the owner ,the default result value if no args passed and the check fails is 0.
+   */
   notOwnerVar?: number | string | StateConfig;
-}
+};

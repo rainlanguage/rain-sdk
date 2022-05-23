@@ -11,7 +11,7 @@ let
   yarn build
   yarn generate-docs
   # Remove issues with missing close tags and customize the output
-  find ./docs/ -name "*.md" -exec sed -i -r -e 's/<br><br>/<br><\/br><br><\/br>/g; s/<i>|<\/i>/*/g' -e '1d' docs/index.md  {} +
+  find ./docs/ -name "*.md" -exec sed -i -r -e 's/<br><br>/<br><\/br>/g; s/<i>|<\/i>/*/g' -e '1d' docs/index.md  {} +
   sed -i 's/rain-sdk/SDK/' docs/index.md 
  '';
 

@@ -195,12 +195,9 @@ export const replaceAt = (
   index: number,
   replacement: string | number
 ): BytesLike => {
-  const originalParsed = arrayify(
-    original,
-    {allowMissingPrefix: true}
-  );
+  const originalParsed = arrayify(original, { allowMissingPrefix: true });
   originalParsed[index] = parseInt(replacement.toString());
-  return originalParsed; 
+  return originalParsed;
 };
 
 /**

@@ -34,23 +34,23 @@ const tx = escrow.deposit(amount);
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [get](./redeemableerc20claimescrow.md#get-property-static) | `(saleAddress: string, tokenAddress: string, signer: Signer) => Promise<RedeemableERC20ClaimEscrow>` | Create the RedeemableERC20ClaimEscrow instance. |
-|  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br><br></br>*Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)* |
-|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br><br></br>Request to the provider stored in the signer which is the chain ID.<br></br><br></br>*Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)* |
-|  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br><br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
-|  [nameBookReference](./redeemableerc20claimescrow.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address.<br></br><br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
+|  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br>*Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)* |
+|  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br>Request to the provider stored in the signer which is the chain ID.<br></br>*Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)* |
+|  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
+|  [nameBookReference](./redeemableerc20claimescrow.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address.<br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br><br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
+|  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
 |  [changeSale](./redeemableerc20claimescrow.md#changeSale-property) | `(newSale: string) => RedeemableERC20ClaimEscrow` | Get a new instance with a different Sale to interact with the Escrow contract |
 |  [changeToken](./redeemableerc20claimescrow.md#changeToken-property) | `(newToken: string) => RedeemableERC20ClaimEscrow` | Get a new instance with a different ERC20 to interact with the Escrow contract |
-|  [connect](./redeemableerc20claimescrow.md#connect-property) | `(signer: Signer) => RedeemableERC20ClaimEscrow` | Connect the current contract instance to a new ethers signer.<br></br><br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./redeemableerc20claimescrow.md#connect-property) | `(signer: Signer) => RedeemableERC20ClaimEscrow` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [deposit](./redeemableerc20claimescrow.md#deposit-property) | `(amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Make a deposit in the Escrow contract. |
 |  [depositPending](./redeemableerc20claimescrow.md#depositPending-property) | `(amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Make a deposit pending in the escrow |
 |  [sale](./redeemableerc20claimescrow.md#sale-property) | `string` | The `ISale` contract address that is used to interact with the Escrow contract. |
-|  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br><br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
+|  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [sweepPending](./redeemableerc20claimescrow.md#sweepPending-property) | `(depositor: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | Make a sweep pending in the Escrow |
 |  [token](./redeemableerc20claimescrow.md#token-property) | `string` | The `IERC20` token being deposited and that will be use to interact with the Escrow contract |
 |  [undeposit](./redeemableerc20claimescrow.md#undeposit-property) | `(supply: BigNumberish, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Make an undeposit. |
@@ -60,13 +60,13 @@ const tx = escrow.deposit(amount);
 
 |  Method | Description |
 |  --- | --- |
-|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book for a determined chain if it is available.<br></br><br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
+|  [getBookAddress(chainId)](./raincontract.md#getBookAddress-method-static-1) | Get the address stored in the book for a determined chain if it is available.<br></br>*Inherited from [RainContract.getBookAddress()](./raincontract.md#getBookAddress-method-static-1)* |
 
 ## Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br><br></br>*Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)* |
+|  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br>*Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)* |
 
 ## Static Property Details
 

@@ -47,6 +47,29 @@ export class ERC1155 {
   }
 
   /**
+   * Check if the address is an IERC1155.
+   *
+   * @remarks
+   * A valid IERC1155 are those contracts that support and have integrate the ERC1155 interface in their code.
+   *
+   * @param address - Address to check if is the IERC1155
+   * @param signer - Signer necessary to valid the IERC1155
+   * @returns True if the address is a valid IERC1155
+   */
+  public static isERC1155 = async (
+    address: string,
+    signer: Signer
+  ): Promise<boolean> => {
+    let erc1155 = new ERC1155(address, signer);
+
+    try {
+      return await erc1155.supportsInterface('0xd9b67a26');
+    } catch (error) {
+      return Promise.resolve(false);
+    }
+  };
+
+  /**
    * Connect the current instance to a new signer
    *
    * @param signer - The new signer which will be connected

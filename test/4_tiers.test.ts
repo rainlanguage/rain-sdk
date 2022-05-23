@@ -605,7 +605,7 @@ describe('SDK - CombineTier', () => {
 describe('SDK - ITier', () => {
   it('should get the instance from an already deloyed ITier contract', async () => {
     const [signer, user] = await ethers.getSigners();
-    const token = await deployErc20(signer);
+    const token = await deployErc20();
 
     // Deployed a Tier contract
     const balanceTier = await ERC20BalanceTier.deploy(signer, {

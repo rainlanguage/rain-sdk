@@ -3,6 +3,7 @@ import { TierContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
 
 /**
+ * @public
  * Class to interact with ITier contracts
  *
  * @remarks

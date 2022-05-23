@@ -1,9 +1,4 @@
-import {
-  BigNumberish,
-  BigNumber,
-  Signer,
-  ContractTransaction,
-} from 'ethers';
+import { BigNumberish, BigNumber, Signer, ContractTransaction } from 'ethers';
 import {
   ERC20Config,
   TxOverrides,
@@ -15,8 +10,32 @@ import { RedeemableERC20 } from './redeemableERC20';
 import { ERC20 } from './generics/erc20';
 import { Sale__factory, SaleFactory__factory } from '../typechain';
 
-
-// TODO: Refactor Sale class
+/**
+ * @public
+ * Type for the opcodes availables in a CombineTier instance.
+ */
+export type SaleOpcodes = typeof VM.Opcodes & {
+  /**
+   * local opcode to stack remaining rTKN units.
+   */
+  REMAINING_UNITS: number;
+  /**
+   * local opcode to stack total reserve taken in so far.
+   */
+  TOTAL_RESERVE_IN: number;
+  /**
+   * local opcode to stack the rTKN units/amount of the current buy.
+   */
+  CURRENT_BUY_UNITS: number;
+  /**
+   * local opcode to stack the address of the rTKN.
+   */
+  TOKEN_ADDRESS: number;
+  /**
+   * local opcode to stack the address of the reserve token.
+   */
+  RESERVE_ADDRESS: number;
+};
 
 /**
  * @public
@@ -74,27 +93,12 @@ export class Sale extends FactoryContract {
   /**
    * All the standard and Sale Opcodes
    */
-  public static Opcodes = {
+  public static Opcodes: SaleOpcodes = {
     ...VM.Opcodes,
-    /**
-     * local opcode to stack remaining rTKN units.
-     */
     REMAINING_UNITS: 0 + VM.Opcodes.length,
-    /**
-     * local opcode to stack total reserve taken in so far.
-     */
     TOTAL_RESERVE_IN: 1 + VM.Opcodes.length,
-    /**
-     * local opcode to stack the rTKN units/amount of the current buy.
-     */
     CURRENT_BUY_UNITS: 2 + VM.Opcodes.length,
-    /**
-     * local opcode to stack the address of the rTKN.
-     */
     TOKEN_ADDRESS: 3 + VM.Opcodes.length,
-    /**
-     * local opcode to stack the address of the reserve token.
-     */
     RESERVE_ADDRESS: 4 + VM.Opcodes.length,
   };
 
@@ -422,7 +426,6 @@ export interface BuyConfig {
 
 /**
  * @public
- *
  * The receipt that contain the information of the buy
  */
 export interface Receipt {

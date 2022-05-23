@@ -4,6 +4,7 @@ import { StateConfig, VM } from '../classes/vm';
 import { parseUnits, concat, op } from '../utils';
 
 /**
+ * @public
  * Standard cap per wallet modes
  */
 export enum WalletCapMode {
@@ -13,14 +14,34 @@ export enum WalletCapMode {
 }
 
 /**
- * applyWalletCap call options
+ * @public
+ * The options to configure the applyWalletCap call script
  */
 export type WalletCapOptions = {
+  /**
+   * `(optional)` The number for min cap per wallet, addresses cannot buy less number of rTKNs than this amount.
+   */
   minWalletCap?: number;
+  /**
+   * `(optional)` The number for max cap per wallet, addresses cannot buy more number of rTKNs than this amount.
+   */
   maxWalletCap?: number;
+  /**
+   * `(optional)` Set true in order to apply Multiplier for max cap per wallet.
+   */
   tierMultiplierMode?: boolean;
+  /**
+   * `(optional)` The Tier contract address for tiers' max cap per wallet multiplier.
+   */
   tierAddress?: string;
+  /**
+   * `(optional)` An array of each tiers' Multiplier value.
+   */
   tierMultiplier?: number[];
+  /**
+   * `(optional)` An array of number of blocks for each tier that will be the required period of time for a tiered
+   * address which that tier's status needs to be held in order to be eligible for that tier's discount.
+   */
   tierActivation?: (number | string)[];
 };
 
@@ -159,14 +180,7 @@ export class PriceCurve {
    * With the option of applying multiplier for max cap per wallet.
    *
    * @param mode - The mode that determines if there is max or min cap per wallet or both.
-   * @param options.minWalletCap - (optional) The number for min cap per wallet, addresses cannot buy less number of rTKNs than this amount.
-   * @param options.maxWalletCap - (optional) The number for max cap per wallet, addresses cannot buy more number of rTKNs than this amount.
-   * @param options.tierMultiplierMode - (optional) Set true in order to apply Multiplier for max cap per wallet.
-   * @param options.tierAddress - (optional) The Tier contract address for tiers' max cap per wallet multiplier.
-   * @param options.tierMultiplier - (optional) An array of each tiers' Multiplier value.
-   * @param options.tierActivation - (optional) An array of number of blocks for each tier that will be the required period
-   * of time for a tiered address which that tier's status needs to be held in order to be eligible for that tier's discount.
-   *
+   * @param options - @see WalletCapOptions
    * @returns this
    *
    */
@@ -335,7 +349,7 @@ export class PriceCurve {
  * ```typescript
  * //For generating a Fixed Price sale type pass in the required arguments to the constructor.
  * const saleType = new FixedPrice(price)
- *
+ * ```
  */
 export class FixedPrice extends PriceCurve {
   /**
@@ -347,9 +361,9 @@ export class FixedPrice extends PriceCurve {
    * @returns a VM StateConfig
    *
    */
-  constructor(price: number, erc20decimals: number = 18) {
+  constructor(price: BigNumberish, erc20decimals: number = 18) {
     super({
-      constants: [parseUnits(price.toString(), erc20decimals)],
+      constants: [parseUnits(BigNumber.from(price).toString(), erc20decimals)],
       sources: [FixedPrice.FIXED_PRICE_SOURCES()],
       stackLength: 1,
       argumentsLength: 0,
@@ -363,7 +377,7 @@ export class FixedPrice extends PriceCurve {
 /**
  * @public - A sub-class of PriceCurve for creating an vLBP i.e virtual LBP sale type.
  *
- * @remark - It is called virtual FLO or LBP because there is no actual seeding required.
+ * @remarks - It is called virtual FLO or LBP because there is no actual seeding required.
  * Price starts at 'startPrice' and goes to down over the span of the sale's duration
  * if no buys happen. If buys happen then price will go up (exactly like the real LBP)
  *
@@ -371,7 +385,7 @@ export class FixedPrice extends PriceCurve {
  * ```typescript
  * //For generating a vLBP sale type pass in the required arguments to the constructor.
  * const saleType = new vLBP(startPrice, startTimestamp, endTimestamp, minimumRaise, initialSupply)
- *
+ * ```
  */
 export class vLBP extends PriceCurve {
   /**
@@ -437,13 +451,13 @@ export class vLBP extends PriceCurve {
 /**
  * @public - A sub-class of PriceCurve for creating an linear Increasing sale type.
  *
- * @rematks - Price starts at 'startPrice' and goes to 'endPrice' over the span of the sale's duration.
+ * @remarks - Price starts at 'startPrice' and goes to 'endPrice' over the span of the sale's duration.
  *
  * @example
  * ```typescript
  * //For generating a Increasing Price sale type pass in the required arguments to the constructor.
  * const saleType = new IncreasingPrice(startPrice, endPrice, startTimestamp, endTimestamp)
- *
+ * ```
  */
 export class IncreasingPrice extends PriceCurve {
   /**
@@ -514,7 +528,7 @@ export class IncreasingPrice extends PriceCurve {
  * ```typescript
  * //For generating a canStart/End StateConfig for the sale pass in the required arguments to the constructor.
  * const saleType = new SaleDuration(timestamp)
- *
+ * ```
  */
 export class SaleDurationInTimestamp {
   public constants: BigNumberish[];
@@ -530,11 +544,7 @@ export class SaleDurationInTimestamp {
    *
    */
   constructor(readonly timestamp: BigNumberish) {
-    if (!BigNumber.isBigNumber(timestamp)) {
-      timestamp = BigNumber.from(timestamp);
-    }
-
-    this.constants = [timestamp];
+    this.constants = [BigNumber.from(timestamp)];
     this.sources = [
       concat([
         op(Sale.Opcodes.BLOCK_TIMESTAMP),
@@ -564,13 +574,6 @@ export class SaleDurationInTimestamp {
     extraTime: BigNumberish,
     extraTimeAmount: BigNumberish
   ): this {
-    if (!BigNumber.isBigNumber(extraTime)) {
-      extraTime = BigNumber.from(extraTime);
-    }
-    if (!BigNumber.isBigNumber(extraTimeAmount)) {
-      extraTimeAmount = BigNumber.from(extraTimeAmount);
-    }
-
     const EXTRA_TIME = () =>
       concat([
         op(Sale.Opcodes.TOTAL_RESERVE_IN),
@@ -583,8 +586,10 @@ export class SaleDurationInTimestamp {
         op(Sale.Opcodes.ANY, 2),
       ]);
 
-    const ExtraTimeAmount = parseUnits(extraTimeAmount.toString());
-    const ExtraTime = extraTime.mul(60).add(this.timestamp);
+    const ExtraTimeAmount = parseUnits(
+      BigNumber.from(extraTimeAmount).toString()
+    );
+    const ExtraTime = BigNumber.from(extraTime).mul(60).add(this.timestamp);
     this.constants.push(ExtraTime, ExtraTimeAmount);
     this.sources[0] = concat([this.sources[0], EXTRA_TIME()]);
     this.stackLength = Number(this.stackLength) + 10;
@@ -638,7 +643,7 @@ export class SaleDurationInTimestamp {
  * ```typescript
  * //For generating a canStart/End StateConfig for the sale pass in the required arguments to the constructor.
  * const saleType = new SaleDuration(blockNumber)
- *
+ * ```
  */
 export class SaleDurationInBlocks {
   public constants: BigNumberish[];

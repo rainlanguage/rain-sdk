@@ -20,10 +20,10 @@ class VM
 |  Method | Description |
 |  --- | --- |
 |  [createVMSources(OPerands)](./vm.md#createVMSources-method-static-1) | Create a VM sources to be ready to use in any call just providing the combination desired. |
-|  [makeOwner(config, ownerAddress, notOwnerVar, index)](./vm.md#makeOwner-method-static-1) | Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default. |
-|  [tierBasedDiscounter(config, tierAddress, tierDiscount, tierActivation, index)](./vm.md#tierBasedDiscounter-method-static-1) | Deducts percentage off of the result of a VM script based on the holding tier of a tier contract. |
-|  [tierBasedMultiplier(config, tierAddress, tierMultiplier, tierActivation, index)](./vm.md#tierBasedMultiplier-method-static-1) | Multiply the result of a VM script based on the holding tier of a tier contract. |
-|  [vmStateCombiner(config1, config2, numberOfSources, position, index1, index2)](./vm.md#vmStateCombiner-method-static-1) | Combines 2 individual VM scripts |
+|  [makeOwner(config, ownerAddress, options)](./vm.md#makeOwner-method-static-1) | Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default. |
+|  [tierBasedDiscounter(config, tierAddress, tierDiscount, options)](./vm.md#tierBasedDiscounter-method-static-1) | Deducts percentage off of the result of a VM script based on the holding tier of a tier contract. |
+|  [tierBasedMultiplier(config, tierAddress, tierMultiplier, options)](./vm.md#tierBasedMultiplier-method-static-1) | Multiply the result of a VM script based on the holding tier of a tier contract. |
+|  [vmStateCombiner(config1, config2, options)](./vm.md#vmStateCombiner-method-static-1) | Combines 2 individual VM scripts |
 
 ## Static Property Details
 
@@ -67,14 +67,14 @@ A source
 
 <a id="makeOwner-method-static-1"></a>
 
-### makeOwner(config, ownerAddress, notOwnerVar, index)
+### makeOwner(config, ownerAddress, options)
 
 Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default.
 
 <b>Signature:</b>
 
 ```typescript
-static makeOwner(config: StateConfig, ownerAddress: string, notOwnerVar?: number | string | StateConfig, index?: number): StateConfig;
+static makeOwner(config: StateConfig, ownerAddress: string, options?: CallOptions): StateConfig;
 ```
 
 #### Parameters
@@ -83,8 +83,7 @@ static makeOwner(config: StateConfig, ownerAddress: string, notOwnerVar?: number
 |  --- | --- | --- |
 |  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
 |  ownerAddress | `string` | the address that is going to be the owner of the main VM script. |
-|  notOwnerVar | `number \| string \| StateConfig` | (optional) - the value or a 2nd VM script, that will be the final result in case that the sender is not the owner ,the default result value if no args passed and the check fails is 0. |
-|  index | `number` | (optional) the index of the config sources array that determines where the makeOwner sources apply to, default index is 0. |
+|  options | [CallOptions](../types/calloptions.md) | Values availables: index and notOwnerVar. |
 
 <b>Returns:</b>
 
@@ -94,14 +93,14 @@ a VM script.
 
 <a id="tierBasedDiscounter-method-static-1"></a>
 
-### tierBasedDiscounter(config, tierAddress, tierDiscount, tierActivation, index)
+### tierBasedDiscounter(config, tierAddress, tierDiscount, options)
 
 Deducts percentage off of the result of a VM script based on the holding tier of a tier contract.
 
 <b>Signature:</b>
 
 ```typescript
-static tierBasedDiscounter(config: StateConfig, tierAddress: string, tierDiscount: number[], tierActivation?: (number | string)[], index?: number): StateConfig;
+static tierBasedDiscounter(config: StateConfig, tierAddress: string, tierDiscount: number[], options?: CallOptions): StateConfig;
 ```
 
 #### Parameters
@@ -111,8 +110,7 @@ static tierBasedDiscounter(config: StateConfig, tierAddress: string, tierDiscoun
 |  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
 |  tierAddress | `string` | the contract address of the tier contract. |
 |  tierDiscount | `number[]` | an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array. |
-|  tierActivation | `(number \| string)[]` | (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the percentage will be applied. |
-|  index | `number` | (optional) the index of the config sources array that the discount applies to, the default index is 0. |
+|  options | [CallOptions](../types/calloptions.md) | Values availables: index and tierActivation. |
 
 <b>Returns:</b>
 
@@ -122,14 +120,14 @@ a VM script
 
 <a id="tierBasedMultiplier-method-static-1"></a>
 
-### tierBasedMultiplier(config, tierAddress, tierMultiplier, tierActivation, index)
+### tierBasedMultiplier(config, tierAddress, tierMultiplier, options)
 
 Multiply the result of a VM script based on the holding tier of a tier contract.
 
 <b>Signature:</b>
 
 ```typescript
-static tierBasedMultiplier(config: StateConfig, tierAddress: string, tierMultiplier: number[], tierActivation?: (number | string)[], index?: number): StateConfig;
+static tierBasedMultiplier(config: StateConfig, tierAddress: string, tierMultiplier: number[], options?: CallOptions): StateConfig;
 ```
 
 #### Parameters
@@ -139,8 +137,7 @@ static tierBasedMultiplier(config: StateConfig, tierAddress: string, tierMultipl
 |  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
 |  tierAddress | `string` | the contract address of the tier contract. |
 |  tierMultiplier | `number[]` | an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array. |
-|  tierActivation | `(number \| string)[]` | (optional) - an array of 8 items each holding the activation time (in number of blocks) of each tier, if the tier has been held more than this duration then the multiplier will be applied. |
-|  index | `number` | (optional) the index of the config sources array that the multiplier applies to, the default index is 0. |
+|  options | [CallOptions](../types/calloptions.md) | Values availables: index and tierActivation. |
 
 <b>Returns:</b>
 
@@ -150,14 +147,14 @@ a VM script
 
 <a id="vmStateCombiner-method-static-1"></a>
 
-### vmStateCombiner(config1, config2, numberOfSources, position, index1, index2)
+### vmStateCombiner(config1, config2, options)
 
 Combines 2 individual VM scripts
 
 <b>Signature:</b>
 
 ```typescript
-static vmStateCombiner(config1: StateConfig, config2: StateConfig, numberOfSources: number, position?: number[], index1?: number, index2?: number): StateConfig;
+static vmStateCombiner(config1: StateConfig, config2: StateConfig, options?: CallOptions): StateConfig;
 ```
 
 #### Parameters
@@ -166,10 +163,7 @@ static vmStateCombiner(config1: StateConfig, config2: StateConfig, numberOfSourc
 |  --- | --- | --- |
 |  config1 | [StateConfig](../interfaces/stateconfig.md) | the first VM script that will be combined. (default sits at top) |
 |  config2 | [StateConfig](../interfaces/stateconfig.md) | the second VM script that will be combined. (default sits at bottom) |
-|  numberOfSources | `number` | number of sources to combine, starting from sources index of each script. |
-|  position | `number[]` | (optional) an array representing the positions of config1 script where config2 script will be merged at; default setting will apply if not specified; position array length must be equal to sourcesNo or else it will be ignored. |
-|  index1 | `number` | (optional) - the index of the config1 sources array that will be combined, the default index is 0. |
-|  index2 | `number` | (optional) - the index of the config2 sources array that will be combined, the default index is 0. |
+|  options | [CallOptions](../types/calloptions.md) | Values availables: index, position and numberOfSources. |
 
 <b>Returns:</b>
 

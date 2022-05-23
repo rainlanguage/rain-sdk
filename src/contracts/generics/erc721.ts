@@ -56,6 +56,28 @@ export class ERC721 {
   }
 
   /**
+   * Check if the address is an IERC721.
+   *
+   * @remarks
+   * A valid IERC721 are those contracts that support and have integrate the ERC721 interface in their code
+   *
+   * @param address - Address to check if is the IERC721
+   * @param signer - Signer necessary to valid the IERC721
+   * @returns True if the address is a valid IERC721
+   */
+  public static isERC721 = async (
+    address: string,
+    signer: Signer
+  ): Promise<boolean> => {
+    let erc721 = new ERC721(address, signer);
+    try {
+      return await erc721.supportsInterface('0x80ac58cd');
+    } catch (error) {
+      return Promise.resolve(false);
+    }
+  };
+
+  /**
    * Connect the current instance to a new signer
    *
    * @param signer - The new signer which will be connected
