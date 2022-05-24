@@ -1,5 +1,5 @@
 import { Signer, utils, BigNumberish, Overrides, CallOverrides } from 'ethers';
-import { Provider } from '@ethersproject/abstract-provider';
+import { Provider } from '../types';
 import { AddressBook } from '../addresses';
 
 /**
