@@ -1,6 +1,6 @@
 import { Signer, utils, BigNumberish, Overrides, CallOverrides } from 'ethers';
-import { Provider } from '../types';
 import { AddressBook } from '../addresses';
+import type { Provider } from '../types';
 
 /**
  * @public
@@ -102,10 +102,10 @@ export abstract class RainContract extends AddressBook {
     signerOrProvider: Signer | Provider
   ): Promise<number> => {
     let id;
-    if (signerOrProvider instanceof Provider) {
-      id = (await signerOrProvider.getNetwork()).chainId;
-    } else {
+    if (Signer.isSigner(signerOrProvider)) {
       id = (await signerOrProvider.provider?.getNetwork())?.chainId;
+    } else {
+      id = (await signerOrProvider.getNetwork()).chainId;
     }
 
     if (id) {
