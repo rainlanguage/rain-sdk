@@ -72,6 +72,48 @@ const addressBook = [
   },
   {
     /**
+     * BNB Mainnet
+     */
+    chainId: 56,
+    addresses: {
+      alwaysTier: '0x735ECdF9a79e62531BAB9240696a450F94AB79f8',
+      combineTierFactory: '0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5',
+      erc20BalanceTierFactory: '0x50B2921A8c915A8228dA39e93AD9E9AA43fBc901',
+      erc20TransferTierFactory: '0xB681C35244a224Fcf8c4eeC0b139980705EdF4fE',
+      erc721BalanceTierFactory: '0x4Dd6BF4a433265D6B01Ae18E77Ef069Cb29a0790',
+      emissionsERC20Factory: '0xe7CE1aF1e174f1526EE3f10C0cb0E01E0e47FD4E',
+      gatedNFTFactory: '0x53f9810AF32AC48b04DEbc6e8f32fC245eB88cE5',
+      noticeBoard: '0x1C432FBb8cd10749F3A93a91AE01f1d08FA7569a',
+      redeemableERC20ClaimEscrow: '0x10db4a5bb73150b1cef945e90e4336b594d64dfb',
+      redeemableERC20Factory: '0xD2c0729dc1A7BbeF0a770bA7F9f2DbAE9A9e27D0',
+      saleFactory: '0x4dce23A63ec3f27193Df8bA26141b25417815C62',
+      verifyFactory: '0x039Ab991616b3B473f3096D385b6660c846F646A',
+      verifyTierFactory: '0x4B2C45c3F393B803C57106C81e4E64Ce71914b8e',
+    },
+  },
+  {
+    /**
+     * BNB Testnet
+     */
+    chainId: 97,
+    addresses: {
+      alwaysTier: '0x735ECdF9a79e62531BAB9240696a450F94AB79f8',
+      combineTierFactory: '0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5',
+      erc20BalanceTierFactory: '0x50B2921A8c915A8228dA39e93AD9E9AA43fBc901',
+      erc20TransferTierFactory: '0xB681C35244a224Fcf8c4eeC0b139980705EdF4fE',
+      erc721BalanceTierFactory: '0x4Dd6BF4a433265D6B01Ae18E77Ef069Cb29a0790',
+      emissionsERC20Factory: '0xe7CE1aF1e174f1526EE3f10C0cb0E01E0e47FD4E',
+      gatedNFTFactory: '0x53f9810AF32AC48b04DEbc6e8f32fC245eB88cE5',
+      noticeBoard: '0x1C432FBb8cd10749F3A93a91AE01f1d08FA7569a',
+      redeemableERC20ClaimEscrow: '0x10DB4a5BB73150B1CEF945e90E4336b594D64DFb',
+      redeemableERC20Factory: '0xD2c0729dc1A7BbeF0a770bA7F9f2DbAE9A9e27D0',
+      saleFactory: '0x4dce23A63ec3f27193Df8bA26141b25417815C62',
+      verifyFactory: '0x039Ab991616b3B473f3096D385b6660c846F646A',
+      verifyTierFactory: '0x4B2C45c3F393B803C57106C81e4E64Ce71914b8e',
+    },
+  },
+  {
+    /**
      * Polygon chain
      */
     chainId: 137,
@@ -139,11 +181,19 @@ const subgraphBook: SubgraphBook = {
   /**
    * Ethereum chain
    */
-  1: 'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-ethereum-e590ce',
+  1: 'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-mainnet-e590ce',
   /**
    * Goerli chain
    */
   5: 'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-goerli-e590ce',
+  /**
+   * BNB Mainnet
+   */
+  56: 'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-bnb-e590ce',
+  /**
+   * BNB Testnet
+   */
+  97: 'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-bnb-chapel-e590ce',
   /**
    * Polygon chain
    */

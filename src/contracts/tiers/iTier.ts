@@ -17,6 +17,10 @@ export class ITier extends TierContract {
     return new ITier(this.address, signer);
   };
 
+  constructor(_address: string, _signer: Signer) {
+    super(_address, _signer);
+  }
+
   /**
    * Updates the tier of an account if the contract allow it.
    *
