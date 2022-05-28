@@ -1,4 +1,4 @@
-import { Signer, BigNumberish, BytesLike, ContractTransaction } from 'ethers';
+import { Signer, BigNumberish, BytesLike, ContractTransaction, BigNumber } from 'ethers';
 import { TierContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
 
@@ -20,6 +20,21 @@ export class ITier extends TierContract {
   constructor(_address: string, _signer: Signer) {
     super(_address, _signer);
   }
+
+  /**
+   * Returns the tier report of an address as an uint256.
+   *
+   * @remarks
+   * There are 9 possible tier, starting with tier 0
+   * for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the
+   * full 256 bits.
+   */
+  public readonly report = async (
+    account: string,
+    overrides: TxOverrides = {}
+  ) : Promise<BigNumber> => {
+    return super.report(account, overrides);
+  };
 
   /**
    * Updates the tier of an account if the contract allow it.
