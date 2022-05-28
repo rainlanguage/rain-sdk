@@ -156,6 +156,27 @@ const addressBook = [
   },
   {
     /**
+     * Fuji chain - Avalanche Testnet
+     */
+    chainId: 43113,
+    addresses: {
+      alwaysTier: '0x3f16F26C6844be3d0934EC0543039d874D45da9e',
+      combineTierFactory: '0x4B8FC6f1f3f62099f4fb7151548b9c5226ceD76E',
+      erc20BalanceTierFactory: '0x724007CDD1689e43c6ef55b7032b93A1cC8C02C7',
+      erc20TransferTierFactory: '0xB28A191150D901cCFF849983E714d689Eb25e7eC',
+      erc721BalanceTierFactory: '0xFC870c970b34926ecf224e981caCdF21e963a084',
+      emissionsERC20Factory: '0x060974dd46c2dbB22Aa7a7AFE685880A4A7B34d2',
+      gatedNFTFactory: '0x1dBB0186c4805238FcA1c94e38479D3a5546722D',
+      noticeBoard: '0xCD2A879a770Df2Bbcc0f7496AA5105a4068Aa1e6',
+      redeemableERC20ClaimEscrow: '0x8a9B7B490Feb339640dA303c3602B6786061Da30',
+      redeemableERC20Factory: '0xff56cc9B3aC11Dbe1620865DC29FA2CcC4213C28',
+      saleFactory: '0x4E1742656F066470cbd68B50864E168D8054E90d',
+      verifyFactory: '0xBd9C59Cf73C0446341E8b1B532E9534A1E36501C',
+      verifyTierFactory: '0x2a72d7fcDD6C4640EF612a6523217Df67d34cf4b',
+    },
+  },
+  {
+    /**
      * Mumbai chain
      */
     chainId: 80001,
@@ -202,6 +223,11 @@ const subgraphBook: SubgraphBook = {
    * Hardhat chain
    */
   31337: 'https://api.url-test',
+  /**
+   * Fuji chain - Avalanche Testnet
+   */
+  43113:
+    'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-fuji-e590ce',
   /**
    * Mumbai chain
    */
