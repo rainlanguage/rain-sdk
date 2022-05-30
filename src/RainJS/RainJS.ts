@@ -187,17 +187,12 @@ export class RainJS {
           )
         }
         else {
-          if (this,this.state.sources[sourcesIndex][i] == RainJS.Opcodes.ZIPMAP) {
-            
-          }
-          else {
-            await this.dispatch(
-              this.state,
-              this.state.sources[sourcesIndex][i],
-              this.state.sources[sourcesIndex][i+1],
-              data
-            )
-          }
+          await this.dispatch(
+            this.state,
+            this.state.sources[sourcesIndex][i],
+            this.state.sources[sourcesIndex][i+1],
+            data
+          )
         }
       } 
       else {
