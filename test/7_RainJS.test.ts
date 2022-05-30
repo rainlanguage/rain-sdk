@@ -835,7 +835,7 @@ describe('SDK - RainJS', () => {
     const result = await rainJs.run();
 
     const expected = BigNumber.from(
-      "0x" + paddedUInt32(571).repeat(8)
+      "0x" + paddedUInt32(await Time.currentBlock() - 50).repeat(8)
     );
 
     assert(
