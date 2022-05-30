@@ -235,9 +235,9 @@ describe('SDK - RainJS', () => {
   it('should perform subtraction operation correctly with block number over span of 100 blocks repeatition', async () => {
     
     const [signer] = await ethers.getSigners();
-    
+
     const script: StateConfig = {
-      constants: [250, 2, 3],
+      constants: [500, 2, 3],
       sources: [
         concat([
           op(RainJS.Opcodes.VAL, 0),
@@ -257,7 +257,7 @@ describe('SDK - RainJS', () => {
     for (let i = 0 ; i < 100; i++) {
       const result = await rainJs.run();
       const block = await Time.currentBlock();
-      const expected = BigNumber.from(250 - 2 - 3 - block);
+      const expected = BigNumber.from(500 - 2 - 3 - block);
 
       // advancing the blocks
       await Time.advanceBlock(1);
@@ -813,7 +813,7 @@ describe('SDK - RainJS', () => {
   it('should correctly perform the update_block_for_tier_range and sat_diff with 2 reports', async () => {
     
     const [signer] = await ethers.getSigners();
-  
+
     const script: StateConfig = {
       constants: [50],
       sources: [
@@ -835,7 +835,7 @@ describe('SDK - RainJS', () => {
     const result = await rainJs.run();
 
     const expected = BigNumber.from(
-      "0x" + paddedUInt32(350).repeat(8)
+      "0x" + paddedUInt32(571).repeat(8)
     );
 
     assert(
