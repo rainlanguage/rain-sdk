@@ -634,4 +634,58 @@ describe('SDK - ITier', () => {
       `does not return the same report`
     );
   });
+
+  it('should setTier correctly if the Tier contract is a ReadWriteTier contract with the SDK ITier interface', async () => {
+    const [signer, user] = await ethers.getSigners();
+    const token = await deployErc20();
+    const transferTier = await ERC20TransferTier.deploy(signer, {
+      erc20: token.address,
+      tierValues: TierLevelsERC20,
+    });
+
+    // Create the ITier instance
+    const iTier = new ITier(transferTier.address, signer);
+
+    expect(await iTier.currentTier(user.address)).to.be.equals(
+      iTier.levels.ZERO
+    );
+
+    // User want tier two
+    await expect(
+      iTier.setTier(user.address, iTier.levels.TWO, []),
+      'Wrong set tier success'
+    ).to.be.revertedWith('ERC20: insufficient allowance');
+
+    // The amount necessary to user get the tier two
+    const approvedAmount = TierLevelsERC20[1];
+    await token.approve(iTier.address, approvedAmount);
+
+    await iTier.setTier(user.address, iTier.levels.TWO, []);
+
+    expect(await iTier.currentTier(user.address)).to.be.equals(
+      iTier.levels.TWO
+    );
+  });
+
+  it('should fail setTier correctly if the Tier contract is a ReadOnlyTier contract with the SDK ITier interface', async () => {
+    const [signer, user] = await ethers.getSigners();
+    const token = await deployErc20();
+    const balanceTier = await ERC20BalanceTier.deploy(signer, {
+      erc20: token.address,
+      tierValues: TierLevelsERC20,
+    });
+
+    // Create the ITier instance
+    const iTier = new ITier(balanceTier.address, signer);
+
+    expect(await iTier.currentTier(user.address)).to.be.equals(
+      iTier.levels.ZERO
+    );
+
+    // User want tier two
+    await expect(
+      iTier.setTier(user.address, iTier.levels.TWO, []),
+      'setTier is not available in ReadOnlyTiers'
+    ).to.be.revertedWith('SET_TIER');
+  });
 });
