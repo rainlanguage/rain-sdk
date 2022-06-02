@@ -13,37 +13,6 @@ export enum WalletCapMode {
   both,
 }
 
-/**
- * @public
- * The options to configure the applyWalletCap call script
- */
-export type WalletCapOptions = {
-  /**
-   * `(optional)` The number for min cap per wallet, addresses cannot buy less number of rTKNs than this amount.
-   */
-  minWalletCap?: number;
-  /**
-   * `(optional)` The number for max cap per wallet, addresses cannot buy more number of rTKNs than this amount.
-   */
-  maxWalletCap?: number;
-  /**
-   * `(optional)` Set true in order to apply Multiplier for max cap per wallet.
-   */
-  tierMultiplierMode?: boolean;
-  /**
-   * `(optional)` The Tier contract address for tiers' max cap per wallet multiplier.
-   */
-  tierAddress?: string;
-  /**
-   * `(optional)` An array of each tiers' Multiplier value.
-   */
-  tierMultiplier?: number[];
-  /**
-   * `(optional)` An array of number of blocks for each tier that will be the required period of time for a tiered
-   * address which that tier's status needs to be held in order to be eligible for that tier's discount.
-   */
-  tierActivation?: (number | string)[];
-};
 
 /**
  * @public - PriceCurve is an class that all the other sale types (sub-classes) will inherit from.
@@ -150,8 +119,8 @@ export class PriceCurve {
    *
    * @param tierAddress - The Tier contract address.
    * @param tierDiscount - An array of each tiers' discount ranging between 0 - 99.
-   * @param tierActivation - (optional) An array of number of blocks for each tier that will be the required period
-   * of time for a tiered address which that tier's status needs to be held in order to be eligible for that tier's discount.
+   * @param tierActivation - (optional) An array of number of blocks for each tier that will be the required period of time for that tiered
+   * address to hold the tier's in order to be eligible for that tier's discount.
    *
    * @returns this
    *
@@ -180,14 +149,29 @@ export class PriceCurve {
    * With the option of applying multiplier for max cap per wallet.
    *
    * @param mode - The mode that determines if there is max or min cap per wallet or both.
-   * @param options - @see WalletCapOptions
+   * @param options - (optional) Additional arguments to configure the cap per wallet behaviour:
+   *    (param) minWalletCap - The number for min cap per wallet, addresses cannot buy less number of rTKNs than this amount.
+   *    (param) maxWalletCap - The number for max cap per wallet, addresses cannot buy more number of rTKNs than this amount.
+   *    (param) tierMultiplierMode - Set true in order to apply Multiplier for max cap per wallet.
+   *    (param) tierAddress - The Tier contract address for tiers' max cap per wallet multiplier.
+   *    (param) tierMultiplier - An array of each tiers' Multiplier value.
+   *    (param) tierActivation - An array of number of blocks for each tier that will be the required period of time for that tiered
+   *     address to hold the tier's in order to be eligible for that tier's multiplier.
+   * 
    * @returns this
    *
    */
-  public applyWalletCap(mode: WalletCapMode, options?: WalletCapOptions): this {
-    if (!options) {
-      options = {};
+  public applyWalletCap(
+    mode: WalletCapMode,
+    options?: {
+      minWalletCap?: number,
+      maxWalletCap?: number,
+      tierMultiplierMode?: boolean,
+      tierAddress?: string,
+      tierMultiplier?: number[],
+      tierActivation?: (number | string)[]
     }
+  ): this {
 
     const MIN_CAP_SOURCES = (i: number) =>
       concat([
@@ -209,7 +193,7 @@ export class PriceCurve {
         op(Sale.Opcodes.GREATER_THAN),
       ]);
 
-    if (mode == WalletCapMode.min && options.minWalletCap) {
+    if (mode == WalletCapMode.min && options?.minWalletCap) {
       this.constants.push(
         parseUnits(options.minWalletCap.toString()).sub(1),
         ethers.constants.MaxUint256
@@ -224,7 +208,7 @@ export class PriceCurve {
       this.stackLength = Number(this.stackLength) + 15;
 
       return this;
-    } else if (mode == WalletCapMode.max && options.maxWalletCap) {
+    } else if (mode == WalletCapMode.max && options?.maxWalletCap) {
       if (
         options.tierMultiplierMode &&
         options.tierAddress &&
@@ -242,9 +226,11 @@ export class PriceCurve {
           options.tierMultiplier,
           { tierActivation: options.tierActivation }
         );
-        maxCapConfig.constants.push(ethers.constants.MaxUint256);
+        maxCapConfig.constants.push(1, ethers.constants.MaxUint256);
         maxCapConfig.sources[0] = concat([
           maxCapConfig.sources[0],
+          op(Sale.Opcodes.VAL, maxCapConfig.constants.length - 2),
+          op(Sale.Opcodes.ADD, 2),
           MAX_CAP_SOURCES(),
           op(Sale.Opcodes.DUP, 0),
           op(Sale.Opcodes.VAL, maxCapConfig.constants.length - 1),
@@ -275,8 +261,8 @@ export class PriceCurve {
       }
     } else if (
       mode == WalletCapMode.both &&
-      options.minWalletCap &&
-      options.maxWalletCap
+      options?.minWalletCap &&
+      options?.maxWalletCap
     ) {
       if (
         options.tierMultiplierMode &&
@@ -296,11 +282,14 @@ export class PriceCurve {
           { tierActivation: options.tierActivation }
         );
         bothCapConfig.constants.push(
+          1,
           parseUnits(options.minWalletCap.toString()).sub(1),
           ethers.constants.MaxUint256
         );
         bothCapConfig.sources[0] = concat([
           bothCapConfig.sources[0],
+          op(Sale.Opcodes.VAL, bothCapConfig.constants.length - 3),
+          op(Sale.Opcodes.ADD, 2),
           MAX_CAP_SOURCES(),
           MIN_CAP_SOURCES(bothCapConfig.constants.length - 2),
           op(Sale.Opcodes.EVERY, 2),
@@ -543,8 +532,8 @@ export class SaleDurationInTimestamp {
    * If the current timestamp is greater than 'timestamp' the sale can start/end and if not the sale cannot start/end.
    *
    */
-  constructor(readonly timestamp: BigNumberish) {
-    this.constants = [BigNumber.from(timestamp)];
+  constructor(readonly timestamp: number) {
+    this.constants = [timestamp];
     this.sources = [
       concat([
         op(Sale.Opcodes.BLOCK_TIMESTAMP),
@@ -571,8 +560,8 @@ export class SaleDurationInTimestamp {
    *
    */
   public applyExtraTime(
-    extraTime: BigNumberish,
-    extraTimeAmount: BigNumberish
+    extraTime: number,
+    extraTimeAmount: number
   ): this {
     const EXTRA_TIME = () =>
       concat([
@@ -586,10 +575,8 @@ export class SaleDurationInTimestamp {
         op(Sale.Opcodes.ANY, 2),
       ]);
 
-    const ExtraTimeAmount = parseUnits(
-      BigNumber.from(extraTimeAmount).toString()
-    );
-    const ExtraTime = BigNumber.from(extraTime).mul(60).add(this.timestamp);
+    const ExtraTimeAmount = parseUnits(extraTimeAmount.toString());
+    const ExtraTime = (extraTime * 60) + this.timestamp;
     this.constants.push(ExtraTime, ExtraTimeAmount);
     this.sources[0] = concat([this.sources[0], EXTRA_TIME()]);
     this.stackLength = Number(this.stackLength) + 10;
@@ -658,12 +645,9 @@ export class SaleDurationInBlocks {
    * If the current BlockNumber is greater than 'blockNumber' the sale can start/end and if not the sale cannot start/end.
    *
    */
-  constructor(readonly blockNumber: BigNumberish) {
-    if (!BigNumber.isBigNumber(blockNumber)) {
-      blockNumber = BigNumber.from(blockNumber);
-    }
+  constructor(readonly blockNumber: number) {
 
-    this.constants = [blockNumber.sub(1)];
+    this.constants = [blockNumber - 1];
     this.sources = [
       concat([
         op(Sale.Opcodes.BLOCK_NUMBER),
@@ -690,15 +674,9 @@ export class SaleDurationInBlocks {
    *
    */
   public applyExtraTime(
-    extraTimeBlocks: BigNumberish,
-    extraTimeAmount: BigNumberish
+    extraTimeBlocks: number,
+    extraTimeAmount: number
   ): this {
-    if (!BigNumber.isBigNumber(extraTimeBlocks)) {
-      extraTimeBlocks = BigNumber.from(extraTimeBlocks);
-    }
-    if (!BigNumber.isBigNumber(extraTimeAmount)) {
-      extraTimeAmount = BigNumber.from(extraTimeAmount);
-    }
 
     const EXTRA_TIME = () =>
       concat([
@@ -713,7 +691,7 @@ export class SaleDurationInBlocks {
       ]);
 
     const ExtraTimeAmount = parseUnits(extraTimeAmount.toString());
-    const ExtraTime = extraTimeBlocks.add(this.blockNumber);
+    const ExtraTime = extraTimeBlocks + this.blockNumber;
 
     this.constants.push(ExtraTime, ExtraTimeAmount);
     this.sources[0] = concat([this.sources[0], EXTRA_TIME()]);
