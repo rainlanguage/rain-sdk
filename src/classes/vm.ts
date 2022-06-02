@@ -673,14 +673,14 @@ export class VM {
     const TierMultiplier = paddedUInt256(
       BigNumber.from(
         '0x' +
-          paddedUInt32(tierMultiplier[7] * 100) +
-          paddedUInt32(tierMultiplier[6] * 100) +
-          paddedUInt32(tierMultiplier[5] * 100) +
-          paddedUInt32(tierMultiplier[4] * 100) +
-          paddedUInt32(tierMultiplier[3] * 100) +
-          paddedUInt32(tierMultiplier[2] * 100) +
-          paddedUInt32(tierMultiplier[1] * 100) +
-          paddedUInt32(tierMultiplier[0] * 100)
+          paddedUInt32(Math.floor(tierMultiplier[7] * 100)) +
+          paddedUInt32(Math.floor(tierMultiplier[6] * 100)) +
+          paddedUInt32(Math.floor(tierMultiplier[5] * 100)) +
+          paddedUInt32(Math.floor(tierMultiplier[4] * 100)) +
+          paddedUInt32(Math.floor(tierMultiplier[3] * 100)) +
+          paddedUInt32(Math.floor(tierMultiplier[2] * 100)) +
+          paddedUInt32(Math.floor(tierMultiplier[1] * 100)) +
+          paddedUInt32(Math.floor(tierMultiplier[0] * 100))
       )
     );
 
@@ -744,14 +744,14 @@ export class VM {
       const TierMultiplierActivation = paddedUInt256(
         BigNumber.from(
           '0x' +
-            paddedUInt32(options.tierActivation[7]) +
-            paddedUInt32(options.tierActivation[6]) +
-            paddedUInt32(options.tierActivation[5]) +
-            paddedUInt32(options.tierActivation[4]) +
-            paddedUInt32(options.tierActivation[3]) +
-            paddedUInt32(options.tierActivation[2]) +
-            paddedUInt32(options.tierActivation[1]) +
-            paddedUInt32(options.tierActivation[0])
+            paddedUInt32((options.tierActivation[7])) +
+            paddedUInt32((options.tierActivation[6])) +
+            paddedUInt32((options.tierActivation[5])) +
+            paddedUInt32((options.tierActivation[4])) +
+            paddedUInt32((options.tierActivation[3])) +
+            paddedUInt32((options.tierActivation[2])) +
+            paddedUInt32((options.tierActivation[1])) +
+            paddedUInt32((options.tierActivation[0]))
         )
       );
       const constants = [

@@ -17,6 +17,7 @@ import {
   CombineTier,
   SaleDurationInTimestamp,
   SaleDurationInBlocks,
+  utils,
 } from '../src';
 import { BigNumber } from 'ethers';
 
