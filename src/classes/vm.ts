@@ -746,14 +746,14 @@ export class VM {
       const TierMultiplierActivation = paddedUInt256(
         BigNumber.from(
           '0x' +
-            paddedUInt32(options.tierActivation[7]) +
-            paddedUInt32(options.tierActivation[6]) +
-            paddedUInt32(options.tierActivation[5]) +
-            paddedUInt32(options.tierActivation[4]) +
-            paddedUInt32(options.tierActivation[3]) +
-            paddedUInt32(options.tierActivation[2]) +
-            paddedUInt32(options.tierActivation[1]) +
-            paddedUInt32(options.tierActivation[0])
+            paddedUInt32((options.tierActivation[7])) +
+            paddedUInt32((options.tierActivation[6])) +
+            paddedUInt32((options.tierActivation[5])) +
+            paddedUInt32((options.tierActivation[4])) +
+            paddedUInt32((options.tierActivation[3])) +
+            paddedUInt32((options.tierActivation[2])) +
+            paddedUInt32((options.tierActivation[1])) +
+            paddedUInt32((options.tierActivation[0]))
         )
       );
       const constants = [
