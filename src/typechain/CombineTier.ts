@@ -17,54 +17,36 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export type StateStruct = {
-  stackIndex: BigNumberish;
-  stack: BigNumberish[];
-  sources: BytesLike[];
-  constants: BigNumberish[];
-  arguments: BigNumberish[];
-};
-
-export type StateStructOutput = [
-  BigNumber,
-  BigNumber[],
-  string[],
-  BigNumber[],
-  BigNumber[]
-] & {
-  stackIndex: BigNumber;
-  stack: BigNumber[];
-  sources: string[];
-  constants: BigNumber[];
-  arguments: BigNumber[];
-};
-
 export type StateConfigStruct = {
   sources: BytesLike[];
   constants: BigNumberish[];
-  stackLength: BigNumberish;
-  argumentsLength: BigNumberish;
 };
 
-export type StateConfigStructOutput = [
-  string[],
-  BigNumber[],
-  BigNumber,
-  BigNumber
-] & {
+export type StateConfigStructOutput = [string[], BigNumber[]] & {
   sources: string[];
   constants: BigNumber[];
-  stackLength: BigNumber;
-  argumentsLength: BigNumber;
+};
+
+export type StorageOpcodesRangeStruct = {
+  pointer: BigNumberish;
+  length: BigNumberish;
+};
+
+export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
+  pointer: BigNumber;
+  length: BigNumber;
 };
 
 export interface CombineTierInterface extends utils.Interface {
   functions: {
-    "initialize((bytes[],uint256[],uint256,uint256))": FunctionFragment;
+    "fnPtrs()": FunctionFragment;
+    "initialize((bytes[],uint256[]))": FunctionFragment;
     "report(address)": FunctionFragment;
     "setTier(address,uint256,bytes)": FunctionFragment;
+    "storageOpcodesRange()": FunctionFragment;
   };
 
+  encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [StateConfigStruct]
@@ -74,26 +56,32 @@ export interface CombineTierInterface extends utils.Interface {
     functionFragment: "setTier",
     values: [string, BigNumberish, BytesLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "storageOpcodesRange",
+    values?: undefined
+  ): string;
 
+  decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setTier", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "storageOpcodesRange",
+    data: BytesLike
+  ): Result;
 
   events: {
-    "Snapshot(address,address,tuple)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "TierChange(address,address,uint256,uint256,bytes)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Snapshot"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TierChange"): EventFragment;
 }
 
-export type SnapshotEvent = TypedEvent<
-  [string, string, StateStructOutput],
-  { sender: string; pointer: string; state: StateStructOutput }
->;
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
 
-export type SnapshotEventFilter = TypedEventFilter<SnapshotEvent>;
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type TierChangeEvent = TypedEvent<
   [string, string, BigNumber, BigNumber, string],
@@ -135,8 +123,10 @@ export interface CombineTier extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    fnPtrs(overrides?: CallOverrides): Promise<[string]>;
+
     initialize(
-      config_: StateConfigStruct,
+      sourceConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -148,10 +138,16 @@ export interface CombineTier extends BaseContract {
       arg2: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
+
+    storageOpcodesRange(
+      overrides?: CallOverrides
+    ): Promise<[StorageOpcodesRangeStructOutput]>;
   };
 
+  fnPtrs(overrides?: CallOverrides): Promise<string>;
+
   initialize(
-    config_: StateConfigStruct,
+    sourceConfig_: StateConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -164,9 +160,15 @@ export interface CombineTier extends BaseContract {
     overrides?: CallOverrides
   ): Promise<void>;
 
+  storageOpcodesRange(
+    overrides?: CallOverrides
+  ): Promise<StorageOpcodesRangeStructOutput>;
+
   callStatic: {
+    fnPtrs(overrides?: CallOverrides): Promise<string>;
+
     initialize(
-      config_: StateConfigStruct,
+      sourceConfig_: StateConfigStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -178,15 +180,15 @@ export interface CombineTier extends BaseContract {
       arg2: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    storageOpcodesRange(
+      overrides?: CallOverrides
+    ): Promise<StorageOpcodesRangeStructOutput>;
   };
 
   filters: {
-    "Snapshot(address,address,tuple)"(
-      sender?: null,
-      pointer?: null,
-      state?: null
-    ): SnapshotEventFilter;
-    Snapshot(sender?: null, pointer?: null, state?: null): SnapshotEventFilter;
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "TierChange(address,address,uint256,uint256,bytes)"(
       sender?: null,
@@ -205,8 +207,10 @@ export interface CombineTier extends BaseContract {
   };
 
   estimateGas: {
+    fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
+
     initialize(
-      config_: StateConfigStruct,
+      sourceConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -218,11 +222,15 @@ export interface CombineTier extends BaseContract {
       arg2: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    storageOpcodesRange(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     initialize(
-      config_: StateConfigStruct,
+      sourceConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -235,6 +243,10 @@ export interface CombineTier extends BaseContract {
       arg0: string,
       arg1: BigNumberish,
       arg2: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

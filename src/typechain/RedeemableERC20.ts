@@ -76,7 +76,6 @@ export interface RedeemableERC20Interface extends utils.Interface {
     "newTreasuryAsset(address)": FunctionFragment;
     "phaseAtBlockNumber(uint32[8],uint256)": FunctionFragment;
     "phaseBlocks(uint256)": FunctionFragment;
-    "pullERC20(uint256)": FunctionFragment;
     "redeem(address[],uint256)": FunctionFragment;
     "symbol()": FunctionFragment;
     "tier()": FunctionFragment;
@@ -146,10 +145,6 @@ export interface RedeemableERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "phaseBlocks",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "pullERC20",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -225,7 +220,6 @@ export interface RedeemableERC20Interface extends utils.Interface {
     functionFragment: "phaseBlocks",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "pullERC20", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tier", data: BytesLike): Result;
@@ -241,8 +235,8 @@ export interface RedeemableERC20Interface extends utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
-    "ERC20PullInitialize(address,address,address)": EventFragment;
     "Initialize(address,tuple)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "PhaseScheduled(address,uint256,uint256)": EventFragment;
     "Receiver(address,address)": EventFragment;
     "Redeem(address,address,uint256,uint256)": EventFragment;
@@ -252,8 +246,8 @@ export interface RedeemableERC20Interface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ERC20PullInitialize"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PhaseScheduled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Receiver"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Redeem"): EventFragment;
@@ -269,20 +263,16 @@ export type ApprovalEvent = TypedEvent<
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
 
-export type ERC20PullInitializeEvent = TypedEvent<
-  [string, string, string],
-  { sender: string; tokenSender: string; token: string }
->;
-
-export type ERC20PullInitializeEventFilter =
-  TypedEventFilter<ERC20PullInitializeEvent>;
-
 export type InitializeEvent = TypedEvent<
   [string, RedeemableERC20ConfigStructOutput],
   { sender: string; config: RedeemableERC20ConfigStructOutput }
 >;
 
 export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type PhaseScheduledEvent = TypedEvent<
   [string, BigNumber, BigNumber],
@@ -455,11 +445,6 @@ export interface RedeemableERC20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[number]>;
 
-    pullERC20(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     redeem(
       treasuryAssets_: string[],
       redeemAmount_: BigNumberish,
@@ -577,11 +562,6 @@ export interface RedeemableERC20 extends BaseContract {
 
   phaseBlocks(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
 
-  pullERC20(
-    amount_: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   redeem(
     treasuryAssets_: string[],
     redeemAmount_: BigNumberish,
@@ -693,8 +673,6 @@ export interface RedeemableERC20 extends BaseContract {
 
     phaseBlocks(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
 
-    pullERC20(amount_: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
     redeem(
       treasuryAssets_: string[],
       redeemAmount_: BigNumberish,
@@ -733,22 +711,14 @@ export interface RedeemableERC20 extends BaseContract {
       value?: null
     ): ApprovalEventFilter;
 
-    "ERC20PullInitialize(address,address,address)"(
-      sender?: null,
-      tokenSender?: null,
-      token?: null
-    ): ERC20PullInitializeEventFilter;
-    ERC20PullInitialize(
-      sender?: null,
-      tokenSender?: null,
-      token?: null
-    ): ERC20PullInitializeEventFilter;
-
     "Initialize(address,tuple)"(
       sender?: null,
       config?: null
     ): InitializeEventFilter;
     Initialize(sender?: null, config?: null): InitializeEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "PhaseScheduled(address,uint256,uint256)"(
       sender?: null,
@@ -902,11 +872,6 @@ export interface RedeemableERC20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    pullERC20(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     redeem(
       treasuryAssets_: string[],
       redeemAmount_: BigNumberish,
@@ -1032,11 +997,6 @@ export interface RedeemableERC20 extends BaseContract {
     phaseBlocks(
       arg0: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    pullERC20(
-      amount_: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     redeem(

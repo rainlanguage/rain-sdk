@@ -57,11 +57,13 @@ export interface ERC20TransferTierInterface extends utils.Interface {
   events: {
     "Initialize(address,address)": EventFragment;
     "InitializeValueTier(address,address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "TierChange(address,address,uint256,uint256,bytes)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "InitializeValueTier"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TierChange"): EventFragment;
 }
 
@@ -79,6 +81,10 @@ export type InitializeValueTierEvent = TypedEvent<
 
 export type InitializeValueTierEventFilter =
   TypedEventFilter<InitializeValueTierEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type TierChangeEvent = TypedEvent<
   [string, string, BigNumber, BigNumber, string],
@@ -188,6 +194,9 @@ export interface ERC20TransferTier extends BaseContract {
       sender?: null,
       pointer?: null
     ): InitializeValueTierEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "TierChange(address,address,uint256,uint256,bytes)"(
       sender?: null,

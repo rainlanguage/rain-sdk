@@ -37,10 +37,12 @@ export interface VerifyTierInterface extends utils.Interface {
 
   events: {
     "Initialize(address,address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "TierChange(address,address,uint256,uint256,bytes)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TierChange"): EventFragment;
 }
 
@@ -50,6 +52,10 @@ export type InitializeEvent = TypedEvent<
 >;
 
 export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type TierChangeEvent = TypedEvent<
   [string, string, BigNumber, BigNumber, string],
@@ -139,6 +145,9 @@ export interface VerifyTier extends BaseContract {
       verify?: null
     ): InitializeEventFilter;
     Initialize(sender?: null, verify?: null): InitializeEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "TierChange(address,address,uint256,uint256,bytes)"(
       sender?: null,

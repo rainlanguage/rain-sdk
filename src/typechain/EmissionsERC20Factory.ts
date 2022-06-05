@@ -34,20 +34,11 @@ export type ERC20ConfigStructOutput = [string, string, string, BigNumber] & {
 export type StateConfigStruct = {
   sources: BytesLike[];
   constants: BigNumberish[];
-  stackLength: BigNumberish;
-  argumentsLength: BigNumberish;
 };
 
-export type StateConfigStructOutput = [
-  string[],
-  BigNumber[],
-  BigNumber,
-  BigNumber
-] & {
+export type StateConfigStructOutput = [string[], BigNumber[]] & {
   sources: string[];
   constants: BigNumber[];
-  stackLength: BigNumber;
-  argumentsLength: BigNumber;
 };
 
 export type EmissionsERC20ConfigStruct = {
@@ -69,7 +60,7 @@ export type EmissionsERC20ConfigStructOutput = [
 export interface EmissionsERC20FactoryInterface extends utils.Interface {
   functions: {
     "createChild(bytes)": FunctionFragment;
-    "createChildTyped((bool,(string,string,address,uint256),(bytes[],uint256[],uint256,uint256)))": FunctionFragment;
+    "createChildTyped((bool,(string,string,address,uint256),(bytes[],uint256[])))": FunctionFragment;
     "implementation()": FunctionFragment;
     "isChild(address)": FunctionFragment;
   };

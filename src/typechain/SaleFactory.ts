@@ -21,41 +21,33 @@ export type SaleConstructorConfigStruct = {
   maximumSaleTimeout: BigNumberish;
   maximumCooldownDuration: BigNumberish;
   redeemableERC20Factory: string;
+  vmStateBuilder: string;
 };
 
 export type SaleConstructorConfigStructOutput = [
   BigNumber,
   BigNumber,
+  string,
   string
 ] & {
   maximumSaleTimeout: BigNumber;
   maximumCooldownDuration: BigNumber;
   redeemableERC20Factory: string;
+  vmStateBuilder: string;
 };
 
 export type StateConfigStruct = {
   sources: BytesLike[];
   constants: BigNumberish[];
-  stackLength: BigNumberish;
-  argumentsLength: BigNumberish;
 };
 
-export type StateConfigStructOutput = [
-  string[],
-  BigNumber[],
-  BigNumber,
-  BigNumber
-] & {
+export type StateConfigStructOutput = [string[], BigNumber[]] & {
   sources: string[];
   constants: BigNumber[];
-  stackLength: BigNumber;
-  argumentsLength: BigNumber;
 };
 
 export type SaleConfigStruct = {
-  canStartStateConfig: StateConfigStruct;
-  canEndStateConfig: StateConfigStruct;
-  calculatePriceStateConfig: StateConfigStruct;
+  vmStateConfig: StateConfigStruct;
   recipient: string;
   reserve: string;
   saleTimeout: BigNumberish;
@@ -66,8 +58,6 @@ export type SaleConfigStruct = {
 
 export type SaleConfigStructOutput = [
   StateConfigStructOutput,
-  StateConfigStructOutput,
-  StateConfigStructOutput,
   string,
   string,
   BigNumber,
@@ -75,9 +65,7 @@ export type SaleConfigStructOutput = [
   BigNumber,
   BigNumber
 ] & {
-  canStartStateConfig: StateConfigStructOutput;
-  canEndStateConfig: StateConfigStructOutput;
-  calculatePriceStateConfig: StateConfigStructOutput;
+  vmStateConfig: StateConfigStructOutput;
   recipient: string;
   reserve: string;
   saleTimeout: BigNumber;
@@ -122,7 +110,7 @@ export type SaleRedeemableERC20ConfigStructOutput = [
 export interface SaleFactoryInterface extends utils.Interface {
   functions: {
     "createChild(bytes)": FunctionFragment;
-    "createChildTyped(((bytes[],uint256[],uint256,uint256),(bytes[],uint256[],uint256,uint256),(bytes[],uint256[],uint256,uint256),address,address,uint256,uint256,uint256,uint256),((string,string,address,uint256),address,uint256,address))": FunctionFragment;
+    "createChildTyped(((bytes[],uint256[]),address,address,uint256,uint256,uint256,uint256),((string,string,address,uint256),address,uint256,address))": FunctionFragment;
     "isChild(address)": FunctionFragment;
   };
 

@@ -17,28 +17,6 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export type StateStruct = {
-  stackIndex: BigNumberish;
-  stack: BigNumberish[];
-  sources: BytesLike[];
-  constants: BigNumberish[];
-  arguments: BigNumberish[];
-};
-
-export type StateStructOutput = [
-  BigNumber,
-  BigNumber[],
-  string[],
-  BigNumber[],
-  BigNumber[]
-] & {
-  stackIndex: BigNumber;
-  stack: BigNumber[];
-  sources: string[];
-  constants: BigNumber[];
-  arguments: BigNumber[];
-};
-
 export type ERC20ConfigStruct = {
   name: string;
   symbol: string;
@@ -56,20 +34,11 @@ export type ERC20ConfigStructOutput = [string, string, string, BigNumber] & {
 export type StateConfigStruct = {
   sources: BytesLike[];
   constants: BigNumberish[];
-  stackLength: BigNumberish;
-  argumentsLength: BigNumberish;
 };
 
-export type StateConfigStructOutput = [
-  string[],
-  BigNumber[],
-  BigNumber,
-  BigNumber
-] & {
+export type StateConfigStructOutput = [string[], BigNumber[]] & {
   sources: string[];
   constants: BigNumber[];
-  stackLength: BigNumber;
-  argumentsLength: BigNumber;
 };
 
 export type EmissionsERC20ConfigStruct = {
@@ -88,6 +57,16 @@ export type EmissionsERC20ConfigStructOutput = [
   vmStateConfig: StateConfigStructOutput;
 };
 
+export type StorageOpcodesRangeStruct = {
+  pointer: BigNumberish;
+  length: BigNumberish;
+};
+
+export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
+  pointer: BigNumber;
+  length: BigNumber;
+};
+
 export interface EmissionsERC20Interface extends utils.Interface {
   functions: {
     "allowDelegatedClaims()": FunctionFragment;
@@ -98,11 +77,13 @@ export interface EmissionsERC20Interface extends utils.Interface {
     "claim(address,bytes)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
+    "fnPtrs()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "initialize((bool,(string,string,address,uint256),(bytes[],uint256[],uint256,uint256)))": FunctionFragment;
+    "initialize((bool,(string,string,address,uint256),(bytes[],uint256[])))": FunctionFragment;
     "name()": FunctionFragment;
     "report(address)": FunctionFragment;
     "setTier(address,uint256,bytes)": FunctionFragment;
+    "storageOpcodesRange()": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -135,6 +116,7 @@ export interface EmissionsERC20Interface extends utils.Interface {
     functionFragment: "decreaseAllowance",
     values: [string, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
     values: [string, BigNumberish]
@@ -148,6 +130,10 @@ export interface EmissionsERC20Interface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setTier",
     values: [string, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "storageOpcodesRange",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
@@ -180,6 +166,7 @@ export interface EmissionsERC20Interface extends utils.Interface {
     functionFragment: "decreaseAllowance",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
@@ -188,6 +175,10 @@ export interface EmissionsERC20Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setTier", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "storageOpcodesRange",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
@@ -203,7 +194,7 @@ export interface EmissionsERC20Interface extends utils.Interface {
     "Approval(address,address,uint256)": EventFragment;
     "Claim(address,address,bytes)": EventFragment;
     "Initialize(address,bool)": EventFragment;
-    "Snapshot(address,address,tuple)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "TierChange(address,address,uint256,uint256,bytes)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
@@ -211,7 +202,7 @@ export interface EmissionsERC20Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Claim"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Snapshot"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TierChange"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
@@ -237,12 +228,9 @@ export type InitializeEvent = TypedEvent<
 
 export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
 
-export type SnapshotEvent = TypedEvent<
-  [string, string, StateStructOutput],
-  { sender: string; pointer: string; state: StateStructOutput }
->;
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
 
-export type SnapshotEventFilter = TypedEventFilter<SnapshotEvent>;
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type TierChangeEvent = TypedEvent<
   [string, string, BigNumber, BigNumber, string],
@@ -326,6 +314,8 @@ export interface EmissionsERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    fnPtrs(overrides?: CallOverrides): Promise<[string]>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -347,6 +337,10 @@ export interface EmissionsERC20 extends BaseContract {
       arg2: BytesLike,
       overrides?: CallOverrides
     ): Promise<[void]>;
+
+    storageOpcodesRange(
+      overrides?: CallOverrides
+    ): Promise<[StorageOpcodesRangeStructOutput]>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
@@ -401,6 +395,8 @@ export interface EmissionsERC20 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  fnPtrs(overrides?: CallOverrides): Promise<string>;
+
   increaseAllowance(
     spender: string,
     addedValue: BigNumberish,
@@ -422,6 +418,10 @@ export interface EmissionsERC20 extends BaseContract {
     arg2: BytesLike,
     overrides?: CallOverrides
   ): Promise<void>;
+
+  storageOpcodesRange(
+    overrides?: CallOverrides
+  ): Promise<StorageOpcodesRangeStructOutput>;
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -476,6 +476,8 @@ export interface EmissionsERC20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    fnPtrs(overrides?: CallOverrides): Promise<string>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -497,6 +499,10 @@ export interface EmissionsERC20 extends BaseContract {
       arg2: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    storageOpcodesRange(
+      overrides?: CallOverrides
+    ): Promise<StorageOpcodesRangeStructOutput>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -544,12 +550,8 @@ export interface EmissionsERC20 extends BaseContract {
       allowDelegatedClaims?: null
     ): InitializeEventFilter;
 
-    "Snapshot(address,address,tuple)"(
-      sender?: null,
-      pointer?: null,
-      state?: null
-    ): SnapshotEventFilter;
-    Snapshot(sender?: null, pointer?: null, state?: null): SnapshotEventFilter;
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "TierChange(address,address,uint256,uint256,bytes)"(
       sender?: null,
@@ -614,6 +616,8 @@ export interface EmissionsERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -635,6 +639,8 @@ export interface EmissionsERC20 extends BaseContract {
       arg2: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    storageOpcodesRange(overrides?: CallOverrides): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -695,6 +701,8 @@ export interface EmissionsERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -717,6 +725,10 @@ export interface EmissionsERC20 extends BaseContract {
       arg0: string,
       arg1: BigNumberish,
       arg2: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
