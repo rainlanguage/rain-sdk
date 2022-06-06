@@ -82,7 +82,7 @@ export class RainJS {
   /**
    * The property of type StateJS which that RainJS will run based on.
    */
-  protected readonly state: StateJS;
+  private readonly state: StateJS;
 
   /**
    * It is a property for overriding the opcodes. Need to ba passed at the time of construction
@@ -162,7 +162,7 @@ export class RainJS {
    * @param index - used internally for indicating which item in state sources array to execute for zipmap function.
    * 
    */
-  protected async eval (
+  private async eval (
     data?: any,  
     index?: number,
   ) : Promise<void> {
@@ -218,7 +218,7 @@ export class RainJS {
    * for zipmap function source.
    * 
    */
-  protected async dispatch (
+  private async dispatch (
     state: StateJS,
     opcode: number,
     operand: number,
