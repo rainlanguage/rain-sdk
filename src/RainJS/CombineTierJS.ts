@@ -48,7 +48,9 @@ export class CombineTierJS extends RainJS {
   /**
    * key/value pair of opcodes and their functions for all standard opcodes + EmissionsERC20 local opcodes
    */
-  protected readonly _OPCODE_ = { 
+  protected readonly _OPCODE_: ApplyOpFn = { 
+
+    ...this._OPCODE_,
 
     [CombineTierJS.Opcodes.ACCOUNT] : 
       async(state: StateJS, operand: number, data?: any) => {
