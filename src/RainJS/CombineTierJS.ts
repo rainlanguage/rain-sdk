@@ -46,14 +46,25 @@ export class CombineTierJS extends RainJS {
   }
 
   /**
-   * key/value pair of opcodes and their functions for all standard opcodes + EmissionsERC20 local opcodes
+   * dispatch method with Sale's local opcodes
+   * @see dispatch in RainJS
+   * 
+   * @param state - StateJS property used in each opcode function to either read or write data into stack.
+   * @param opcode - the opcode to dispatch and run the function of that opcode
+   * @param operand - the addtional info for each opcode to run based on.
+   * @param data - (optional) used only for zipmap opcode in order to be able to run custom function i.e. applyOpFn
+   * for zipmap function source or for ACCOUNT opcode. data needs to have "claimant_account" property so this local 
+   * opcode to function properly.
+   * 
    */
-  protected readonly _OPCODE_: ApplyOpFn = { 
-
-    ...this._OPCODE_,
-
-    [CombineTierJS.Opcodes.ACCOUNT] : 
-      async(state: StateJS, operand: number, data?: any) => {
+  protected async dispatch (
+    state: StateJS,
+    opcode: number,
+    operand: number,
+    data?: any
+  ) : Promise<void> {
+    
+    if (opcode == CombineTierJS.Opcodes.ACCOUNT) {
       if(data && data.account != undefined) {
         state.stack.push(
           BigNumber.from(data.account)
@@ -61,6 +72,13 @@ export class CombineTierJS extends RainJS {
       }
       else throw new Error("Undefined account address")
     }
+    else {
+      await super.dispatch(
+        state,
+        opcode,
+        operand,
+        data
+      )
+    }
   }
-
 }

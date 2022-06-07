@@ -671,7 +671,7 @@ export class VM {
   ): StateConfig {
 
     const Index = options?.index ? options.index : 0;
-
+    console.log(tierMultiplier)
     const TierMultiplier = paddedUInt256(
       BigNumber.from(
         '0x' +
