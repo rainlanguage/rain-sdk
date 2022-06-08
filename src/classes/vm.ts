@@ -320,7 +320,7 @@ export class VM {
   /**
    * Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default.
    *
-   * @important - please be aware if your script has DUP opcode, as DUP is relative to script and cannot be handled by this method
+   * @remarks - please be aware if your script has DUP opcode, as DUP is relative to script and cannot be handled by this method
    * and needs to be dealt with manualy before calling this method.
    * 
    * @param config - the main VM script
@@ -399,7 +399,7 @@ export class VM {
   /**
    * Combines 2 individual VM scripts
    * 
-   * @important - please be aware if your script has DUP opcode, as DUP is relative to script and cannot be handled by this method
+   * @remarks - please be aware if your script has DUP opcode, as DUP is relative to script and cannot be handled by this method
    * and needs to be dealt with manualy before calling this method.
    *
    * @param config1 - the first VM script that will be combined. (default sits at top)

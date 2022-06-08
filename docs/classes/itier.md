@@ -7,6 +7,8 @@ Generic class to interact with any ITier contract in chain with the basic method
 
 `ITier` is a simple interface that contracts can implement to provide membership lists for other contracts.
 
+This class can be used to interact with any contract that implement the ITier interface in their code, but does not know if the contract has implemented the code. E.g: if a contract does not implementent `setTier` as a BalanceTier Contract, the call will be reverted.
+
 <b>Signature:</b>
 
 ```typescript
@@ -30,7 +32,7 @@ class ITier extends TierContract
 |  [connect](./itier.md#connect-property) | `(signer: Signer) => ITier` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
 |  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
-|  [setTier](./itier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<ContractTransaction>` | Updates the tier of an account if the contract allow it.<br></br>*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)* |
+|  [setTier](./tiercontract.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<ContractTransaction>` | Updates the tier of an account.<br></br>*Inherited from [TierContract.setTier](./tiercontract.md#setTier-property)* |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 
 ## Static Methods
@@ -62,20 +64,4 @@ Connect the current contract instance to a new ethers signer.
 
 ```typescript
 readonly connect: (signer: Signer) => ITier;
-```
-
-<a id="setTier-property"></a>
-
-### setTier
-
-Updates the tier of an account if the contract allow it.
-
-*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)*
-
-This functionality could revert if the ITier contract that made the instance does not allow set tiers directly (ReadOnlyTiers).
-
-<b>Signature:</b>
-
-```typescript
-readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<ContractTransaction>;
 ```

@@ -44,6 +44,7 @@ const tierValues = await existingTier.tierValues();
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
+|  [addTokenAddress](./erc721balancetier.md#addTokenAddress-property) | `(tokenAddress: string) => ERC721BalanceTier` | Get a new instance with the token address provided.<br></br>This method must be used if the token address is not provided in construction moment. The class use this address to make calculations related with the Tier. The token address provided should be the same that the Tier is using to work correctly. |
 |  [connect](./erc721balancetier.md#connect-property) | `(signer: Signer) => ERC721BalanceTier` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
 |  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
@@ -64,7 +65,7 @@ const tierValues = await existingTier.tierValues();
 
 |  Method | Description |
 |  --- | --- |
-|  [amountToTier(desiredLevel, account)](./erc721balancetier.md#amountToTier-method-1) | Calculate how much amount of the token needed transfer to or transfer out of the account to reach a `desiredLevel`<!-- -->.<br></br>Take in mind: - If the `desired level` is higher than the current level, the amount returned will be the amount needed to obtain or transfer to the `account`<!-- -->. - If the `desired level` is lower than the current level, the amount returned will be the amount needed to remove or transfer out of the `account`<!-- -->. - If already have the `desired` tier, will return 0 |
+|  [amountToTier(account, desiredLevel)](./erc721balancetier.md#amountToTier-method-1) | Calculate how much amount of the token needed transfer to or transfer out of the account to reach a `desiredLevel`<!-- -->.<br></br>Take in mind: - If the `desired level` is higher than the current level, the amount returned will be the amount needed to obtain or transfer to the `account`<!-- -->. - If the `desired level` is lower than the current level, the amount returned will be the amount needed to remove or transfer out of the `account`<!-- -->. - If already have the `desired` tier, will return 0 |
 |  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br>*Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)* |
 |  [currentTier(account, block)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br>*Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)* |
 
@@ -111,6 +112,20 @@ protected static readonly nameBookReference: string;
 ```
 
 ## Property Details
+
+<a id="addTokenAddress-property"></a>
+
+### addTokenAddress
+
+Get a new instance with the token address provided.
+
+This method must be used if the token address is not provided in construction moment. The class use this address to make calculations related with the Tier. The token address provided should be the same that the Tier is using to work correctly.
+
+<b>Signature:</b>
+
+```typescript
+readonly addTokenAddress: (tokenAddress: string) => ERC721BalanceTier;
+```
 
 <a id="connect-property"></a>
 
@@ -170,7 +185,7 @@ readonly token: string;
 
 <a id="amountToTier-method-1"></a>
 
-### amountToTier(desiredLevel, account)
+### amountToTier(account, desiredLevel)
 
 Calculate how much amount of the token needed transfer to or transfer out of the account to reach a `desiredLevel`<!-- -->.
 
@@ -179,15 +194,15 @@ Take in mind: - If the `desired level` is higher than the current level, the amo
 <b>Signature:</b>
 
 ```typescript
-amountToTier(desiredLevel: number, account?: string): Promise<BigNumber>;
+amountToTier(account: string, desiredLevel: number): Promise<BigNumber>;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  desiredLevel | `number` | the tier level desired to get |
 |  account | `string` | (optional) the account address to calculate. If not provided will use the signer of the instance |
+|  desiredLevel | `number` | the tier level desired to get |
 
 <b>Returns:</b>
 

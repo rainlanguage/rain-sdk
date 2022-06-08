@@ -30,7 +30,7 @@ const saleType = new SaleDuration(timestamp)
 |  [constants](./saledurationintimestamp.md#constants-property) | `BigNumberish[]` |  |
 |  [sources](./saledurationintimestamp.md#sources-property) | `BytesLike[]` |  |
 |  [stackLength](./saledurationintimestamp.md#stackLength-property) | `BigNumberish` |  |
-|  [timestamp](./saledurationintimestamp.md#timestamp-property) | `BigNumberish` |  |
+|  [timestamp](./saledurationintimestamp.md#timestamp-property) | `number` |  |
 
 ## Methods
 
@@ -88,7 +88,7 @@ stackLength: BigNumberish;
 <b>Signature:</b>
 
 ```typescript
-readonly timestamp: BigNumberish;
+readonly timestamp: number;
 ```
 
 ## Method Details
@@ -104,15 +104,15 @@ Method to apply extra time to the sale duration. if the extra time criteria whic
 <b>Signature:</b>
 
 ```typescript
-applyExtraTime(extraTime: BigNumberish, extraTimeAmount: BigNumberish): this;
+applyExtraTime(extraTime: number, extraTimeAmount: number): this;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  extraTime | `BigNumberish` | The amount of time (in minutes) that sale can continue for, if the extra time criteria has been met. |
-|  extraTimeAmount | `BigNumberish` | The criteria for extra time, if the raised amount exceeds this amount then the raise can continue into extra time. |
+|  extraTime | `number` | The amount of time (in minutes) that sale can continue for, if the extra time criteria has been met. |
+|  extraTimeAmount | `number` | The criteria for extra time, if the raised amount exceeds this amount then the raise can continue into extra time. |
 
 <b>Returns:</b>
 

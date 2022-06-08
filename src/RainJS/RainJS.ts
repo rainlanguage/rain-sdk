@@ -11,6 +11,7 @@ import { Provider } from "../types";
 
 
 /**
+ * @public
  * A type for functions to override the default opcodes functions with it.
  */
 export type OpcodeFN = (
@@ -21,6 +22,7 @@ export type OpcodeFN = (
 
 
 /**
+ * @public
  * An interface for creating a key/value pair of custom opcodes functions to override.
  */
 export interface ApplyOpFn {

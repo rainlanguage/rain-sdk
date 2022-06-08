@@ -27,7 +27,7 @@ const saleType = new SaleDuration(blockNumber)
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [argumentsLength](./saledurationinblocks.md#argumentsLength-property) | `BigNumberish` |  |
-|  [blockNumber](./saledurationinblocks.md#blockNumber-property) | `BigNumberish` |  |
+|  [blockNumber](./saledurationinblocks.md#blockNumber-property) | `number` |  |
 |  [constants](./saledurationinblocks.md#constants-property) | `BigNumberish[]` |  |
 |  [sources](./saledurationinblocks.md#sources-property) | `BytesLike[]` |  |
 |  [stackLength](./saledurationinblocks.md#stackLength-property) | `BigNumberish` |  |
@@ -58,7 +58,7 @@ argumentsLength: BigNumberish;
 <b>Signature:</b>
 
 ```typescript
-readonly blockNumber: BigNumberish;
+readonly blockNumber: number;
 ```
 
 <a id="constants-property"></a>
@@ -104,15 +104,15 @@ Method to apply extra time to the sale duration. if the extra time criteria whic
 <b>Signature:</b>
 
 ```typescript
-applyExtraTime(extraTimeBlocks: BigNumberish, extraTimeAmount: BigNumberish): this;
+applyExtraTime(extraTimeBlocks: number, extraTimeAmount: number): this;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  extraTimeBlocks | `BigNumberish` | The amount of time (in blocks) that sale can continue for, if the extra time criteria has been met. |
-|  extraTimeAmount | `BigNumberish` | The criteria for extra time, if the raised amount exceeds this amount then the raise can continue into extra time. |
+|  extraTimeBlocks | `number` | The amount of time (in blocks) that sale can continue for, if the extra time criteria has been met. |
+|  extraTimeAmount | `number` | The criteria for extra time, if the raised amount exceeds this amount then the raise can continue into extra time. |
 
 <b>Returns:</b>
 

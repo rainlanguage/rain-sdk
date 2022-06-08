@@ -120,7 +120,7 @@ applyTierDiscount(tierAddress: string, tierDiscount: number[], tierActivation?: 
 |  --- | --- | --- |
 |  tierAddress | `string` | The Tier contract address. |
 |  tierDiscount | `number[]` | An array of each tiers' discount ranging between 0 - 99. |
-|  tierActivation | `(number \| string)[]` | (optional) An array of number of blocks for each tier that will be the required period of time for a tiered address which that tier's status needs to be held in order to be eligible for that tier's discount. |
+|  tierActivation | `(number \| string)[]` | (optional) An array of number of blocks for each tier that will be the required period of time for that tiered address to hold the tier's in order to be eligible for that tier's discount. |
 
 <b>Returns:</b>
 
@@ -137,7 +137,14 @@ Method to apply cap per wallet to the sale. addresses can only buy that certain 
 <b>Signature:</b>
 
 ```typescript
-applyWalletCap(mode: WalletCapMode, options?: WalletCapOptions): this;
+applyWalletCap(mode: WalletCapMode, options?: {
+        minWalletCap?: number;
+        maxWalletCap?: number;
+        tierMultiplierMode?: boolean;
+        tierAddress?: string;
+        tierMultiplier?: number[];
+        tierActivation?: (number | string)[];
+    }): this;
 ```
 
 #### Parameters
@@ -145,7 +152,7 @@ applyWalletCap(mode: WalletCapMode, options?: WalletCapOptions): this;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  mode | [WalletCapMode](../enums/walletcapmode.md) | The mode that determines if there is max or min cap per wallet or both. |
-|  options | [WalletCapOptions](../types/walletcapoptions.md) |  |
+|  options | <pre>{&#010;    minWalletCap?: number;&#010;    maxWalletCap?: number;&#010;    tierMultiplierMode?: boolean;&#010;    tierAddress?: string;&#010;    tierMultiplier?: number[];&#010;    tierActivation?: (number \| string)[];&#010;}</pre> | (optional) Additional arguments to configure the cap per wallet behaviour: (param) minWalletCap - The number for min cap per wallet, addresses cannot buy less number of rTKNs than this amount. (param) maxWalletCap - The number for max cap per wallet, addresses cannot buy more number of rTKNs than this amount. (param) tierMultiplierMode - Set true in order to apply Multiplier for max cap per wallet. (param) tierAddress - The Tier contract address for tiers' max cap per wallet multiplier. (param) tierMultiplier - An array of each tiers' Multiplier value. (param) tierActivation - An array of number of blocks for each tier that will be the required period of time for that tiered address to hold the tier's in order to be eligible for that tier's multiplier. |
 
 <b>Returns:</b>
 

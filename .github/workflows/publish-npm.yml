@@ -28,6 +28,9 @@ jobs:
       - name: Prepack for npm
         run: nix-shell --run "yarn prepare"
 
+      - name: Generate new docs
+        run: nix-shell --run "generate-docs"
+
       - name: Publish to npm
         uses: JS-DevTools/npm-publish@v1
         with:
