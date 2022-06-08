@@ -45,7 +45,7 @@ export class ERC721BalanceTier extends TierContract {
    * @returns A new ERC721BalanceTier instance
    *
    */
-  constructor(address: string, tokenAddress: string, signer: Signer) {
+  constructor(address: string, signer: Signer, tokenAddress: string = '') {
     ERC721BalanceTier.checkAddress(address);
     super(address, signer);
     const _erc721BalanceTier = ERC721BalanceTier__factory.connect(
@@ -86,11 +86,26 @@ export class ERC721BalanceTier extends TierContract {
       receipt,
       erc721BalanceTierFactory
     );
-    return new ERC721BalanceTier(address, args.erc721, signer);
+    return new ERC721BalanceTier(address, signer, args.erc721);
   };
 
   public readonly connect = (signer: Signer): ERC721BalanceTier => {
-    return new ERC721BalanceTier(this.address, this.token, signer);
+    return new ERC721BalanceTier(this.address, signer, this.token);
+  };
+
+  /**
+   * Get a new instance with the token address provided.
+   *
+   * This method must be used if the token address is not provided in construction moment. The class use
+   * this address to make calculations related with the Tier. The token address provided should be the
+   * same that the Tier is using to work correctly.
+   * @param tokenAddress - The ERC721 token address related to the tier
+   * @returns A new instance with the token address ready to use the helper methods
+   */
+  public readonly addTokenAddress = (
+    tokenAddress: string
+  ): ERC721BalanceTier => {
+    return new ERC721BalanceTier(this.address, this.signer, tokenAddress);
   };
 
   /**
@@ -123,9 +138,15 @@ export class ERC721BalanceTier extends TierContract {
    * @returns The amount t
    */
   public async amountToTier(
+    account: string,
     desiredLevel: number,
-    account?: string
   ): Promise<BigNumber> {
+    if (!this.token) {
+      throw new Error(
+        'Missing ER721 Token address in the instance. Please, use addTokenAddress'
+      );
+    }
+
     const token = IERC721__factory.connect(this.token, this.signer);
     const values = await this.tierValues();
 

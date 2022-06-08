@@ -27,7 +27,7 @@ import {
  * const newTier = await ERC20BalanceTier.deploy(signer, ERC20BalanceTierArgs);
  *
  * // To connect to an existing ERC20BalanceTier just pass the tier address, token address and an ethers.js Signer.
- * const existingTier = new ERC20BalanceTier(address, tokenAddrss, signer);
+ * const existingTier = new ERC20BalanceTier(address, signer[, tokenAddress]);
  *
  * // Once you have a ERC20BalanceTier, you can call the smart contract methods:
  * const tierValues = await existingTier.tierValues();
@@ -46,7 +46,7 @@ export class ERC20BalanceTier extends TierContract {
    * @returns A new ERC20BalanceTier instance
    *
    */
-  constructor(address: string, tokenAddress: string, signer: Signer) {
+  constructor(address: string, signer: Signer, tokenAddress: string = '') {
     ERC20BalanceTier.checkAddress(address);
     super(address, signer);
     const _erc20balanceTier = ERC20BalanceTier__factory.connect(
@@ -86,11 +86,26 @@ export class ERC20BalanceTier extends TierContract {
       receipt,
       erc20BalanceTierFactory
     );
-    return new ERC20BalanceTier(address, args.erc20, signer);
+    return new ERC20BalanceTier(address, signer, args.erc20);
   };
 
   public readonly connect = (signer: Signer): ERC20BalanceTier => {
-    return new ERC20BalanceTier(this.address, this.token, signer);
+    return new ERC20BalanceTier(this.address, signer, this.token);
+  };
+
+  /**
+   * Get a new instance with the token address provided.
+   *
+   * This method must be used if the token address is not provided in construction moment. The class use
+   * this address to make calculations related with the Tier. The token address provided should be the
+   * same that the Tier is using to work correctly.
+   * @param tokenAddress - The ERC20 token address related to the tier
+   * @returns A new instance with the token address ready to use the helper methods
+   */
+  public readonly addTokenAddress = (
+    tokenAddress: string
+  ): ERC20BalanceTier => {
+    return new ERC20BalanceTier(this.address, this.signer, tokenAddress);
   };
 
   /**
@@ -128,9 +143,15 @@ export class ERC20BalanceTier extends TierContract {
    * @returns The amount t
    */
   public async amountToTier(
-    desiredLevel: number,
-    account?: string
+    account: string,
+    desiredLevel: number
   ): Promise<BigNumber> {
+    if (!this.token) {
+      throw new Error(
+        'Missing ERC20 Token address in the instance. Please, use addTokenAddress'
+      );
+    }
+
     const token = IERC20__factory.connect(this.token, this.signer);
     const values = await this.tierValues();
 
