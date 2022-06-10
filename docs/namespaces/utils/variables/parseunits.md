@@ -1,6 +1,7 @@
 
 # Variable utils.parseUnits
 
+ethers parseUnits
 
 <b>Signature:</b>
 

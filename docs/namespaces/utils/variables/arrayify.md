@@ -1,6 +1,7 @@
 
 # Variable utils.arrayify
 
+ethers arrayify
 
 <b>Signature:</b>
 

@@ -1,6 +1,7 @@
 
 # Enum utils.selectLteMode
 
+An enum for selectLte mode
 
 <b>Signature:</b>
 

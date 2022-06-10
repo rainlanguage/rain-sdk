@@ -2,12 +2,12 @@ import { assert } from 'chai';
 import { ethers } from 'hardhat';
 import { Tier, Time } from './utils';
 import { BigNumber } from 'ethers';
-import { concat } from 'ethers/lib/utils';
 import { 
   op,
   paddedUInt32,
   selectLte,
   arg,
+  concat,
   callSize,
   tierRange,
   selectLteLogic,
@@ -24,7 +24,7 @@ import {
 
 
 describe('SDK - RainJS', () => {
-  it('should perform correcctly with custom opcode function', async () => {
+  it('should perform correctly with custom opcode function', async () => {
     
     const customBlockNumber: OpcodeFN = (state, operand, data) => {
       state.stack.push(

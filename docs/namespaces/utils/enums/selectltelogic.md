@@ -1,6 +1,7 @@
 
 # Enum utils.selectLteLogic
 
+An enum for selectLte logic
 
 <b>Signature:</b>
 
