@@ -14,13 +14,16 @@ export * from './contracts/noticeBoard';
 export * from './contracts/redeemableERC20';
 export * from './contracts/redeemableERC20ClaimEscrow';
 export * from './contracts/sale';
-export * from './contracts/saleScriptGenerator';
 export * from './contracts/verify';
 
-export * from './RainJS/RainJS';
-export * from './RainJS/CombineTierJS';
-export * from './RainJS/EmissionsERC20JS';
-export * from './RainJS/SaleJS';
+export * from './contracts/script-generators/saleScriptGenerator';
+export * from './contracts/script-generators/combineTierScriptGenerator';
+export * from './contracts/script-generators/emissionsERC20ScriptGenerator';
+
+export * from './rainJS/RainJS';
+export * from './rainJS/CombineTierJS';
+export * from './rainJS/EmissionsERC20JS';
+export * from './rainJS/SaleJS';
 
 export * from './contracts/tiers/iTier';
 export * from './contracts/tiers/combineTier';

@@ -1,55 +1,61 @@
 import { BigNumber, ethers, utils } from 'ethers';
-
 import type { BytesLike } from 'ethers';
 
+
+export const {
+  /**
+   * @public ethers concat
+   * @see ethers.concat
+   */
+  concat,
+  /**
+   * @public ethers hexlify
+   * @see ethers.hexlify
+   */
+  hexlify,
+  /**
+   * @public ethers zeroPad
+   * @see ethers.zeroPad
+   */
+  zeroPad,
+  /**
+   * @public ethers hexZeroPad
+   * @see ethers.hexZeroPad
+   */
+  hexZeroPad,
+  /**
+   * @public ethers arrayify
+   * @see ethers.arrayify
+   */
+  arrayify,
+  /**
+   * @public ethers parseUnits
+   * @see ethers.parseUnits
+   */
+  parseUnits,
+} = utils;
+
 /**
- * @public
- */
+ * @public a native type for ethers Hexable
+*/
 export type Hexable = utils.Hexable;
 
 /**
- * @public
- */
+ * @public An enum for selectLte logic
+*/
 export enum selectLteLogic {
   every,
   any,
-}
-
+};
+ 
 /**
- * @public
- */
+ * @public An enum for selectLte mode
+*/
 export enum selectLteMode {
   min,
   max,
   first,
-}
-
-export const {
-  /**
-   * @public
-   */
-  concat,
-  /**
-   * @public
-   */
-  hexlify,
-  /**
-   * @public
-   */
-  zeroPad,
-  /**
-   * @public
-   */
-  hexZeroPad,
-  /**
-   * @public
-   */
-  arrayify,
-  /**
-   * @public
-   */
-  parseUnits,
-} = utils;
+};
 
 /**
  * @public
@@ -98,7 +104,11 @@ export const paddedUInt256 = (report: BigNumber): string => {
 };
 
 /**
- * @public
+ * @public Utility function to produce 32 bits size hexString
+ * 
+ * @param number - the value to convert into a 32bit size hexString
+ * 
+ * @returns a 8 character hexString
  */
 export const paddedUInt32 = (number: number | BytesLike | Hexable): string => {
   if (ethers.BigNumber.from(number).gt(ethers.constants.MaxUint256)) {
@@ -108,7 +118,11 @@ export const paddedUInt32 = (number: number | BytesLike | Hexable): string => {
 };
 
 /**
- * @public
+ * @public function to pack the operand for VAL opcode of ZIPMAP arguments
+ * 
+ * @param valIndex - index of the ZIPMAP arguments
+ * 
+ * @returns a byte size number
  */
 export function arg(valIndex: number): number {
   let arg = 1;
@@ -118,7 +132,12 @@ export function arg(valIndex: number): number {
 }
 
 /**
- * @public
+ * @public function to pack start/end tier range into a byte size number for the UPDATE_BLOCKS_FOR_TIER_RANGE opcode
+ * 
+ * @param startTier - the start tier of the updating which ranges between 0 to 8 (exclusive)
+ * @param endTier - the end tier of the updating which ranges between 0 to 8 (inclusive)
+ * 
+ * @returns a byte size number
  */
 export function tierRange(startTier: number, endTier: number): number {
   //   op_.val & 0x0f, //     00001111
@@ -137,11 +156,15 @@ export function tierRange(startTier: number, endTier: number): number {
 
 /**
  * @public
- * Constructs the operand for RainVM's `call` AllStandardOps by packing 3 numbers into a single byte. All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 * 32 bytes) on the stack.
+ * Constructs the operand for RainVM's `call` AllStandardOps by packing 3 numbers into a single byte. 
+ * All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) 
+ * on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 * 32 bytes) on the stack.
  *
  * @param sourceIndex - index of function source in `immutableSourceConfig.sources`
  * @param loopSize - number of times to subdivide vals, reduces uint size but allows for more vals (range 0-7)
  * @param valSize - number of vals in outer stack (range 0-7)
+ * 
+ * @returns a byte size number
  */
 export function callSize(
   sourceIndex: number,
@@ -170,7 +193,13 @@ export function callSize(
 }
 
 /**
- * @public
+ * @public function to set up the operand for a SELECT_LTE opcode
+ * 
+ * @param logic - 0 = every, 1 = any, acts like a logical and/or for the check against BLOCK_NUMBER
+ * @param mode - 0 = min, 1 = max, 2 = first, the way to select the reports that pass the check against BLOCK_NUMBER
+ * @param length - the number of reports to stack for SELECT_LTE opcode
+ * 
+ * @returns a byte size number
  */
 export function selectLte(logic: number, mode: number, length: number): number {
   let lte = logic;
@@ -201,7 +230,10 @@ export const replaceAt = (
 };
 
 /**
- * @public
+ * @public function for the operand of the SKIP opcode
+ * @important - SKIP is no longer available 
+ * 
+ * @returns a byte size number
  */
 export function skip(places: number, conditional = false): number {
   let skip = conditional ? 1 : 0;
