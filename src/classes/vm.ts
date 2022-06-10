@@ -317,84 +317,6 @@ export class VM {
     return [concat(OPerands.map((x) => op(x[0], x[1] || 0)))];
   }
 
-  /**
-   * Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default.
-   *
-   * @remarks - please be aware if your script has DUP opcode, as DUP is relative to script and cannot be handled by this method
-   * and needs to be dealt with manualy before calling this method.
-   * 
-   * @param config - the main VM script
-   * @param ownerAddress - the address that is going to be the owner of the main VM script.
-   * @param options - used for additional configuraions:
-   *    (param) index - to identify which sources item in config.sources the combination starts at, if not specified, it will be 0.
-   *    (param) numberOfSource - for specifying how many sources item to combine.
-   *    (param) position - An array representing the positions of config script where notOwnerVar sources (if exists)
-   *    will be merged at; position, array length must be equal to 'numberOfSources' or else it will be ignored.
-   *    (param) notOwnerVar - the value or the script that will be executed if the owner check fails, if not specified 0 will be applied.
-   * 
-   * @returns a VM script. @see StateConfig
-   */
-  public static makeOwner(
-    config: StateConfig,
-    ownerAddress: string,
-    options?: {
-      index?: number,
-      numberOfSources?: number,
-      position?: number[],
-      notOwnerVar?: StateConfig | number,
-    }
-  ): StateConfig {
-
-    const Index = options?.index ? options.index : 0;
-
-    const MAKE_OWNER = (i: any) =>
-      concat([
-        op(AllStandardOps.VAL, i),
-        op(AllStandardOps.SENDER),
-        op(AllStandardOps.EQUAL_TO),
-      ]);
-
-    if (options?.notOwnerVar && typeof options.notOwnerVar === 'object') {
-      let _result = this.vmStateCombiner(
-        config,
-        options.notOwnerVar,
-        {
-          index: options.index,
-          position: options.position,
-          numberOfSources: options.numberOfSources
-        }
-      );
-      _result.constants.push(ownerAddress);
-      _result.sources[Index] = concat([
-        MAKE_OWNER(_result.constants.length - 1),
-        _result.sources[Index],
-        op(AllStandardOps.EAGER_IF),
-      ]);
-      _result.stackLength = BigNumber.from(_result.stackLength).add(4);
-
-      return _result;
-
-    } else {
-      const NotOwnerVar = 
-      (options?.notOwnerVar && typeof options?.notOwnerVar == "number")
-          ? options.notOwnerVar
-          : 0;
-      const constants = [...config.constants, ownerAddress, NotOwnerVar];
-      config.sources[Index] = concat([
-        MAKE_OWNER(constants.length - 2),
-        config.sources[Index],
-        op(AllStandardOps.VAL, constants.length - 1),
-        op(AllStandardOps.EAGER_IF),
-      ]);
-      const sources = config.sources;
-      return {
-        constants,
-        sources,
-        stackLength: Number(config.stackLength) + 5,
-        argumentsLength: config.argumentsLength,
-      };
-    }
-  }
 
   /**
    * Combines 2 individual VM scripts
@@ -405,14 +327,14 @@ export class VM {
    * @param config1 - the first VM script that will be combined. (default sits at top)
    * @param config2 - the second VM script that will be combined. (default sits at bottom)
    * @param options - used for additional configuraions:
-   *    (param) index - to identify which sources item in config1.sources the combination starts at, if not specified, it will be 0.
-   *    (param) numberOfSource - for specifying how many sources item to combine.
-   *    (param) position - An array representing the positions of config1 script where config2 sources
-   *    will be merged at; position, array length must be equal to 'numberOfSources' or else it will be ignored. 
+   *    - (param) index - to identify which sources item in config1.sources the combination starts at, if not specified, it will be 0.
+   *    - (param) numberOfSource - for specifying how many sources item to combine.
+   *    - (param) position - An array representing the positions of config1 script where config2 sources
+   *       will be merged at; position, array length must be equal to 'numberOfSources' or else it will be ignored. 
    * 
    * @returns combined VM script. @see StateConfig
    */
-  public static vmStateCombiner(
+  public static vmCombiner(
     config1: StateConfig,
     config2: StateConfig,
     options?: {
@@ -492,6 +414,88 @@ export class VM {
     };
   }
 
+
+  /**
+   * Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final
+   * result will be determined by the main VM script and if it fails it will be 0 by default.
+   *
+   * @remarks - please be aware if your script has DUP opcode, as DUP is relative to script and cannot be handled by this method
+   * and needs to be dealt with manualy before calling this method.
+   * 
+   * @param config - the main VM script
+   * @param ownerAddress - the address that is going to be the owner of the main VM script.
+   * @param options - used for additional configuraions:
+   *    - (param) index - to identify which sources item in config.sources the combination starts at, if not specified, it will be 0.
+   *    - (param) numberOfSource - for specifying how many sources item to combine.
+   *    - (param) position - An array representing the positions of config script where notOwnerVar sources (if exists)
+   *       will be merged at; position, array length must be equal to 'numberOfSources' or else it will be ignored.
+   *    - (param) notOwnerVar - the value or the script that will be executed if the owner check fails, if not specified 0 will be applied.
+   * 
+   * @returns a VM script. @see StateConfig
+   */
+  public static makeOwner(
+    config: StateConfig,
+    ownerAddress: string,
+    options?: {
+      index?: number,
+      numberOfSources?: number,
+      position?: number[],
+      notOwnerVar?: StateConfig | number,
+    }
+  ): StateConfig {
+
+    const Index = options?.index ? options.index : 0;
+
+    const MAKE_OWNER = (i: any) =>
+      concat([
+        op(AllStandardOps.VAL, i),
+        op(AllStandardOps.SENDER),
+        op(AllStandardOps.EQUAL_TO),
+      ]);
+
+    if (options?.notOwnerVar && typeof options.notOwnerVar === 'object') {
+      let _result = this.vmCombiner(
+        config,
+        options.notOwnerVar,
+        {
+          index: options.index,
+          position: options.position,
+          numberOfSources: options.numberOfSources
+        }
+      );
+      _result.constants.push(ownerAddress);
+      _result.sources[Index] = concat([
+        MAKE_OWNER(_result.constants.length - 1),
+        _result.sources[Index],
+        op(AllStandardOps.EAGER_IF),
+      ]);
+      _result.stackLength = BigNumber.from(_result.stackLength).add(4);
+
+      return _result;
+
+    } else {
+      const NotOwnerVar = 
+      (options?.notOwnerVar && typeof options?.notOwnerVar == "number")
+          ? options.notOwnerVar
+          : 0;
+      const constants = [...config.constants, ownerAddress, NotOwnerVar];
+      config.sources[Index] = concat([
+        MAKE_OWNER(constants.length - 2),
+        config.sources[Index],
+        op(AllStandardOps.VAL, constants.length - 1),
+        op(AllStandardOps.EAGER_IF),
+      ]);
+      const sources = config.sources;
+      return {
+        constants,
+        sources,
+        stackLength: Number(config.stackLength) + 5,
+        argumentsLength: config.argumentsLength,
+      };
+    }
+  }
+
+
   /**
    * Deducts percentage off of the result of a VM script based on the holding tier of a tier contract.
    *
@@ -499,9 +503,9 @@ export class VM {
    * @param tierAddress - the contract address of the tier contract.
    * @param tierDiscount - an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array.
    * @param options - used for additional configuraions:
-   *    (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0.
-   *    (param) tierActivation An array of numbers, representing the amount of blocks each tier must hold in order to get the discount,
-   *    e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 blocks to get the discount.
+   *    - (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0.
+   *    - (param) tierActivation An array of numbers, representing the amount of blocks each tier must hold in order to get the discount,
+   *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 blocks to get the discount.
    * 
    * @returns a VM script @see StateConfig
    */
@@ -654,9 +658,9 @@ export class VM {
    * @param tierAddress - the contract address of the tier contract.
    * @param tierMultiplier - an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array.
    * @param options - used for additional configuraions:
-   *    (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0.
-   *    (param) tierActivation An array of numbers, representing the amount of blocks each tier must hold in order to get the multiplier,
-   *    e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 blocks to get the multiplier.
+   *    - (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0.
+   *    - (param) tierActivation An array of numbers, representing the amount of blocks each tier must hold in order to get the multiplier,
+   *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 blocks to get the multiplier.
    * 
    * @returns a VM script @see StateConfig
    */
@@ -671,7 +675,7 @@ export class VM {
   ): StateConfig {
 
     const Index = options?.index ? options.index : 0;
-    console.log(tierMultiplier)
+
     const TierMultiplier = paddedUInt256(
       BigNumber.from(
         '0x' +
@@ -805,5 +809,72 @@ export class VM {
         argumentsLength: Number(config.argumentsLength) + 1,
       };
     }
+  }
+
+
+  /**
+   * A method to merge multiple (more than 1) scripts to be executed based on time slices.
+   * 
+   * @param configs - An array of StateConfigs that will be merged and executed at runtime in order by time slices
+   * @param times - An array of numbers representing either BLOCK_NUMBER or TIMESTAMP that time slices will be between each of the 2 items in the array
+   * @param inBlockNumber - (optional) false by default which means the time slices will be based on TIMESTAMP, pass true to base it on BLOCK_NUMBER
+   * 
+   * @returns a VM script @see StateConfig
+   */
+  public static timeSliceScripts (
+    configs: StateConfig[],
+    times: number[],
+    inBlockNumber: boolean = false
+  ) : StateConfig {
+
+    if (configs.length == times.length) {
+
+      let _result: StateConfig;
+
+      const SLICER = (i: number) : StateConfig => {
+        return {
+          constants: [times[i], times[i+1]],
+          sources: [
+            concat([
+              op(VM.Opcodes.VAL, 0),
+              inBlockNumber
+              ? op(VM.Opcodes.BLOCK_NUMBER)
+              : op(VM.Opcodes.BLOCK_TIMESTAMP),
+              op(VM.Opcodes.LESS_THAN),
+              inBlockNumber
+              ? op(VM.Opcodes.BLOCK_NUMBER)
+              : op(VM.Opcodes.BLOCK_TIMESTAMP),
+              op(VM.Opcodes.VAL, 1),
+              op(VM.Opcodes.LESS_THAN),
+              op(VM.Opcodes.EVERY),
+            ])
+          ],
+          stackLength: 7,
+          argumentsLength: 0
+        }
+      };
+
+      _result = VM.vmCombiner(SLICER(0), configs[0]);
+
+      for (let i = 1; i < configs.length; i++) {
+        if (i + 1 == configs.length) {
+          _result = VM.vmCombiner(_result, configs[i])
+        }
+        else {
+          _result = VM.vmCombiner(_result, SLICER(i))
+          _result = VM.vmCombiner(_result, configs[i])
+        }
+      }
+      for (let i = 1; i < configs.length; i++) {
+        _result.sources[0] = concat([
+          _result.sources[0],
+          op(VM.Opcodes.EAGER_IF)
+        ]);
+        _result.stackLength = Number(_result.stackLength) + 1;
+      }
+
+      return _result;
+    }
+    else throw new Error("invalid arguments")
   }
 }

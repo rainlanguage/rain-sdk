@@ -1,4 +1,3 @@
-
 import { BigNumber, Contract, Signer } from "ethers";
 import { StateConfig } from "../classes/vm";
 import { EmissionsERC20 } from "../contracts/emissionsERC20";
@@ -46,25 +45,14 @@ export class EmissionsERC20JS extends RainJS {
   }
 
   /**
-   * dispatch method with Sale's local opcodes
-   * @see dispatch in RainJS
-   * 
-   * @param state - StateJS property used in each opcode function to either read or write data into stack.
-   * @param opcode - the opcode to dispatch and run the function of that opcode
-   * @param operand - the addtional info for each opcode to run based on.
-   * @param data - (optional) used only for zipmap opcode in order to be able to run custom function i.e. applyOpFn
-   * for zipmap function source or for CLAIMANT_ACCOUNT opcode. data needs to have "claimant_account" property so 
-   * this local opcode to function properly.
-   * 
+   * key/value pair of opcodes and their functions for all standard opcodes + EmissionsERC20 local opcodes
    */
-  protected async dispatch (
-    state: StateJS,
-    opcode: number,
-    operand: number,
-    data?: any
-  ) : Promise<void> {
+  protected readonly _OPCODE_: ApplyOpFn = {
+
+    ...this._OPCODE_,
     
-    if (opcode == EmissionsERC20JS.Opcodes.CLAIMANT_ACCOUNT) {
+    [EmissionsERC20JS.Opcodes.CLAIMANT_ACCOUNT] : 
+      async(state: StateJS, operand: number, data?: any) => {
       if(data && data.claimant_account != undefined) {
         state.stack.push(
           BigNumber.from(data.claimant_account)
@@ -72,13 +60,6 @@ export class EmissionsERC20JS extends RainJS {
       }
       else throw new Error("Undefined claimant account address")
     }
-    else {
-      await super.dispatch(
-        state,
-        opcode,
-        operand,
-        data
-      )
-    }
   }
+
 }
