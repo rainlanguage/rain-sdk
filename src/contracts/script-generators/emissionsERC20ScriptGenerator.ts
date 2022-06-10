@@ -16,6 +16,7 @@ import {
 
 
 /**
+ * @public
  * A type for newing Emissions script
  */
 export type EmissionsConfig = {
@@ -61,7 +62,7 @@ export class LinearEmissions {
   /**
    * Constructor for this class
    * 
-   * @param config An EmissionsConfig
+   * @param config - An EmissionsConfig
    */
   constructor (config: EmissionsConfig) {
 
@@ -255,6 +256,7 @@ export class LinearEmissions {
 
 
 /**
+ * @public
  * A sequential minting emission, minting can only be done once in every period of time,
  * also can set a max reward with increment over the span of several periods.
  */
@@ -270,7 +272,7 @@ export class SequentialEmissions {
   /**
    * Constructor for this class
    * 
-   * @param config An EmissionsConfig
+   * @param config - An EmissionsConfig
    */
   constructor (config: EmissionsConfig) {
 

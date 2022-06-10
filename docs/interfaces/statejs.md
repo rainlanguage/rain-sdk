@@ -13,23 +13,23 @@ interface StateJS
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [argsArr](./statejs.md#argsArr-property) | `BigNumber[]` | Used only for zipmap opcode |
+|  [argumentsStack](./statejs.md#argumentsStack-property) | `BigNumber[]` | Used only for zipmap opcode |
 |  [constants](./statejs.md#constants-property) | `BigNumber[]` | The property to store the RainVM script constants. |
 |  [sources](./statejs.md#sources-property) | `Uint8Array[]` | The property to store the RainVM script sources. |
 |  [stack](./statejs.md#stack-property) | `BigNumber[]` | The RainJS's stack. |
 
 ## Property Details
 
-<a id="argsArr-property"></a>
+<a id="argumentsStack-property"></a>
 
-### argsArr
+### argumentsStack
 
 Used only for zipmap opcode
 
 <b>Signature:</b>
 
 ```typescript
-readonly argsArr: BigNumber[];
+readonly argumentsStack: BigNumber[];
 ```
 
 <a id="constants-property"></a>

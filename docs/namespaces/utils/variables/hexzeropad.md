@@ -1,6 +1,7 @@
 
 # Variable utils.hexZeroPad
 
+ethers hexZeroPad
 
 <b>Signature:</b>
 

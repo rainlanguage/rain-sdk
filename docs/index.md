@@ -5,7 +5,9 @@
 |  Class | Description |
 |  --- | --- |
 |  [AddressBook](./classes/addressbook.md) | Class related to handle and obtain all the addresses and tools (like Subgraph) deployed by chain and stored in the SDK. |
+|  [BuildReport](./classes/buildreport.md) | A class for creating a report-like script which inherits from CombineTierGenerator |
 |  [CombineTier](./classes/combinetier.md) | Class for deploying and calling methods on a CombineTier contract, providin easy way to interact with deployed CombineTiers. |
+|  [CombineTierGenerator](./classes/combinetiergenerator.md) | The script generator for generating CombineTier scripts although it is worth mentioning that the usecases would not be only limited to CombineTier contract and can be used for any script. |
 |  [CombineTierJS](./classes/combinetierjs.md) | - The javascript version of CombineTierVM which inherits RainJS with local CombineTier opcodes. |
 |  [EmissionsERC20](./classes/emissionserc20.md) | A class for calling methods on a EmissionsERC20. |
 |  [EmissionsERC20JS](./classes/emissionserc20js.md) | - The javascript version of EmissionsERC20JS which inherits RainJS with local EmissionsERC20JS opcodes. |
@@ -20,6 +22,7 @@
 |  [GatedNFT](./classes/gatednft.md) | //TODO: Add doc |
 |  [IncreasingPrice](./classes/increasingprice.md) | - A sub-class of PriceCurve for creating an linear Increasing sale type. |
 |  [ITier](./classes/itier.md) | Class to interact with ITier contracts |
+|  [LinearEmissions](./classes/linearemissions.md) | A linear minting emissions over a period of time. holding more before claiming would result in a more reward. |
 |  [NoticeBoard](./classes/noticeboard.md) | A class for calling method on a NoticeBoard. |
 |  [PriceCurve](./classes/pricecurve.md) | - PriceCurve is an class that all the other sale types (sub-classes) will inherit from. |
 |  [RainContract](./classes/raincontract.md) | //TODO: Add doc |
@@ -30,6 +33,7 @@
 |  [SaleDurationInBlocks](./classes/saledurationinblocks.md) | - A class used for creating a VM state for Sale's canEnd/StartStateConfig based on block number. |
 |  [SaleDurationInTimestamp](./classes/saledurationintimestamp.md) | - A class used for creating a VM state for Sale's canEnd/StartStateConfig based on timestamp. |
 |  [SaleJS](./classes/salejs.md) | - The javascript version of SaleVM which inherits RainJS with local Sale opcodes. |
+|  [SequentialEmissions](./classes/sequentialemissions.md) | A sequential minting emission, minting can only be done once in every period of time, also can set a max reward with increment over the span of several periods. |
 |  [TierContract](./classes/tiercontract.md) | Combine the static methods that are present in factories with the ITier instance methods. Should be use to the TierFactories. |
 |  [Verify](./classes/verify.md) | A class for deploying and calling methods on a Verify. |
 |  [VerifyTier](./classes/verifytier.md) | A class for deploying and calling methods on a VerifyTier.<br></br>A contract that is `VerifyTier` expects to derive tiers from the time the account was approved by the underlying `Verify` contract. The approval block numbers defer to `State.since` returned from `Verify.state`<!-- -->. |
@@ -88,6 +92,7 @@
 |  [Addresses](./types/addresses.md) | Type for all the addresses stored in the Book. |
 |  [CombineTierDeployArgs](./types/combinetierdeployargs.md) | The argument of the CombineTier. The StateConfig will be deployed as a pointer under VM State Pointer. |
 |  [CombineTierOpcodes](./types/combinetieropcodes.md) | Type for the opcodes availables in a CombineTier instance. |
+|  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
 |  [EmissionsERC20Opcodes](./types/emissionserc20opcodes.md) | Type for the opcodes availables in a EmissionsERC20 instance. |
 |  [OpcodeFN](./types/opcodefn.md) | A type for functions to override the default opcodes functions with it. |
 |  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |

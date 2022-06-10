@@ -1,7 +1,6 @@
 import { BigNumber, ethers, utils } from 'ethers';
 import type { BytesLike } from 'ethers';
 
-
 export const {
   /**
    * @public ethers concat
@@ -37,25 +36,25 @@ export const {
 
 /**
  * @public a native type for ethers Hexable
-*/
+ */
 export type Hexable = utils.Hexable;
 
 /**
  * @public An enum for selectLte logic
-*/
+ */
 export enum selectLteLogic {
   every,
   any,
-};
- 
+}
+
 /**
  * @public An enum for selectLte mode
-*/
+ */
 export enum selectLteMode {
   min,
   max,
   first,
-};
+}
 
 /**
  * @public
@@ -105,9 +104,9 @@ export const paddedUInt256 = (report: BigNumber): string => {
 
 /**
  * @public Utility function to produce 32 bits size hexString
- * 
+ *
  * @param number - the value to convert into a 32bit size hexString
- * 
+ *
  * @returns a 8 character hexString
  */
 export const paddedUInt32 = (number: number | BytesLike | Hexable): string => {
@@ -119,9 +118,9 @@ export const paddedUInt32 = (number: number | BytesLike | Hexable): string => {
 
 /**
  * @public function to pack the operand for VAL opcode of ZIPMAP arguments
- * 
+ *
  * @param valIndex - index of the ZIPMAP arguments
- * 
+ *
  * @returns a byte size number
  */
 export function arg(valIndex: number): number {
@@ -133,10 +132,10 @@ export function arg(valIndex: number): number {
 
 /**
  * @public function to pack start/end tier range into a byte size number for the UPDATE_BLOCKS_FOR_TIER_RANGE opcode
- * 
+ *
  * @param startTier - the start tier of the updating which ranges between 0 to 8 (exclusive)
  * @param endTier - the end tier of the updating which ranges between 0 to 8 (inclusive)
- * 
+ *
  * @returns a byte size number
  */
 export function tierRange(startTier: number, endTier: number): number {
@@ -156,14 +155,14 @@ export function tierRange(startTier: number, endTier: number): number {
 
 /**
  * @public
- * Constructs the operand for RainVM's `call` AllStandardOps by packing 3 numbers into a single byte. 
- * All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) 
+ * Constructs the operand for RainVM's `call` AllStandardOps by packing 3 numbers into a single byte.
+ * All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes)
  * on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 * 32 bytes) on the stack.
  *
  * @param sourceIndex - index of function source in `immutableSourceConfig.sources`
  * @param loopSize - number of times to subdivide vals, reduces uint size but allows for more vals (range 0-7)
  * @param valSize - number of vals in outer stack (range 0-7)
- * 
+ *
  * @returns a byte size number
  */
 export function callSize(
@@ -194,11 +193,11 @@ export function callSize(
 
 /**
  * @public function to set up the operand for a SELECT_LTE opcode
- * 
+ *
  * @param logic - 0 = every, 1 = any, acts like a logical and/or for the check against BLOCK_NUMBER
  * @param mode - 0 = min, 1 = max, 2 = first, the way to select the reports that pass the check against BLOCK_NUMBER
  * @param length - the number of reports to stack for SELECT_LTE opcode
- * 
+ *
  * @returns a byte size number
  */
 export function selectLte(logic: number, mode: number, length: number): number {
@@ -231,8 +230,8 @@ export const replaceAt = (
 
 /**
  * @public function for the operand of the SKIP opcode
- * @important - SKIP is no longer available 
- * 
+ * @remarks - SKIP is no longer available
+ *
  * @returns a byte size number
  */
 export function skip(places: number, conditional = false): number {
@@ -242,4 +241,3 @@ export function skip(places: number, conditional = false): number {
   skip |= places & 0x7f;
   return skip;
 }
-

@@ -13,14 +13,13 @@ export enum WalletCapMode {
   both,
 }
 
-
 /**
  * @public - PriceCurve is an class that all the other sale types (sub-classes) will inherit from.
  *
  * @remarks - It holds all the global methods for generating a sale script with different features for a sale
  * such as tier discount which makes depolying a new sale contracts with different features easy.
  *
- * @important - the order of calling the methods of this class is important, meaning in order to get the
+ * @remarks - the order of calling the methods of this class is important, meaning in order to get the
  * desired result for the sale, mthods should be called in correct order, although it is worth saying
  * that even if the order is not followed, the result will still be reliable if that is been done by intention.
  * For example if we call 'applyExtraTime' method after the the 'applyTierDiscount' method, the extra
@@ -32,7 +31,6 @@ export enum WalletCapMode {
  *
  */
 export class PriceCurve {
-
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -56,7 +54,7 @@ export class PriceCurve {
    * then those addresses that have met the critera of extra time discount which is already
    * purchased a certain amount of rTKN will get some discount on price for their next purchase.
    *
-   * @important - Sale should have extra time feature in order for extra time discount to be effective.
+   * @remarks - Sale should have extra time feature in order for extra time discount to be effective.
    * @see SaleDuration.applyExtraTime - to deploy a sale that has extra time feature
    *
    * @param endTimestamp - Usual end time of the sale.
@@ -159,22 +157,21 @@ export class PriceCurve {
    *    - (param) tierMultiplier - An array of each tiers' Multiplier value.
    *    - (param) tierActivation - An array of number of blocks for each tier that will be the required period of time for that tiered
    *       address to hold the tier's in order to be eligible for that tier's multiplier.
-   * 
+   *
    * @returns this
    *
    */
   public applyWalletCap(
     mode: WalletCapMode,
     options?: {
-      minWalletCap?: number,
-      maxWalletCap?: number,
-      tierMultiplierMode?: boolean,
-      tierAddress?: string,
-      tierMultiplier?: number[],
-      tierActivation?: (number | string)[]
+      minWalletCap?: number;
+      maxWalletCap?: number;
+      tierMultiplierMode?: boolean;
+      tierAddress?: string;
+      tierMultiplier?: number[];
+      tierActivation?: (number | string)[];
     }
   ): this {
-
     const MIN_CAP_SOURCES = (i: number) =>
       concat([
         op(Sale.Opcodes.VAL, i),
@@ -343,7 +340,6 @@ export class PriceCurve {
  * ```
  */
 export class FixedPrice extends PriceCurve {
-
   /**
    * Constructs a new raw FixedPrice sale type to be used in a Sale contract.
    *
@@ -380,7 +376,6 @@ export class FixedPrice extends PriceCurve {
  * ```
  */
 export class vLBP extends PriceCurve {
-
   /**
    * Constructs a new raw vLBP sale type to be used in a Sale contract.
    *
@@ -453,7 +448,6 @@ export class vLBP extends PriceCurve {
  * ```
  */
 export class IncreasingPrice extends PriceCurve {
-
   /**
    * Constructs a new raw linear Increasing Price sale type to be used in a Sale contract.
    *
@@ -511,7 +505,7 @@ export class IncreasingPrice extends PriceCurve {
  * canStart/EndStateConfig, but with using the methods in the class more complex conditions
  * can be created for how the sale's duration will work.
  *
- * @important - Like all the method calls, order of calling methods in this class is important in order to produce
+ * @remarks - Like all the method calls, order of calling methods in this class is important in order to produce
  * the desired result, although calling in any order will produce a reliable result, that depends on what the
  * intention is. For example 'applyOwner' should be called at last in order to apply the ownership over the whole script.
  * The general methods calling order in this class is:
@@ -525,7 +519,6 @@ export class IncreasingPrice extends PriceCurve {
  * ```
  */
 export class SaleDurationInTimestamp {
-
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -556,8 +549,8 @@ export class SaleDurationInTimestamp {
    * Method to apply extra time to the sale duration. if the extra time criteria which is raising more
    * than 'extraTimeAmount' has been met the sale continue for longer (for 'extraTime' more minutes).
    *
-   * @important - If the sale has extra time discount, it is important that this method to be applied for canEndStateConfig of the sale.
-   * @important - This method is designed for sale's canEndStateConfig and should 'not' be used for canStart
+   * @remarks - If the sale has extra time discount, it is important that this method to be applied for canEndStateConfig of the sale.
+   * @remarks - This method is designed for sale's canEndStateConfig and should 'not' be used for canStart
    * @see PriceCurve.applyExtraTimeDiscount - to deploy a sale that has discount when it goes into extra time.
    *
    * @param extraTime - The amount of time (in minutes) that sale can continue for, if the extra time criteria has been met.
@@ -566,10 +559,7 @@ export class SaleDurationInTimestamp {
    * @returns this
    *
    */
-  public applyExtraTime(
-    extraTime: number,
-    extraTimeAmount: number
-  ): this {
+  public applyExtraTime(extraTime: number, extraTimeAmount: number): this {
     const EXTRA_TIME = () =>
       concat([
         op(Sale.Opcodes.TOTAL_RESERVE_IN),
@@ -583,7 +573,7 @@ export class SaleDurationInTimestamp {
       ]);
 
     const ExtraTimeAmount = parseUnits(extraTimeAmount.toString());
-    const ExtraTime = (extraTime * 60) + this.timestamp;
+    const ExtraTime = extraTime * 60 + this.timestamp;
     this.constants.push(ExtraTime, ExtraTimeAmount);
     this.sources[0] = concat([this.sources[0], EXTRA_TIME()]);
     this.stackLength = Number(this.stackLength) + 10;
@@ -596,7 +586,7 @@ export class SaleDurationInTimestamp {
    * Sale's canStart/End functions are public and can be triggered by anyone when the criteria is met, but with using this method for sale's
    * canStart/EndStateConfig, it can configured in a way that only a certain address can actually trigger the sale's start/end functions.
    *
-   * @important - applyOwnership will apply the ownership over the StateConfig it is been called for, so the order of call is important to get
+   * @remarks - applyOwnership will apply the ownership over the StateConfig it is been called for, so the order of call is important to get
    * the desired result.
    *
    * @param ownerAddress - The address that will be the owner, only this wallet address can start or end a raise if this method is applied.
@@ -626,7 +616,7 @@ export class SaleDurationInTimestamp {
  * PriceCurve configs are designed with timestamp, so if you want to use the block number based canStart/EndStateConfig,
  * please make sure to to match with timestamp used in PriceCurve configs.
  *
- * @important - Like all the method calls, order of calling methods in this class is important in order to produce
+ * @remarks - Like all the method calls, order of calling methods in this class is important in order to produce
  * the desired result, although calling in any order will produce a reliable result, that depends on what the
  * intention is. For example 'applyOwner' should be called at last in order to apply the ownership over the whole script.
  * The general methods calling order in this class is:
@@ -640,7 +630,6 @@ export class SaleDurationInTimestamp {
  * ```
  */
 export class SaleDurationInBlocks {
-
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -655,7 +644,6 @@ export class SaleDurationInBlocks {
    *
    */
   constructor(readonly blockNumber: number) {
-
     this.constants = [blockNumber - 1];
     this.sources = [
       concat([
@@ -672,8 +660,8 @@ export class SaleDurationInBlocks {
    * Method to apply extra time to the sale duration. if the extra time criteria which is raising more
    * than 'extraTimeAmount' has been met the sale continue for longer (for 'extraTimeBlocks' more blocks).
    *
-   * @important - If the sale has extra time discount, it is important that this method to be applied for canEndStateConfig of the sale.
-   * @important - This method is designed for sale's canEndStateConfig and should 'not' be used for canStart
+   * @remarks - If the sale has extra time discount, it is important that this method to be applied for canEndStateConfig of the sale.
+   * @remarks - This method is designed for sale's canEndStateConfig and should 'not' be used for canStart
    * @see PriceCurve.applyExtraTimeDiscount - to deploy a sale that has discount when it goes into extra time.
    *
    * @param extraTimeBlocks - The amount of time (in blocks) that sale can continue for, if the extra time criteria has been met.
@@ -686,7 +674,6 @@ export class SaleDurationInBlocks {
     extraTimeBlocks: number,
     extraTimeAmount: number
   ): this {
-
     const EXTRA_TIME = () =>
       concat([
         op(Sale.Opcodes.TOTAL_RESERVE_IN),
@@ -714,7 +701,7 @@ export class SaleDurationInBlocks {
    * Sale's canStart/End functions are public and can be triggered by anyone when the criteria is met, but with using this method for sale's
    * canStart/EndStateConfig, it can configured in a way that only a certain address can actually trigger the sale's start/end functions.
    *
-   * @important - applyOwnership will apply the ownership over the StateConfig it is been called for, so the order of call is important to get
+   * @remarks - applyOwnership will apply the ownership over the StateConfig it is been called for, so the order of call is important to get
    * the desired result.
    *
    * @param ownerAddress - The address that will be the owner, only this wallet address can start or end a raise if this method is applied.

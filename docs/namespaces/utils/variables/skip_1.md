@@ -1,6 +1,9 @@
 
 # Function utils.skip()
 
+function for the operand of the SKIP opcode
+
+- SKIP is no longer available
 
 <b>Signature:</b>
 
@@ -18,4 +21,6 @@ function skip(places: number, conditional?: boolean): number;
 <b>Returns:</b>
 
 `number`
+
+a byte size number
 
