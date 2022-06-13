@@ -1,6 +1,7 @@
 
 # Variable utils.hexlify
 
+ethers hexlify
 
 <b>Signature:</b>
 

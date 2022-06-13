@@ -1,6 +1,7 @@
 
 # Type utils.Hexable
 
+a native type for ethers Hexable
 
 <b>Signature:</b>
 

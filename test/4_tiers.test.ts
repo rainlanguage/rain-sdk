@@ -74,12 +74,16 @@ describe('SDK - ERC20BalanceTier', () => {
     const tierUser1 = tierDeployer.connect(user1);
     const tierUser2 = tierDeployer.connect(user2);
 
-    expect(await tierUser1.amountToTier(tierUser1.levels.FIVE)).to.be.equals(
-      await tierDeployer.amountToTier(tierDeployer.levels.FIVE, user1.address)
+    expect(
+      await tierUser1.amountToTier(user1.address, tierUser1.levels.FIVE)
+    ).to.be.equals(
+      await tierDeployer.amountToTier(user1.address, tierDeployer.levels.FIVE)
     );
 
-    expect(await tierUser2.amountToTier(tierUser2.levels.TWO)).to.be.equals(
-      await tierDeployer.amountToTier(tierDeployer.levels.TWO, user2.address)
+    expect(
+      await tierUser2.amountToTier(user2.address, tierUser2.levels.TWO)
+    ).to.be.equals(
+      await tierDeployer.amountToTier(user2.address, tierDeployer.levels.TWO)
     );
   });
 
@@ -93,7 +97,7 @@ describe('SDK - ERC20BalanceTier', () => {
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
 
     // Provide to user tokens to get a tier 3
-    const amount = await tier.connect(user).amountToTier(tier.levels.FIVE);
+    const amount = await tier.amountToTier(user.address, tier.levels.FIVE);
     await token.transfer(user.address, amount);
 
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.FIVE);
@@ -109,7 +113,6 @@ describe('SDK - ERC20BalanceTier', () => {
 
     // user want level four
     const levelFour = tier.levels.FOUR;
-    const tierSigner2 = tier.connect(user);
 
     // User start as Tier zero because does not have tokens
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
@@ -117,7 +120,7 @@ describe('SDK - ERC20BalanceTier', () => {
     // Sending tokens to user to get Tier four
     await token.transfer(
       user.address,
-      await tierSigner2.amountToTier(levelFour)
+      await tier.amountToTier(user.address, levelFour)
     );
 
     expect(await tier.currentTier(user.address)).to.be.equals(levelFour);
@@ -133,7 +136,7 @@ describe('SDK - ERC20BalanceTier', () => {
     // Sending the other half to get Tier Five
     await token.transfer(
       user.address,
-      await tierSigner2.amountToTier(levelFive)
+      await tier.amountToTier(user.address, levelFive)
     );
     expect(await tier.currentTier(user.address)).to.be.equals(levelFive);
   });
@@ -147,8 +150,7 @@ describe('SDK - ERC20BalanceTier', () => {
     });
 
     // Set as Tier 7 to user with an extra amount
-    const tierSigner2 = tier.connect(user);
-    const initAmount = await tierSigner2.amountToTier(tier.levels.SEVEN);
+    const initAmount = await tier.amountToTier(user.address, tier.levels.SEVEN);
 
     await token.transfer(user.address, initAmount);
 
@@ -157,12 +159,50 @@ describe('SDK - ERC20BalanceTier', () => {
     );
 
     // Amount required to downgrade to Tier Two
-    const amountToDownGrade = await tierSigner2.amountToTier(tier.levels.TWO);
+    const amountToDownGrade = await tier.amountToTier(
+      user.address,
+      tier.levels.TWO
+    );
 
     // user remove the required amount from his account
     await token.connect(user).transfer(token.address, amountToDownGrade);
 
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.TWO);
+  });
+
+  it('should throw error if the instance does not have the token address when amountToTier is called', async () => {
+    const [deployer, user1] = await ethers.getSigners();
+    const token = await deployErc20(deployer);
+
+    // Tier derectly deployed contain the token Address
+    const tierComplete = await ERC20BalanceTier.deploy(deployer, {
+      erc20: token.address,
+      tierValues: TierLevelsERC20,
+    });
+
+    // From level 0 to level 5
+    const amountFive = (await tierComplete.tierValues())[4];
+    expect(
+      await tierComplete.amountToTier(user1.address, tierComplete.levels.FIVE)
+    ).to.be.equal(amountFive);
+
+    // Create new instance without the token address
+    const tierMissingToken = new ERC20BalanceTier(tierComplete.address, user1);
+
+    await expectAsyncError(
+      tierMissingToken.amountToTier(
+        user1.address,
+        tierMissingToken.levels.FIVE
+      ),
+      'Missing ERC20 Token address in the instance. Please, use addTokenAddress'
+    );
+
+    const tierFilled = tierMissingToken.addTokenAddress(token.address);
+
+    // From level 0 to level 5
+    expect(
+      await tierFilled.amountToTier(user1.address, tierFilled.levels.FIVE)
+    ).to.be.equal(amountFive);
   });
 });
 
@@ -197,21 +237,21 @@ describe('SDK - ERC20TransferTier', () => {
     const token = await deployErc20(deployer);
 
     // Tier connected to the deployer token and tier contracts
-    const tierDeployer = await ERC20TransferTier.deploy(deployer, {
+    const tier = await ERC20TransferTier.deploy(deployer, {
       erc20: token.address,
       tierValues: TierLevelsERC20,
     });
 
-    const tierUser1 = tierDeployer.connect(user1);
-    const tierUser2 = tierDeployer.connect(user2);
+    const tierUser1 = tier.connect(user1);
+    const tierUser2 = tier.connect(user2);
 
-    expect(await tierUser1.amountToTier(tierUser1.levels.SIX)).to.be.equals(
-      await tierDeployer.amountToTier(tierDeployer.levels.SIX, user1.address)
-    );
+    expect(
+      await tierUser1.amountToTier(user1.address, tierUser1.levels.SIX)
+    ).to.be.equals(await tier.amountToTier(user1.address, tier.levels.SIX));
 
-    expect(await tierUser2.amountToTier(tierUser2.levels.FOUR)).to.be.equals(
-      await tierDeployer.amountToTier(tierDeployer.levels.FOUR, user2.address)
-    );
+    expect(
+      await tierUser2.amountToTier(user2.address, tierUser2.levels.FOUR)
+    ).to.be.equals(await tier.amountToTier(user2.address, tier.levels.FOUR));
   });
 
   it('should approve to the ERC20TransferTier contract to use the owner tokens from SDK correctly', async () => {
@@ -255,7 +295,10 @@ describe('SDK - ERC20TransferTier', () => {
     ).to.be.revertedWith('ERC20: insufficient allowance');
 
     // The amount necessary to user get the tier two
-    const approvedAmount = await tierUser.amountToTier(levels.TWO);
+    const approvedAmount = await tierUser.amountToTier(
+      user.address,
+      levels.TWO
+    );
 
     // Sending to user the tokens
     await token.transfer(user.address, approvedAmount);
@@ -272,7 +315,10 @@ describe('SDK - ERC20TransferTier', () => {
       'Wrong set tier success'
     ).to.be.revertedWith('ERC20: insufficient allowance');
 
-    const approvedAmount_2 = await tierUser.amountToTier(levels.SIX);
+    const approvedAmount_2 = await tierUser.amountToTier(
+      user.address,
+      levels.SIX
+    );
 
     // Sending to user the tokens
     await token.transfer(user.address, approvedAmount_2);
@@ -297,7 +343,10 @@ describe('SDK - ERC20TransferTier', () => {
     const levels = tierUser.levels;
 
     // Set as initial level tier seven
-    const amountToTierSeven = await tierUser.amountToTier(levels.SEVEN);
+    const amountToTierSeven = await tierUser.amountToTier(
+      user.address,
+      levels.SEVEN
+    );
     await token.transfer(user.address, amountToTierSeven);
 
     await tierUser.approveTokenForTier(amountToTierSeven);
@@ -307,7 +356,10 @@ describe('SDK - ERC20TransferTier', () => {
 
     // user want to decrease to Tier 4
     const balanceBefore = await token.balanceOf(user.address);
-    const amountReturnedExpected = await tierUser.amountToTier(levels.FOUR);
+    const amountReturnedExpected = await tierUser.amountToTier(
+      user.address,
+      levels.FOUR
+    );
 
     await tierUser.setTier(user.address, levels.FOUR, []);
 
@@ -315,6 +367,41 @@ describe('SDK - ERC20TransferTier', () => {
     expect(await token.balanceOf(user.address)).to.be.equals(
       balanceBefore.add(amountReturnedExpected)
     );
+  });
+
+  it('should throw error if the instance does not have the token address when amountToTier is called', async () => {
+    const [deployer, user1] = await ethers.getSigners();
+    const token = await deployErc20(deployer);
+
+    // Tier derectly deployed contain the token Address
+    const tierComplete = await ERC20TransferTier.deploy(deployer, {
+      erc20: token.address,
+      tierValues: TierLevelsERC20,
+    });
+
+    // From level 0 to level 5
+    const amountFive = (await tierComplete.tierValues())[4];
+    expect(
+      await tierComplete.amountToTier(user1.address, tierComplete.levels.FIVE)
+    ).to.be.equal(amountFive);
+
+    // Create new instance without the token address
+    const tierMissingToken = new ERC20TransferTier(tierComplete.address, user1);
+
+    await expectAsyncError(
+      tierMissingToken.amountToTier(
+        user1.address,
+        tierMissingToken.levels.FIVE
+      ),
+      'Missing ERC20 Token address in the instance. Please, use addTokenAddress'
+    );
+
+    const tierFilled = tierMissingToken.addTokenAddress(token.address);
+
+    // From level 0 to level 5
+    expect(
+      await tierFilled.amountToTier(user1.address, tierFilled.levels.FIVE)
+    ).to.be.equal(amountFive);
   });
 });
 
@@ -363,22 +450,22 @@ describe('SDK - ERC721BalanceTier', () => {
     const token = await deployErc721(deployer);
 
     // Tier connected to the deployer token and tier contracts
-    const tierDeployer = await ERC721BalanceTier.deploy(deployer, {
+    const tier = await ERC721BalanceTier.deploy(deployer, {
       erc721: token.address,
       tierValues: TierLevelsERC721,
     });
 
     // Connect to differents users
-    const tierUser1 = tierDeployer.connect(user1);
-    const tierUser2 = tierDeployer.connect(user2);
+    const tierUser1 = tier.connect(user1);
+    const tierUser2 = tier.connect(user2);
 
-    expect(await tierUser1.amountToTier(tierUser1.levels.FIVE)).to.be.equals(
-      await tierDeployer.amountToTier(tierDeployer.levels.FIVE, user1.address)
-    );
+    expect(
+      await tierUser1.amountToTier(user1.address, tierUser1.levels.FIVE)
+    ).to.be.equals(await tier.amountToTier(user1.address, tier.levels.FIVE));
 
-    expect(await tierUser2.amountToTier(tierUser2.levels.TWO)).to.be.equals(
-      await tierDeployer.amountToTier(tierDeployer.levels.TWO, user2.address)
-    );
+    expect(
+      await tierUser2.amountToTier(user2.address, tierUser2.levels.TWO)
+    ).to.be.equals(await tier.amountToTier(user2.address, tier.levels.TWO));
   });
 
   it('should get the current/latest tier as numeric readable expression levels', async () => {
@@ -413,15 +500,15 @@ describe('SDK - ERC721BalanceTier', () => {
 
     // User start as Tier zero because does not have tokens
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.ZERO);
-    expect(await tier.amountToTier(levelFour, user.address)).to.be.equals(4);
+    expect(await tier.amountToTier(user.address, levelFour)).to.be.equals(4);
 
     // Minting tokens to user to get Tier four
-    while (!(await tierUser.amountToTier(levelFour)).isZero()) {
+    while (!(await tierUser.amountToTier(user.address, levelFour)).isZero()) {
       await token.connect(user).mintNewToken();
     }
 
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.FOUR);
-    expect(await tier.amountToTier(levelFour, user.address)).to.be.equals(0);
+    expect(await tier.amountToTier(user.address, levelFour)).to.be.equals(0);
   });
 
   it('should obtain the amount that should be remove/burned to downgrade tiers', async () => {
@@ -432,8 +519,6 @@ describe('SDK - ERC721BalanceTier', () => {
       erc721: token.address,
       tierValues: TierLevelsERC721,
     });
-
-    const tierUser = tier.connect(user);
 
     // Set as Tier 5 to the user. Mint tokens id from 1 to 5
     while ((await token.balanceOf(user.address)).lt(5)) {
@@ -449,12 +534,47 @@ describe('SDK - ERC721BalanceTier', () => {
 
     // burn until reach the correct balance
     let i = 0;
-    while (!(await tierUser.amountToTier(tier.levels.TWO)).isZero()) {
+    while (!(await tier.amountToTier(user.address, tier.levels.TWO)).isZero()) {
       await token.connect(user).burn(tokenIds[i]);
       i++;
     }
 
     expect(await tier.currentTier(user.address)).to.be.equals(tier.levels.TWO);
+  });
+
+  it('should throw error if the instance does not have the token address when amountToTier is called', async () => {
+    const [deployer, user1] = await ethers.getSigners();
+    const token = await deployErc721(deployer);
+
+    // Tier derectly deployed contain the token Address
+    const tierComplete = await ERC721BalanceTier.deploy(deployer, {
+      erc721: token.address,
+      tierValues: TierLevelsERC20,
+    });
+
+    // From level 0 to level 5
+    const amountFive = (await tierComplete.tierValues())[4];
+    expect(
+      await tierComplete.amountToTier(user1.address, tierComplete.levels.FIVE)
+    ).to.be.equal(amountFive);
+
+    // Create new instance without the token address
+    const tierMissingToken = new ERC721BalanceTier(tierComplete.address, user1);
+
+    await expectAsyncError(
+      tierMissingToken.amountToTier(
+        user1.address,
+        tierMissingToken.levels.FIVE
+      ),
+      'Missing ER721 Token address in the instance. Please, use addTokenAddress'
+    );
+
+    const tierFilled = tierMissingToken.addTokenAddress(token.address);
+
+    // From level 0 to level 5
+    expect(
+      await tierFilled.amountToTier(user1.address, tierFilled.levels.FIVE)
+    ).to.be.equal(amountFive);
   });
 });
 
@@ -625,7 +745,7 @@ describe('SDK - ITier', () => {
     const levelFour = iTier.levels.FOUR;
     await token.transfer(
       user.address,
-      await balanceTier.amountToTier(levelFour, user.address)
+      await balanceTier.amountToTier(user.address, levelFour)
     );
 
     expect(await iTier.currentTier(user.address)).to.be.equals(levelFour);

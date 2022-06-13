@@ -163,7 +163,7 @@ describe('SDK - Sale', () => {
 
     const startTimestamp = (await Time.currentTime()) + 30; // 30 seconds from now
     const saleDuration = Time.duration.hours(10); // 10 hours
-    const endTimestamp = BigNumber.from(startTimestamp).add(saleDuration);
+    const endTimestamp = startTimestamp + Number(saleDuration);
 
     const minimumRaise = ethers.BigNumber.from('150000').mul(RESERVE_ONE);
 
@@ -222,7 +222,7 @@ describe('SDK - Sale', () => {
     expect(await sale.canEnd(), 'sale should be not ready to end').to.be.false;
 
     // Increase the timestamp to end (+1 to because is AFTER timestamp)
-    await Time.increase(endTimestamp.sub(await Time.currentTime()).add(1));
+    await Time.increase(BigNumber.from(endTimestamp).sub(await Time.currentTime()).add(1));
 
     expect(await sale.canEnd(), 'sale should be ready to end').to.be.true;
 

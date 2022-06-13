@@ -21,3 +21,5 @@ function callSize(sourceIndex: number, loopSize: number, valSize: number): numbe
 
 `number`
 
+a byte size number
+

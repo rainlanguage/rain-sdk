@@ -62,7 +62,7 @@ export class ERC20TransferTier extends TierContract {
    * @returns A new ERC20TransferTier instance
    *
    */
-  constructor(address: string, tokenAddress: string, signer: Signer) {
+  constructor(address: string, signer: Signer, tokenAddress: string = '') {
     ERC20TransferTier.checkAddress(address);
     super(address, signer);
     const _erc20TransferTier = ERC20TransferTier__factory.connect(
@@ -103,11 +103,26 @@ export class ERC20TransferTier extends TierContract {
       receipt,
       erc20TransferTierFactory
     );
-    return new ERC20TransferTier(address, args.erc20, signer);
+    return new ERC20TransferTier(address, signer, args.erc20);
   }
 
   public readonly connect = (signer: Signer): ERC20TransferTier => {
-    return new ERC20TransferTier(this.address, this.token, signer);
+    return new ERC20TransferTier(this.address, signer, this.token);
+  };
+
+  /**
+   * Get a new instance with the token address provided.
+   *
+   * This method must be used if the token address is not provided in construction moment. The class use
+   * this address to make calculations related with the Tier. The token address provided should be the
+   * same that the Tier is using to work correctly.
+   * @param tokenAddress - The ERC20 token address related to the tier
+   * @returns A new instance with the token address ready to use the helper methods
+   */
+  public readonly addTokenAddress = (
+    tokenAddress: string
+  ): ERC20TransferTier => {
+    return new ERC20TransferTier(this.address, this.signer, tokenAddress);
   };
 
   /**
@@ -144,9 +159,15 @@ export class ERC20TransferTier extends TierContract {
    * @returns The amount t
    */
   public async amountToTier(
-    desiredLevel: number,
-    account?: string
+    account: string,
+    desiredLevel: number
   ): Promise<BigNumber> {
+    if (!this.token) {
+      throw new Error(
+        'Missing ERC20 Token address in the instance. Please, use addTokenAddress'
+      );
+    }
+
     const values = await this.tierValues();
     const currentTier = await this.currentTier(
       account || (await this.signer.getAddress())
