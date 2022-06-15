@@ -783,9 +783,9 @@ export class RainJS {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && this.signer != undefined) {
-          const account_ = "0x" + item2_.toHexString().substring(2).padStart(64, "0");
+          const account_ = "0x" + item2_.toHexString().substring(2).padStart(40, "0");
           const iTierContract = new ITier(
-            "0x" + item1_.toHexString().substring(2).padStart(64, "0"),
+            "0x" + item1_.toHexString().substring(2).padStart(40, "0"),
             this.signer
           );
           state.stack.push(
@@ -954,8 +954,8 @@ export class RainJS {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && this.signer != undefined) {
-          const account_ = "0x" + item2_.toHexString().substring(2).padStart(64, "0");
-          const erc20Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+          const account_ = "0x" + item2_.toHexString().substring(2).padStart(40, "0");
+          const erc20Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
           const erc20Contract_ = new ERC20(
             erc20Address_,
             this.signer
@@ -971,7 +971,7 @@ export class RainJS {
       async(state: StateJS, operand: number, data?: any) => {
         const item_ = state.stack.pop();
         if (item_ && this.signer != undefined) {
-          const erc20Address_ = "0x" + item_.toHexString().substring(2).padStart(64, "0");
+          const erc20Address_ = "0x" + item_.toHexString().substring(2).padStart(40, "0");
           const erc20Contract_ = new ERC20(
             erc20Address_,
             this.signer
@@ -988,8 +988,8 @@ export class RainJS {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && this.signer != undefined) {
-          const account_ = "0x" + item2_.toHexString().substring(2).padStart(64, "0");
-          const erc721Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+          const account_ = "0x" + item2_.toHexString().substring(2).padStart(40, "0");
+          const erc721Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
           const erc721Contract_ = new ERC721(
             erc721Address_,
             this.signer
@@ -1007,7 +1007,7 @@ export class RainJS {
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && this.signer != undefined) {
           const tokenId_ = BigNumber.from(item2_);
-          const erc721Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+          const erc721Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
           const erc721Contract_ = new ERC721(
             erc721Address_,
             this.signer
@@ -1026,8 +1026,8 @@ export class RainJS {
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && item3_ && this.signer != undefined) {
           const id_ = BigNumber.from(item3_);
-          const account_ = "0x" + item2_.toHexString().substring(2).padStart(64, "0");
-          const erc1155Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+          const account_ = "0x" + item2_.toHexString().substring(2).padStart(40, "0");
+          const erc1155Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
           const erc1155Contract_ = new ERC1155(
             erc1155Address_,
             this.signer
@@ -1054,10 +1054,10 @@ export class RainJS {
         const accounts_: string[] = [];
         for (let i = 0; i < item2_.length; i++) {
           accounts_.push(
-            "0x" + item2_[i].toHexString().substring(2).padStart(64, "0")
+            "0x" + item2_[i].toHexString().substring(2).padStart(40, "0")
           )
         };
-        const erc1155Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+        const erc1155Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
         const erc1155Contract_ = new ERC1155(
           erc1155Address_,
           this.signer
