@@ -1,9 +1,10 @@
 import { expect } from 'chai';
-import { generateHumanFriendlySource } from '../src/friendlySource';
-import { concat } from 'ethers/lib/utils';
 import { ethers } from 'hardhat';
-import { bytify, op } from '../src/utils';
-import { arg, callSize, createEmptyBlock } from './utils';
+
+import { HumanFriendlySource } from '../src/newFS';
+import { VM, utils } from '../src';
+
+const { bytify, op, concat, arg, callSize } = utils;
 
 const enum Opcode {
   SKIP,
@@ -23,147 +24,61 @@ const enum Opcode {
   MAX,
 }
 
-const opMeta = [
-  {
-    opcode: Opcode.SKIP,
-    name: 'SKIP',
-    input: '',
-  },
-  {
-    opcode: Opcode.VAL,
-    name: 'VAL',
-    input: 'constantIndex',
-  },
-  {
-    opcode: Opcode.DUP,
-    name: 'DUP',
-    input: '',
-  },
-  {
-    opcode: Opcode.ZIPMAP,
-    name: 'ZIPMAP',
-    input: 'zipmap',
-  },
-  {
-    opcode: Opcode.DEBUG,
-    name: 'DEBUG',
-    input: '',
-  },
-  {
-    opcode: Opcode.BLOCK_NUMBER,
-    name: 'BLOCK_NUMBER',
-    input: 'blockNumber',
-  },
-  {
-    opcode: Opcode.BLOCK_TIMESTAMP,
-    name: 'BLOCK_TIMESTAMP',
-    input: 'blockTimestamp',
-  },
-  {
-    opcode: Opcode.ADD,
-    name: 'ADD',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: Opcode.SUB,
-    name: 'SUB',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: Opcode.MUL,
-    name: 'MUL',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: Opcode.DIV,
-    name: 'DIV',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: Opcode.MOD,
-    name: 'MOD',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: Opcode.EXP,
-    name: 'EXP',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: Opcode.MIN,
-    name: 'MIN',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: Opcode.MAX,
-    name: 'MAX',
-    input: 'takeFromStack',
-  },
-];
-
-describe('generateHumanFriendlySource', () => {
+describe.only('generateHumanFriendlySource', () => {
   it('should support source scripts with leading zeroes', async () => {
-    await createEmptyBlock(5);
-
     const block0 = await ethers.provider.getBlockNumber();
     const constants = [block0];
 
-    const vBlock = op(Opcode.VAL, 0);
-
     // prettier-ignore
-    const source0 = concat([
+    const source0 = VM.createVMSources([
       // 0 0 0 0 0 0 0 0 0 0 (block0 BLOCK_NUMBER min)
       new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-        vBlock,
-        op(Opcode.BLOCK_NUMBER),
-      op(Opcode.MIN, 2),
+        [Opcode.VAL, 0],
+        [Opcode.BLOCK_NUMBER],
+      [Opcode.MIN, 2],
     ]);
 
-    const friendly0 = generateHumanFriendlySource([source0], constants, opMeta);
+    const friendly0 = HumanFriendlySource.get(source0, constants);
 
     expect(friendly0).to.eq(`MIN(${block0}, BLOCK_NUMBER())`);
   });
 
   it('should support source scripts with trailing zeroes', async () => {
-    await createEmptyBlock(5);
-
     const block0 = await ethers.provider.getBlockNumber();
     const constants = [block0];
 
-    const vBlock = op(Opcode.VAL, 0);
-
     // prettier-ignore
-    const source0 = concat([
+    const source0 = VM.createVMSources([
       // (block0 BLOCK_NUMBER min) 0 0 0 0 0 0 0 0 0 0
-        vBlock,
-        op(Opcode.BLOCK_NUMBER),
-      op(Opcode.MIN, 2),
+        [Opcode.VAL, 0],
+        [Opcode.BLOCK_NUMBER],
+      [Opcode.MIN, 2],
       new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
     ]);
 
-    const friendly0 = generateHumanFriendlySource([source0], constants, opMeta);
+    const friendly0 = HumanFriendlySource.get(source0, constants);
 
     expect(friendly0).to.eq(`MIN(${block0}, BLOCK_NUMBER())`);
   });
 
   it('should return block.number and block.timestamp', () => {
-    const constants: Array<number> = [];
+    const constants: number[] = [];
 
-    const source0 = concat([
+    const source0 = VM.createVMSources([
       // (BLOCK_NUMBER)
-      op(Opcode.BLOCK_NUMBER),
+      [Opcode.BLOCK_NUMBER],
     ]);
 
-    const friendly0 = generateHumanFriendlySource([source0], constants, opMeta);
+    const friendly0 = HumanFriendlySource.get(source0, constants);
 
     expect(friendly0).to.eq('BLOCK_NUMBER()');
 
-    const source1 = concat([
+    const source1 = VM.createVMSources([
       // (BLOCK_TIMESTAMP)
-      op(Opcode.BLOCK_TIMESTAMP),
+      [Opcode.BLOCK_TIMESTAMP],
     ]);
 
-    const friendly1 = generateHumanFriendlySource([source1], constants, opMeta);
+    const friendly1 = HumanFriendlySource.get(source1, constants);
 
     expect(friendly1).to.eq('BLOCK_TIMESTAMP()');
   });
@@ -174,17 +89,15 @@ describe('generateHumanFriendlySource', () => {
     const v4 = op(Opcode.VAL, 1);
     const v2 = op(Opcode.VAL, 2);
 
-    const sources = [
-      concat([
-        // (7 4 2 %)
-        v7,
-        v4, // -> r3
-        v2, // -> r1
-        op(Opcode.MOD, 3),
-      ]),
-    ];
+    const sources = VM.createVMSources([
+      // (7 4 2 %)
+      v7,
+      v4, // -> r3
+      v2, // -> r1
+      op(Opcode.MOD, 3),
+    ]);
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq('MOD(7, 4, 2)');
   });
@@ -205,7 +118,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq('EXP(2, 4, 3)');
   });
@@ -224,7 +137,7 @@ describe('generateHumanFriendlySource', () => {
       op(Opcode.MAX, 3),
     ]);
 
-    const friendly = generateHumanFriendlySource([source], constants, opMeta);
+    const friendly = HumanFriendlySource.get([source], constants);
 
     expect(friendly).to.eq('MAX(22, 11, 33)');
   });
@@ -243,7 +156,7 @@ describe('generateHumanFriendlySource', () => {
       op(Opcode.MIN, 3),
     ]);
 
-    const friendly = generateHumanFriendlySource([source], constants, opMeta);
+    const friendly = HumanFriendlySource.get([source], constants);
 
     expect(friendly).to.eq('MIN(22, 11, 33)');
   });
@@ -252,7 +165,7 @@ describe('generateHumanFriendlySource', () => {
     const constants: Array<number> = [];
     const source = concat([op(Opcode.BLOCK_NUMBER)]);
 
-    const friendly = generateHumanFriendlySource([source], constants, opMeta);
+    const friendly = HumanFriendlySource.get([source], constants);
 
     expect(friendly).to.eq('BLOCK_NUMBER()');
   });
@@ -316,7 +229,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq(`ZIPMAP(
     [1, 2, 3, 4, 5, 6, 7, 8],
@@ -359,7 +272,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq(`ZIPMAP(
     [5, 3],
@@ -467,7 +380,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq(`ZIPMAP(
     10,
@@ -528,7 +441,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq(`ZIPMAP(
     1,
@@ -574,7 +487,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq(`ZIPMAP(
     3,
@@ -615,7 +528,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq(`ZIPMAP(
     1,
@@ -651,7 +564,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq(
       'MUL(BLOCK_NUMBER(), DIV(6, 3), ADD(3, 4, SUB(2, 1)))'
@@ -678,7 +591,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq('DIV(MUL(ADD(2, 2, 2), 3), 2, 3)');
   });
@@ -699,7 +612,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq('MOD(13, 2, 3)');
   });
@@ -720,7 +633,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq('DIV(12, 2, 3)');
   });
@@ -741,7 +654,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq('MUL(3, 4, 5)');
   });
@@ -762,7 +675,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq('SUB(10, 2, 3)');
   });
@@ -783,7 +696,7 @@ describe('generateHumanFriendlySource', () => {
       ]),
     ];
 
-    const friendly = generateHumanFriendlySource(sources, constants, opMeta);
+    const friendly = HumanFriendlySource.get(sources, constants);
 
     expect(friendly).to.eq('ADD(1, 2, 3)');
   });

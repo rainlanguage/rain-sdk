@@ -1,3 +1,5 @@
+import { arrayify } from './utils';
+
 export interface OpMeta {
   opcode: number;
   name: string;
@@ -16,7 +18,7 @@ export const generateHumanFriendlySource = (
   sources: Array<Uint8Array>,
   constants: Array<number> | Array<Uint8Array>,
   opmetas: Array<OpMeta>
-) => {
+): string => {
   const state: State = {
     stackIndex: 0,
     stack: [],
@@ -28,12 +30,21 @@ export const generateHumanFriendlySource = (
   return _eval(state, 0);
 };
 
+const pairs = (arr: Uint8Array): Array<[number, number]> => {
+  const _arr = Array.from(arrayify(arr));
+  const pairs: Array<[number, number]> = [];
+  for (let i = 0; i < arr.length; i += 2) {
+    pairs.push(_arr.slice(i, i + 2) as [number, number]);
+  }
+  return pairs;
+};
+
 const _eval = (state: State, sourceIndex: number) => {
   let i = 0;
   let op: OpMeta & { operand: number };
 
-  const ops = pairs(state.sources[sourceIndex]).map(pair => {
-    const opmeta = state.opmetas.find(opmeta => opmeta.opcode === pair[0]);
+  const ops = pairs(state.sources[sourceIndex]).map((pair) => {
+    const opmeta = state.opmetas.find((opmeta) => opmeta.opcode === pair[0]);
     if (typeof opmeta === 'undefined') {
       throw Error('Unknown opcode' + pair[1]);
     }
@@ -81,8 +92,8 @@ const _eval = (state: State, sourceIndex: number) => {
   }
 
   return state.stack
-    .filter(item => item.consumed === false)
-    .map(item => {
+    .filter((item) => item.consumed === false)
+    .map((item) => {
       item.consumed = true;
       return item.val;
     })
@@ -129,25 +140,15 @@ const zipmap = (state: State, operand: number) => {
     );
     state.stack[i].consumed = true;
   }
-
   tempArr.push(_eval(state, sourceIndex));
 
-  tempString += tempArr.map(entry => '    ' + entry).join(`,\n`);
+  tempString += tempArr.map((entry) => '    ' + entry).join(`,\n`);
   tempString += `\n)`;
 
   state.stack[state.stackIndex] = {
     val: tempString,
     consumed: false,
   };
-};
-
-const pairs = (arr: Uint8Array): Array<[number, number]> => {
-  const pairs = [];
-  for (let i = 0; i < arr.length; i += 2) {
-    pairs.push(arr.slice(i, i + 2));
-  }
-  /* @ts-ignore */
-  return pairs;
 };
 
 const divideArray = (arr: Uint8Array, times: number): Uint8Array => {

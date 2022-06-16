@@ -64,6 +64,9 @@ export interface Addresses {
 
 export const sixZeros = '000000';
 export const eighteenZeros = '000000000000000000';
+export const max_uint256 = ethers.BigNumber.from(
+  "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+);
 
 export const RESERVE_ONE = ethers.BigNumber.from('1' + sixZeros);
 export const ONE = ethers.BigNumber.from('1' + eighteenZeros);
