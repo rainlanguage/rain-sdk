@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
-import { HumanFriendlySource } from '../src/newFS';
-import { VM, utils } from '../src';
+import { VM, HumanFriendlySource, utils } from '../src';
 
 const { bytify, op, concat, arg, callSize } = utils;
 
@@ -24,7 +23,7 @@ const enum Opcode {
   MAX,
 }
 
-describe.only('generateHumanFriendlySource', () => {
+describe.only('Human Friendly Source Generator', () => {
   it('should support source scripts with leading zeroes', async () => {
     const block0 = await ethers.provider.getBlockNumber();
     const constants = [block0];
