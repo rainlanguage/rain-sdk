@@ -887,9 +887,326 @@ describe('SDK - RainJS', () => {
       got ${result}`
     );
   })
+  
+  it('should solve a mathematical expression (division, multiplication, summation)', async () => {
+    
+    const [signer] = await ethers.getSigners();
+    
+    const v4 = op(RainJS.Opcodes.VAL, 0);
+    const v5 = op(RainJS.Opcodes.VAL, 1);
+    const v2 = op(RainJS.Opcodes.VAL, 2);
+    // ((((4 5 2 +) 2 /) 5 *) 4 5 *) 
+    const script: StateConfig = {
+      constants: [4, 5, 2],
+      sources: [
+        concat([
+                v4,
+                v5,
+                v2,
+                op(RainJS.Opcodes.ADD, 3),
+              v2,
+              op(RainJS.Opcodes.DIV, 2),
+            v5,
+            op(RainJS.Opcodes.MUL, 2),
+          v4, 
+          v5,
+          op(RainJS.Opcodes.MUL, 3),
+        ])
+      ],
+      stackLength: 11,
+      argumentsLength: 0
+    }
+
+    const rainJs = new RainJS(script, {signer});
+    const result = await rainJs.run();
+    const expected = BigNumber.from(4+5+2).div(2).mul(5).mul(4).mul(5);
+    assert(
+      expected.eq(result),
+      `
+      The addition operation failed:
+      expected ${expected}
+      got ${result}`
+    );
+
+  })
+
+  it("should error when trying to read an out-of-bounds argument", async () => {
+
+    const errorMessage = "out-of-bound arguments";
+    const constants = [1, 2, 3];
+    const v1 = op(RainJS.Opcodes.VAL, 0);
+    const v2 = op(RainJS.Opcodes.VAL, 1);
+    const v3 = op(RainJS.Opcodes.VAL, 2);
+
+    const a0 = op(RainJS.Opcodes.VAL, arg(0));
+    const a1 = op(RainJS.Opcodes.VAL, arg(1));
+    const aOOB = op(RainJS.Opcodes.VAL, arg(3)); // Should fail here
+
+    // zero-based counting
+    const sourceIndex = 1; // 1
+    const loopSize = 0; // 1
+    const valSize = 2; // 3
+
+    const sources = [
+      concat([
+        v1,
+        v2,
+        v3,
+        op(RainJS.Opcodes.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
+      ]),
+      concat([
+        // (arg0 arg1 arg2 add)
+        a0,
+        a1,
+        aOOB,
+        op(RainJS.Opcodes.ADD, 3),
+      ]),
+    ];
+
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 3,
+      stackLength: 3,
+    }
+
+    const rainJs = new RainJS(script);
+    try{
+      await rainJs.run();
+    }
+    catch(error){
+      if(error instanceof Error)
+      {
+        assert(
+          error.toString().includes(errorMessage), 
+        `error string ${error} does not include ${errorMessage}`
+        )
+      }
+    }
+  });
+  
+  it("should error when trying to read an out-of-bounds constant", async () => {
+    
+    const errorMessage = "out-of-bound constants";
+    const constants = [1];
+    const vOOB = op(RainJS.Opcodes.VAL, 1);
+
+    const sources = [concat([vOOB])];
+
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 1,
+    }
+
+    const rainJs = new RainJS(script);
+    try{
+      
+      await rainJs.run();
+    }
+    catch(error){
+      if(error instanceof Error)
+      {
+        assert(
+          error.toString().includes(errorMessage), 
+        `error string ${error} does not include ${errorMessage}`
+        )
+      }
+    }
+  });
+
+  it("should throw error when stack underflows [eager_if]", async () => {
+        
+    const errorMessage = "Undefined stack variables";
+    const constants = [0, 1];
+    const v0 = op(RainJS.Opcodes.VAL, 0);
+    const v1 = op(RainJS.Opcodes.VAL, 1);
+
+    const sources = [
+      concat([
+        v0, 
+        v1,
+        op(RainJS.Opcodes.EAGER_IF),
+      ]),
+    ];
+
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    }
+
+    const rainJs = new RainJS(script);
+    try{
+      await rainJs.run();
+    }
+    catch(error){
+      if(error instanceof Error)
+      {
+        assert(
+          error.toString().includes(errorMessage), 
+        `error string ${error} does not include ${errorMessage}`
+        )
+      }
+    }
+  });
+
+  it("should throw error when stack underflows [add]", async () => {
+        
+    const errorMessage = "Undefined stack variables";
+    const constants = [10, 1, 4];
+    const v0 = op(RainJS.Opcodes.VAL, 0);
+    const v1 = op(RainJS.Opcodes.VAL, 1);
+    const v2 = op(RainJS.Opcodes.VAL, 2);
+
+    const sources = [
+      concat([
+        v0, 
+        v1,
+        v2,
+        op(RainJS.Opcodes.ADD, 4),
+      ]),
+    ];
+
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 0,
+    }
+
+    const rainJs = new RainJS(script);
+    
+    try{
+      await rainJs.run();
+    }
+    catch(error){
+      if(error instanceof Error)
+      {
+        assert(
+          error.toString().includes(errorMessage), 
+        `error string ${error} does not include ${errorMessage}`
+        )
+      }
+    }
+  });
+
+  it.only("should handle a zipmap op with maxed sourceIndex and valSize", async () => {
+    const constants = [10, 20, 30, 40, 50, 60, 70, 80];
+
+    const a0 = op(RainJS.Opcodes.VAL, arg(0));
+    const a1 = op(RainJS.Opcodes.VAL, arg(1));
+    const a2 = op(RainJS.Opcodes.VAL, arg(2));
+    const a3 = op(RainJS.Opcodes.VAL, arg(3));
+    const a4 = op(RainJS.Opcodes.VAL, arg(4));
+    const a5 = op(RainJS.Opcodes.VAL, arg(5));
+    const a6 = op(RainJS.Opcodes.VAL, arg(6));
+    const a7 = op(RainJS.Opcodes.VAL, arg(7));
+
+    // zero-based counting
+    const sourceIndex = 1;
+    const loopSize = 0; // no subdivision of uint256, normal constants
+    const valSize = 7;
+
+    const sources = [
+      concat([
+        op(RainJS.Opcodes.VAL, 0), // val0
+        op(RainJS.Opcodes.VAL, 1), // val1
+        op(RainJS.Opcodes.VAL, 2), // val2
+        op(RainJS.Opcodes.VAL, 3), // val3
+        op(RainJS.Opcodes.VAL, 4), // val4
+        op(RainJS.Opcodes.VAL, 5), // val5
+        op(RainJS.Opcodes.VAL, 6), // val6
+        op(RainJS.Opcodes.VAL, 7), // val7
+        op(RainJS.Opcodes.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
+      ]),
+      concat([
+        // (arg0 arg1 arg2 ... add) (arg0 arg1 arg2 ... add)
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        op(RainJS.Opcodes.ADD, 32), // max no. items
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        op(RainJS.Opcodes.ADD, 30),
+      ]),
+    ];
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 8,
+      stackLength: 32,
+    };
+    const rainJs = new RainJS(script);
+    
+    const actualAdd = await rainJs.run();
+    const expectedAdd = 1290; // second add
+    assert(
+      actualAdd.eq(expectedAdd),
+      `wrong result of zipmap
+      expected  ${expectedAdd}
+      got       ${actualAdd}`
+    );
+   
+  });
 
 })
-
-
-
-
