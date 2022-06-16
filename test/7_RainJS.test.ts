@@ -1093,7 +1093,7 @@ describe('SDK - RainJS', () => {
     }
   });
 
-  it.only("should handle a zipmap op with maxed sourceIndex and valSize", async () => {
+  it("should handle a zipmap op with maxed sourceIndex and valSize", async () => {
     const constants = [10, 20, 30, 40, 50, 60, 70, 80];
 
     const a0 = op(RainJS.Opcodes.VAL, arg(0));
