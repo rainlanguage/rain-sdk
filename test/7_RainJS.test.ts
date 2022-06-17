@@ -11,7 +11,8 @@ import {
   callSize,
   tierRange,
   selectLteLogic,
-  selectLteMode
+  selectLteMode,
+  assertError
 } from '../src/utils'
 import {
   StateConfig,
@@ -971,18 +972,10 @@ describe('SDK - RainJS', () => {
     }
 
     const rainJs = new RainJS(script);
-    try{
-      await rainJs.run();
-    }
-    catch(error){
-      if(error instanceof Error)
-      {
-        assert(
-          error.toString().includes(errorMessage), 
-        `error string ${error} does not include ${errorMessage}`
-        )
-      }
-    }
+    await assertError(
+      async () => await rainJs.run(),
+      errorMessage
+    );
   });
   
   it("should error when trying to read an out-of-bounds constant", async () => {
@@ -1001,19 +994,10 @@ describe('SDK - RainJS', () => {
     }
 
     const rainJs = new RainJS(script);
-    try{
-      
-      await rainJs.run();
-    }
-    catch(error){
-      if(error instanceof Error)
-      {
-        assert(
-          error.toString().includes(errorMessage), 
-        `error string ${error} does not include ${errorMessage}`
-        )
-      }
-    }
+    await assertError(
+      async () => await rainJs.run(),
+      errorMessage
+    );
   });
 
   it("should throw error when stack underflows [eager_if]", async () => {
@@ -1039,18 +1023,10 @@ describe('SDK - RainJS', () => {
     }
 
     const rainJs = new RainJS(script);
-    try{
-      await rainJs.run();
-    }
-    catch(error){
-      if(error instanceof Error)
-      {
-        assert(
-          error.toString().includes(errorMessage), 
-        `error string ${error} does not include ${errorMessage}`
-        )
-      }
-    }
+    await assertError(
+      async () => await rainJs.run(),
+      errorMessage
+    );
   });
 
   it("should throw error when stack underflows [add]", async () => {
@@ -1079,18 +1055,10 @@ describe('SDK - RainJS', () => {
 
     const rainJs = new RainJS(script);
     
-    try{
-      await rainJs.run();
-    }
-    catch(error){
-      if(error instanceof Error)
-      {
-        assert(
-          error.toString().includes(errorMessage), 
-        `error string ${error} does not include ${errorMessage}`
-        )
-      }
-    }
+    await assertError(
+      async () => await rainJs.run(),
+      errorMessage
+    );
   });
 
   it("should handle a zipmap op with maxed sourceIndex and valSize", async () => {
@@ -1207,6 +1175,128 @@ describe('SDK - RainJS', () => {
       got       ${actualAdd}`
     );
    
+  });
+
+  it("should panic when accumulator underflows with subtraction op", async () => {
+
+    const constants = [0, 1];
+    const errorMessage = "negative value not allowed";
+    const vZero = op(RainJS.Opcodes.VAL, 0);
+    const vOne = op(RainJS.Opcodes.VAL, 1);
+    // prettier-ignore
+    const source = concat([
+        vZero,
+        vOne,
+      op(RainJS.Opcodes.SUB, 2)
+    ]);
+
+
+    const script = {
+      sources: [source],
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const rainJs = new RainJS(script);
+    await assertError(
+      async () => await rainJs.run(),
+      errorMessage
+    );
+  });
+
+  // Skipping as of now since overflow check is missing
+  it.skip("should panic when accumulator overflows with multiplication op", async () => {
+
+    const max_uint256 = ethers.BigNumber.from(
+      "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    );
+    const constants = [max_uint256.div(2), 3];
+    const errorMessage = "Arithmetic overflow error";
+    const vHalfMaxUInt256 = op(RainJS.Opcodes.VAL, 0);
+    const vThree = op(RainJS.Opcodes.VAL, 1);
+
+    // (max_uint/2) * 3
+    const source0 = concat([
+        vHalfMaxUInt256,
+        vThree,
+      op(RainJS.Opcodes.MUL, 2)
+    ]);
+
+    const script = {
+      sources: [source0],
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const rainJs = new RainJS(script);
+    await assertError(
+      async () => await rainJs.run(),
+      errorMessage
+    );
+  });
+
+  it.skip("should panic when accumulator overflows with exponentiation op", async () => {
+
+    const max_uint256 = ethers.BigNumber.from(
+      "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    );
+    const constants = [max_uint256.div(2), 2];
+    const errorMessage = "Arithmetic overflow error";
+    const vHalfMaxUInt256 = op(RainJS.Opcodes.VAL, 0);
+    const vTwo = op(RainJS.Opcodes.VAL, 1);
+
+    // (max_uint/2) ** 2
+    const source0 = concat([
+        vHalfMaxUInt256,
+        vTwo,
+      op(RainJS.Opcodes.EXP, 2)
+    ]);
+
+    const script = {
+      sources: [source0],
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const rainJs = new RainJS(script);
+    await assertError(
+      async () => await rainJs.run(),
+      errorMessage
+    );
+  });
+
+  it.skip("should panic when accumulator overflows with addition op", async () => {
+
+    const max_uint256 = ethers.BigNumber.from(
+      "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    );
+    const constants = [max_uint256.div(2), 1];
+    const errorMessage = "Arithmetic overflow error";
+    const vHalfMaxUInt256 = op(RainJS.Opcodes.VAL, 0);
+    const vOne = op(RainJS.Opcodes.VAL, 1);
+
+    // max_uint256 + 1
+    const source0 = concat([
+        vHalfMaxUInt256,
+        vOne,
+      op(RainJS.Opcodes.ADD, 2)
+    ]);
+
+    const script = {
+      sources: [source0],
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const rainJs = new RainJS(script);
+    await assertError(
+      async () => await rainJs.run(),
+      errorMessage
+    );
   });
 
 })

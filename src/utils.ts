@@ -1,6 +1,6 @@
 import { BigNumber, ethers, utils } from 'ethers';
 import type { BytesLike } from 'ethers';
-
+import {assert} from 'chai';
 export const {
   /**
    * @public ethers concat
@@ -240,4 +240,28 @@ export function skip(places: number, conditional = false): number {
   // JS ints are already signed.
   skip |= places & 0x7f;
   return skip;
+}
+
+/**
+ * @public function to assert for error in function call
+ * 
+ * @param fn - Function that is to be checked against
+ * @param expectedMessage - Error message which is expected
+ * @returns None
+ */
+export async function assertError(fn: Function, expectedMessage: string){
+  let isError = false;
+  try{
+    await fn();
+  }catch(error){
+    if(error instanceof Error)
+    {
+      assert(
+        error.toString().includes(expectedMessage), 
+        `error string " ${error} " does not include ${expectedMessage}`
+      )
+      isError = true;
+    }
+  }
+  assert(isError, `Error should've occured : ${expectedMessage}`);
 }
