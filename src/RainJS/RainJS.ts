@@ -1,5 +1,5 @@
 import { BigNumber, Contract, ethers, Signer } from "ethers";
-import { arrayify } from "ethers/lib/utils";
+import { arrayify } from "../utils";
 import { StateConfig, VM } from "../classes/vm";
 import { ERC1155 } from "../contracts/generics/erc1155";
 import { ERC20 } from "../contracts/generics/erc20";
