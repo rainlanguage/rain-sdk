@@ -1,29 +1,119 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 
-import { VM, HumanFriendlySource, utils } from '../src';
+import {
+  VM,
+  HumanFriendlySource,
+  utils,
+  AllStandardOps,
+  StateConfig,
+} from '../src';
 
 const { bytify, op, concat, arg, callSize } = utils;
 
-const enum Opcode {
-  SKIP,
-  VAL,
-  DUP,
-  ZIPMAP,
-  DEBUG,
-  BLOCK_NUMBER,
-  BLOCK_TIMESTAMP,
-  ADD,
-  SUB,
-  MUL,
-  DIV,
-  MOD,
-  EXP,
-  MIN,
-  MAX,
-}
+const Opcode = AllStandardOps;
 
 describe.only('Human Friendly Source Generator', () => {
+  it('should generate the human friendly from an exponentiation op source', async () => {
+    const constants = [5, 2];
+
+    const vFive = op(Opcode.VAL, 0);
+    const vTwo = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+        vFive,
+        vTwo,
+      [Opcode.EXP, 2]
+    ]);
+
+    const state: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.eq(`EXP(${constants[0]}, ${constants[1]})`);
+  });
+
+  it('should generate the human friendly from an multiplication op source', async () => {
+    const constants = [4, 3];
+
+    const vFour = op(Opcode.VAL, 0);
+    const vThree = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+        vFour,
+        vThree,
+      [Opcode.MUL, 2],
+    ]);
+
+    const state: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.eql(`MUL(${constants[0]}, ${constants[1]})`);
+  });
+
+  it('should generate the human friendly from an subtraction op source', async () => {
+    const constants = [2, 1];
+
+    const vTwo = op(Opcode.VAL, 0);
+    const vOne = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+        vTwo,
+        vOne,
+      [Opcode.SUB, 2]
+    ]);
+
+    const state: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal(`SUB(${constants[0]}, ${constants[1]})`);
+  });
+
+  it('should panic when accumulator overflows with addition op', async () => {
+    const constants = [6, 1];
+
+    const vSix = op(Opcode.VAL, 0);
+    const vOne = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+        vSix,
+        vOne,
+      [Opcode.ADD, 2]
+    ]);
+
+    const state: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal(`ADD(${constants[0]}, ${constants[1]})`);
+  });
+
   it('should support source scripts with leading zeroes', async () => {
     const block0 = await ethers.provider.getBlockNumber();
     const constants = [block0];
@@ -37,7 +127,13 @@ describe.only('Human Friendly Source Generator', () => {
       [Opcode.MIN, 2],
     ]);
 
-    const friendly0 = HumanFriendlySource.get(source0, constants);
+    const state: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly0 = HumanFriendlySource.get(state);
 
     expect(friendly0).to.eq(`MIN(${block0}, BLOCK_NUMBER())`);
   });
@@ -55,7 +151,13 @@ describe.only('Human Friendly Source Generator', () => {
       new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
     ]);
 
-    const friendly0 = HumanFriendlySource.get(source0, constants);
+    const state: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly0 = HumanFriendlySource.get(state);
 
     expect(friendly0).to.eq(`MIN(${block0}, BLOCK_NUMBER())`);
   });
@@ -68,7 +170,13 @@ describe.only('Human Friendly Source Generator', () => {
       [Opcode.BLOCK_NUMBER],
     ]);
 
-    const friendly0 = HumanFriendlySource.get(source0, constants);
+    const state0: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly0 = HumanFriendlySource.get(state0);
 
     expect(friendly0).to.eq('BLOCK_NUMBER()');
 
@@ -77,7 +185,13 @@ describe.only('Human Friendly Source Generator', () => {
       [Opcode.BLOCK_TIMESTAMP],
     ]);
 
-    const friendly1 = HumanFriendlySource.get(source1, constants);
+    const state1: StateConfig = {
+      sources: source1,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly1 = HumanFriendlySource.get(state1);
 
     expect(friendly1).to.eq('BLOCK_TIMESTAMP()');
   });
@@ -88,15 +202,22 @@ describe.only('Human Friendly Source Generator', () => {
     const v4 = op(Opcode.VAL, 1);
     const v2 = op(Opcode.VAL, 2);
 
+    // prettier-ignore
     const sources = VM.createVMSources([
       // (7 4 2 %)
-      v7,
-      v4, // -> r3
-      v2, // -> r1
+        v7,
+        v4, // -> r3
+        v2, // -> r1
       op(Opcode.MOD, 3),
     ]);
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('MOD(7, 4, 2)');
   });
@@ -107,17 +228,21 @@ describe.only('Human Friendly Source Generator', () => {
     const v4 = op(Opcode.VAL, 1);
     const v3 = op(Opcode.VAL, 2);
 
-    const sources = [
-      concat([
-        // (2 4 3 ^)
+    // prettier-ignore
+    const sources = VM.createVMSources([
+      // (2 4 3 ^)
         v2,
         v4,
         v3,
-        op(Opcode.EXP, 3),
-      ]),
-    ];
-
-    const friendly = HumanFriendlySource.get(sources, constants);
+      [Opcode.EXP, 3],
+    ]);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('EXP(2, 4, 3)');
   });
@@ -128,15 +253,22 @@ describe.only('Human Friendly Source Generator', () => {
     const v11 = op(Opcode.VAL, 1);
     const v22 = op(Opcode.VAL, 2);
 
-    const source = concat([
+    // prettier-ignore
+    const source = VM.createVMSources([
       // (22 11 33 max)
-      v22,
-      v11,
-      v33,
-      op(Opcode.MAX, 3),
+        v22,
+        v11,
+        v33,
+      [Opcode.MAX, 3],
     ]);
 
-    const friendly = HumanFriendlySource.get([source], constants);
+    const state: StateConfig = {
+      sources: source,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('MAX(22, 11, 33)');
   });
@@ -147,24 +279,41 @@ describe.only('Human Friendly Source Generator', () => {
     const v11 = op(Opcode.VAL, 1);
     const v22 = op(Opcode.VAL, 2);
 
-    const source = concat([
+    // prettier-ignore
+    const source = VM.createVMSources([
       // (22 11 33 min)
-      v22,
-      v11,
-      v33,
-      op(Opcode.MIN, 3),
+        v22,
+        v11,
+        v33,
+      [Opcode.MIN, 3],
     ]);
 
-    const friendly = HumanFriendlySource.get([source], constants);
+    const state: StateConfig = {
+      sources: source,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('MIN(22, 11, 33)');
   });
 
   it('should run a basic program (return current block number)', () => {
     const constants: Array<number> = [];
-    const source = concat([op(Opcode.BLOCK_NUMBER)]);
 
-    const friendly = HumanFriendlySource.get([source], constants);
+    // prettier-ignore
+    const source = VM.createVMSources([
+      [Opcode.BLOCK_NUMBER]
+    ]);
+
+    const state: StateConfig = {
+      sources: source,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('BLOCK_NUMBER()');
   });
@@ -212,23 +361,31 @@ describe.only('Human Friendly Source Generator', () => {
 
     // prettier-ignore
     const sources = [
-      concat([ // sourceIndex === 0 (main source)
-        op(Opcode.VAL, 0), // val0
-        op(Opcode.VAL, 1), // val1
-        op(Opcode.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
-      ]),
-      concat([ // sourceIndex === 1 (inner ZIPMAP function)
+      VM.createVMSources([
+        // sourceIndex === 0 (main source)
+        [Opcode.VAL, 0], // val0
+        [Opcode.VAL, 1], // val1
+        [Opcode.ZIPMAP, callSize(sourceIndex, loopSize, valSize)],
+      ])[0],
+      VM.createVMSources([
+        // sourceIndex === 1 (inner ZIPMAP function)
         // (arg0 arg1 mul) (arg0 arg1 add)
-        op(Opcode.VAL, arg(0)),
-        op(Opcode.VAL, arg(1)),
-        op(Opcode.MUL, 2),
-        op(Opcode.VAL, arg(0)),
-        op(Opcode.VAL, arg(1)),
-        op(Opcode.ADD, 2),
-      ]),
+        [Opcode.VAL, arg(0)],
+        [Opcode.VAL, arg(1)],
+        [Opcode.MUL, 2],
+        [Opcode.VAL, arg(0)],
+        [Opcode.VAL, arg(1)],
+        [Opcode.ADD, 2],
+      ])[0],
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq(`ZIPMAP(
     [1, 2, 3, 4, 5, 6, 7, 8],
@@ -252,13 +409,13 @@ describe.only('Human Friendly Source Generator', () => {
     ];
 
     const sources = [
-      concat([
+      VM.createVMSources([
         op(Opcode.VAL, 2), // val0
         op(Opcode.VAL, 1), // val1
         op(Opcode.VAL, 0), // val2
         op(Opcode.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
-      ]),
-      concat([
+      ])[0],
+      VM.createVMSources([
         // (arg0 arg1 arg2 mul) (arg0 arg1 arg2 add)
         op(Opcode.VAL, arg(0)),
         op(Opcode.VAL, arg(1)),
@@ -268,10 +425,16 @@ describe.only('Human Friendly Source Generator', () => {
         op(Opcode.VAL, arg(1)),
         op(Opcode.VAL, arg(2)),
         op(Opcode.ADD, 3),
-      ]),
+      ])[0],
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq(`ZIPMAP(
     [5, 3],
@@ -299,7 +462,7 @@ describe.only('Human Friendly Source Generator', () => {
     const valSize = 7;
 
     const sources = [
-      concat([
+      VM.createVMSources([
         op(Opcode.VAL, 0), // val0
         op(Opcode.VAL, 1), // val1
         op(Opcode.VAL, 2), // val2
@@ -309,8 +472,8 @@ describe.only('Human Friendly Source Generator', () => {
         op(Opcode.VAL, 6), // val6
         op(Opcode.VAL, 7), // val7
         op(Opcode.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
-      ]),
-      concat([
+      ])[0],
+      VM.createVMSources([
         // (arg0 arg1 arg2 ... add) (arg0 arg1 arg2 ... add)
         a0,
         a1,
@@ -376,10 +539,15 @@ describe.only('Human Friendly Source Generator', () => {
         a4,
         a5,
         op(Opcode.ADD, 30),
-      ]),
+      ])[0],
     ];
-
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq(`ZIPMAP(
     10,
@@ -410,13 +578,13 @@ describe.only('Human Friendly Source Generator', () => {
     const valSize = 2;
 
     const sources = [
-      concat([
+      VM.createVMSources([
         v0,
         v1,
         v2,
         op(Opcode.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
-      ]),
-      concat([
+      ])[0],
+      VM.createVMSources([
         // (arg0 arg1 arg2 mul) (arg1 arg2 arg0 arg1 arg2 ... add)
         a0,
         a1,
@@ -437,10 +605,16 @@ describe.only('Human Friendly Source Generator', () => {
         a1,
         a2,
         op(Opcode.ADD, 14),
-      ]),
+      ])[0],
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq(`ZIPMAP(
     1,
@@ -486,7 +660,13 @@ describe.only('Human Friendly Source Generator', () => {
       ]),
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq(`ZIPMAP(
     3,
@@ -527,7 +707,13 @@ describe.only('Human Friendly Source Generator', () => {
       ]),
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq(`ZIPMAP(
     1,
@@ -563,7 +749,13 @@ describe.only('Human Friendly Source Generator', () => {
       ]),
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq(
       'MUL(BLOCK_NUMBER(), DIV(6, 3), ADD(3, 4, SUB(2, 1)))'
@@ -590,7 +782,13 @@ describe.only('Human Friendly Source Generator', () => {
       ]),
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('DIV(MUL(ADD(2, 2, 2), 3), 2, 3)');
   });
@@ -611,7 +809,13 @@ describe.only('Human Friendly Source Generator', () => {
       ]),
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('MOD(13, 2, 3)');
   });
@@ -632,7 +836,13 @@ describe.only('Human Friendly Source Generator', () => {
       ]),
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('DIV(12, 2, 3)');
   });
@@ -653,7 +863,13 @@ describe.only('Human Friendly Source Generator', () => {
       ]),
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('MUL(3, 4, 5)');
   });
@@ -674,7 +890,13 @@ describe.only('Human Friendly Source Generator', () => {
       ]),
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('SUB(10, 2, 3)');
   });
@@ -695,7 +917,13 @@ describe.only('Human Friendly Source Generator', () => {
       ]),
     ];
 
-    const friendly = HumanFriendlySource.get(sources, constants);
+    const state: StateConfig = {
+      sources: sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('ADD(1, 2, 3)');
   });

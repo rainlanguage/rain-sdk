@@ -1,5 +1,6 @@
 import { BytesLike, BigNumberish, BigNumber } from 'ethers';
 import { arrayify } from './utils';
+import { AllStandardOps, StateConfig } from './classes/vm';
 
 export interface OpMeta {
   opcode: number;
@@ -20,109 +21,249 @@ interface State {
 
 type Pair = [number, number];
 
-const enum Opcode {
-  SKIP,
-  VAL,
-  DUP,
-  ZIPMAP,
-  DEBUG,
-  BLOCK_NUMBER,
-  BLOCK_TIMESTAMP,
-  ADD,
-  SUB,
-  MUL,
-  DIV,
-  MOD,
-  EXP,
-  MIN,
-  MAX,
-}
+export const newOpMeta: OpMeta[] = [
+  {
+    opcode: AllStandardOps.SKIP,
+    name: 'SKIP',
+    input: '',
+  },
+  {
+    opcode: AllStandardOps.VAL,
+    name: 'VAL',
+    input: 'constantIndex',
+  },
+  {
+    opcode: AllStandardOps.DUP,
+    name: 'DUP',
+    input: '',
+  },
+  {
+    opcode: AllStandardOps.ZIPMAP,
+    name: 'ZIPMAP',
+    input: 'zipmap',
+  },
+  {
+    opcode: AllStandardOps.DEBUG,
+    name: 'DEBUG',
+    input: '',
+  },
+  {
+    opcode: AllStandardOps.BLOCK_NUMBER,
+    name: 'BLOCK_NUMBER',
+    input: 'blockNumber',
+  },
+  {
+    opcode: AllStandardOps.BLOCK_TIMESTAMP,
+    name: 'BLOCK_TIMESTAMP',
+    input: 'blockTimestamp',
+  },
+  {
+    opcode: AllStandardOps.SENDER,
+    name: 'SENDER',
+    input: 'msgSender',
+  },
+  {
+    opcode: AllStandardOps.THIS_ADDRESS,
+    name: 'THIS_ADDRESS',
+    input: 'thisAddress',
+  },
+  {
+    opcode: AllStandardOps.SCALE18_MUL,
+    name: 'SCALE18_MUL',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SCALE18_DIV,
+    name: 'SCALE18_DIV',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SCALE18,
+    name: 'SCALE18',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SCALEN,
+    name: 'SCALEN',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SCALE_BY,
+    name: 'SCALE_BY',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SCALE18_ONE,
+    name: 'SCALE18_ONE',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SCALE18_DECIMALS,
+    name: 'SCALE18_DECIMALS',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.ADD,
+    name: 'ADD',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SATURATING_ADD,
+    name: 'SATURATING_ADD',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SUB,
+    name: 'SUB',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SATURATING_SUB,
+    name: 'SATURATING_SUB',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.MUL,
+    name: 'MUL',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SATURATING_MUL,
+    name: 'SATURATING_MUL',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.DIV,
+    name: 'DIV',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.MOD,
+    name: 'MOD',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.EXP,
+    name: 'EXP',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.MIN,
+    name: 'MIN',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.MAX,
+    name: 'MAX',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.ISZERO,
+    name: 'ISZERO',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.EAGER_IF,
+    name: 'EAGER_IF',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.EQUAL_TO,
+    name: 'EQUAL_TO',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.LESS_THAN,
+    name: 'LESS_THAN',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.GREATER_THAN,
+    name: 'GREATER_THAN',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.EVERY,
+    name: 'EVERY',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.ANY,
+    name: 'ANY',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.REPORT,
+    name: 'REPORT',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.NEVER,
+    name: 'NEVER',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.ALWAYS,
+    name: 'ALWAYS',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SATURATING_DIFF,
+    name: 'SATURATING_DIFF',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE,
+    name: 'UPDATE_BLOCKS_FOR_TIER_RANGE',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.SELECT_LTE,
+    name: 'SELECT_LTE',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.IERC20_BALANCE_OF,
+    name: 'IERC20_BALANCE_OF',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.IERC20_TOTAL_SUPPLY,
+    name: 'IERC20_TOTAL_SUPPLY',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.IERC721_BALANCE_OF,
+    name: 'IERC721_BALANCE_OF',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.IERC721_OWNER_OF,
+    name: 'IERC721_OWNER_OF',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.IERC1155_BALANCE_OF,
+    name: 'IERC1155_BALANCE_OF',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: AllStandardOps.IERC1155_BALANCE_OF_BATCH,
+    name: 'IERC1155_BALANCE_OF_BATCH',
+    input: 'takeFromStack',
+  },
+];
 
 export class HumanFriendlySource {
-  private static opMeta: OpMeta[] = [
-    {
-      opcode: Opcode.SKIP,
-      name: 'SKIP',
-      input: '',
-    },
-    {
-      opcode: Opcode.VAL,
-      name: 'VAL',
-      input: 'constantIndex',
-    },
-    {
-      opcode: Opcode.DUP,
-      name: 'DUP',
-      input: '',
-    },
-    {
-      opcode: Opcode.ZIPMAP,
-      name: 'ZIPMAP',
-      input: 'zipmap',
-    },
-    {
-      opcode: Opcode.DEBUG,
-      name: 'DEBUG',
-      input: '',
-    },
-    {
-      opcode: Opcode.BLOCK_NUMBER,
-      name: 'BLOCK_NUMBER',
-      input: 'blockNumber',
-    },
-    {
-      opcode: Opcode.BLOCK_TIMESTAMP,
-      name: 'BLOCK_TIMESTAMP',
-      input: 'blockTimestamp',
-    },
-    {
-      opcode: Opcode.ADD,
-      name: 'ADD',
-      input: 'takeFromStack',
-    },
-    {
-      opcode: Opcode.SUB,
-      name: 'SUB',
-      input: 'takeFromStack',
-    },
-    {
-      opcode: Opcode.MUL,
-      name: 'MUL',
-      input: 'takeFromStack',
-    },
-    {
-      opcode: Opcode.DIV,
-      name: 'DIV',
-      input: 'takeFromStack',
-    },
-    {
-      opcode: Opcode.MOD,
-      name: 'MOD',
-      input: 'takeFromStack',
-    },
-    {
-      opcode: Opcode.EXP,
-      name: 'EXP',
-      input: 'takeFromStack',
-    },
-    {
-      opcode: Opcode.MIN,
-      name: 'MIN',
-      input: 'takeFromStack',
-    },
-    {
-      opcode: Opcode.MAX,
-      name: 'MAX',
-      input: 'takeFromStack',
-    },
-  ];
+  private static opMeta: OpMeta[] = newOpMeta;
 
-  public static get(sources: BytesLike[], constants: BigNumberish[]): string {
+  public static get(_state: StateConfig): string {
+    // public static get(sources: BytesLike[], constants: BigNumberish[]): string {
     const state: State = {
       stackIndex: 0,
       stack: [],
-      sources,
-      constants,
+      sources: _state.sources,
+      constants: _state.constants,
     };
 
     return this._eval(state, 0);
@@ -135,7 +276,7 @@ export class HumanFriendlySource {
     const ops = this.pairs(state.sources[sourceIndex]).map((pair) => {
       const opmeta = this.opMeta.find((opmeta) => opmeta.opcode === pair[0]);
       if (typeof opmeta === 'undefined') {
-        throw Error('Unknown opcode' + pair[1]);
+        throw Error(`Unknown opcode: ${pair[0]}`);
       }
 
       return {
@@ -165,6 +306,18 @@ export class HumanFriendlySource {
       } else if (op.input === 'blockNumber') {
         state.stack[_stackIndex] = {
           val: 'BLOCK_NUMBER()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'msgSender') {
+        state.stack[_stackIndex] = {
+          val: 'SENDER()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'thisAddress') {
+        state.stack[_stackIndex] = {
+          val: 'THIS_ADDRESS()',
           consumed: false,
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
@@ -261,7 +414,3 @@ export class HumanFriendlySource {
     return arr.filter((_, i) => i % n === n - 1);
   };
 }
-
-// const increaseBN2 = (_value: BigNumberish): BigNumberish => {
-//   return BigNumber.from(_value).add(1).toNumber();
-// };
