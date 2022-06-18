@@ -8,12 +8,40 @@ import {
   AllStandardOps,
   StateConfig,
 } from '../src';
+import {
+  eighteenZeros,
+  sixZeros,
+  max_uint256,
+  Tier,
+  blockNumbersToReport,
+} from './utils';
 
-const { bytify, op, concat, arg, callSize } = utils;
+const {
+  bytify,
+  op,
+  concat,
+  arg,
+  callSize,
+  paddedUInt256,
+  paddedUInt32,
+  tierRange,
+} = utils;
 
 const Opcode = AllStandardOps;
 
-describe.only('Human Friendly Source Generator', () => {
+/**
+ * Convert a number or hexadecimal expression to his representation as signed 8-bit expression
+ * @param _value -  The value to convert
+ * @returns The signed expression
+ */
+function getSigned8(_value: number): number {
+  if ((_value & 0x80) > 0) {
+    _value = _value - 0x100;
+  }
+  return _value;
+}
+
+describe('Human Friendly Source Generator', () => {
   it('should generate the human friendly from an exponentiation op source', async () => {
     const constants = [5, 2];
 
@@ -39,7 +67,7 @@ describe.only('Human Friendly Source Generator', () => {
     expect(friendly0).to.be.eq(`EXP(${constants[0]}, ${constants[1]})`);
   });
 
-  it('should generate the human friendly from an multiplication op source', async () => {
+  it('should generate the human friendly from a multiplication op source', async () => {
     const constants = [4, 3];
 
     const vFour = op(Opcode.VAL, 0);
@@ -64,7 +92,7 @@ describe.only('Human Friendly Source Generator', () => {
     expect(friendly0).to.be.eql(`MUL(${constants[0]}, ${constants[1]})`);
   });
 
-  it('should generate the human friendly from an subtraction op source', async () => {
+  it('should generate the human friendly from a subtraction op source', async () => {
     const constants = [2, 1];
 
     const vTwo = op(Opcode.VAL, 0);
@@ -89,7 +117,7 @@ describe.only('Human Friendly Source Generator', () => {
     expect(friendly0).to.be.equal(`SUB(${constants[0]}, ${constants[1]})`);
   });
 
-  it('should panic when accumulator overflows with addition op', async () => {
+  it('should generate the human friendly from an addition op source', async () => {
     const constants = [6, 1];
 
     const vSix = op(Opcode.VAL, 0);
@@ -112,6 +140,623 @@ describe.only('Human Friendly Source Generator', () => {
     const friendly0 = HumanFriendlySource.get(state);
 
     expect(friendly0).to.be.equal(`ADD(${constants[0]}, ${constants[1]})`);
+  });
+
+  it('should generate the human friendly from the Scale18 decimals source', async () => {
+    const constants: any = [];
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        [Opcode.SCALE18_DECIMALS]
+      ])
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal('SCALE18_DECIMALS()');
+  });
+
+  it('should generate the human friendly from the Scale18 ONE source', async () => {
+    const constants: any = [];
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        op(Opcode.SCALE18_ONE)
+      ])
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal('SCALE18_ONE()');
+  });
+
+  it('should generate the human friendly from an arbitrary fixed point number DOWN by scale N', async () => {
+    const value1 = ethers.BigNumber.from(1 + sixZeros);
+    const n = 0xfc; // -4
+
+    const constants = [value1];
+    const v1 = op(Opcode.VAL, 0);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        v1,
+      op(Opcode.SCALE_BY, n)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal(`SCALE_BY(${value1}, ${getSigned8(n)})`);
+  });
+
+  it('should generate the human friendly from an arbitrary fixed point number UP by scale N', async () => {
+    const value1 = ethers.BigNumber.from(1 + sixZeros);
+    const n = 0x04; // -4
+
+    const constants = [value1];
+    const v1 = op(Opcode.VAL, 0);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        v1,
+      op(Opcode.SCALE_BY, n)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal(`SCALE_BY(${value1}, ${getSigned8(n)})`);
+  });
+
+  it('should generate the human friendly from scale an 18 OOMs number UP to scale N', async () => {
+    const value1 = ethers.BigNumber.from(1 + eighteenZeros);
+    const n = 20;
+
+    const constants = [value1];
+    const v1 = op(Opcode.VAL, 0);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        v1,
+      op(Opcode.SCALEN, n)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal(`SCALEN(${value1}, ${getSigned8(n)})`);
+  });
+
+  it('should generate the human friendly from scale an 18 OOMs number DOWN to scale N', async () => {
+    const value1 = ethers.BigNumber.from(1 + eighteenZeros);
+    const n = 6;
+
+    const constants = [value1];
+    const v1 = op(Opcode.VAL, 0);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        v1,
+      op(Opcode.SCALEN, n)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal(`SCALEN(${value1}, ${getSigned8(n)})`);
+  });
+
+  it('should generate the human friendly from scale a number by 18 OOM while dividing', async () => {
+    const value1 = 50;
+    const value2 = 3;
+
+    const constants = [value1, value2];
+    const v1 = op(Opcode.VAL, 0);
+    const v2 = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        v1,
+        v2,
+      op(Opcode.SCALE18_DIV)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal(`SCALE18_DIV(${value1}*10**18, ${value2})`);
+  });
+
+  it('should generate the human friendly from scale a number by 18 OOM while multiplying', async () => {
+    const value1 = 1;
+    const value2 = 2;
+
+    const constants = [value1, value2];
+    const v1 = op(Opcode.VAL, 0);
+    const v2 = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        v1,
+        v2,
+      op(Opcode.SCALE18_MUL)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal(`SCALE18_MUL(${value1}*10**18, ${value2})`);
+  });
+
+  it('should generate the human friendly from scale a number by 18 OOM in situ', async () => {
+    const value = 1;
+
+    const constants = [value];
+    const v1 = op(Opcode.VAL, 0);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        v1,
+      op(Opcode.SCALE18)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.be.equal(`SCALE18(${value})`);
+  });
+
+  it('should generate the human friendly from logic ops within a zipmap loop', async () => {
+    const report = paddedUInt256(
+      ethers.BigNumber.from(
+        '0x' +
+          paddedUInt32(1) +
+          paddedUInt32(0) +
+          paddedUInt32(3) +
+          paddedUInt32(0) +
+          paddedUInt32(5) +
+          paddedUInt32(0) +
+          paddedUInt32(7) +
+          paddedUInt32(8)
+      )
+    );
+
+    const reportMax = max_uint256;
+
+    const constants = [report, reportMax];
+
+    const vReport = op(Opcode.VAL, 0);
+    const vReportMax = op(Opcode.VAL, 1);
+
+    // BEGIN zipmap args
+
+    const argReport = op(Opcode.VAL, arg(0));
+    const argReportMax = op(Opcode.VAL, arg(1));
+
+    // END zipmap args
+
+    // prettier-ignore
+    const ZIPMAP_FN = () =>
+      concat([
+            argReport,
+          op(Opcode.ISZERO),
+          argReportMax,
+          argReport,
+        op(Opcode.EAGER_IF),
+      ]);
+
+    // prettier-ignore
+    const SOURCE = () =>
+      concat([
+          vReport,
+          vReportMax,
+        op(Opcode.ZIPMAP, callSize(1, 3, 1)),
+      ]);
+
+    const state: StateConfig = {
+      // sources: [SOURCE()],
+      sources: [SOURCE(), ZIPMAP_FN()],
+      constants,
+      argumentsLength: 2,
+      stackLength: 32,
+    };
+    // 0x/00000001.00000000.00000003.00000000.00000005.00000000.00000007.00000008
+
+    const friendly0 = HumanFriendlySource.get(state);
+
+    expect(friendly0).to.eq(`ZIPMAP(
+    ["00000001", "00000000", "00000003", "00000000", "00000005", "00000000", "00000007", "00000008"],
+    ["FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF"],
+    EAGER_IF(ISZERO(^0), ^1, ^0)
+)`);
+  });
+
+  it('should check whether any value in a list is non-zero', async () => {
+    const constants = [0, 1, 2, 3];
+
+    const v0 = op(Opcode.VAL, 0);
+    const v1 = op(Opcode.VAL, 1);
+    const v2 = op(Opcode.VAL, 2);
+    const v3 = op(Opcode.VAL, 3);
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+      v1,
+      v2,
+      v3,
+      op(Opcode.ANY, 3),
+    ]);
+
+    const state0: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state0);
+    expect(friendly0).to.be.equals(`ANY(1, 2, 3)`);
+
+    // prettier-ignore
+    const source1 = concat([
+      v0,
+      v0,
+      op(Opcode.ANY, 2),
+    ]);
+
+    const state1: StateConfig = {
+      sources: [source1],
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly1 = HumanFriendlySource.get(state1);
+    expect(friendly1).to.be.equals(`ANY(0, 0)`);
+
+    // prettier-ignore
+    const source2 = concat([
+      v0,
+      v0,
+      v3,
+      op(Opcode.ANY, 3),
+    ]);
+
+    const state2: StateConfig = {
+      sources: [source2],
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly2 = HumanFriendlySource.get(state2);
+    expect(friendly2).to.be.equals(`ANY(0, 0, 3)`);
+  });
+
+  it('should check whether every value in a list is non-zero', async () => {
+    const constants = [0, 1, 2, 3];
+
+    const v0 = op(Opcode.VAL, 0);
+    const v1 = op(Opcode.VAL, 1);
+    const v2 = op(Opcode.VAL, 2);
+    const v3 = op(Opcode.VAL, 3);
+
+    // prettier-ignore
+    const source0 = concat([
+      v1,
+      v2,
+      v3,
+      op(Opcode.EVERY, 3),
+    ]);
+
+    const state0: StateConfig = {
+      sources: [source0],
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state0);
+    expect(friendly0).to.be.equals(`EVERY(1, 2, 3)`);
+
+    // prettier-ignore
+    const source1 = concat([
+      v0,
+      v1,
+      v2,
+      op(Opcode.EVERY, 3),
+    ]);
+
+    const state1: StateConfig = {
+      sources: [source1],
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly1 = HumanFriendlySource.get(state1);
+    expect(friendly1).to.be.equals(`EVERY(0, 1, 2)`);
+
+    // prettier-ignore
+    const source2 = concat([
+      v0,
+      v3,
+      op(Opcode.EVERY, 2),
+    ]);
+
+    const state2: StateConfig = {
+      sources: [source2],
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly2 = HumanFriendlySource.get(state2);
+    expect(friendly2).to.be.equals(`EVERY(0, 3)`);
+  });
+
+  it("should perform ternary 'eager if' operation on 3 values on the stack", async () => {
+    const constants = [0, 1, 2, 3];
+
+    const v0 = op(Opcode.VAL, 0);
+    const v1 = op(Opcode.VAL, 1);
+    const v2 = op(Opcode.VAL, 2);
+    const v3 = op(Opcode.VAL, 3);
+
+    // prettier-ignore
+    const source0 = concat([
+      // 1 ? 2 : 3
+      v1,
+      v2,
+      v3,
+      op(Opcode.EAGER_IF),
+    ]);
+
+    const state0: StateConfig = {
+      sources: [source0],
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state0);
+    expect(friendly0).to.be.equals(`EAGER_IF(1, 2, 3)`);
+
+    // prettier-ignore
+    const source1 = concat([
+      // 2 ? 2 : 3
+      v2,
+      v2,
+      v3,
+      op(Opcode.EAGER_IF),
+    ]);
+
+    const state1: StateConfig = {
+      sources: [source1],
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly1 = HumanFriendlySource.get(state1);
+    expect(friendly1).to.be.equals(`EAGER_IF(2, 2, 3)`);
+
+    // prettier-ignore
+    const source2 = concat([
+      // 2 ? 2 : 3
+      v0,
+      v2,
+      v3,
+      op(Opcode.EAGER_IF),
+    ]);
+
+    const state2: StateConfig = {
+      sources: [source2],
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly2 = HumanFriendlySource.get(state2);
+    expect(friendly2).to.be.equals(`EAGER_IF(0, 2, 3)`);
+  });
+
+  it('should check that value is greater than another value', async () => {
+    const constants = [1, 2];
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+      op(Opcode.VAL, 1), // 2
+      op(Opcode.VAL, 0), // 1
+      op(Opcode.GREATER_THAN),
+    ]);
+
+    const state0: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state0);
+    expect(friendly0).to.be.equals(`GREATER_THAN(2, 1)`);
+
+    // prettier-ignore
+    const source1 = VM.createVMSources([
+      op(Opcode.VAL, 0), // 1
+      op(Opcode.VAL, 1), // 2
+      op(Opcode.GREATER_THAN),
+    ]);
+
+    const state1: StateConfig = {
+      sources: source1,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly1 = HumanFriendlySource.get(state1);
+    expect(friendly1).to.be.equals(`GREATER_THAN(1, 2)`);
+  });
+
+  it('should check that value is less than another value', async () => {
+    const constants = [1, 2];
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+      op(Opcode.VAL, 1), // 2
+      op(Opcode.VAL, 0), // 1
+      op(Opcode.LESS_THAN),
+    ]);
+
+    const state0: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly0 = HumanFriendlySource.get(state0);
+    expect(friendly0).to.be.equals(`LESS_THAN(2, 1)`);
+
+    // prettier-ignore
+    const source1 = VM.createVMSources([
+      op(Opcode.VAL, 0), // 1
+      op(Opcode.VAL, 1), // 2
+      op(Opcode.LESS_THAN),
+    ]);
+
+    const state1: StateConfig = {
+      sources: source1,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly1 = HumanFriendlySource.get(state1);
+    expect(friendly1).to.be.equals(`LESS_THAN(1, 2)`);
+  });
+
+  it('should check that values are equal to each other', async () => {
+    const constants = [1, 2];
+
+    // prettier-ignore
+    const source0 =  VM.createVMSources([
+      op(Opcode.VAL, 1), // 2
+      op(Opcode.VAL, 1), // 2
+      op(Opcode.EQUAL_TO),
+    ]);
+
+    const state0: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly0 = HumanFriendlySource.get(state0);
+    expect(friendly0).to.be.equals(`EQUAL_TO(2, 2)`);
+
+    // prettier-ignore
+    const source1 =  VM.createVMSources([
+      op(Opcode.VAL, 0), // 1
+      op(Opcode.VAL, 1), // 2
+      op(Opcode.EQUAL_TO),
+    ]);
+
+    const state1: StateConfig = {
+      sources: source1,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly1 = HumanFriendlySource.get(state1);
+    expect(friendly1).to.be.equals(`EQUAL_TO(1, 2)`);
+  });
+
+  it('should check that a value is zero', async () => {
+    const constants = [0, 1];
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+      op(Opcode.VAL, 0),
+      op(Opcode.ISZERO),
+    ]);
+
+    const state0: StateConfig = {
+      sources: source0,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly0 = HumanFriendlySource.get(state0);
+    expect(friendly0).to.be.equals(`ISZERO(0)`);
+
+    // prettier-ignore
+    const source1 =  VM.createVMSources([
+      op(Opcode.VAL, 1),
+      op(Opcode.ISZERO),
+    ]);
+
+    const state1: StateConfig = {
+      sources: source1,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly1 = HumanFriendlySource.get(state1);
+    expect(friendly1).to.be.equals(`ISZERO(1)`);
   });
 
   it('should support source scripts with leading zeroes', async () => {
@@ -926,5 +1571,258 @@ describe.only('Human Friendly Source Generator', () => {
     const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq('ADD(1, 2, 3)');
+  });
+
+  it('should enforce maxTier for update tier range operation', async () => {
+    const block = await ethers.provider.getBlockNumber();
+
+    const constants0 = [block];
+
+    const vBlock = op(Opcode.VAL, 0);
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+        op(Opcode.NEVER),
+        vBlock,
+      op(
+        Opcode.UPDATE_BLOCKS_FOR_TIER_RANGE,
+        tierRange(Tier.ZERO, Tier.SEVEN) // beyond max tier of Tier.EIGHT
+      ),
+    ]);
+
+    const state: StateConfig = {
+      sources: source0,
+      constants: constants0,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
+
+    expect(friendly).to.eq(
+      `UPDATE_BLOCKS_FOR_TIER_RANGE(NEVER(), (${Tier.ZERO}, ${Tier.SEVEN}), ${block})`
+    );
+  });
+
+  it('should use saturating sub for diff where only some tiers would underflow', async () => {
+    const constants0 = [
+      //         0x01000000020000000300000004000000050000000600000007
+      blockNumbersToReport([0, 1, 2, 3, 4, 5, 6, 7].reverse()),
+      // 0x0200000000000000040000000000000006000000000000000800000000
+      blockNumbersToReport([2, 0, 4, 0, 6, 0, 8, 0].reverse()),
+    ];
+
+    const vReport0 = op(Opcode.VAL, 0);
+    const vReport1 = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const source0 = VM.createVMSources([
+        vReport0,
+        vReport1,
+      op(Opcode.SATURATING_DIFF),
+    ]);
+
+    const state: StateConfig = {
+      sources: source0,
+      constants: constants0,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+    const friendly = HumanFriendlySource.get(state);
+
+    expect(friendly).to.be.equal(
+      `SATURATING_DIFF(${constants0[0]}, ${constants0[1]})`
+    );
+  });
+
+  it('should return ERC1155 batch balance result for multiple signers', async () => {
+    const [signer1, signer2] = await ethers.getSigners();
+    const tokenERC1155Factory = await ethers.getContractFactory('ReserveNFT');
+    const tokenERC1155 = await tokenERC1155Factory.deploy();
+
+    const tokenId = 0;
+    const length = 2;
+
+    const constants = [
+      signer1.address,
+      signer2.address,
+      tokenERC1155.address,
+      tokenId,
+    ];
+    const vSigner1 = op(Opcode.VAL, 0);
+    const vSigner2 = op(Opcode.VAL, 1);
+    const vTokenAddr = op(Opcode.VAL, 2);
+    const vTokenId = op(Opcode.VAL, 3);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        vTokenAddr,
+        vSigner1,
+        vSigner2,
+        vTokenId,
+        vTokenId,
+      op(Opcode.IERC1155_BALANCE_OF_BATCH, length - 1)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 5,
+    };
+    const friendly = HumanFriendlySource.get(state);
+
+    expect(friendly).to.be.equal(
+      `IERC1155_BALANCE_OF_BATCH(${tokenERC1155.address}, ${signer1.address}, ${signer2.address}, ${tokenId}, ${tokenId})`
+    );
+  });
+
+  it('should return ERC1155 balance of signer', async () => {
+    const [signer1] = await ethers.getSigners();
+    const tokenERC1155Factory = await ethers.getContractFactory('ReserveNFT');
+    const tokenERC1155 = await tokenERC1155Factory.deploy();
+
+    const tokenId = 0;
+
+    const constants = [signer1.address, tokenERC1155.address, tokenId];
+    const vSigner1 = op(Opcode.VAL, 0);
+    const vTokenAddr = op(Opcode.VAL, 1);
+    const vTokenId = op(Opcode.VAL, 2);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        vTokenAddr,
+        vSigner1,
+        vTokenId,
+      op(Opcode.IERC1155_BALANCE_OF)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly = HumanFriendlySource.get(state);
+
+    expect(friendly).to.be.equal(
+      `IERC1155_BALANCE_OF(${tokenERC1155.address}, ${signer1.address}, ${tokenId})`
+    );
+  });
+
+  it('should return owner of specific ERC721 token', async () => {
+    const tokenERC721Factory = await ethers.getContractFactory(
+      'ReserveTokenERC721'
+    );
+    const tokenERC721 = await tokenERC721Factory.deploy();
+
+    const nftId = 0;
+    const constants = [nftId, tokenERC721.address];
+    const vNftId = op(Opcode.VAL, 0);
+    const vTokenAddr = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        vTokenAddr,
+        vNftId,
+      op(Opcode.IERC721_OWNER_OF)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly = HumanFriendlySource.get(state);
+
+    expect(friendly).to.be.equal(
+      `IERC721_OWNER_OF(${tokenERC721.address}, ${nftId})`
+    );
+  });
+
+  it('should return ERC721 balance of signer', async () => {
+    const [signer1] = await ethers.getSigners();
+    const tokenERC721Factory = await ethers.getContractFactory(
+      'ReserveTokenERC721'
+    );
+    const tokenERC721 = await tokenERC721Factory.deploy();
+    const constants = [signer1.address, tokenERC721.address];
+
+    const vSigner1 = op(Opcode.VAL, 0);
+    const vTokenAddr = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        vTokenAddr,
+        vSigner1,
+      op(Opcode.IERC721_BALANCE_OF)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly = HumanFriendlySource.get(state);
+
+    expect(friendly).to.be.equal(
+      `IERC721_BALANCE_OF(${tokenERC721.address}, ${signer1.address})`
+    );
+  });
+
+  it('should return ERC20 total supply', async () => {
+    const tokenERC20Factory = await ethers.getContractFactory('ReserveToken');
+    const tokenERC20 = await tokenERC20Factory.deploy();
+
+    const constants = [tokenERC20.address];
+    const vTokenAddr = op(Opcode.VAL, 0);
+
+    // prettier-ignore
+    const sources = [
+      concat([
+          vTokenAddr,
+        op(Opcode.IERC20_TOTAL_SUPPLY)
+      ]),
+    ];
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly = HumanFriendlySource.get(state);
+
+    expect(friendly).to.be.equal(`IERC20_TOTAL_SUPPLY(${tokenERC20.address})`);
+  });
+
+  it('should return ERC20 balance', async () => {
+    const [signer1] = await ethers.getSigners();
+    const tokenERC20Factory = await ethers.getContractFactory('ReserveToken');
+    const tokenERC20 = await tokenERC20Factory.deploy();
+
+    const constants = [signer1.address, tokenERC20.address];
+    const vSigner1 = op(Opcode.VAL, 0);
+    const vTokenAddr = op(Opcode.VAL, 1);
+
+    // prettier-ignore
+    const sources = VM.createVMSources([
+        vTokenAddr,
+        vSigner1,
+      op(Opcode.IERC20_BALANCE_OF)
+    ]);
+
+    const state: StateConfig = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+    const friendly = HumanFriendlySource.get(state);
+
+    expect(friendly).to.be.equal(
+      `IERC20_BALANCE_OF(${tokenERC20.address}, ${signer1.address})`
+    );
   });
 });

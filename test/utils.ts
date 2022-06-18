@@ -310,3 +310,15 @@ export async function createEmptyBlock(count?: number): Promise<void> {
     await signers[0].sendTransaction(tx);
   }
 }
+
+export function blockNumbersToReport(blockNos: number[]): BigNumber {
+  assert(blockNos.length === 8);
+
+  return ethers.BigNumber.from(
+    "0x" +
+      [...blockNos]
+        .reverse()
+        .map((i) => BigInt(i).toString(16).padStart(8, "0"))
+        .join("")
+  );
+}

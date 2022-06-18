@@ -1,8 +1,8 @@
 import { BytesLike, BigNumberish, BigNumber } from 'ethers';
-import { arrayify } from './utils';
 import { AllStandardOps, StateConfig } from './classes/vm';
+import { arrayify, paddedUInt256 } from './utils';
 
-export interface OpMeta {
+interface OpMeta {
   opcode: number;
   name: string;
   input: string;
@@ -21,7 +21,7 @@ interface State {
 
 type Pair = [number, number];
 
-export const newOpMeta: OpMeta[] = [
+const newOpMeta: OpMeta[] = [
   {
     opcode: AllStandardOps.SKIP,
     name: 'SKIP',
@@ -95,12 +95,12 @@ export const newOpMeta: OpMeta[] = [
   {
     opcode: AllStandardOps.SCALE18_ONE,
     name: 'SCALE18_ONE',
-    input: 'takeFromStack',
+    input: 'SCALE18_ONE',
   },
   {
     opcode: AllStandardOps.SCALE18_DECIMALS,
     name: 'SCALE18_DECIMALS',
-    input: 'takeFromStack',
+    input: 'SCALE18_DECIMALS',
   },
   {
     opcode: AllStandardOps.ADD,
@@ -200,7 +200,7 @@ export const newOpMeta: OpMeta[] = [
   {
     opcode: AllStandardOps.NEVER,
     name: 'NEVER',
-    input: 'takeFromStack',
+    input: 'NEVER',
   },
   {
     opcode: AllStandardOps.ALWAYS,
@@ -254,6 +254,17 @@ export const newOpMeta: OpMeta[] = [
   },
 ];
 
+/**
+ * @public
+ * The generator of friendly human readable source.
+ *
+ * @remarks
+ * Parse a State to a more human readable form, so feel free to use it and make more friendly
+ * anyone that want to read the script that is being used in the code.
+ *
+ * If you find an issue or you want to propose a better way to show a specific script or opcodes, please
+ * feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
+ */
 export class HumanFriendlySource {
   private static opMeta: OpMeta[] = newOpMeta;
 
@@ -327,6 +338,24 @@ export class HumanFriendlySource {
           consumed: false,
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'SCALE18_DECIMALS') {
+        state.stack[_stackIndex] = {
+          val: 'SCALE18_DECIMALS()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'SCALE18_ONE') {
+        state.stack[_stackIndex] = {
+          val: 'SCALE18_ONE()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'NEVER') {
+        state.stack[_stackIndex] = {
+          val: 'NEVER()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
       } else if (op.input === 'takeFromStack') {
         this.applyOp(state, op);
       } else if (op.input === 'zipmap') {
@@ -378,14 +407,90 @@ export class HumanFriendlySource {
     const _stackIndex = BigNumber.from(state.stackIndex).toNumber();
     let baseIndex = _stackIndex - op.operand;
     let top = _stackIndex - 1;
-    let cursor = baseIndex;
     let tempString = op.name + '(';
-    let tempArr = [state.stack[cursor].val];
+    let cursor = baseIndex;
+    let tempArr: any[];
+
+    let operandFlag = false;
+    let tierRangeFlag = false;
+
+    if (
+      op.opcode === AllStandardOps.IERC1155_BALANCE_OF_BATCH ||
+      op.opcode === AllStandardOps.IERC1155_BALANCE_OF
+    ) {
+      baseIndex = _stackIndex - 1 - (op.operand + 1) * 2;
+      cursor = baseIndex;
+      tempArr = [state.stack[cursor].val];
+      //
+    } else if (op.opcode === AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE) {
+      tierRangeFlag = true;
+      baseIndex = _stackIndex - 2;
+      cursor = baseIndex;
+      tempArr = [state.stack[cursor].val];
+      //
+    } else if (
+      op.opcode === AllStandardOps.SCALE18_DIV ||
+      op.opcode === AllStandardOps.SCALE18_MUL
+    ) {
+      baseIndex = _stackIndex - 2;
+      cursor = baseIndex;
+      tempArr = [state.stack[cursor].val + '*10**18'];
+      //
+    } else if (op.opcode === AllStandardOps.EAGER_IF) {
+      baseIndex = _stackIndex - 3;
+      cursor = baseIndex;
+      tempArr = [state.stack[cursor].val];
+      //
+    } else if (
+      op.opcode === AllStandardOps.SCALE18 ||
+      op.opcode === AllStandardOps.ISZERO ||
+      op.opcode === AllStandardOps.IERC20_TOTAL_SUPPLY ||
+      this.flagOp(op.opcode)
+    ) {
+      operandFlag = this.flagOp(op.opcode);
+      baseIndex = _stackIndex - 1;
+      cursor = baseIndex;
+      tempArr = [state.stack[cursor].val];
+      //
+    } else if (
+      op.opcode === AllStandardOps.GREATER_THAN ||
+      op.opcode === AllStandardOps.LESS_THAN ||
+      op.opcode === AllStandardOps.EQUAL_TO ||
+      op.opcode === AllStandardOps.SATURATING_DIFF ||
+      op.opcode === AllStandardOps.IERC721_OWNER_OF ||
+      op.opcode === AllStandardOps.IERC721_BALANCE_OF ||
+      op.opcode === AllStandardOps.IERC20_BALANCE_OF
+    ) {
+      baseIndex = _stackIndex - 2;
+      cursor = baseIndex;
+      tempArr = [state.stack[cursor].val];
+      //
+    } else {
+      tempArr = [state.stack[cursor].val];
+    }
+
     state.stack[cursor].consumed = true;
-    while (cursor < top) {
+
+    while (cursor < top || operandFlag || tierRangeFlag) {
       cursor++;
-      tempArr.push(state.stack[cursor].val);
-      state.stack[cursor].consumed = true;
+      if (operandFlag) {
+        tempArr.push(this.getSigned8(op.operand));
+        operandFlag = false;
+      } else if (tierRangeFlag) {
+        const [_start, _end] = this.tierRangeFromOp(op.operand);
+        let range = 'Invalid Range';
+        if (_end > _start) {
+          range = `(${_start}, ${_end})`;
+        } else {
+          range = `(${_end})`;
+        }
+        tempArr.push(range);
+        tierRangeFlag = false;
+        cursor--;
+      } else {
+        tempArr.push(state.stack[cursor].val);
+        state.stack[cursor].consumed = true;
+      }
     }
     tempString += tempArr.join(', ');
     tempString += ')';
@@ -396,6 +501,11 @@ export class HumanFriendlySource {
     state.stackIndex = baseIndex + 1;
   };
 
+  private static flagOp(_a: number) {
+    const spcOpces = [AllStandardOps.SCALE_BY, AllStandardOps.SCALEN];
+    return spcOpces.includes(_a);
+  }
+
   private static pairs = (arr: BytesLike): Pair[] => {
     const _arr = Array.from(arrayify(arr));
     const pairs: Pair[] = [];
@@ -405,12 +515,37 @@ export class HumanFriendlySource {
     return pairs;
   };
 
-  private static divideArray = (arr: Uint8Array, times: number): Uint8Array => {
-    let n = arr.length;
-    for (let i = 0; i < times; i++) {
-      n = n / 2;
+  private static divideArray = (
+    arr: Uint8Array | string | BigNumber,
+    times: number
+  ): (number | string)[] => {
+    if (arr.constructor === Uint8Array) {
+      let n = arr.length;
+      for (let i = 0; i < times; i++) {
+        n = n / 2;
+      }
+      return Array.from(arr.filter((_, i) => i % n === n - 1));
+    } else {
+      // If it's not an Uint8Array, then it's an HexString or BigNumber comming from constants.
+      // Mostly these case should come from reports. Raise an issue on repo if you see any error.
+      let value = paddedUInt256(BigNumber.from(arr));
+      return value.slice(2).match(/.{1,8}/g)!;
     }
-
-    return arr.filter((_, i) => i % n === n - 1);
   };
+
+  private static getSigned8(_value: number): number {
+    if ((_value & 0x80) > 0) {
+      _value = _value - 0x100;
+    }
+    return _value;
+  }
+
+  private static tierRangeFromOp(_op: number): [number, number] {
+    //   op_.val & 0x0f, //     00001111
+    //   op_.val & 0xf0, //     11110000
+
+    const startTier_ = _op & 0x0f;
+    const endTier_ = (_op >> 4) & 0x0f;
+    return [startTier_, endTier_];
+  }
 }
