@@ -1,11 +1,11 @@
-import { BigNumber, Contract, ethers, Signer } from 'ethers';
-import { arrayify } from '../utils';
-import { StateConfig, VM } from '../classes/vm';
-import { ERC1155 } from '../contracts/generics/erc1155';
-import { ERC20 } from '../contracts/generics/erc20';
-import { ERC721 } from '../contracts/generics/erc721';
-import { ITier } from '../contracts/tiers/iTier';
-import { Provider } from '../types';
+import { BigNumber, Contract, ethers, Signer } from "ethers";
+import { arrayify } from "../utils";
+import { StateConfig, VM } from "../classes/vm";
+import { ERC1155 } from "../contracts/generics/erc1155";
+import { ERC20 } from "../contracts/generics/erc20";
+import { ERC721 } from "../contracts/generics/erc721";
+import { ITier } from "../contracts/tiers/iTier";
+import { Provider } from "../types";
 
 /**
  * @public
