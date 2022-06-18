@@ -20,6 +20,7 @@
 |  [FactoryContract](./classes/factorycontract.md) | All contract factory should use this instead of directly Rain contract to take advantage of specific method to factories |
 |  [FixedPrice](./classes/fixedprice.md) | - A sub-class of PriceCurve for creating a Fixed Price sale type. The price is a constant value over the span of the sale. |
 |  [GatedNFT](./classes/gatednft.md) | //TODO: Add doc |
+|  [HumanFriendlySource](./classes/humanfriendlysource.md) | The generator of friendly human readable source. |
 |  [IncreasingPrice](./classes/increasingprice.md) | - A sub-class of PriceCurve for creating an linear Increasing sale type. |
 |  [ITier](./classes/itier.md) | Class to interact with ITier contracts |
 |  [LinearEmissions](./classes/linearemissions.md) | A linear minting emissions over a period of time. holding more before claiming would result in a more reward. |

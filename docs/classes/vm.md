@@ -51,14 +51,14 @@ Create a VM sources to be ready to use in any call just providing the combinatio
 <b>Signature:</b>
 
 ```typescript
-static createVMSources(OPerands: OPerand[]): [Uint8Array];
+static createVMSources(OPerands: (OPerand | Uint8Array)[]): [Uint8Array];
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  OPerands | `OPerand[]` | All the configuration with the opcodes and operands. If any combination does not have an operand with an opcode, a 0 (zero) will be use with the opcode as the operand. Please |
+|  OPerands | `(OPerand \| Uint8Array)[]` | All the configuration with the opcodes and operands. If any combination does not have an operand with an opcode, a 0 (zero) will be use with the opcode as the operand. Please |
 
 <b>Returns:</b>
 
