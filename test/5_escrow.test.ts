@@ -22,6 +22,8 @@ import {
   SaleDurationInBlocks,
   AddressBook,
   ERC20,
+  SaleScriptFrom,
+  BuyCap,
 } from '../src';
 
 import { RedeemableERC20ClaimEscrow__factory } from '../src/typechain/factories/RedeemableERC20ClaimEscrow__factory';
@@ -63,9 +65,14 @@ const deploySale = async (
 
   // All configs calculated outside of deploy method
   const saleConfig = {
-    canStartStateConfig: new SaleDurationInBlocks(startBlock),
-    canEndStateConfig: new SaleDurationInBlocks(endBlock),
-    calculatePriceStateConfig: new FixedPrice('75', 6),
+    vmStateConfig: new SaleScriptFrom(
+      new SaleDurationInBlocks(startBlock, endBlock),
+      new BuyCap(),
+      new FixedPrice('75', 6),
+    ),
+    // canStartStateConfig: new SaleDurationInBlocks(startBlock),
+    // canEndStateConfig: new SaleDurationInBlocks(endBlock),
+    // calculatePriceStateConfig: new FixedPrice('75', 6),
     recipient: recipient.address,
     reserve: saleReserve.address,
     cooldownDuration: 1,
@@ -162,7 +169,7 @@ describe('ClaimEscrow', () => {
       fee: 0,
       minimumUnits: desiredAmount,
       desiredUnits: desiredAmount,
-      maximumPrice: await sale.calculatePrice(desiredAmount),
+      maximumPrice: (await sale.calculateBuy(desiredAmount))[1],
     };
 
     // Approving all the balance to sale
@@ -255,7 +262,7 @@ describe('ClaimEscrow', () => {
       fee: 0,
       minimumUnits: desiredAmount,
       desiredUnits: desiredAmount,
-      maximumPrice: await sale_1.calculatePrice(desiredAmount),
+      maximumPrice: (await sale_1.calculateBuy(desiredAmount))[1],
     };
 
     // Approving all the balance to sales

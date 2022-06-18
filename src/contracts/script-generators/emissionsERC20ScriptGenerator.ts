@@ -1,13 +1,13 @@
 import { ethers, BigNumberish, BigNumber, BytesLike } from 'ethers';
-import { EmissionsERC20 } from '../emissionsERC20';
+import { EmissionsERC20Context } from '../emissionsERC20';
 import { Tier } from '../../classes/tierContract';
+import { VM } from '../../classes/vm';
 import { 
   concat,
   op,
   selectLte,
   callSize,
   tierRange,
-  arg,
   paddedUInt32,
   paddedUInt256,
   selectLteLogic,
@@ -56,8 +56,6 @@ export class LinearEmissions {
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
-  public stackLength: BigNumberish;
-  public argumentsLength: BigNumberish;
 
   /**
    * Constructor for this class
@@ -155,29 +153,29 @@ export class LinearEmissions {
     // prettier-ignore
     const REWARD = () =>
       concat([
-        op(EmissionsERC20.Opcodes.VAL, arg(0)),
-        op(EmissionsERC20.Opcodes.VAL, arg(1)),
-        op(EmissionsERC20.Opcodes.MUL, 2),
+        op(VM.Opcodes.CONSTANTS, 6),
+        op(VM.Opcodes.CONSTANTS, 7),
+        op(VM.Opcodes.MUL, 2),
       ]);
 
     // prettier-ignore
     const PROGRESS = () =>
       concat([
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.VAL, arg(0)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, 2),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.MIN, 2),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.CONSTANTS, 6),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.CONSTANTS, 3),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.MIN, 2),
       ]);
 
     // prettier-ignore
     const MULTIPLIER = () =>
       concat([
         PROGRESS(),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.ADD, 2),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.ADD, 2),
       ]);
 
     // prettier-ignore
@@ -185,18 +183,18 @@ export class LinearEmissions {
       concat([
         REWARD(),
         MULTIPLIER(),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, 4),
-        op(EmissionsERC20.Opcodes.DIV, 2),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.CONSTANTS, 5),
+        op(VM.Opcodes.DIV, 2),
       ]);
 
     // prettier-ignore
     const CURRENT_BLOCK_AS_REPORT = () =>
       concat([
-        op(EmissionsERC20.Opcodes.NEVER),
-        op(EmissionsERC20.Opcodes.BLOCK_NUMBER),
+        op(VM.Opcodes.CONSTANTS, 0),
+        op(VM.Opcodes.BLOCK_NUMBER),
         op(
-          EmissionsERC20.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+          VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
           tierRange(Tier.ZERO, Tier.EIGHT)
         ),
       ]);
@@ -204,17 +202,23 @@ export class LinearEmissions {
     // prettier-ignore
     const LAST_CLAIM_REPORT = () =>
       concat([
-        op(EmissionsERC20.Opcodes.THIS_ADDRESS),
-        op(EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT),
-        op(EmissionsERC20.Opcodes.REPORT),
+        op(VM.Opcodes.THIS_ADDRESS),
+        op(
+          VM.Opcodes.CONTEXT,
+          EmissionsERC20Context.ClaimantAccount
+        ),
+        op(VM.Opcodes.REPORT),
       ]);
 
     // prettier-ignore
     const TIER_REPORT = () =>
       concat([
-        op(EmissionsERC20.Opcodes.VAL, 0),
-        op(EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT),
-        op(EmissionsERC20.Opcodes.REPORT),
+        op(VM.Opcodes.CONSTANTS, 1),
+        op(
+          VM.Opcodes.CONTEXT,
+          EmissionsERC20Context.ClaimantAccount
+        ),
+        op(VM.Opcodes.REPORT),
       ]);
 
     // prettier-ignore
@@ -223,24 +227,25 @@ export class LinearEmissions {
         CURRENT_BLOCK_AS_REPORT(),
         TIER_REPORT(),
         LAST_CLAIM_REPORT(),
-        op(EmissionsERC20.Opcodes.BLOCK_NUMBER),
+        op(VM.Opcodes.BLOCK_NUMBER),
         op(
-          EmissionsERC20.Opcodes.SELECT_LTE, 
+          VM.Opcodes.SELECT_LTE, 
           selectLte(selectLteLogic.any, selectLteMode.max, 2)
         ),
-        op(EmissionsERC20.Opcodes.SATURATING_DIFF),
+        op(VM.Opcodes.SATURATING_DIFF),
       ]);
 
     // prettier-ignore
     const SOURCE = () =>
       concat([
         TIERWISE_DIFF(),
-        op(EmissionsERC20.Opcodes.VAL, 1),
-        op(EmissionsERC20.Opcodes.ZIPMAP, callSize(1, 3, 1)),
-        op(EmissionsERC20.Opcodes.ADD, 8),
+        op(VM.Opcodes.CONSTANTS, 2),
+        op(VM.Opcodes.ZIPMAP, callSize(1, 3, 1)),
+        op(VM.Opcodes.ADD, 8),
       ]);
 
     this.constants = [
+      ethers.constants.MaxUint256,
       config.tierAddress,
       BASE_REWARD_PER_TIER,
       BLOCKS_PER_PERIOD,
@@ -248,8 +253,7 @@ export class LinearEmissions {
       BN_ONE_REWARD,
     ];
     this.sources = [SOURCE(), FN()];
-    this.stackLength = (SOURCE().length + FN().length) / 2;
-    this.argumentsLength = 2
+
   };
 
 }
@@ -265,9 +269,6 @@ export class SequentialEmissions {
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
-  public stackLength: BigNumberish;
-  public argumentsLength: BigNumberish;
-
 
   /**
    * Constructor for this class
@@ -436,6 +437,7 @@ export class SequentialEmissions {
     )
     
     this.constants = [
+      ethers.constants.MaxUint256,
       config.tierAddress,
       PERIODIC_REWARD_PER_TIER,
       PERIODIC_INC_PER_TIER,
@@ -450,118 +452,124 @@ export class SequentialEmissions {
     
     this.sources = [
       concat([
-        op(EmissionsERC20.Opcodes.NEVER),
-        op(EmissionsERC20.Opcodes.BLOCK_NUMBER),
+        op(VM.Opcodes.CONSTANTS, 0),
+        op(VM.Opcodes.BLOCK_NUMBER),
         op(
-          EmissionsERC20.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+          VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
           tierRange(Tier.ZERO, Tier.EIGHT)
         ),
-        op(EmissionsERC20.Opcodes.VAL, 0),
-        op(EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT),
-        op(EmissionsERC20.Opcodes.REPORT),
-        op(EmissionsERC20.Opcodes.SATURATING_DIFF),
-        op(EmissionsERC20.Opcodes.THIS_ADDRESS),
-        op(EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT),
-        op(EmissionsERC20.Opcodes.REPORT),
-        op(EmissionsERC20.Opcodes.VAL, 0),
-        op(EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT),
-        op(EmissionsERC20.Opcodes.REPORT),
-        op(EmissionsERC20.Opcodes.SATURATING_DIFF),
-        op(EmissionsERC20.Opcodes.VAL, 1),
-        op(EmissionsERC20.Opcodes.VAL, 2),
-        op(EmissionsERC20.Opcodes.ZIPMAP, callSize(1, 3, 3)),
-        op(EmissionsERC20.Opcodes.ADD, 8),
-        op(EmissionsERC20.Opcodes.VAL, 4),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, 5),
-        op(EmissionsERC20.Opcodes.DIV, 2),
+        op(VM.Opcodes.CONSTANTS, 1),
+        op(
+          VM.Opcodes.CONTEXT,
+          EmissionsERC20Context.ClaimantAccount
+        ),
+        op(VM.Opcodes.REPORT),
+        op(VM.Opcodes.SATURATING_DIFF),
+        op(VM.Opcodes.THIS_ADDRESS),
+        op(
+          VM.Opcodes.CONTEXT,
+          EmissionsERC20Context.ClaimantAccount
+        ),
+        op(VM.Opcodes.REPORT),
+        op(VM.Opcodes.CONSTANTS, 1),
+        op(
+          VM.Opcodes.CONTEXT,
+          EmissionsERC20Context.ClaimantAccount
+        ),
+        op(VM.Opcodes.REPORT),
+        op(VM.Opcodes.SATURATING_DIFF),
+        op(VM.Opcodes.CONSTANTS, 2),
+        op(VM.Opcodes.CONSTANTS, 3),
+        op(VM.Opcodes.ZIPMAP, callSize(1, 3, 3)),
+        op(VM.Opcodes.ADD, 8),
+        op(VM.Opcodes.CONSTANTS, 5),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.CONSTANTS, 6),
+        op(VM.Opcodes.DIV, 2),
       ]),
       concat([
-        op(EmissionsERC20.Opcodes.VAL, arg(0)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.VAL, 6),
-        op(EmissionsERC20.Opcodes.GREATER_THAN),
-        op(EmissionsERC20.Opcodes.VAL, 6),
-        op(EmissionsERC20.Opcodes.VAL, arg(1)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(1)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.VAL, 6),
-        op(EmissionsERC20.Opcodes.VAL, 7),
-        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
-        op(EmissionsERC20.Opcodes.ADD, 2),
-        op(EmissionsERC20.Opcodes.VAL, 8),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, 9),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, 8),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(0)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(1)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
-        op(EmissionsERC20.Opcodes.VAL, 6),
-        op(EmissionsERC20.Opcodes.VAL, arg(1)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
-        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
-        op(EmissionsERC20.Opcodes.VAL, 6),
-        op(EmissionsERC20.Opcodes.VAL, 7),
-        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.ADD, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(3)),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(0)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(1)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(0)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.VAL, 7),
-        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(1)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.ADD, 2),
-        op(EmissionsERC20.Opcodes.VAL, 8),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, 9),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, 8),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(3)),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.EAGER_IF),
-        op(EmissionsERC20.Opcodes.VAL, arg(2)),
-        op(EmissionsERC20.Opcodes.VAL, arg(0)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.VAL, arg(1)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.ADD, 2),
+        op(VM.Opcodes.CONSTANTS, 11),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.CONSTANTS, 7),
+        op(VM.Opcodes.GREATER_THAN),
+        op(VM.Opcodes.CONSTANTS, 7),
+        op(VM.Opcodes.CONSTANTS, 12),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.SATURATING_SUB, 2),
+        op(VM.Opcodes.CONSTANTS, 12),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.CONSTANTS, 7),
+        op(VM.Opcodes.CONSTANTS, 8),
+        op(VM.Opcodes.SATURATING_SUB, 2),
+        op(VM.Opcodes.ADD, 2),
+        op(VM.Opcodes.CONSTANTS, 9),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.CONSTANTS, 10),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.CONSTANTS, 9),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.CONSTANTS, 11),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.CONSTANTS, 12),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.SATURATING_SUB, 2),
+        op(VM.Opcodes.CONSTANTS, 7),
+        op(VM.Opcodes.CONSTANTS, 12),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.SATURATING_SUB, 2),
+        op(VM.Opcodes.SATURATING_SUB, 2),
+        op(VM.Opcodes.CONSTANTS, 7),
+        op(VM.Opcodes.CONSTANTS, 8),
+        op(VM.Opcodes.SATURATING_SUB, 2),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.ADD, 2),
+        op(VM.Opcodes.CONSTANTS, 13),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.CONSTANTS, 11),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.CONSTANTS, 12),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.SATURATING_SUB, 2),
+        op(VM.Opcodes.CONSTANTS, 11),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.CONSTANTS, 8),
+        op(VM.Opcodes.SATURATING_SUB, 2),
+        op(VM.Opcodes.CONSTANTS, 12),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.ADD, 2),
+        op(VM.Opcodes.CONSTANTS, 9),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.CONSTANTS, 10),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.CONSTANTS, 9),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.CONSTANTS, 13),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.EAGER_IF),
+        op(VM.Opcodes.CONSTANTS, 14),
+        op(VM.Opcodes.CONSTANTS, 11),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.CONSTANTS, 12),
+        op(VM.Opcodes.CONSTANTS, 4),
+        op(VM.Opcodes.DIV, 2),
+        op(VM.Opcodes.SATURATING_SUB, 2),
+        op(VM.Opcodes.MUL, 2),
+        op(VM.Opcodes.ADD, 2),
       ])
     ];
-
-    this.stackLength = ((this.sources[0].length + this.sources[1].length) / 2) + 25;
-    this. argumentsLength = 4;
   }
 
 }

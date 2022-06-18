@@ -1,8 +1,9 @@
-import {  BigNumber, Contract, Signer } from "ethers";
+import { BigNumber, Contract, Signer } from "ethers";
 import { StateConfig } from "../classes/vm";
 import { ApplyOpFn, RainJS, StateJS } from "./RainJS";
 import { ERC20 } from "../contracts/generics/erc20";
-import { Sale } from "../contracts/sale";
+import { SaleContext, SaleStorage } from "../contracts/sale";
+
 
 
 /**
@@ -12,10 +13,6 @@ import { Sale } from "../contracts/sale";
  */
 export class SaleJS extends RainJS {
 
-  /**
-   * Local Sale's opcodes + AllstandardOps
-   */
-  public static Opcodes = Sale.Opcodes;
 
   /**
    * Constructor of SaleJS to create a instance of this class with Sale's local opcodes.
@@ -23,7 +20,7 @@ export class SaleJS extends RainJS {
    * 
    * @param state - A regular StateConfig
    * @param options - (optional) additional arguments for instantiating this class 
-   * (a Signer, a Sale Contract and custom opcode functions)
+   * (a Signer, a Sale Contract and custom opcode functions, custom STORAGE/CONTEXT opcode functions)
    * 
    */
   constructor(
@@ -31,7 +28,9 @@ export class SaleJS extends RainJS {
     options?: {
       signer?: Signer,
       contract?: Contract,
-      applyOpFn?: ApplyOpFn
+      applyOpFn?: ApplyOpFn,
+      storageOpFn?: ApplyOpFn, // for overriding the SaleJS's STORAGE opcode function
+      contextOpFn?: ApplyOpFn // for overriding the SaleJS's CONTEXT opcode function
     }
   ) {
     super(
@@ -41,17 +40,28 @@ export class SaleJS extends RainJS {
         contract: options?.contract,
         applyOpFn: options?.applyOpFn
       }
-    )
-  }
+    );
+
+    // assigning custom functions to the STORAGE/CONTEXT functions
+    // custom functions should be passed at the time construction
+    for (let i = 0; i < SaleStorage.length; i++) {
+      if (options?.storageOpFn && options.storageOpFn[i]) {
+        this._STORAGE_[i] = options.storageOpFn[i];
+      }
+    };
+    for (let i = 0; i < SaleContext.length; i++) {
+      if (options?.contextOpFn && options.contextOpFn[i]) {
+        this._CONTEXT_[i] = options.contextOpFn[i];
+      }
+    };
+  };
 
   /**
-   * key/value pair of opcodes and their functions for all standard opcodes + Sale local opcodes
+   * key/value pair of STORAGE opcodes of the sale JSVM
    */
-  protected readonly _OPCODE_: ApplyOpFn = {
-
-    ...this._OPCODE_, 
-
-    [SaleJS.Opcodes.REMAINING_UNITS] : 
+  protected _STORAGE_: ApplyOpFn = {
+    
+    [SaleStorage.RemainingUnits] : 
       async(state: StateJS, operand: number, data?: any) => {
         if (this.signer && this.contract != undefined) {
           const rTKNAddress_ = await this.contract.token();
@@ -68,7 +78,7 @@ export class SaleJS extends RainJS {
         else throw new Error("Undefined Signer or Sale Contract")
       },
 
-    [SaleJS.Opcodes.TOTAL_RESERVE_IN] : 
+    [SaleStorage.TotalReserveIn] : 
       async(state: StateJS, operand: number, data?: any) => {
         if (this.signer && this.contract != undefined) {
           const reserveAddress_ = await this.contract.reserve();
@@ -85,19 +95,7 @@ export class SaleJS extends RainJS {
         else throw new Error("Undefined Signer or Sale Contract")
       },
 
-    [SaleJS.Opcodes.CURRENT_BUY_UNITS] : 
-      async(state: StateJS, operand: number, data?: any) => {
-        if(data && data.current_buy_units != undefined) {
-          state.stack.push(
-            BigNumber.from(
-              data.current_buy_units
-            )
-          )
-        }
-        else throw new Error("Undefined buy units")
-      },
-
-    [SaleJS.Opcodes.TOKEN_ADDRESS] : 
+    [SaleStorage.TokenAddress] : 
       async(state: StateJS, operand: number, data?: any) => {
         if (this.signer && this.contract != undefined) {
           state.stack.push(
@@ -109,8 +107,8 @@ export class SaleJS extends RainJS {
         else throw new Error("Undefined Signer or Sale Contract")
       },
 
-    [SaleJS.Opcodes.RESERVE_ADDRESS] : 
-    async(state: StateJS, operand: number, data?: any) => {
+    [SaleStorage.ReserveAddress] : 
+      async(state: StateJS, operand: number, data?: any) => {
       if (this.signer && this.contract != undefined) {
         state.stack.push(
           BigNumber.from(
@@ -121,5 +119,24 @@ export class SaleJS extends RainJS {
       else throw new Error("Undefined Signer or Sale Contract")
     },
   };
+  
+  /**
+   * key/value pair of CONTEXT opcodes of the sale JSVM
+   * the required value need to be passed to "run" method as the context array in "data" object.
+   * the reason is the CONTEXT opcode is contextual and is passed the VM at runtime.
+   */
+  protected _CONTEXT_: ApplyOpFn = {
+    [SaleContext.CurrentBuyUnits] : 
+    async(state: StateJS, operand: number, data?: any) => {
+      if(data && data.context != undefined) {
+        state.stack.push(
+          BigNumber.from(
+            data.context[SaleContext.CurrentBuyUnits]
+          )
+        )
+      }
+      else throw new Error("Undefined buy units")
+    },
+  }
 
 }

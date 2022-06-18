@@ -117,20 +117,6 @@ export const paddedUInt32 = (number: number | BytesLike | Hexable): string => {
 };
 
 /**
- * @public function to pack the operand for VAL opcode of ZIPMAP arguments
- *
- * @param valIndex - index of the ZIPMAP arguments
- *
- * @returns a byte size number
- */
-export function arg(valIndex: number): number {
-  let arg = 1;
-  arg <<= 7;
-  arg += valIndex;
-  return arg;
-}
-
-/**
  * @public function to pack start/end tier range into a byte size number for the UPDATE_BLOCKS_FOR_TIER_RANGE opcode
  *
  * @param startTier - the start tier of the updating which ranges between 0 to 8 (exclusive)
@@ -227,17 +213,3 @@ export const replaceAt = (
   originalParsed[index] = parseInt(replacement.toString());
   return originalParsed;
 };
-
-/**
- * @public function for the operand of the SKIP opcode
- * @remarks - SKIP is no longer available
- *
- * @returns a byte size number
- */
-export function skip(places: number, conditional = false): number {
-  let skip = conditional ? 1 : 0;
-  skip <<= 7;
-  // JS ints are already signed.
-  skip |= places & 0x7f;
-  return skip;
-}

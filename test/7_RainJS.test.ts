@@ -1,12 +1,11 @@
 import { assert } from 'chai';
 import { ethers } from 'hardhat';
-import { Tier, Time } from './utils';
+import { expectAsyncError, Tier, Time } from './utils';
 import { BigNumber } from 'ethers';
 import { 
   op,
   paddedUInt32,
   selectLte,
-  arg,
   concat,
   callSize,
   tierRange,
@@ -38,17 +37,15 @@ describe('SDK - RainJS', () => {
       constants: [1, 2, 3],
       sources: [
         concat([
-          op(RainJS.Opcodes.BLOCK_NUMBER),
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.VAL, 2),
-          op(RainJS.Opcodes.ADD, 3),
-          op(RainJS.Opcodes.BLOCK_NUMBER),
-          op(RainJS.Opcodes.ADD, 3),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.ADD, 3),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.ADD, 3),
         ])
-      ],
-      stackLength: 6,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script, {applyOpFn});
@@ -103,13 +100,13 @@ describe('SDK - RainJS', () => {
     )
     const constants = [val1, val2, val3];
 
-    const v1 = op(RainJS.Opcodes.VAL, 0);
-    const v2 = op(RainJS.Opcodes.VAL, 1);
-    const v3 = op(RainJS.Opcodes.VAL, 2);
+    const v1 = op(VM.Opcodes.CONSTANTS, 0);
+    const v2 = op(VM.Opcodes.CONSTANTS, 1);
+    const v3 = op(VM.Opcodes.CONSTANTS, 2);
 
-    const a0 = op(RainJS.Opcodes.VAL, arg(0));
-    const a1 = op(RainJS.Opcodes.VAL, arg(1));
-    const a2 = op(RainJS.Opcodes.VAL, arg(2));
+    const a0 = op(VM.Opcodes.CONSTANTS, 3);
+    const a1 = op(VM.Opcodes.CONSTANTS, 4);
+    const a2 = op(VM.Opcodes.CONSTANTS, 5);
 
     // zero-based counting
     const sourceIndex = 1; // 1
@@ -121,15 +118,15 @@ describe('SDK - RainJS', () => {
         v1,
         v2,
         v3,
-        op(RainJS.Opcodes.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
-        op(RainJS.Opcodes.ADD, 4),
+        op(VM.Opcodes.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
+        op(VM.Opcodes.ADD, 4),
       ]),
       concat([
         // (arg0 arg1 arg2 add)
         a0,
         a1,
         a2,
-        op(RainJS.Opcodes.ADD, 3),
+        op(VM.Opcodes.ADD, 3),
       ]),
     ];
 
@@ -163,18 +160,16 @@ describe('SDK - RainJS', () => {
       constants: [1, 2, 3],
       sources: [
         concat([
-          op(RainJS.Opcodes.BLOCK_NUMBER),
-          op(RainJS.Opcodes.DEBUG),
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.VAL, 2),
-          op(RainJS.Opcodes.ADD, 3),
-          op(RainJS.Opcodes.DEBUG),
-          op(RainJS.Opcodes.ADD, 2),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.DEBUG),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.ADD, 3),
+          op(VM.Opcodes.DEBUG),
+          op(VM.Opcodes.ADD, 2),
         ])
-      ],
-      stackLength: 8,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script, {signer});
@@ -200,16 +195,14 @@ describe('SDK - RainJS', () => {
       constants: [1, 2, 3],
       sources: [
         concat([
-          op(RainJS.Opcodes.BLOCK_NUMBER),
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.VAL, 2),
-          op(RainJS.Opcodes.ADD, 3),
-          op(RainJS.Opcodes.ADD, 2),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.ADD, 3),
+          op(VM.Opcodes.ADD, 2),
         ])
-      ],
-      stackLength: 6,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script, {signer});
@@ -240,16 +233,14 @@ describe('SDK - RainJS', () => {
       constants: [500, 2, 3],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.VAL, 2),
-          op(RainJS.Opcodes.SUB, 3),
-          op(RainJS.Opcodes.BLOCK_NUMBER),
-          op(RainJS.Opcodes.SUB, 2),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.SUB, 3),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.SUB, 2),
         ])
-      ],
-      stackLength: 6,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script, {signer});
@@ -280,13 +271,11 @@ describe('SDK - RainJS', () => {
       constants: [2],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.BLOCK_TIMESTAMP),
-          op(RainJS.Opcodes.MUL, 2),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.MUL, 2),
         ])
-      ],
-      stackLength: 3,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script, {signer});
@@ -317,14 +306,12 @@ describe('SDK - RainJS', () => {
       constants: [2, 3],
       sources: [
         concat([
-          op(RainJS.Opcodes.BLOCK_TIMESTAMP),
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.DIV, 3),
+          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.DIV, 3),
         ])
-      ],
-      stackLength: 4,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script, {signer});
@@ -356,13 +343,11 @@ describe('SDK - RainJS', () => {
       ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.SATURATING_ADD, 2),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.SATURATING_ADD, 2),
         ])
-      ],
-      stackLength: 3,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -389,13 +374,11 @@ describe('SDK - RainJS', () => {
       ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.SATURATING_MUL, 2),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.SATURATING_MUL, 2),
         ])
-      ],
-      stackLength: 3,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -422,13 +405,11 @@ describe('SDK - RainJS', () => {
       ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.SATURATING_SUB, 2),
         ])
-      ],
-      stackLength: 3,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -455,13 +436,11 @@ describe('SDK - RainJS', () => {
       ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.MOD, 2),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.MOD, 2),
         ])
-      ],
-      stackLength: 3,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -488,13 +467,11 @@ describe('SDK - RainJS', () => {
       ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.EXP, 2),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.EXP, 2),
         ])
-      ],
-      stackLength: 3,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -521,13 +498,11 @@ describe('SDK - RainJS', () => {
       ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.SCALE18_MUL, 5),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.SCALE18_MUL, 5),
         ])
-      ],
-      stackLength: 3,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -553,13 +528,11 @@ describe('SDK - RainJS', () => {
       ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.SCALE18_DIV, 10),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.SCALE18_DIV, 10),
         ])
-      ],
-      stackLength: 3,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -584,12 +557,10 @@ describe('SDK - RainJS', () => {
       ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.SCALE18, 22),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.SCALE18, 22),
         ])
-      ],
-      stackLength: 2,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -614,12 +585,10 @@ describe('SDK - RainJS', () => {
     ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.SCALEN, 3),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.SCALEN, 3),
         ])
-      ],
-      stackLength: 2,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -644,12 +613,10 @@ describe('SDK - RainJS', () => {
     ],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.SCALE_BY, 136),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.SCALE_BY, 136),
         ])
-      ],
-      stackLength: 2,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -672,16 +639,14 @@ describe('SDK - RainJS', () => {
       constants: [10, 20, 30, 40, 50, 60],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.VAL, 2),
-          op(RainJS.Opcodes.VAL, 3),
-          op(RainJS.Opcodes.VAL, 4),
-          op(RainJS.Opcodes.MIN, 5),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.CONSTANTS, 3),
+          op(VM.Opcodes.CONSTANTS, 4),
+          op(VM.Opcodes.MIN, 5),
         ])
-      ],
-      stackLength: 6,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -704,17 +669,15 @@ describe('SDK - RainJS', () => {
       constants: [10, 20, 30, 40, 50, 60],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.VAL, 2),
-          op(RainJS.Opcodes.VAL, 3),
-          op(RainJS.Opcodes.VAL, 4),
-          op(RainJS.Opcodes.VAL, 5),
-          op(RainJS.Opcodes.MAX, 6),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.CONSTANTS, 3),
+          op(VM.Opcodes.CONSTANTS, 4),
+          op(VM.Opcodes.CONSTANTS, 5),
+          op(VM.Opcodes.MAX, 6),
         ])
-      ],
-      stackLength: 7,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -737,17 +700,15 @@ describe('SDK - RainJS', () => {
       constants: [10, 20, 30, 35],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.SATURATING_SUB, 2),
-          op(RainJS.Opcodes.ISZERO),
-          op(RainJS.Opcodes.VAL, 2),
-          op(RainJS.Opcodes.VAL, 3),
-          op(RainJS.Opcodes.EAGER_IF),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.ISZERO),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.CONSTANTS, 3),
+          op(VM.Opcodes.EAGER_IF),
         ])
-      ],
-      stackLength: 7,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -770,30 +731,28 @@ describe('SDK - RainJS', () => {
       constants: [10, 20, ethers.constants.Zero, 30, 35],
       sources: [
         concat([
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.SATURATING_SUB, 2),
-          op(RainJS.Opcodes.VAL, 2),
-          op(RainJS.Opcodes.EQUAL_TO),
-          op(RainJS.Opcodes.VAL, 3),
-          op(RainJS.Opcodes.VAL, 4),
-          op(RainJS.Opcodes.ADD, 2),
-          op(RainJS.Opcodes.VAL, 3),
-          op(RainJS.Opcodes.GREATER_THAN),
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.ADD, 2),
-          op(RainJS.Opcodes.VAL, 4),
-          op(RainJS.Opcodes.LESS_THAN),
-          op(RainJS.Opcodes.ANY, 2),
-          op(RainJS.Opcodes.EVERY, 2),
-          op(RainJS.Opcodes.VAL, 3),
-          op(RainJS.Opcodes.VAL, 4),
-          op(RainJS.Opcodes.EAGER_IF),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.EQUAL_TO),
+          op(VM.Opcodes.CONSTANTS, 3),
+          op(VM.Opcodes.CONSTANTS, 4),
+          op(VM.Opcodes.ADD, 2),
+          op(VM.Opcodes.CONSTANTS, 3),
+          op(VM.Opcodes.GREATER_THAN),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.ADD, 2),
+          op(VM.Opcodes.CONSTANTS, 4),
+          op(VM.Opcodes.LESS_THAN),
+          op(VM.Opcodes.ANY, 2),
+          op(VM.Opcodes.EVERY, 2),
+          op(VM.Opcodes.CONSTANTS, 3),
+          op(VM.Opcodes.CONSTANTS, 4),
+          op(VM.Opcodes.EAGER_IF),
         ])
-      ],
-      stackLength: 20,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script);
@@ -815,20 +774,18 @@ describe('SDK - RainJS', () => {
     const [signer] = await ethers.getSigners();
 
     const script: StateConfig = {
-      constants: [50],
+      constants: [50, ethers.constants.MaxUint256],
       sources: [
         concat([
-          op(RainJS.Opcodes.NEVER),
-          op(RainJS.Opcodes.BLOCK_NUMBER),
-          op(RainJS.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.ZERO, Tier.EIGHT)),
-          op(RainJS.Opcodes.NEVER),
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.ZERO, Tier.EIGHT)),
-          op(RainJS.Opcodes.SATURATING_DIFF),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.ZERO, Tier.EIGHT)),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.ZERO, Tier.EIGHT)),
+          op(VM.Opcodes.SATURATING_DIFF),
         ])
-      ],
-      stackLength: 7,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script, {signer});
@@ -852,21 +809,19 @@ describe('SDK - RainJS', () => {
     const [signer] = await ethers.getSigners();
 
     const script: StateConfig = {
-      constants: [1000, 50],
+      constants: [1000, 50, ethers.constants.MaxUint256],
       sources: [
         concat([
-          op(RainJS.Opcodes.NEVER),
-          op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.TWO, Tier.FOUR)),
-          op(RainJS.Opcodes.NEVER),
-          op(RainJS.Opcodes.VAL, 1),
-          op(RainJS.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.TWO, Tier.SIX)),
-          op(RainJS.Opcodes.BLOCK_NUMBER),
-          op(RainJS.Opcodes.SELECT_LTE, selectLte(selectLteLogic.any, selectLteMode.min, 2)),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.TWO, Tier.FOUR)),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.TWO, Tier.SIX)),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.SELECT_LTE, selectLte(selectLteLogic.any, selectLteMode.min, 2)),
         ])
-      ],
-      stackLength: 7,
-      argumentsLength: 0
+      ]
     }
 
     const rainJs = new RainJS(script, {signer});
@@ -888,8 +843,27 @@ describe('SDK - RainJS', () => {
     );
   })
 
+  it('should panic when exponention goes beyond the max numeric range (max uint256)', async () => {
+    
+    const [signer] = await ethers.getSigners();
+    
+    const script: StateConfig = {
+      constants: [ethers.constants.MaxUint256.div(3), 3],
+      sources: [
+        concat([
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.EXP, 2),
+        ])
+      ]
+    }
+    const rainJs = new RainJS(script, {signer});
+
+    await expectAsyncError(
+      rainJs.run(),
+      "max numeric range overflow"
+    );
+  })
+
 })
-
-
-
 

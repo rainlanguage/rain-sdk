@@ -37,6 +37,10 @@ export let addresses: Addresses;
 
 before('Initializing and deploying contracts to hardhat network', async () => {
   // ⚠️ Contract Factories instances ⚠️
+  const vmStateBuilderFactory = await ethers.getContractFactory(
+    'AllStandardOpsStateBuilder'
+  );
+
   const RedeemableERC20FactoryFactory = await ethers.getContractFactory(
     'RedeemableERC20Factory'
   );
@@ -80,33 +84,33 @@ before('Initializing and deploying contracts to hardhat network', async () => {
   const SaleFactoryFactory = await ethers.getContractFactory('SaleFactory');
 
   // ⚠️ Deployments to hardhat test network ⚠️
+  const vmStateBuilder = await vmStateBuilderFactory.deploy();
   const RedeemableERC20Factory = await RedeemableERC20FactoryFactory.deploy();
   const VerifyFactory = await VerifyFactoryFactory.deploy();
   const VerifyTierFactory = await VerifyTierFactoryFactory.deploy();
   const ERC20BalanceTierFactory = await ERC20BalanceTierFactoryFactory.deploy();
   const ERC20TransferTierFactory =
     await ERC20TransferTierFactoryFactory.deploy();
-  const CombineTierFactory = await CombineTierFactoryFactory.deploy();
+  const CombineTierFactory = await CombineTierFactoryFactory.deploy(vmStateBuilder.address);
   const ERC721BalanceTierFactory =
     await ERC721BalanceTierFactoryFactory.deploy();
   const GatedNFTFactory = await GatedNFTFactoryFactory.deploy();
   const RedeemableERC20ClaimEscrow =
     await RedeemableERC20ClaimEscrowFactory.deploy();
   const NoticeBoard = await NoticeBoardFactory.deploy();
-  const EmissionsERC20Factory = await EmissionsERC20FactoryFactory.deploy();
+  const EmissionsERC20Factory = await EmissionsERC20FactoryFactory.deploy(vmStateBuilder.address);
   const SaleFactory = await SaleFactoryFactory.deploy({
     maximumSaleTimeout: 10000,
     maximumCooldownDuration: 1000,
     redeemableERC20Factory: RedeemableERC20Factory.address,
+    vmStateBuilder: vmStateBuilder.address
   });
 
   // Deploying AlwaysTier
-  const sourceAlways = VM.createVMSources([[CombineTier.Opcodes.ALWAYS]]);
+  const sourceAlways = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
   const alwaysArg = {
     sources: sourceAlways,
-    constants: [],
-    stackLength: 1,
-    argumentsLength: 0,
+    constants: [0],
   };
 
   const tx = await CombineTierFactory.createChildTyped(alwaysArg);
@@ -117,6 +121,7 @@ before('Initializing and deploying contracts to hardhat network', async () => {
 
   // ⚠️ Saving the addresses to our test 😅 ⚠️
   addresses = {
+    vmStateBuilder: vmStateBuilder.address,
     RedeemableERC20Factory: RedeemableERC20Factory.address,
     VerifyFactory: VerifyFactory.address,
     VerifyTierFactory: VerifyTierFactory.address,
@@ -142,9 +147,14 @@ describe('SDK - BookAddress', () => {
     );
   });
 
-  it('should get the address directly from the book', () => {
+  it('should get the NoticeBoard address directly from the book', () => {
     const address = AddressBook.getAddressesForChainId(chainId).noticeBoard;
     expect(address).to.be.equals(addresses.NoticeBoard);
+  });
+
+  it('should get the vmStatebuilder address directly from the book', () => {
+    const address = AddressBook.getAddressesForChainId(chainId).vmStateBuilder;
+    expect(address).to.be.equals(addresses.vmStateBuilder);
   });
 
   it('should get the RedeemableERC20Factory address', () => {

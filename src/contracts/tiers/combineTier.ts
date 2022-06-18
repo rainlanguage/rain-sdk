@@ -1,8 +1,8 @@
 import { Signer, BytesLike, BigNumberish } from 'ethers';
 import { TierContract } from '../../classes/tierContract';
-import { TxOverrides } from '../../classes/rainContract';
-import { StateConfig, AllStandardOps } from '../../classes/vm';
-import { CombineTierFactory__factory } from '../../typechain';
+import { ReadTxOverrides, TxOverrides } from '../../classes/rainContract';
+import { StateConfig, StorageOpcodesRange } from '../../classes/vm';
+import { CombineTierFactory__factory, CombineTier__factory } from '../../typechain';
 
 /**
  * @public
@@ -16,15 +16,30 @@ import { CombineTierFactory__factory } from '../../typechain';
 export type CombineTierDeployArgs = StateConfig;
 
 /**
- * @public
- * Type for the opcodes availables in a CombineTier instance.
+ * Enum for operand of the combineTier's CONTEXT opcode
  */
-export type CombineTierOpcodes = typeof AllStandardOps & {
+ export enum CombineTierContext {
   /**
-   * local opcode to put tier report account on the stack
+   * 0 or the index of the context array in the combineTier 
+   * contract used as the operand for CONTEXT opcode.
+   * operand for CONTEXT opcode to stack the account that report is being call for.
    */
-  ACCOUNT: number;
-};
+  Account,
+  /**
+   * length of CombineTier's valid context opcodes
+   */
+  length
+}
+
+/**
+ * Enum for operand of the CombineTier's STORAGE opcode
+ */
+export enum CombineTierStorage {
+  /**
+   * length of CombineTier's valid storage opcodes
+   */
+  length
+}
 
 /**
  * @public
@@ -60,6 +75,8 @@ export type CombineTierOpcodes = typeof AllStandardOps & {
  * ```
  */
 export class CombineTier extends TierContract {
+  protected static readonly nameBookReference: string = 'combineTierFactory';
+
   /**
    * Constructs a new CombineTier from a known address.
    *
@@ -68,22 +85,15 @@ export class CombineTier extends TierContract {
    * @returns A new combineTier instance
    */
   constructor(address: string, signer: Signer) {
+
     CombineTier.checkAddress(address);
+
     super(address, signer);
+    const _combineTier = CombineTier__factory.connect(address, signer);
+
+    this.fnPtrs = _combineTier.fnPtrs;
+    this.storageOpcodesRange = _combineTier.storageOpcodesRange;
   }
-
-  protected static readonly nameBookReference: string = 'combineTierFactory';
-
-  /**
-   * All the opcodes avaialbles in the CombineTier contract.
-   *
-   * @remarks
-   * This expose all the standard opcodes along with the specific opcodes of the CombineTier.
-   */
-  public static Opcodes: CombineTierOpcodes = {
-    ...AllStandardOps,
-    ACCOUNT: 0 + AllStandardOps.length,
-  };
 
   /**
    * Checks if address is registered as a child contract of this contract in a specific network.
@@ -145,7 +155,7 @@ export class CombineTier extends TierContract {
       this.getBookAddress(await this.getChainId(signer)),
       signer
     );
-
+      
     const tx = await combineTierFactory.createChildTyped(args, overrides);
     const receipt = await tx.wait();
     const address = this.getNewChildFromReceipt(receipt, combineTierFactory);
@@ -167,4 +177,22 @@ export class CombineTier extends TierContract {
   ): Promise<never> => {
     throw new Error('SET TIER: NOT IMPLEMENTED');
   };
+
+  /**
+   * Pointers to opcode functions, necessary for being able to read the packedBytes
+   * 
+   * @param override - @see ReadTxOverrides
+   * @returns the opcode functions pointers
+   */
+  public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
+
+  /**
+   * Returns the pointer and length for combineTier's storage opcodes
+   * 
+   * @param override - @see ReadTxOverrides
+   * @returns a StorageOpcodesRange
+  */
+  public readonly storageOpcodesRange: (
+    overrides?: ReadTxOverrides
+  ) => Promise<StorageOpcodesRange>;
 }

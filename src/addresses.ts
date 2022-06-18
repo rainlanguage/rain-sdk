@@ -12,6 +12,7 @@ export type SubgraphBook = {
  */
 export type Addresses = {
   [key: string]: string;
+  vmStateBuilder: string;
   redeemableERC20Factory: string;
   verifyFactory: string;
   verifyTierFactory: string;
@@ -34,6 +35,7 @@ const addressBook = [
      */
     chainId: 1,
     addresses: {
+      vmStateBuilder: "",
       alwaysTier: '0x735ECdF9a79e62531BAB9240696a450F94AB79f8',
       combineTierFactory: '0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5',
       erc20BalanceTierFactory: '0x50B2921A8c915A8228dA39e93AD9E9AA43fBc901',
@@ -55,6 +57,7 @@ const addressBook = [
      */
     chainId: 5,
     addresses: {
+      vmStateBuilder: "",
       alwaysTier: '0x1Fcf1f92919F0E0023463234c78296E9517b56Ea',
       combineTierFactory: '0x34A0946CEAD3417E629B2679D05C0A24d49a1eB4',
       erc20BalanceTierFactory: '0xbA9Ce92a65e172ADd70A71B6E280D9941fb9185C',
@@ -76,6 +79,7 @@ const addressBook = [
      */
     chainId: 56,
     addresses: {
+      vmStateBuilder: "",
       alwaysTier: '0x735ECdF9a79e62531BAB9240696a450F94AB79f8',
       combineTierFactory: '0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5',
       erc20BalanceTierFactory: '0x50B2921A8c915A8228dA39e93AD9E9AA43fBc901',
@@ -97,6 +101,7 @@ const addressBook = [
      */
     chainId: 97,
     addresses: {
+      vmStateBuilder: "",
       alwaysTier: '0x735ECdF9a79e62531BAB9240696a450F94AB79f8',
       combineTierFactory: '0x36983711f9C4869F0B9BEb2Cf677814bb40d41c5',
       erc20BalanceTierFactory: '0x50B2921A8c915A8228dA39e93AD9E9AA43fBc901',
@@ -118,6 +123,7 @@ const addressBook = [
      */
     chainId: 137,
     addresses: {
+      vmStateBuilder: "",
       alwaysTier: '0xF81572101B3bD379ADFddCBF4d46f40268475A14',
       combineTierFactory: '0xaB9D00F59A8C45b8b20F060D5F7d97FdDbA2De19',
       erc20BalanceTierFactory: '0xcCFa697D85771B67826cB7E1F7535576fA91b6b1',
@@ -139,19 +145,20 @@ const addressBook = [
      */
     chainId: 31337,
     addresses: {
-      alwaysTier: '0x23dB4a08f2272df049a4932a4Cc3A6Dc1002B33E',
-      redeemableERC20Factory: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-      verifyFactory: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
-      verifyTierFactory: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
-      erc20BalanceTierFactory: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
-      erc20TransferTierFactory: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
-      combineTierFactory: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
-      erc721BalanceTierFactory: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
-      gatedNFTFactory: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
-      redeemableERC20ClaimEscrow: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
-      noticeBoard: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
-      emissionsERC20Factory: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
-      saleFactory: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+      vmStateBuilder: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      alwaysTier: '0xBA12646CC07ADBe43F8bD25D83FB628D29C8A762',
+      redeemableERC20Factory: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+      verifyFactory: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0',
+      verifyTierFactory: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
+      erc20BalanceTierFactory: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9',
+      erc20TransferTierFactory: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+      combineTierFactory: '0x0165878A594ca255338adfa4d48449f69242Eb8F',
+      erc721BalanceTierFactory: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853',
+      gatedNFTFactory: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
+      redeemableERC20ClaimEscrow: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
+      noticeBoard: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
+      emissionsERC20Factory: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+      saleFactory: '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0',
     },
   },
   {
@@ -160,6 +167,7 @@ const addressBook = [
      */
     chainId: 43113,
     addresses: {
+      vmStateBuilder: "",
       alwaysTier: '0x3f16F26C6844be3d0934EC0543039d874D45da9e',
       combineTierFactory: '0x4B8FC6f1f3f62099f4fb7151548b9c5226ceD76E',
       erc20BalanceTierFactory: '0x724007CDD1689e43c6ef55b7032b93A1cC8C02C7',
@@ -181,6 +189,7 @@ const addressBook = [
      */
     chainId: 80001,
     addresses: {
+      vmStateBuilder: "",
       alwaysTier: '0x051dC03ba4d33eCC59Fb23F506Fe1e67004F142C',
       combineTierFactory: '0x21fC48631F0efA5EFe790b5c05929cEdc271dB43',
       erc20BalanceTierFactory: '0xb1C8EA6E410a71290D5C21404D3324e61912e3c6',

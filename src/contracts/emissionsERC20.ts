@@ -1,3 +1,14 @@
+import { TierContract } from '../classes/tierContract';
+import { StateConfig, StorageOpcodesRange } from '../classes/vm';
+import {
+  EmissionsERC20__factory,
+  EmissionsERC20Factory__factory,
+} from '../typechain';
+import {
+  ERC20Config,
+  TxOverrides,
+  ReadTxOverrides,
+} from '../classes/rainContract';
 import {
   Signer,
   BigNumber,
@@ -5,28 +16,33 @@ import {
   BigNumberish,
   ContractTransaction,
 } from 'ethers';
-import {
-  ERC20Config,
-  TxOverrides,
-  ReadTxOverrides,
-} from '../classes/rainContract';
-import { StateConfig, AllStandardOps } from '../classes/vm';
-import { TierContract } from '../classes/tierContract';
-import {
-  EmissionsERC20__factory,
-  EmissionsERC20Factory__factory,
-} from '../typechain';
+
 
 /**
- * @public
- * Type for the opcodes availables in a EmissionsERC20 instance.
+ * Enum for operand of the emissionsERC20's CONTEXT opcode
  */
-export type EmissionsERC20Opcodes = typeof AllStandardOps & {
+ export enum EmissionsERC20Context {
   /**
-   * local opcode to put claimant account on the stack.
+   * 0 or the index of the context array in the emissionsERC20 
+   * contract used as the operand for CONTEXT opcode.
+   * operand for CONTEXT opcode to stack the claimant account that report is being call for.
    */
-  CLAIMANT_ACCOUNT: number;
-};
+  ClaimantAccount,
+  /**
+   * length of EmissionsERC20's valid context opcodes
+   */
+  length
+}
+
+/**
+ * Enum for operand of the EmissionsERC20's STORAGE opcode
+ */
+ export enum EmissionsERC20Storage {
+  /**
+   * length of EmissionsERC20's valid storage opcodes
+   */
+  length
+}
 
 /**
  * @public
@@ -59,9 +75,12 @@ export class EmissionsERC20 extends TierContract {
    *
    */
   constructor(address: string, signer: Signer) {
+
     EmissionsERC20.checkAddress(address);
+
     super(address, signer);
     const _emission = EmissionsERC20__factory.connect(address, signer);
+
     this.allowDelegatedClaims = _emission.allowDelegatedClaims;
     this.allowance = _emission.allowance;
     this.approve = _emission.approve;
@@ -76,18 +95,9 @@ export class EmissionsERC20 extends TierContract {
     this.totalSupply = _emission.totalSupply;
     this.transfer = _emission.transfer;
     this.transferFrom = _emission.transferFrom;
+    this.fnPtrs = _emission.fnPtrs;
+    this.storageOpcodesRange = _emission.storageOpcodesRange;
   }
-
-  /**
-   * All the opcodes avaialbles in the EmissionsERC20 contract.
-   *
-   * @remarks
-   * This expose all the standard opcodes along with the specific opcodes of the EmissionsERC20.
-   */
-  public static Opcodes: EmissionsERC20Opcodes = {
-    ...AllStandardOps,
-    CLAIMANT_ACCOUNT: 0 + AllStandardOps.length,
-  };
 
   /**
    * Deploys a new EmissionsERC20.
@@ -352,6 +362,24 @@ export class EmissionsERC20 extends TierContract {
     amount: BigNumberish,
     overrides?: TxOverrides
   ) => Promise<ContractTransaction>;
+
+  /**
+   * Pointers to opcode functions, necessary for being able to read the packedBytes
+   * 
+   * @param override - @see ReadTxOverrides
+   * @returns the opcode functions pointers
+   */
+  public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
+
+  /**
+   * Returns the pointer and length for emissionERC20's storage opcodes
+   * 
+   * @param override - @see ReadTxOverrides
+   * @returns a StorageOpcodesRange
+   */
+  public readonly storageOpcodesRange: (
+    overrides?: ReadTxOverrides
+  ) => Promise<StorageOpcodesRange>;
 }
 
 /**

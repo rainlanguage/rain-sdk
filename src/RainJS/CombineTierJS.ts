@@ -1,8 +1,10 @@
 import { BigNumber, Contract, Signer } from "ethers";
 import { StateConfig } from "../classes/vm";
-import { CombineTier } from "../contracts/tiers/combineTier";
 import { ApplyOpFn, RainJS, StateJS } from "./RainJS";
-
+import { 
+  CombineTierContext,
+  CombineTierStorage 
+} from "../contracts/tiers/combineTier";
 
 
 /**
@@ -11,11 +13,6 @@ import { ApplyOpFn, RainJS, StateJS } from "./RainJS";
  * 
  */
 export class CombineTierJS extends RainJS {
-
-  /**
-   * Local CombineTier Opcodes + AllstandardOps
-   */
-  public static Opcodes = CombineTier.Opcodes;
 
   /**
    * Constructor of CombineTierJS to create a instance of this class with CombineTier's local opcodes.
@@ -31,7 +28,9 @@ export class CombineTierJS extends RainJS {
     options?: {
       signer?: Signer,
       contract?: Contract,
-      applyOpFn?: ApplyOpFn
+      applyOpFn?: ApplyOpFn,
+      storageOpFn?: ApplyOpFn, // for overriding the CombineTierJS's STORAGE opcode function
+      contextOpFn?: ApplyOpFn // for overriding the CombineTierJS's CONTEXT opcode function
     }
   ) {
     super(
@@ -41,25 +40,46 @@ export class CombineTierJS extends RainJS {
         contract: options?.contract,
         applyOpFn: options?.applyOpFn
       }
-    )
+    );
+
+    // assigning custom functions to the STORAGE/CONTEXT functions
+    // custom functions should be passed at the time construction
+    for (let i = 0; i < CombineTierStorage.length; i++) {
+      if (options?.storageOpFn && options.storageOpFn[i]) {
+        this._STORAGE_[i] = options.storageOpFn[i];
+      }
+    };
+    for (let i = 0; i < CombineTierContext.length; i++) {
+      if (options?.contextOpFn && options.contextOpFn[i]) {
+        this._CONTEXT_[i] = options.contextOpFn[i];
+      }
+    };
   }
 
   /**
-   * key/value pair of opcodes and their functions for all standard opcodes + EmissionsERC20 local opcodes
+   * key/value pair of CONTEXT opcodes of the CombineTier JSVM
+   * the required value need to be passed to "run" method as the context array in "data" object.
+   * the reason is the CONTEXT opcode is contextual and is passed the VM at runtime.
    */
-  protected readonly _OPCODE_: ApplyOpFn = { 
-
-    ...this._OPCODE_,
-
-    [CombineTierJS.Opcodes.ACCOUNT] : 
-      async(state: StateJS, operand: number, data?: any) => {
-      if(data && data.account != undefined) {
+   protected _CONTEXT_: ApplyOpFn = {
+    [CombineTierContext.Account] : 
+    async(state: StateJS, operand: number, data?: any) => {
+      if(data && data.context != undefined) {
         state.stack.push(
-          BigNumber.from(data.account)
+          BigNumber.from(
+            data.context[CombineTierContext.Account]
+          )
         )
       }
-      else throw new Error("Undefined account address")
-    }
+      else throw new Error("Undefined buy units")
+    },
   }
+
+  /**
+   * key/value pair of STORAGE opcodes of the CombineTier JSVM (empty with no functions) 
+   * @remark CombineTier doesnt have any STORAGE opcode by default and in its contract level,
+   * however in JSVM there is the ability to pass in custom opcode functions to it
+   */
+   protected _STORAGE_: ApplyOpFn = {};
 
 }

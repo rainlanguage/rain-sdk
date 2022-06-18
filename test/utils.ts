@@ -47,6 +47,7 @@ export enum SaleStatus {
  * **These addresses are deterministically generated with the HH signers.**
  */
 export interface Addresses {
+  vmStateBuilder: string;
   RedeemableERC20Factory: string;
   VerifyFactory: string;
   VerifyTierFactory: string;

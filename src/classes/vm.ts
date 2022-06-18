@@ -1,4 +1,4 @@
-import { BytesLike, BigNumberish, BigNumber, utils } from 'ethers';
+import { BytesLike, BigNumberish, utils, BigNumber, ethers } from 'ethers';
 import {
   paddedUInt256,
   paddedUInt32,
@@ -9,8 +9,7 @@ import {
   selectLteMode,
   selectLteLogic,
   callSize,
-  arg,
-  arrayify,
+  arrayify
 } from '../utils';
 
 /**
@@ -20,24 +19,26 @@ import {
  */
 export enum AllStandardOps {
   /**
-   * @deprecated **DONT USE SKIP!**
-   *
-   * It is a skip as this is the fallback value for unset solidity bytes.
-   * Any additional "whitespace" in rain scripts will be noops as `0 0` is
-   * "skip self". The val can be used to skip additional opcodes but take
-   * care to not underflow the source itself.
-   */
-  SKIP,
-  /**
    * Copies a value either off `constants` or `arguments` to the top of
-   * the stack. The high bit of the operand specifies which, `0` for
-   * `constants` and `1` for `arguments`.
+   * the stack. arguments will go at the end of the constants array.
    */
-  VAL,
+  CONSTANTS,
   /**
-   * Duplicates the value atoptions.index `operand_` to the top of the stack
+   * Duplicates any value in the stack to the top of the stack. The operand 
+   * specifies the index to copy from.
    */
-  DUP,
+  STACK,
+  /**
+   * stacks an item of the contextual array of values of an underlying contract 
+   * passed by caller when calling the contract's methods. operand is the index 
+   * to access the desired item in the array.
+   */
+  CONTEXT,
+  /**
+   * used as local opcodes i.e. opcodes to stack the contract's storage contents i.e.
+   * porperties/variables. operand determines the storage location to be stacked.
+   */
+  STORAGE,
   /**
    * Takes N values off the stack, interprets them as an array then zips
    * and maps a source from `sources` over them. The source has access to
@@ -84,14 +85,6 @@ export enum AllStandardOps {
    * Opcode to rescale an arbitrary fixed point number by some OOMs.
    */
   SCALE_BY,
-  /**
-   * Opcode for stacking the definition of one.
-   */
-  SCALE18_ONE,
-  /**
-   * Opcode for stacking number of fixed point decimals used.
-   */
-  SCALE18_DECIMALS,
   /**
    * Opcode for addition.
    */
@@ -174,14 +167,6 @@ export enum AllStandardOps {
    */
   REPORT,
   /**
-   * Opcode to stack a report that has never been held for all tiers.
-   */
-  NEVER,
-  /**
-   * Opcode to stack a report that has always been held for all tiers.
-   */
-  ALWAYS,
-  /**
    * Opcode to calculate the tierwise diff of two reports.
    */
   SATURATING_DIFF,
@@ -237,53 +222,50 @@ export interface StateConfig {
    * Constants verbatim.
    */
   constants: BigNumberish[];
-  /**
-   * Sets the length of the uint256[] of the stack.
-   */
-  stackLength: BigNumberish;
-  /**
-   * Sets the length of the uint256[] of the arguments.
-   */
-  argumentsLength: BigNumberish;
 }
 
 /**
- * @public
- *
- * Everything required to evaluate and track the state of a rain script.
- * As this is a struct it will be in memory when passed to `RainVM` and so
- * will be modified by reference internally. This is important for gas
- * efficiency; the stack, arguments and stackIndex will likely be mutated by
- * the running script.
+ * Interface for accessible by vm storage's slots range available for a contract to be
+ * used as local opcodes.
  */
-export interface State {
+export interface StorageOpcodesRange {
   /**
-   * Opcodes write to the stack at the stack index and can
-   * consume from the stack by decrementing the index and reading between the
-   * old and new stack index.
-   * IMPORANT: The stack is never zeroed out so the index must be used to
-   * find the "top" of the stack as the result of an `eval`.
+   * pointer to the storage slot of the first property of properties of a contract used
+   * as STORAGE opcode.
    */
-  stackIndex: BigNumberish;
+  pointer: BigNumberish;
   /**
-   * Stack is the general purpose runtime state that opcodes can
-   * read from and write to according to their functionality.
+   * Length of the storage opcodes of a contract, i.e. the number of local opcodes
    */
-  stack: BigNumberish[];
+  length: BigNumberish;
+};
+
+/**
+ * Enum for DEBUG opcode operands
+ */
+ export enum Debug {
   /**
-   * Sources available to be executed by `eval`.
-   * Notably `ZIPMAP` can also select a source to execute by index.
+   * ABI of the current state of State
    */
-  sources: BytesLike[];
+  StateAbi,
   /**
-   * Constants that can be copied to the stack by index by `VAL`.
+   * current state of State as packed bytes
    */
-  constants: BigNumberish[];
+  StatePacked,
   /**
-   * `ZIPMAP` populates arguments which can be copied to the stack by `VAL`.
+   * current state of stack
    */
-  arguments: BigNumberish[];
+  Stack,
+  /**
+   * current stack index
+   */
+  StackIndex,
+  /**
+   * length of DEBUG's valid operands
+   */
+  length
 }
+
 
 /**
  * @public
@@ -305,6 +287,7 @@ export class VM {
    */
   public static Opcodes = AllStandardOps;
 
+
   /**
    * Create a VM sources to be ready to use in any call just providing the combination desired.
    *
@@ -321,97 +304,241 @@ export class VM {
   /**
    * Combines 2 individual VM scripts
    * 
-   * @remarks - please be aware if your script has DUP opcode, as DUP is relative to script and cannot be handled by this method
+   * @remarks - please be aware if your script has STACK opcode, as STACK is relative to script and cannot be handled by this method
    * and needs to be dealt with manualy before calling this method.
-   *
+   * 
    * @param config1 - the first VM script that will be combined. (default sits at top)
    * @param config2 - the second VM script that will be combined. (default sits at bottom)
    * @param options - used for additional configuraions:
    *    - (param) index - to identify which sources item in config1.sources the combination starts at, if not specified, it will be 0.
-   *    - (param) numberOfSource - for specifying how many sources item to combine.
+   *    - (param) - numberOfSources - for specifying how many sources item to combine.
    *    - (param) position - An array representing the positions of config1 script where config2 sources
    *       will be merged at; position, array length must be equal to 'numberOfSources' or else it will be ignored. 
-   * 
    * @returns combined VM script. @see StateConfig
    */
-  public static vmCombiner(
+  public static combiner(
     config1: StateConfig,
     config2: StateConfig,
     options?: {
       index?: number,
-      numberOfSources?: number
+      numberOfSources?: number,
       position?: number[],
     }
   ): StateConfig {
 
-    const Index = options?.index ? options.index : 0;
-    const NumberOfSources = options?.numberOfSources
-      ? options.numberOfSources
-      : 1;
+    const NumberOfSources = options?.numberOfSources != undefined ? options.numberOfSources : 1;
+    let sourceModify1;
+    let sourceModify2;
 
     const constants = [...config1.constants, ...config2.constants];
+    let sources: BytesLike[];
 
-    for (let i = 0; i < config2.sources.length; i++) {
-      const sourceModify = arrayify(config2.sources[i], {
-        allowMissingPrefix: true,
-      });
-      for (let j = 0; j < sourceModify.length; j++) {
-        if (sourceModify[j] == 1) {
-          let argCheck = sourceModify[j + 1] >> 7;
-          if (!argCheck) {
-            sourceModify[j + 1] += config1.constants.length;
-          }
-        }
-        if (sourceModify[j] == 3) {
-          const srcIndexIncrement =
-            (config1.sources.length - NumberOfSources);
-          const srcIndex = sourceModify[j + 1] & 7;
-          sourceModify[j + 1] =
-            srcIndex < NumberOfSources
-              ? sourceModify[j + 1] + Index
-              : sourceModify[j + 1] + srcIndexIncrement;
+    let argCount = 0;
+    for (let i = 0; i < config1.sources.length; i++) {
+      let src = arrayify(
+        config1.sources[i], 
+        {allowMissingPrefix: true}
+      );
+      for (let j = 0; j < src.length; j++) {
+        if (src[j] == 4) {
+          argCount += (src[j + 1] >> 5) + 1;
         }
         j++;
       }
-      config2.sources[i] = sourceModify;
     }
 
-    if (options?.position && options.position.length == NumberOfSources) {
-      for (let i = 0; i < NumberOfSources; i++) {
-        const sourceModify = arrayify(config1.sources[Index + i], {
+    if (NumberOfSources == 0) {
+      for (let i = 0; i < config1.sources.length; i++) {
+        sourceModify1 = arrayify(
+          config1.sources[i], 
+          {allowMissingPrefix: true}
+        );
+        for (let j = 0; j < sourceModify1.length; j++) {
+          if (sourceModify1[j] == 0) {
+            if (sourceModify1[j + 1] >= config1.constants.length) {
+              sourceModify1[j + 1] += config2.constants.length
+            }
+          }
+          if (sourceModify1[j] == 4) {
+            sourceModify1[j + 1]++
+          }
+          j++;
+        }
+        config1.sources[i] = sourceModify1;
+      }
+      for (let i = 0; i < config2.sources.length; i++) {
+        sourceModify2 = arrayify(
+          config2.sources[i], 
+          {allowMissingPrefix: true}
+        );
+        for (let j = 0; j < sourceModify2.length; j++) {
+          if (sourceModify2[j] == 0) {
+            if (sourceModify2[j + 1] < config2.constants.length) {
+              sourceModify2[j + 1] += config1.constants.length;
+            }
+            else {
+              sourceModify2[j + 1] += argCount + config1.constants.length;
+            }
+          }
+          if (sourceModify2[j] == 4) {
+            sourceModify2[j + 1] += config1.sources.length;
+          }
+          j++;
+        }
+        config2.sources[i] = sourceModify2;
+      }
+
+      sources = [
+        config1.sources[0],
+        config2.sources[0],
+        ...config1.sources.splice(1),
+        ...config2.sources.splice(1)
+      ];
+    }
+    else {
+      const Index = options?.index ? options.index : 0;
+
+      for (let i = 0; i < config1.sources.length; i++) {
+        sourceModify1 = arrayify(
+          config1.sources[i], 
+          {allowMissingPrefix: true}
+        );
+        for (let j = 0; j < sourceModify1.length; j++) {
+          if (sourceModify1[j] == 0) {
+            if (sourceModify1[j + 1] >= config1.constants.length) {
+              sourceModify1[j + 1] += config2.constants.length
+            }
+          }
+          j++;
+        }
+        config1.sources[i] = sourceModify1;
+      }
+      for (let i = 0; i < config2.sources.length; i++) {
+        sourceModify2 = arrayify(config2.sources[i], {
           allowMissingPrefix: true,
         });
-        config1.sources[Index + i] = concat([
-          sourceModify.subarray(0, options.position[i] * 2),
-          config2.sources[i],
-          sourceModify.subarray(options.position[i] * 2),
-        ]);
+        for (let j = 0; j < sourceModify2.length; j++) {
+          if (sourceModify2[j] == 0) {
+            if (sourceModify2[j + 1] < config2.constants.length) {
+              sourceModify2[j + 1] += config1.constants.length;
+            }
+            else {
+              sourceModify2[j + 1] += config1.constants.length + argCount;
+            }
+          }
+          if (sourceModify2[j] == 4) {
+            const srcIndexIncrement = config1.sources.length - NumberOfSources;
+            const srcIndex = sourceModify2[j + 1] & 7;
+            sourceModify2[j + 1] =
+              srcIndex < NumberOfSources
+                ? sourceModify2[j + 1] + Index
+                : sourceModify2[j + 1] + srcIndexIncrement;
+          }
+          j++;
+        }
+        config2.sources[i] = sourceModify2;
       }
-    } else {
-      for (let i = 0; i < NumberOfSources; i++) {
-        config1.sources[Index + i] = concat([
-          config1.sources[Index + i],
-          config2.sources[i],
-        ]);
+
+      if (options?.position && options.position.length == NumberOfSources) {
+        for (let i = 0; i < NumberOfSources; i++) {
+          const sourceModify = arrayify(config1.sources[Index + i], {
+            allowMissingPrefix: true,
+          });
+          config1.sources[Index + i] = concat([
+            sourceModify.subarray(0, options.position[i] * 2),
+            config2.sources[i],
+            sourceModify.subarray(options.position[i] * 2),
+          ]);
+        }
+      } 
+      else {
+        for (let i = 0; i < NumberOfSources; i++) {
+          config1.sources[Index + i] = concat([
+            config1.sources[Index + i],
+            config2.sources[i],
+          ]);
+        }
       }
+
+      config2.sources.splice(0, NumberOfSources);
+      sources = [
+        ...config1.sources,
+        ...config2.sources
+      ];
     }
 
-    config2.sources.splice(0, NumberOfSources);
-    const sources = [...config1.sources, ...config2.sources];
+    let offset = 0;
+    for (let i = 0; i < sources.length; i++) {
+      let srcModify = arrayify(
+        sources[i],
+        {allowMissingPrefix: true}
+      );
+      for (let j = 0; j < srcModify.length; j++) {
+        let offsetReset;
+        let argModify;
+        let opernadArr = [];
 
-    const finalStackLength = BigNumber.from(config1.stackLength).add(
-      config2.stackLength
-    );
-    const finalArgumentsLength = BigNumber.from(config1.argumentsLength).add(
-      config2.argumentsLength
-    );
+        if (srcModify[j] == 4) {
+          argModify = arrayify(
+            sources[srcModify[j + 1] & 7],
+            {allowMissingPrefix: true}
+          );
+
+          for (let k = 0; k < argModify.length; k++) {
+            if (argModify[k] == 0 && argModify[k + 1] >= constants.length) {
+              opernadArr.push(argModify[k + 1]);
+            }
+            k++;
+          }
+          offsetReset = opernadArr.reduce((e, m) => e < m ? e : m);
+          for (let k = 0; k < argModify.length; k++) {
+            if (argModify[k] == 0 && argModify[k + 1] >= constants.length) {
+              argModify[k + 1] -= offsetReset;
+              argModify[k + 1] += constants.length + offset;
+            }
+            k++;
+          }
+          sources[srcModify[j + 1] & 7] = argModify;
+          offset += (srcModify[j + 1] >> 5) + 1;
+        }
+        j++;
+      }
+    }
 
     return {
       constants,
       sources,
-      stackLength: finalStackLength,
-      argumentsLength: finalArgumentsLength,
     };
+  }
+
+
+  /**
+   * method to create paired(amount-price) StateConfig, which is used for sale, orderbook, etc
+   * 
+   * @param amountConfig - amount's StateConfig, the config sitting at top and returning the first value
+   * @param priceConfig - price's StateConfig, the config sitting at bottom and returning the second value
+   * 
+   * @returns a @see StatecConfig
+   */
+  public static pair (
+    amountConfig: StateConfig,
+    priceConfig: StateConfig
+  ) : StateConfig {
+
+    let _stackOpcodeModify = arrayify(
+      priceConfig.sources[0],
+      {allowMissingPrefix: true}
+    );
+
+    for (let i = 0; i < _stackOpcodeModify.length; i++) {
+      if (_stackOpcodeModify[i] == 1) {
+        _stackOpcodeModify[i + 1]++;
+      }
+      i++
+    }
+    priceConfig.sources[0] = _stackOpcodeModify;
+
+    return VM.combiner(amountConfig, priceConfig);
   }
 
 
@@ -426,73 +553,79 @@ export class VM {
    * @param ownerAddress - the address that is going to be the owner of the main VM script.
    * @param options - used for additional configuraions:
    *    - (param) index - to identify which sources item in config.sources the combination starts at, if not specified, it will be 0.
-   *    - (param) numberOfSource - for specifying how many sources item to combine.
    *    - (param) position - An array representing the positions of config script where notOwnerVar sources (if exists)
    *       will be merged at; position, array length must be equal to 'numberOfSources' or else it will be ignored.
    *    - (param) notOwnerVar - the value or the script that will be executed if the owner check fails, if not specified 0 will be applied.
    * 
    * @returns a VM script. @see StateConfig
    */
-  public static makeOwner(
+  public static toOwnerMaker (
     config: StateConfig,
     ownerAddress: string,
     options?: {
       index?: number,
-      numberOfSources?: number,
       position?: number[],
       notOwnerVar?: StateConfig | number,
     }
   ): StateConfig {
 
+    let _result: StateConfig;
     const Index = options?.index ? options.index : 0;
 
     const MAKE_OWNER = (i: any) =>
       concat([
-        op(AllStandardOps.VAL, i),
-        op(AllStandardOps.SENDER),
-        op(AllStandardOps.EQUAL_TO),
+        op(VM.Opcodes.CONSTANTS, i),
+        op(VM.Opcodes.SENDER),
+        op(VM.Opcodes.EQUAL_TO),
       ]);
 
     if (options?.notOwnerVar && typeof options.notOwnerVar === 'object') {
-      let _result = this.vmCombiner(
+      _result = this.combiner(
         config,
         options.notOwnerVar,
         {
-          index: options.index,
-          position: options.position,
-          numberOfSources: options.numberOfSources
+          index: Index,
+          position: options?.position,
         }
       );
-      _result.constants.push(ownerAddress);
-      _result.sources[Index] = concat([
-        MAKE_OWNER(_result.constants.length - 1),
-        _result.sources[Index],
-        op(AllStandardOps.EAGER_IF),
-      ]);
-      _result.stackLength = BigNumber.from(_result.stackLength).add(4);
-
-      return _result;
-
-    } else {
+    } 
+    else {
       const NotOwnerVar = 
       (options?.notOwnerVar && typeof options?.notOwnerVar == "number")
           ? options.notOwnerVar
           : 0;
-      const constants = [...config.constants, ownerAddress, NotOwnerVar];
-      config.sources[Index] = concat([
-        MAKE_OWNER(constants.length - 2),
-        config.sources[Index],
-        op(AllStandardOps.VAL, constants.length - 1),
-        op(AllStandardOps.EAGER_IF),
-      ]);
-      const sources = config.sources;
-      return {
-        constants,
-        sources,
-        stackLength: Number(config.stackLength) + 5,
-        argumentsLength: config.argumentsLength,
-      };
+
+      _result = this.combiner(
+        config,
+        {
+          constants: [NotOwnerVar],
+          sources: [
+            concat([
+              op(VM.Opcodes.CONSTANTS, 0)
+            ])
+          ]
+        },
+        {
+          index: Index,
+          position: options?.position
+        }
+      );
     }
+
+    _result = this.combiner(
+      {
+        constants: [ownerAddress],
+        sources: [MAKE_OWNER(0)]
+      },
+      _result,
+      {index: Index}
+    )
+    _result.sources[Index] = concat([
+      _result.sources[Index],
+      op(VM.Opcodes.EAGER_IF),
+    ]);
+
+    return _result;
   }
 
 
@@ -509,7 +642,7 @@ export class VM {
    * 
    * @returns a VM script @see StateConfig
    */
-  public static tierBasedDiscounter(
+  public static toTierDiscounter(
     config: StateConfig,
     tierAddress: string,
     tierDiscount: number[],
@@ -535,13 +668,13 @@ export class VM {
       )
     );
 
-    const TIER_BASED_DIS = (i: number) =>
+    const TIER_BASED_DIS = () =>
       concat([
-        op(VM.Opcodes.NEVER),
-        op(VM.Opcodes.VAL, i - 1),
+        op(VM.Opcodes.CONSTANTS, 0),
+        op(VM.Opcodes.CONSTANTS, 3),
         op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(0, 8)),
-        op(VM.Opcodes.VAL, i - 2),
-        op(VM.Opcodes.VAL, i - 3),
+        op(VM.Opcodes.CONSTANTS, 2),
+        op(VM.Opcodes.CONSTANTS, 1),
         op(VM.Opcodes.SENDER),
         op(VM.Opcodes.REPORT),
         op(VM.Opcodes.BLOCK_NUMBER),
@@ -551,105 +684,91 @@ export class VM {
         ),
         op(VM.Opcodes.SATURATING_DIFF),
       ]);
-
-    const TIER_BASED_DIS_ZIMAP = (
-      i: number,
-      sourceIndex: number,
-      valSize: number
-    ) =>
+    const TIER_BASED_DIS_ZIPMAP = (valSize: number) =>
       concat([
-        op(VM.Opcodes.ZIPMAP, callSize(sourceIndex, 3, valSize)),
+        op(VM.Opcodes.ZIPMAP, callSize(1, 3, valSize)),
         op(VM.Opcodes.MIN, 8),
         op(VM.Opcodes.MUL, 2),
-        op(VM.Opcodes.VAL, i - 1),
+        op(VM.Opcodes.CONSTANTS, 3),
         op(VM.Opcodes.DIV, 2),
       ]);
-
-    const ACTIVATION_TIME = (i: number) =>
+    const ACTIVATION_TIME = () =>
       concat([
-        op(VM.Opcodes.NEVER),
+        op(VM.Opcodes.CONSTANTS, 0),
         op(VM.Opcodes.BLOCK_NUMBER),
         op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(0, 8)),
-        op(VM.Opcodes.VAL, i - 3),
+        op(VM.Opcodes.CONSTANTS, 1),
         op(VM.Opcodes.SENDER),
         op(VM.Opcodes.REPORT),
         op(VM.Opcodes.SATURATING_DIFF),
-        op(VM.Opcodes.VAL, i - 4),
+        op(VM.Opcodes.CONSTANTS, 4),
       ]);
-
     const TIER_BASED_DIS_FN = (i: number) =>
       concat([
-        op(VM.Opcodes.VAL, i - 1),
-        op(VM.Opcodes.VAL, arg(0)),
+        op(VM.Opcodes.CONSTANTS, 3),
+        op(VM.Opcodes.CONSTANTS, i),
         op(VM.Opcodes.SUB, 2),
       ]);
-
-    const ACTIVATION_TIME_FN = (i: number) =>
+    const ACTIVATION_TIME_FN = () =>
       concat([
-        op(VM.Opcodes.VAL, arg(1)),
-        op(VM.Opcodes.VAL, arg(2)),
+        op(VM.Opcodes.CONSTANTS, 6),
+        op(VM.Opcodes.CONSTANTS, 7),
         op(VM.Opcodes.LESS_THAN),
-        op(VM.Opcodes.VAL, i - 1),
+        op(VM.Opcodes.CONSTANTS, 3),
       ]);
 
-    if (options?.tierActivation && options.tierActivation.length > 7) {
-      const TierDiscountActivation = paddedUInt256(
-        BigNumber.from(
-          '0x' +
-            paddedUInt32(options.tierActivation[7]) +
-            paddedUInt32(options.tierActivation[6]) +
-            paddedUInt32(options.tierActivation[5]) +
-            paddedUInt32(options.tierActivation[4]) +
-            paddedUInt32(options.tierActivation[3]) +
-            paddedUInt32(options.tierActivation[2]) +
-            paddedUInt32(options.tierActivation[1]) +
-            paddedUInt32(options.tierActivation[0])
-        )
-      );
-      const constants = [
-        ...config.constants,
-        TierDiscountActivation,
-        tierAddress,
-        TierDiscount,
-        '100',
-      ];
-      config.sources[Index] = concat([
-        config.sources[Index],
-        TIER_BASED_DIS(constants.length),
-        ACTIVATION_TIME(constants.length),
-        TIER_BASED_DIS_ZIMAP(constants.length, config.sources.length, 2),
-      ]);
+    const _discounterConfig: StateConfig = options?.tierActivation
+      ? {
+        constants: [
+          ethers.constants.MaxUint256,
+          tierAddress,
+          TierDiscount,
+          '100',
+          paddedUInt256(
+            BigNumber.from(
+              '0x' +
+              paddedUInt32(options.tierActivation[7]) +
+              paddedUInt32(options.tierActivation[6]) +
+              paddedUInt32(options.tierActivation[5]) +
+              paddedUInt32(options.tierActivation[4]) +
+              paddedUInt32(options.tierActivation[3]) +
+              paddedUInt32(options.tierActivation[2]) +
+              paddedUInt32(options.tierActivation[1]) +
+              paddedUInt32(options.tierActivation[0])
+            )
+          ),
+        ],
+        sources: [
+          concat([
+            TIER_BASED_DIS(),
+            ACTIVATION_TIME(),
+            TIER_BASED_DIS_ZIPMAP(2),
+          ]),
+          concat([
+            ACTIVATION_TIME_FN(),
+            TIER_BASED_DIS_FN(5),
+            op(VM.Opcodes.EAGER_IF)
+          ])
+        ]
+      } : {
+        constants: [
+          ethers.constants.MaxUint256,
+          tierAddress,
+          TierDiscount,
+          '100'
+        ],
+        sources: [
+          concat([
+            TIER_BASED_DIS(),
+            TIER_BASED_DIS_ZIPMAP(0),
+          ]),
+          TIER_BASED_DIS_FN(4)
+        ]
+      };
 
-      const sources = [
-        ...config.sources,
-        concat([
-          ACTIVATION_TIME_FN(constants.length),
-          TIER_BASED_DIS_FN(constants.length),
-          op(VM.Opcodes.EAGER_IF),
-        ]),
-      ];
-      return {
-        constants,
-        sources,
-        stackLength: Number(config.stackLength) + 30,
-        argumentsLength: Number(config.argumentsLength) + 3,
-      };
-    } else {
-      const constants = [...config.constants, tierAddress, TierDiscount, '100'];
-      config.sources[Index] = concat([
-        config.sources[Index],
-        TIER_BASED_DIS(constants.length),
-        TIER_BASED_DIS_ZIMAP(constants.length, config.sources.length, 0),
-      ]);
-      const sources = [...config.sources, TIER_BASED_DIS_FN(constants.length)];
-      return {
-        constants,
-        sources,
-        stackLength: Number(config.stackLength) + 20,
-        argumentsLength: Number(config.argumentsLength) + 1,
-      };
-    }
+    return VM.combiner(config, _discounterConfig, {index: Index});
   }
+
 
   /**
    * Multiply the result of a VM script based on the holding tier of a tier contract.
@@ -664,7 +783,7 @@ export class VM {
    * 
    * @returns a VM script @see StateConfig
    */
-  public static tierBasedMultiplier(
+  public static toTierMultiplier(
     config: StateConfig,
     tierAddress: string,
     tierMultiplier: number[],
@@ -690,10 +809,10 @@ export class VM {
       )
     );
 
-    const TIER_BASED_MUL = (i: number) =>
+    const TIER_BASED_MUL = () =>
       concat([
-        op(VM.Opcodes.VAL, i - 3),
-        op(VM.Opcodes.VAL, i - 4),
+        op(VM.Opcodes.CONSTANTS, 2),
+        op(VM.Opcodes.CONSTANTS, 1),
         op(VM.Opcodes.SENDER),
         op(VM.Opcodes.REPORT),
         op(VM.Opcodes.BLOCK_NUMBER),
@@ -702,113 +821,94 @@ export class VM {
           selectLte(selectLteLogic.every, selectLteMode.first, 2)
         ),
       ]);
-
-    const TIER_BASED_MUL_ZIPMAP = (
-      i: number,
-      sourceIndex: number,
-      valSize: number
-    ) =>
+    const TIER_BASED_MUL_ZIPMAP = (valSize: number) =>
       concat([
-        op(VM.Opcodes.ZIPMAP, callSize(sourceIndex, 3, valSize)),
+        op(VM.Opcodes.ZIPMAP, callSize(1, 3, valSize)),
         op(VM.Opcodes.MAX, 8),
         op(VM.Opcodes.MUL, 2),
-        op(VM.Opcodes.VAL, i - 2),
+        op(VM.Opcodes.CONSTANTS, 3),
         op(VM.Opcodes.DIV, 2),
       ]);
-
-    const ACTIVATION_TIME = (i: number) =>
+    const ACTIVATION_TIME = () =>
       concat([
-        op(VM.Opcodes.NEVER),
+        op(VM.Opcodes.CONSTANTS, 0),
         op(VM.Opcodes.BLOCK_NUMBER),
         op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(0, 8)),
-        op(VM.Opcodes.VAL, i - 4),
+        op(VM.Opcodes.CONSTANTS, 1),
         op(VM.Opcodes.SENDER),
         op(VM.Opcodes.REPORT),
         op(VM.Opcodes.SATURATING_DIFF),
-        op(VM.Opcodes.VAL, i - 5),
+        op(VM.Opcodes.CONSTANTS, 5),
       ]);
-
     const TIER_BASED_MUL_FN = (i: number) =>
       concat([
-        op(VM.Opcodes.VAL, arg(0)),
-        op(VM.Opcodes.VAL, i - 1),
+        op(VM.Opcodes.CONSTANTS, i),
+        op(VM.Opcodes.CONSTANTS, 4),
         op(VM.Opcodes.LESS_THAN),
-        op(VM.Opcodes.VAL, arg(0)),
-        op(VM.Opcodes.VAL, i - 2),
+        op(VM.Opcodes.CONSTANTS, i),
+        op(VM.Opcodes.CONSTANTS, 3),
         op(VM.Opcodes.EAGER_IF),
       ]);
-
-    const ACTIVATION_TIME_FN = (i: number) =>
+    const ACTIVATION_TIME_FN = () =>
       concat([
-        op(VM.Opcodes.VAL, arg(1)),
-        op(VM.Opcodes.VAL, arg(2)),
+        op(VM.Opcodes.CONSTANTS, 7),
+        op(VM.Opcodes.CONSTANTS, 8),
         op(VM.Opcodes.LESS_THAN),
-        op(VM.Opcodes.VAL, i - 2),
+        op(VM.Opcodes.CONSTANTS, 3),
       ]);
 
-    if (options?.tierActivation && options.tierActivation.length > 7) {
-      const TierMultiplierActivation = paddedUInt256(
-        BigNumber.from(
-          '0x' +
-            paddedUInt32((options.tierActivation[7])) +
-            paddedUInt32((options.tierActivation[6])) +
-            paddedUInt32((options.tierActivation[5])) +
-            paddedUInt32((options.tierActivation[4])) +
-            paddedUInt32((options.tierActivation[3])) +
-            paddedUInt32((options.tierActivation[2])) +
-            paddedUInt32((options.tierActivation[1])) +
-            paddedUInt32((options.tierActivation[0]))
-        )
-      );
-      const constants = [
-        ...config.constants,
-        TierMultiplierActivation,
-        tierAddress,
-        TierMultiplier,
-        '100',
-        '0xffffffff',
-      ];
-      config.sources[Index] = concat([
-        config.sources[Index],
-        TIER_BASED_MUL(constants.length),
-        ACTIVATION_TIME(constants.length),
-        TIER_BASED_MUL_ZIPMAP(constants.length, config.sources.length, 2),
-      ]);
-      const sources = [
-        ...config.sources,
-        concat([
-          ACTIVATION_TIME_FN(constants.length),
-          TIER_BASED_MUL_FN(constants.length),
-          op(VM.Opcodes.EAGER_IF),
-        ]),
-      ];
-      return {
-        constants,
-        sources,
-        stackLength: Number(config.stackLength) + 30,
-        argumentsLength: Number(config.argumentsLength) + 3,
+    const _multiplierConfig: StateConfig = options?.tierActivation
+      ? {
+        constants:[
+          ethers.constants.MaxUint256,
+          tierAddress,
+          TierMultiplier,
+          '100',
+          '0xffffffff',
+          paddedUInt256(
+            BigNumber.from(
+              '0x' +
+              paddedUInt32(options.tierActivation[7]) +
+              paddedUInt32(options.tierActivation[6]) +
+              paddedUInt32(options.tierActivation[5]) +
+              paddedUInt32(options.tierActivation[4]) +
+              paddedUInt32(options.tierActivation[3]) +
+              paddedUInt32(options.tierActivation[2]) +
+              paddedUInt32(options.tierActivation[1]) +
+              paddedUInt32(options.tierActivation[0])
+            )
+          ),
+        ],
+        sources: [
+          concat([
+            TIER_BASED_MUL(),
+            ACTIVATION_TIME(),
+            TIER_BASED_MUL_ZIPMAP(2),
+          ]),
+          concat([
+            ACTIVATION_TIME_FN(),
+            TIER_BASED_MUL_FN(6),
+            op(VM.Opcodes.EAGER_IF)
+          ])
+        ]
+      } : {
+        constants: [
+          ethers.constants.MaxUint256,
+          tierAddress,
+          TierMultiplier,
+          '100',
+          '0xffffffff'
+        ],
+        sources: [
+          concat([
+            TIER_BASED_MUL(),
+            TIER_BASED_MUL_ZIPMAP(0),
+          ]),
+          TIER_BASED_MUL_FN(5)
+        ]
       };
-    } else {
-      const constants = [
-        ...config.constants,
-        tierAddress,
-        TierMultiplier,
-        '100',
-        '0xffffffff',
-      ];
-      config.sources[Index] = concat([
-        config.sources[Index],
-        TIER_BASED_MUL(constants.length),
-        TIER_BASED_MUL_ZIPMAP(constants.length, config.sources.length, 0),
-      ]);
-      const sources = [...config.sources, TIER_BASED_MUL_FN(constants.length)];
-      return {
-        constants,
-        sources,
-        stackLength: Number(config.stackLength) + 20,
-        argumentsLength: Number(config.argumentsLength) + 1,
-      };
-    }
+
+    return VM.combiner(config, _multiplierConfig, {index: Index});
   }
 
 
@@ -821,7 +921,7 @@ export class VM {
    * 
    * @returns a VM script @see StateConfig
    */
-  public static timeSliceScripts (
+  public static toTimeSlicer (
     configs: StateConfig[],
     times: number[],
     inBlockNumber: boolean = false
@@ -836,7 +936,7 @@ export class VM {
           constants: [times[i], times[i+1]],
           sources: [
             concat([
-              op(VM.Opcodes.VAL, 0),
+              op(VM.Opcodes.CONSTANTS, 0),
               inBlockNumber
               ? op(VM.Opcodes.BLOCK_NUMBER)
               : op(VM.Opcodes.BLOCK_TIMESTAMP),
@@ -844,25 +944,23 @@ export class VM {
               inBlockNumber
               ? op(VM.Opcodes.BLOCK_NUMBER)
               : op(VM.Opcodes.BLOCK_TIMESTAMP),
-              op(VM.Opcodes.VAL, 1),
+              op(VM.Opcodes.CONSTANTS, 1),
               op(VM.Opcodes.LESS_THAN),
               op(VM.Opcodes.EVERY),
             ])
           ],
-          stackLength: 7,
-          argumentsLength: 0
         }
       };
 
-      _result = VM.vmCombiner(SLICER(0), configs[0]);
+      _result = VM.combiner(SLICER(0), configs[0]);
 
       for (let i = 1; i < configs.length; i++) {
         if (i + 1 == configs.length) {
-          _result = VM.vmCombiner(_result, configs[i])
+          _result = VM.combiner(_result, configs[i])
         }
         else {
-          _result = VM.vmCombiner(_result, SLICER(i))
-          _result = VM.vmCombiner(_result, configs[i])
+          _result = VM.combiner(_result, SLICER(i))
+          _result = VM.combiner(_result, configs[i])
         }
       }
       for (let i = 1; i < configs.length; i++) {
@@ -870,11 +968,11 @@ export class VM {
           _result.sources[0],
           op(VM.Opcodes.EAGER_IF)
         ]);
-        _result.stackLength = Number(_result.stackLength) + 1;
       }
 
       return _result;
     }
     else throw new Error("invalid arguments")
   }
+
 }

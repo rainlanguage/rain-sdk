@@ -1,41 +1,65 @@
 import { BigNumberish, BigNumber, Signer, ContractTransaction } from 'ethers';
+import { StateConfig, StorageOpcodesRange } from '../classes/vm';
+import { FactoryContract } from '../classes/factoryContract';
+import { RedeemableERC20 } from './redeemableERC20';
+import { ERC20 } from './generics/erc20';
+import { Sale__factory, SaleFactory__factory } from '../typechain';
 import {
   ERC20Config,
   TxOverrides,
   ReadTxOverrides,
 } from '../classes/rainContract';
-import { StateConfig, VM } from '../classes/vm';
-import { FactoryContract } from '../classes/factoryContract';
-import { RedeemableERC20 } from './redeemableERC20';
-import { ERC20 } from './generics/erc20';
-import { Sale__factory, SaleFactory__factory } from '../typechain';
+
 
 /**
- * @public
- * Type for the opcodes availables in a CombineTier instance.
+ * Enum for operand of the sale's Storage Opcodes
  */
-export type SaleOpcodes = typeof VM.Opcodes & {
+export enum SaleStorage {
   /**
-   * local opcode to stack remaining rTKN units.
+   * 0 or the location of the _remainingUnits property in the sale 
+   * contract used as the operand for STORAGE opcode
+   * operand for STORAGE opcode to stack remaining rTKN units.
    */
-  REMAINING_UNITS: number;
+  RemainingUnits,
   /**
-   * local opcode to stack total reserve taken in so far.
+   * 1 or the location of the _totalReserveIn property in the sale 
+   * contract used as the operand for STORAGE opcode.
+   * operand for STORAGE opcode to stack total reserve taken in so far.
    */
-  TOTAL_RESERVE_IN: number;
+  TotalReserveIn,
   /**
-   * local opcode to stack the rTKN units/amount of the current buy.
+   * 2 or the location of the _token property in the sale 
+   * contract used as the operand for STORAGE opcode.
+   * operand for STORAGE opcode to stack the address of the rTKN.
    */
-  CURRENT_BUY_UNITS: number;
+  TokenAddress,
   /**
-   * local opcode to stack the address of the rTKN.
+   * 3 or the location of the _reserve property in the sale 
+   * contract used as the operand for STORAGE opcode.
+   * operand for STORAGE opcode to stack the address of the reserve token.
    */
-  TOKEN_ADDRESS: number;
+  ReserveAddress,
   /**
-   * local opcode to stack the address of the reserve token.
+   * length of Sale's valid storage opcodes
    */
-  RESERVE_ADDRESS: number;
+  length
 };
+
+/**
+ * Enum for operand of the sale's CONTEXT opcode
+ */
+export enum SaleContext {
+  /**
+   * 0 or the index of the context array in the sale 
+   * contract used as the operand for CONTEXT opcode.
+   * operand for CONTEXT opcode to stack the rTKN units/amount of the current buy.
+   */
+  CurrentBuyUnits,
+  /**
+   * length of Sale's valid context opcode
+   */
+  length
+}
 
 /**
  * @public
@@ -78,29 +102,18 @@ export class Sale extends FactoryContract {
 
     this.buy = _sale.buy;
     this.refund = _sale.refund;
-    this.calculatePrice = _sale.calculatePrice;
+    this.calculateBuy = _sale.calculateBuy;
     this.claimFees = _sale.claimFees;
     this.start = _sale.start;
     this.end = _sale.end;
-    this.canStart = _sale.canStart;
-    this.canEnd = _sale.canEnd;
+    this.canLive = _sale.canLive;
     this.saleStatus = _sale.saleStatus;
     this.timeout = _sale.timeout;
     this.reserve = _sale.reserve;
     this.token = _sale.token;
+    this.fnPtrs = _sale.fnPtrs;
+    this.storageOpcodesRange = _sale.storageOpcodesRange;
   }
-
-  /**
-   * All the standard and Sale Opcodes
-   */
-  public static Opcodes: SaleOpcodes = {
-    ...VM.Opcodes,
-    REMAINING_UNITS: 0 + VM.Opcodes.length,
-    TOTAL_RESERVE_IN: 1 + VM.Opcodes.length,
-    CURRENT_BUY_UNITS: 2 + VM.Opcodes.length,
-    TOKEN_ADDRESS: 3 + VM.Opcodes.length,
-    RESERVE_ADDRESS: 4 + VM.Opcodes.length,
-  };
 
   /**
    * Deploys a new Sale.
@@ -213,15 +226,14 @@ export class Sale extends FactoryContract {
   /**
    * Calculates the current reserve price quoted for 1 unit of rTKN. Used internally to process `buy`
    *
-   * @param units - Amount of rTKN to quote a price for, will be available to the price script from
-   * OPCODE_CURRENT_BUY_UNITS.
+   * @param targetUnits - Amount of rTKN to quote a price for, will be available for vm as CONTEXT opcode.
    * @param overrides - @see ReadTxOverrides
-   * @returns The current price
+   * @returns The max units that can be bought and current price.
    */
-  public readonly calculatePrice: (
-    units: BigNumberish,
+  public readonly calculateBuy: (
+    targetUnits: BigNumberish,
     overrides?: ReadTxOverrides
-  ) => Promise<BigNumber>;
+  ) => Promise<[BigNumber, BigNumber]>;
 
   /**
    * After a sale ends in success all fees collected for a recipient can be cleared. If the
@@ -238,8 +250,9 @@ export class Sale extends FactoryContract {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Start the sale (move from pending to active).
-   * - `canStart` MUST return true.
+   * Start the sale (move from pending to active). This is also done automatically 
+   * inline with each `buy` call so is optional for anon to call outside of a purchase.
+   * - `canLive` MUST return true and sale status must be `Pending`.
    *
    * @param overrides - @see TxOverrides
    */
@@ -249,7 +262,9 @@ export class Sale extends FactoryContract {
 
   /**
    * End the sale (move from active to success or fail).
-   * - `canEnd` MUST return true.
+   * This is also done automatically inline with each `buy` call so is
+   * optional for anon to call outside of a purchase.
+   * - `canLive` MUST return true and sale status must be either `Active`.
    *
    * @param overrides - @see TxOverrides
    */
@@ -258,28 +273,19 @@ export class Sale extends FactoryContract {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Can the sale start?
-   * Evals `canStartStatePointer` to a boolean that determines whether the sale can start
-   * (move from pending to active). Buying from and ending the sale will both always fail
-   * if the sale never started.
-   * The sale can ONLY start if it is currently in pending status.
-   *
+   * Can the sale live?
+   * Evals the "can live" script.
+   * If a non zero value is returned then the sale can move from pending to
+   * active, or remain active.
+   * If a zero value is returned the sale can remain pending or move from
+   * active to a finalised status.
+   * An out of stock (0 remaining units) WILL ALWAYS return `false` without
+   * evaluating the script.
+   * 
    * @param overrides - @see ReadTxOverrides
    * @returns true if can start the sale
    */
-  public readonly canStart: (overrides?: ReadTxOverrides) => Promise<boolean>;
-
-  /**
-   * Can the sale end?
-   * Evals `canEndStatePointer` to a boolean that determines whether the sale can end (move
-   * from active to success/fail). Buying will fail if the sale has ended. If the sale is out
-   * of rTKN stock it can ALWAYS end and in this case will NOT eval the "can end" script.
-   * The sale can ONLY end if it is currently in active status.
-   *
-   * @param overrides - @see ReadTxOverrides
-   * @returns true if can end the sale
-   */
-  public readonly canEnd: (overrides?: ReadTxOverrides) => Promise<boolean>;
+  public readonly canLive: (overrides?: ReadTxOverrides) => Promise<boolean>;
 
   /**
    * Returns the current `SaleStatus` of the sale.
@@ -321,6 +327,24 @@ export class Sale extends FactoryContract {
    * @returns the token redeemable address
    */
   public readonly token: (overrides?: ReadTxOverrides) => Promise<string>;
+
+  /**
+   * Pointers to opcode functions, necessary for being able to read the packedBytes
+   * 
+   * @param override - @see ReadTxOverrides
+   * @returns the opcode functions pointers
+   */
+  public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
+
+  /**
+   * Returns the pointer and length for sale's storage opcodes
+   * 
+   * @param override - @see ReadTxOverrides
+   * @returns a StorageOpcodesRange
+   */
+  public readonly storageOpcodesRange: (
+    overrides?: ReadTxOverrides
+  ) => Promise<StorageOpcodesRange>;
 }
 
 /**
@@ -330,18 +354,11 @@ export class Sale extends FactoryContract {
  */
 export interface SaleConfig {
   /**
-   * State config for the script that allows a Sale to start.
+   * SateConfig that has both canLive and calculateBuy StateConfigs for a sale.
+   * The first item in the sources is the canLive StateConfig and the second item
+   * in the sources is the calculateBuy StateConfig.
    */
-  canStartStateConfig: StateConfig;
-  /**
-   * State config for the script that allows a Sale to end. IMPORTANT: A Sale can always end if/when its rTKN sells out, regardless
-   * of the result of this script.
-   */
-  canEndStateConfig: StateConfig;
-  /**
-   * State config for the script that defines the current price quoted by a Sale.
-   */
-  calculatePriceStateConfig: StateConfig;
+  vmStateConfig: StateConfig;
   /**
    * The recipient of the proceeds of a Sale, if/when the Sale is successful.
    */

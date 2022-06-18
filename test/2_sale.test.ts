@@ -17,6 +17,8 @@ import {
   CombineTier,
   SaleDurationInTimestamp,
   SaleDurationInBlocks,
+  SaleScriptFrom,
+  BuyCap,
 } from '../src';
 import { BigNumber } from 'ethers';
 
@@ -48,18 +50,15 @@ describe('SDK - Sale', () => {
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
     const constants = [staticPrice];
-    const sources = VM.createVMSources([[Sale.Opcodes.VAL, 0]]);
+    const sources = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      canStartStateConfig: new SaleDurationInBlocks(startBlock),
-      canEndStateConfig: new SaleDurationInBlocks(startBlock + saleDuration),
-      calculatePriceStateConfig: {
-        sources,
-        constants,
-        stackLength: 1,
-        argumentsLength: 0,
-      },
+      vmStateConfig: new SaleScriptFrom(
+        new SaleDurationInBlocks(startBlock, startBlock + saleDuration),
+        new BuyCap(),
+        {sources, constants}
+      ),
       recipient: recipient.address,
       reserve: reserve.address,
       cooldownDuration: 1,
@@ -102,18 +101,15 @@ describe('SDK - Sale', () => {
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
     const constants = [staticPrice];
-    const sources = VM.createVMSources([[Sale.Opcodes.VAL, 0]]);
+    const sources = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      canStartStateConfig: new SaleDurationInBlocks(startBlock),
-      canEndStateConfig: new SaleDurationInBlocks(endBlock),
-      calculatePriceStateConfig: {
-        sources,
-        constants,
-        stackLength: 1,
-        argumentsLength: 0,
-      },
+      vmStateConfig: new SaleScriptFrom(
+        new SaleDurationInBlocks(startBlock, endBlock),
+        new BuyCap(),
+        {sources, constants}
+      ),
       recipient: recipient.address,
       reserve: reserve.address,
       cooldownDuration: 1,
@@ -132,7 +128,7 @@ describe('SDK - Sale', () => {
     const sale = await Sale.deploy(deployer, saleConfig, redeemableConfig);
 
     expect(await sale.saleStatus()).to.be.equals(SaleStatus.Pending);
-    expect(await sale.canStart(), 'sale should be not ready to start').to.be
+    expect(await sale.canLive(), 'sale should be not ready to live').to.be
       .false;
 
     // Increase the blocks to start
@@ -140,20 +136,20 @@ describe('SDK - Sale', () => {
       await Time.advanceBlock();
     }
 
-    expect(await sale.canStart(), 'sale should be ready to start').to.be.true;
+    expect(await sale.canLive(), 'sale should be ready to live').to.be.true;
 
     // Start the sale
     await sale.start();
     expect(await sale.saleStatus()).to.be.equals(SaleStatus.Active);
 
-    expect(await sale.canEnd(), 'sale should be not ready to end').to.be.false;
+    expect(await sale.canLive(), 'sale should not be ready to not live (end)').to.be.true;
 
     // Increase the blocks to end
     while ((await Time.currentBlock()) < endBlock) {
       await Time.advanceBlock();
     }
 
-    expect(await sale.canEnd(), 'sale should be ready to end').to.be.true;
+    expect(await sale.canLive(), 'sale should be ready to not live (end)').to.be.false;
 
     await sale.end();
   });
@@ -177,18 +173,15 @@ describe('SDK - Sale', () => {
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
     const constants = [staticPrice];
-    const sources = VM.createVMSources([[Sale.Opcodes.VAL, 0]]);
+    const sources = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      canStartStateConfig: new SaleDurationInTimestamp(startTimestamp),
-      canEndStateConfig: new SaleDurationInTimestamp(endTimestamp),
-      calculatePriceStateConfig: {
-        sources,
-        constants,
-        stackLength: 1,
-        argumentsLength: 0,
-      },
+      vmStateConfig: new SaleScriptFrom(
+        new SaleDurationInTimestamp(startTimestamp, endTimestamp),
+        new BuyCap(),
+        {sources, constants}
+      ),
       recipient: recipient.address,
       reserve: reserve.address,
       cooldownDuration: 1,
@@ -207,24 +200,24 @@ describe('SDK - Sale', () => {
     const sale = await Sale.deploy(deployer, saleConfig, redeemableConfig);
 
     expect(await sale.saleStatus()).to.be.equals(SaleStatus.Pending);
-    expect(await sale.canStart(), 'sale should be not ready to start').to.be
+    expect(await sale.canLive(), 'sale should be not ready to live').to.be
       .false;
 
     // Increase the timestamp to start (+1 to because is AFTER timestamp)
     await Time.increase(startTimestamp - (await Time.currentTime()) + 1);
 
-    expect(await sale.canStart(), 'sale should be ready to start').to.be.true;
+    expect(await sale.canLive(), 'sale should be ready to live').to.be.true;
 
     // Start the sale
     await sale.start();
     expect(await sale.saleStatus()).to.be.equals(SaleStatus.Active);
 
-    expect(await sale.canEnd(), 'sale should be not ready to end').to.be.false;
+    expect(await sale.canLive(), 'sale should not be ready to not live (end)').to.be.true;
 
     // Increase the timestamp to end (+1 to because is AFTER timestamp)
     await Time.increase(BigNumber.from(endTimestamp).sub(await Time.currentTime()).add(1));
 
-    expect(await sale.canEnd(), 'sale should be ready to end').to.be.true;
+    expect(await sale.canLive(), 'sale should be ready to not live (end)').to.be.false;
 
     await sale.end();
   });
@@ -248,18 +241,15 @@ describe('SDK - Sale', () => {
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
     const constants = [staticPrice];
-    const sources = VM.createVMSources([[Sale.Opcodes.VAL, 0]]);
+    const sources = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      canStartStateConfig: new SaleDurationInBlocks(startBlock),
-      canEndStateConfig: new SaleDurationInBlocks(endBlock),
-      calculatePriceStateConfig: {
-        sources,
-        constants,
-        stackLength: 1,
-        argumentsLength: 0,
-      },
+      vmStateConfig: new SaleScriptFrom(
+        new SaleDurationInBlocks(startBlock, endBlock),
+        new BuyCap(),
+        {sources, constants}
+      ),
       recipient: recipient.address,
       reserve: reserve.address,
       cooldownDuration: 1,
@@ -281,7 +271,7 @@ describe('SDK - Sale', () => {
 
     // Increase the blocks to start
     await Time.advanceBlock(startBlock - (await Time.currentBlock()));
-    expect(await sale.canStart(), 'sale should be ready to start').to.be.true;
+    expect(await sale.canLive(), 'sale should be ready to live').to.be.true;
 
     // Start the sale
     await sale.start();
@@ -294,14 +284,14 @@ describe('SDK - Sale', () => {
 
     const desiredAmount = totalTokenSupply;
 
-    expect(await sale.calculatePrice(desiredAmount)).to.be.equals(staticPrice);
+    expect((await sale.calculateBuy(desiredAmount))[1]).to.be.equals(staticPrice);
 
     const buyConfig = {
       feeRecipient: zeroAddress,
       fee: 0,
       minimumUnits: desiredAmount,
       desiredUnits: desiredAmount,
-      maximumPrice: await sale.calculatePrice(desiredAmount),
+      maximumPrice: (await sale.calculateBuy(desiredAmount))[1],
     };
 
     await sale.connect(buyer).buy(buyConfig);

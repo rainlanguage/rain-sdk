@@ -1,12 +1,11 @@
 import { BigNumber, Contract, ethers, Signer } from "ethers";
-import { arrayify } from "ethers/lib/utils";
+import { arrayify } from "../utils";
 import { StateConfig, VM } from "../classes/vm";
 import { ERC1155 } from "../contracts/generics/erc1155";
 import { ERC20 } from "../contracts/generics/erc20";
 import { ERC721 } from "../contracts/generics/erc721";
 import { ITier } from "../contracts/tiers/iTier";
 import { Provider } from "../types";
-
 
 
 /**
@@ -71,11 +70,6 @@ export interface StateJS {
 export class RainJS {
 
   /**
-   * All of RainVM standard opcodes, i.e. AllStandardOps
-   */
-  public static Opcodes = VM.Opcodes;
-
-  /**
    * The result state of the executed Rainjs.
    */
   public readonly lastState: BigNumber[] = [];
@@ -106,6 +100,18 @@ export class RainJS {
    */
   public contract?: Contract;
 
+  /**
+   * Object that contains the CONTEXT opcode functions (i.e. local opcodes)
+   * the required value need to be passed to "run" method as the context array in "data" object.
+   * the reason is the CONTEXT opcode is contextual and is passed the VM at runtime.
+   */
+  protected _CONTEXT_?: ApplyOpFn;
+
+  /**
+   * Object that contains the STORAGE opcode functions (i.e. local opcodes)
+   */
+  protected _STORAGE_?: ApplyOpFn;
+
 
   /**
    * The constructor of RainJS which initiates the RainJS and also a StateJS for a RainVM script.
@@ -121,6 +127,8 @@ export class RainJS {
       provider?: Provider,
       contract?: Contract,
       applyOpFn?: ApplyOpFn,
+      storageOpFn?: ApplyOpFn, // for overriding the CombineTierJS's STORAGE opcode function
+      contextOpFn?: ApplyOpFn // for overriding the CombineTierJS's CONTEXT opcode function
     }
   ) {
     const stack: BigNumber[] = [];
@@ -135,7 +143,7 @@ export class RainJS {
     };
     for (let i = 0; i < state.sources.length; i++) {
       sources.push(
-        arrayify(state.sources[i])
+        arrayify(state.sources[i], {allowMissingPrefix: true})
       )
     };
 
@@ -149,6 +157,11 @@ export class RainJS {
     this.signer = options?.signer;
     this.contract = options?.contract;
     this.provider = options?.provider ?? options?.signer?.provider;
+
+    // assigning custom functions to the STORAGE/CONTEXT functions
+    // custom functions should be passed at the time construction
+    this._STORAGE_ = options?.storageOpFn;
+    this._CONTEXT_ = options?.contextOpFn;
   }
 
   
@@ -251,33 +264,44 @@ export class RainJS {
    */
   protected readonly _OPCODE_: ApplyOpFn = {
 
-    [RainJS.Opcodes.SKIP] : 
+    [VM.Opcodes.CONSTANTS] : 
       (state: StateJS, operand: number, data?: any) => {
-        throw new Error("SKIP is no longer available")
-      },
-
-    [RainJS.Opcodes.VAL] : 
-      (state: StateJS, operand: number, data?: any) => {
-        if (!(operand >> 7)) {
+        if (operand < state.constants.length) {
           if (state.constants[operand] != undefined) {
             state.stack.push(state.constants[operand])
           }
           else throw new Error("out-of-bound constants")
         }
         else {
-          if (state.argumentsStack[operand & 127] != undefined) {
-            state.stack.push(state.argumentsStack[operand & 127])
+          if (state.argumentsStack[operand - state.constants.length] != undefined) {
+            state.stack.push(state.argumentsStack[operand - state.constants.length])
           }
           else throw new Error("out-of-bound arguments")
         }
       },
 
-    [RainJS.Opcodes.DUP] : 
+    [VM.Opcodes.STACK] : 
       (state: StateJS, operand: number, data?: any) => {
         state.stack.push(state.stack[operand]);
       },
 
-    [RainJS.Opcodes.ZIPMAP] : 
+    [VM.Opcodes.CONTEXT] : 
+      async(state: StateJS, operand: number, data?: any) => {
+        if (this._CONTEXT_) {
+          await this._CONTEXT_[operand](state, operand, data)
+        }
+        else throw new Error("no or out of bounds contexxt opcode")
+      },
+
+    [VM.Opcodes.STORAGE] : 
+      async(state: StateJS, operand: number, data?: any) => {
+        if (this._STORAGE_) {
+          await this._STORAGE_[operand](state, operand, data)
+        }
+        else throw new Error("no or out-of-bound storage opcode")
+      },
+
+    [VM.Opcodes.ZIPMAP] : 
       async(state: StateJS, operand: number, data?: any) => {
         const sourceIndex_ = operand & 7;
         const numberOfVals_ = (operand & 224) >> 5;
@@ -346,12 +370,15 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.DEBUG] : 
+    [VM.Opcodes.DEBUG] : 
       (state: StateJS, operand: number, data?: any) => {
-        console.log(state.stack);
+        if (operand < 4) {
+          console.log(state.stack);
+        }
+        else throw new Error("out-of-bound debug operand")
       },
 
-    [RainJS.Opcodes.BLOCK_NUMBER] : 
+    [VM.Opcodes.BLOCK_NUMBER] : 
       async(state: StateJS, operand: number, data?: any) => {
         if (this.provider != undefined) {
           state.stack.push(
@@ -361,7 +388,7 @@ export class RainJS {
         else throw new Error("Undefined Provider")
       },
 
-    [RainJS.Opcodes.BLOCK_TIMESTAMP] : 
+    [VM.Opcodes.BLOCK_TIMESTAMP] : 
       async(state: StateJS, operand: number, data?: any) => {
         if (this.provider != undefined) {
           state.stack.push(
@@ -376,7 +403,7 @@ export class RainJS {
         else throw new Error("Undefined Provider")  
       },
 
-    [RainJS.Opcodes.SENDER] : 
+    [VM.Opcodes.SENDER] : 
       async(state: StateJS, operand: number, data?: any) => {
         if (this.signer != undefined) {
           state.stack.push(
@@ -385,7 +412,7 @@ export class RainJS {
         }
       },
 
-    [RainJS.Opcodes.THIS_ADDRESS] : 
+    [VM.Opcodes.THIS_ADDRESS] : 
       async(state: StateJS, operand: number, data?: any) => {
         if(this.contract != undefined) {
           state.stack.push(
@@ -395,7 +422,7 @@ export class RainJS {
         else throw new Error("Undefined contract")
       },
 
-    [RainJS.Opcodes.SCALE18_MUL] : 
+    [VM.Opcodes.SCALE18_MUL] : 
       (state: StateJS, operand: number, data?: any) => {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
@@ -411,7 +438,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.SCALE18_DIV] :
+    [VM.Opcodes.SCALE18_DIV] :
       (state: StateJS, operand: number, data?: any) => {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
@@ -428,7 +455,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.SCALE18] : 
+    [VM.Opcodes.SCALE18] : 
       (state: StateJS, operand: number, data?: any) => {
         const item_ = state.stack.pop();
         if (item_ != undefined) {
@@ -441,7 +468,7 @@ export class RainJS {
         else throw new Error("Undefined stack variable")
       },
 
-    [RainJS.Opcodes.SCALEN] : 
+    [VM.Opcodes.SCALEN] : 
       (state: StateJS, operand: number, data?: any) => {
         const item_ = state.stack.pop();
         if (item_ != undefined) {
@@ -454,7 +481,7 @@ export class RainJS {
         else throw new Error("Undefined stack variable")
       },
 
-    [RainJS.Opcodes.SCALE_BY] : 
+    [VM.Opcodes.SCALE_BY] : 
       (state: StateJS, operand: number, data?: any) => {
         const item_ = state.stack.pop();
         const operandSign_ = (operand & 255) >> 7;
@@ -474,17 +501,7 @@ export class RainJS {
         else throw new Error("Undefined stack variable")
       },
 
-    [RainJS.Opcodes.SCALE18_ONE] : 
-      (state: StateJS, operand: number, data?: any) => {
-        state.stack.push(BigNumber.from("1000000000000000000"));
-      },
-
-    [RainJS.Opcodes.SCALE18_DECIMALS] : 
-      (state: StateJS, operand: number, data?: any) => {
-        state.stack.push(BigNumber.from(18));
-      },
-
-    [RainJS.Opcodes.ADD] : 
+    [VM.Opcodes.ADD] : 
       (state: StateJS, operand: number, data?: any) => {
         let _item;
         let _accumulator = ethers.constants.Zero;
@@ -492,13 +509,16 @@ export class RainJS {
           _item = state.stack.pop();
           if (_item != undefined) {
             _accumulator = _accumulator.add(_item);
+            if (_accumulator.gt(ethers.constants.MaxUint256)) {
+              throw new Error("max numeric range overflow")
+            }
           }
           else throw new Error("Undefined stack variables")
         }
         state.stack.push(_accumulator);
       },
 
-    [RainJS.Opcodes.SATURATING_ADD] : 
+    [VM.Opcodes.SATURATING_ADD] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         let _accumulator = ethers.constants.Zero;
@@ -516,7 +536,7 @@ export class RainJS {
         state.stack.push(_accumulator);
       },
 
-    [RainJS.Opcodes.SUB] : 
+    [VM.Opcodes.SUB] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         let _accumulator = items_.shift();
@@ -537,7 +557,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.SATURATING_SUB] : 
+    [VM.Opcodes.SATURATING_SUB] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         let _accumulator = items_.shift();
@@ -558,7 +578,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.MUL] : 
+    [VM.Opcodes.MUL] : 
       (state: StateJS, operand: number, data?: any) => {
         let _accumulator = ethers.constants.One;
         let _item;
@@ -566,13 +586,16 @@ export class RainJS {
           _item = state.stack.pop();
           if (_item != undefined) {
             _accumulator = _accumulator.mul(_item);
+            if (_accumulator.gt(ethers.constants.MaxUint256)) {
+              throw new Error("max numeric range overflow")
+            }
           }
           else throw new Error("Undefined stack variables")
         }
         state.stack.push(_accumulator);
       },
 
-    [RainJS.Opcodes.SATURATING_MUL] : 
+    [VM.Opcodes.SATURATING_MUL] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         let _accumulator = ethers.constants.One;
@@ -590,7 +613,7 @@ export class RainJS {
         state.stack.push(_accumulator);
       },
 
-    [RainJS.Opcodes.DIV] : 
+    [VM.Opcodes.DIV] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         let _accumulator = items_.shift();
@@ -608,7 +631,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.MOD] : 
+    [VM.Opcodes.MOD] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         let _accumulator = items_.shift();
@@ -626,7 +649,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.EXP] : 
+    [VM.Opcodes.EXP] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         let _accumulator = items_.shift();
@@ -636,6 +659,9 @@ export class RainJS {
             _item = items_.shift();
             if (_item != undefined) {
               _accumulator = _accumulator.pow(_item);
+              if (_accumulator.gt(ethers.constants.MaxUint256)) {
+                throw new Error("max numeric range overflow")
+              }
             }
             else throw new Error("Undefined stack variables")
           }
@@ -644,7 +670,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.MIN] : 
+    [VM.Opcodes.MIN] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         if (items_.length == operand) {
@@ -655,7 +681,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.MAX] : 
+    [VM.Opcodes.MAX] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         if (items_.length = operand) {
@@ -666,7 +692,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.ISZERO] : 
+    [VM.Opcodes.ISZERO] : 
       (state: StateJS, operand: number, data?: any) => {
         const item_ = state.stack.pop();
         if (item_ != undefined) { 
@@ -679,7 +705,7 @@ export class RainJS {
         else throw new Error("Undefined stack variable")
       },
 
-    [RainJS.Opcodes.EAGER_IF] : 
+    [VM.Opcodes.EAGER_IF] : 
       (state: StateJS, operand: number, data?: any) => {
         const false_ = state.stack.pop();
         const true_ = state.stack.pop();
@@ -692,7 +718,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.EQUAL_TO] : 
+    [VM.Opcodes.EQUAL_TO] : 
       (state: StateJS, operand: number, data?: any) => {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
@@ -706,7 +732,7 @@ export class RainJS {
         else throw new Error("Underfined stack variables")  
       },
 
-    [RainJS.Opcodes.LESS_THAN] : 
+    [VM.Opcodes.LESS_THAN] : 
       (state: StateJS, operand: number, data?: any) => {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
@@ -720,7 +746,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.GREATER_THAN] : 
+    [VM.Opcodes.GREATER_THAN] : 
       (state: StateJS, operand: number, data?: any) => {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
@@ -734,7 +760,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.EVERY] : 
+    [VM.Opcodes.EVERY] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         let _check;
@@ -756,7 +782,7 @@ export class RainJS {
         else throw new Error("Undefined stack variable")
       },
 
-    [RainJS.Opcodes.ANY] : 
+    [VM.Opcodes.ANY] : 
       (state: StateJS, operand: number, data?: any) => {
         const items_ = state.stack.splice(-operand);
         let _check;
@@ -778,14 +804,14 @@ export class RainJS {
         else throw new Error("Undefined stack variable")
       },
 
-    [RainJS.Opcodes.REPORT] : 
+    [VM.Opcodes.REPORT] : 
       async(state: StateJS, operand: number, data?: any) => {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && this.signer != undefined) {
-          const account_ = "0x" + item2_.toHexString().substring(2).padStart(64, "0");
+          const account_ = "0x" + item2_.toHexString().substring(2).padStart(40, "0");
           const iTierContract = new ITier(
-            "0x" + item1_.toHexString().substring(2).padStart(64, "0"),
+            "0x" + item1_.toHexString().substring(2).padStart(40, "0"),
             this.signer
           );
           state.stack.push(
@@ -795,17 +821,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.NEVER] : 
-      (state: StateJS, operand: number, data?: any) => {
-        state.stack.push(ethers.constants.MaxUint256)
-      },
-
-    [RainJS.Opcodes.ALWAYS] : 
-      (state: StateJS, operand: number, data?: any) => {
-        state.stack.push(ethers.constants.Zero)
-      },
-
-    [RainJS.Opcodes.SATURATING_DIFF] : 
+    [VM.Opcodes.SATURATING_DIFF] : 
       (state: StateJS, operand: number, data?: any) => {
         const report2_ = state.stack.pop()?.toHexString().substring(2).padStart(64, "0");
         const report1_ = state.stack.pop()?.toHexString().substring(2).padStart(64, "0");
@@ -831,7 +847,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE] : 
+    [VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE] : 
       (state: StateJS, operand: number, data?: any) => {
         const endTier_ = operand >> 4;
         const startTier_ = operand & 15;
@@ -858,7 +874,7 @@ export class RainJS {
         else throw new Error ("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.SELECT_LTE] : 
+    [VM.Opcodes.SELECT_LTE] : 
       (state: StateJS, operand: number, data?: any) => {
         const length_ = operand & 31;
         const mode_ = (operand & 96) >> 5;
@@ -949,13 +965,13 @@ export class RainJS {
         state.stack.push(BigNumber.from("0x" + _result));
       },
 
-    [RainJS.Opcodes.IERC20_BALANCE_OF] : 
+    [VM.Opcodes.IERC20_BALANCE_OF] : 
       async(state: StateJS, operand: number, data?: any) => {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && this.signer != undefined) {
-          const account_ = "0x" + item2_.toHexString().substring(2).padStart(64, "0");
-          const erc20Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+          const account_ = "0x" + item2_.toHexString().substring(2).padStart(40, "0");
+          const erc20Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
           const erc20Contract_ = new ERC20(
             erc20Address_,
             this.signer
@@ -967,11 +983,11 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.IERC20_TOTAL_SUPPLY] : 
+    [VM.Opcodes.IERC20_TOTAL_SUPPLY] : 
       async(state: StateJS, operand: number, data?: any) => {
         const item_ = state.stack.pop();
         if (item_ && this.signer != undefined) {
-          const erc20Address_ = "0x" + item_.toHexString().substring(2).padStart(64, "0");
+          const erc20Address_ = "0x" + item_.toHexString().substring(2).padStart(40, "0");
           const erc20Contract_ = new ERC20(
             erc20Address_,
             this.signer
@@ -983,13 +999,13 @@ export class RainJS {
         else throw new Error("Undefined stack variable")
       },
 
-    [RainJS.Opcodes.IERC721_BALANCE_OF] : 
+    [VM.Opcodes.IERC721_BALANCE_OF] : 
       async(state: StateJS, operand: number, data?: any) => {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && this.signer != undefined) {
-          const account_ = "0x" + item2_.toHexString().substring(2).padStart(64, "0");
-          const erc721Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+          const account_ = "0x" + item2_.toHexString().substring(2).padStart(40, "0");
+          const erc721Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
           const erc721Contract_ = new ERC721(
             erc721Address_,
             this.signer
@@ -1001,13 +1017,13 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.IERC721_OWNER_OF] : 
+    [VM.Opcodes.IERC721_OWNER_OF] : 
       async(state: StateJS, operand: number, data?: any) => {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && this.signer != undefined) {
           const tokenId_ = BigNumber.from(item2_);
-          const erc721Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+          const erc721Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
           const erc721Contract_ = new ERC721(
             erc721Address_,
             this.signer
@@ -1019,15 +1035,15 @@ export class RainJS {
         else throw new Error("Undefined stack variable")
       },
 
-    [RainJS.Opcodes.IERC1155_BALANCE_OF] : 
+    [VM.Opcodes.IERC1155_BALANCE_OF] : 
       async(state: StateJS, operand: number, data?: any) => {
         const item3_ = state.stack.pop();
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
         if (item1_ && item2_ && item3_ && this.signer != undefined) {
           const id_ = BigNumber.from(item3_);
-          const account_ = "0x" + item2_.toHexString().substring(2).padStart(64, "0");
-          const erc1155Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+          const account_ = "0x" + item2_.toHexString().substring(2).padStart(40, "0");
+          const erc1155Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
           const erc1155Contract_ = new ERC1155(
             erc1155Address_,
             this.signer
@@ -1039,7 +1055,7 @@ export class RainJS {
         else throw new Error("Undefined stack variables")
       },
 
-    [RainJS.Opcodes.IERC1155_BALANCE_OF_BATCH] : 
+    [VM.Opcodes.IERC1155_BALANCE_OF_BATCH] : 
       async(state: StateJS, operand: number, data?: any) => {
       const item3_ = state.stack.splice(-(operand + 1));
       const item2_ = state.stack.splice(-(operand + 1));
@@ -1054,10 +1070,10 @@ export class RainJS {
         const accounts_: string[] = [];
         for (let i = 0; i < item2_.length; i++) {
           accounts_.push(
-            "0x" + item2_[i].toHexString().substring(2).padStart(64, "0")
+            "0x" + item2_[i].toHexString().substring(2).padStart(40, "0")
           )
         };
-        const erc1155Address_ = "0x" + item1_.toHexString().substring(2).padStart(64, "0");
+        const erc1155Address_ = "0x" + item1_.toHexString().substring(2).padStart(40, "0");
         const erc1155Contract_ = new ERC1155(
           erc1155Address_,
           this.signer

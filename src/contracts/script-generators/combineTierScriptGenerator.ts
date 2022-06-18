@@ -1,6 +1,6 @@
 import { StateConfig, VM } from '../../classes/vm';
-import { BigNumberish, BigNumber, BytesLike } from 'ethers';
-import { CombineTier } from '../tiers/combineTier';
+import { BigNumberish, BigNumber, BytesLike, ethers } from 'ethers';
+import { CombineTierContext } from '../tiers/combineTier';
 import { Tier } from '../../classes/tierContract';
 import { 
   concat,
@@ -8,7 +8,6 @@ import {
   selectLte,
   callSize,
   tierRange,
-  arg,
   paddedUInt32,
   paddedUInt256,
   selectLteLogic,
@@ -28,8 +27,6 @@ export class CombineTierGenerator {
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
-  public stackLength: BigNumberish;
-  public argumentsLength: BigNumberish;
 
   /**
    * Constructor for this class
@@ -42,19 +39,18 @@ export class CombineTierGenerator {
       this.constants = [reportVar];
       this.sources = [
         concat([
-          op(CombineTier.Opcodes.VAL, 0),
-          op(CombineTier.Opcodes.ACCOUNT),
-          op(CombineTier.Opcodes.REPORT),
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(
+            VM.Opcodes.CONTEXT,
+            CombineTierContext.Account
+          ),
+          op(VM.Opcodes.REPORT),
         ])
       ];
-      this.stackLength = 3;
-      this.argumentsLength = 0;
     }
     else {
       this.constants = reportVar.constants;
       this.sources = reportVar.sources;
-      this.stackLength = reportVar.stackLength;
-      this.argumentsLength = reportVar.argumentsLength;
     }
   }
 
@@ -84,22 +80,18 @@ export class CombineTierGenerator {
       sources: [
         concat([
           number
-            ? op(CombineTier.Opcodes.VAL, 0)
-            : op(CombineTier.Opcodes.BLOCK_NUMBER),
-          op(CombineTier.Opcodes.SELECT_LTE, selectLte(logic, mode, 2))
+            ? op(VM.Opcodes.CONSTANTS, 0)
+            : op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.SELECT_LTE, selectLte(logic, mode, 2))
         ])
       ],
-      stackLength: 2,
-      argumentsLength: 0
     }
 
-    let _result: StateConfig = VM.vmCombiner(_buttom, _combiner);
-    _result = VM.vmCombiner(this, _result);
+    let _result: StateConfig = VM.combiner(_buttom, _combiner);
+    _result = VM.combiner(this, _result);
 
     this.constants = _result.constants;
     this.sources = _result.sources;
-    this.stackLength = _result.stackLength;
-    this.argumentsLength = _result.argumentsLength;
 
     return this;
   }
@@ -124,24 +116,20 @@ export class CombineTierGenerator {
       sources: [
         concat([
           number
-            ? op(CombineTier.Opcodes.VAL, 0)
-            : op(CombineTier.Opcodes.BLOCK_NUMBER),
+            ? op(VM.Opcodes.CONSTANTS, 0)
+            : op(VM.Opcodes.BLOCK_NUMBER),
           op(
-            CombineTier.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+            VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
             tierRange(startTier, endTier)
           ),
         ])
       ],
-      stackLength: 2,
-      argumentsLength: 0
     };
 
-    const _result: StateConfig = VM.vmCombiner(this, _updater);
+    const _result: StateConfig = VM.combiner(this, _updater);
 
     this.constants = _result.constants;
     this.sources = _result.sources;
-    this.stackLength = _result.stackLength;
-    this.argumentsLength = _result.argumentsLength;
 
     return this
   }
@@ -166,20 +154,16 @@ export class CombineTierGenerator {
       constants: [],
       sources: [
         concat([
-          op(CombineTier.Opcodes.SATURATING_DIFF)
+          op(VM.Opcodes.SATURATING_DIFF)
         ])
       ],
-      stackLength: 1,
-      argumentsLength: 0
     };
 
-    let _result: StateConfig = VM.vmCombiner(_buttom, _differ);
-    _result = VM.vmCombiner(this, _result);
+    let _result: StateConfig = VM.combiner(_buttom, _differ);
+    _result = VM.combiner(this, _result);
 
     this.constants = _result.constants;
     this.sources = _result.sources;
-    this.stackLength = _result.stackLength;
-    this.argumentsLength = _result.argumentsLength;
 
     return this;
   }
@@ -240,35 +224,31 @@ export class CombineTierGenerator {
       ],
       sources: [
         concat([
-          op(CombineTier.Opcodes.VAL, 0),
-          op(CombineTier.Opcodes.VAL, 1),
-          op(CombineTier.Opcodes.ZIPMAP, callSize(1, 3, 2)),
-          op(CombineTier.Opcodes.ADD, 8)
+          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.ZIPMAP, callSize(1, 3, 2)),
+          op(VM.Opcodes.ADD, 8)
         ]),
         concat([
-          op(CombineTier.Opcodes.BLOCK_NUMBER),
-          op(CombineTier.Opcodes.VAL, arg(0)),
-          op(CombineTier.Opcodes.SATURATING_SUB, 2),
-          op(CombineTier.Opcodes.VAL, arg(1)),
-          op(CombineTier.Opcodes.LESS_THAN),
-          op(CombineTier.Opcodes.VAL, 4),
-          op(CombineTier.Opcodes.VAL, 3),
-          op(CombineTier.Opcodes.EAGER_IF),
-          op(CombineTier.Opcodes.VAL, 2),
-          op(CombineTier.Opcodes.VAL, arg(2)),
-          op(CombineTier.Opcodes.EXP, 2),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.CONSTANTS, 5),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.CONSTANTS, 6),
+          op(VM.Opcodes.LESS_THAN),
+          op(VM.Opcodes.CONSTANTS, 4),
+          op(VM.Opcodes.CONSTANTS, 3),
+          op(VM.Opcodes.EAGER_IF),
+          op(VM.Opcodes.CONSTANTS, 2),
+          op(VM.Opcodes.CONSTANTS, 7),
+          op(VM.Opcodes.EXP, 2),
         ])
       ],
-      stackLength: 15,
-      argumentsLength: 3
     };
 
-    _result = VM.vmCombiner(_report, _result);
+    _result = VM.combiner(_report, _result);
 
     this.constants = _result.constants;
     this.sources = _result.sources;
-    this.stackLength = _result.stackLength;
-    this.argumentsLength = _result.argumentsLength;
 
     return this;
   }
@@ -309,28 +289,24 @@ export class BuildReport extends CombineTierGenerator {
         ],
         sources: [
           concat([
-            op(CombineTier.Opcodes.VAL, 0)
+            op(VM.Opcodes.CONSTANTS, 0)
           ])
         ],
-        stackLength: 1,
-        argumentsLength: 0
       }
     }
     else {
       _result = {
-        constants: [],
+        constants: [ethers.constants.MaxUint256],
         sources: [
           concat([
-            op(CombineTier.Opcodes.NEVER),
-            op(CombineTier.Opcodes.BLOCK_NUMBER),
+            op(VM.Opcodes.CONSTANTS, 0),
+            op(VM.Opcodes.BLOCK_NUMBER),
             op(
-              CombineTier.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+              VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
               tierRange(Tier.ZERO, Tier.EIGHT)
             )
           ])
         ],
-        stackLength: 3,
-        argumentsLength: 0
       }
     }
     super(_result);
