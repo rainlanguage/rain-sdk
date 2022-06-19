@@ -50,14 +50,16 @@ describe('SDK - Sale', () => {
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
     const constants = [staticPrice];
-    const sources = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
+    // TODO: @rouzwelt
+    // @ts-ignore
+    const sources = VM.createVMSources([[VM.Opcodes.CONSTANT, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
       vmStateConfig: new SaleScriptFrom(
         new SaleDurationInBlocks(startBlock, startBlock + saleDuration),
         new BuyCap(),
-        {sources, constants}
+        { sources, constants }
       ),
       recipient: recipient.address,
       reserve: reserve.address,
@@ -101,14 +103,14 @@ describe('SDK - Sale', () => {
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
     const constants = [staticPrice];
-    const sources = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
+    const sources = VM.createVMSources([[VM.Opcodes.CONSTANT, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
       vmStateConfig: new SaleScriptFrom(
         new SaleDurationInBlocks(startBlock, endBlock),
         new BuyCap(),
-        {sources, constants}
+        { sources, constants }
       ),
       recipient: recipient.address,
       reserve: reserve.address,
@@ -142,14 +144,16 @@ describe('SDK - Sale', () => {
     await sale.start();
     expect(await sale.saleStatus()).to.be.equals(SaleStatus.Active);
 
-    expect(await sale.canLive(), 'sale should not be ready to not live (end)').to.be.true;
+    expect(await sale.canLive(), 'sale should not be ready to not live (end)')
+      .to.be.true;
 
     // Increase the blocks to end
     while ((await Time.currentBlock()) < endBlock) {
       await Time.advanceBlock();
     }
 
-    expect(await sale.canLive(), 'sale should be ready to not live (end)').to.be.false;
+    expect(await sale.canLive(), 'sale should be ready to not live (end)').to.be
+      .false;
 
     await sale.end();
   });
@@ -173,14 +177,14 @@ describe('SDK - Sale', () => {
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
     const constants = [staticPrice];
-    const sources = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
+    const sources = VM.createVMSources([[VM.Opcodes.CONSTANT, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
       vmStateConfig: new SaleScriptFrom(
         new SaleDurationInTimestamp(startTimestamp, endTimestamp),
         new BuyCap(),
-        {sources, constants}
+        { sources, constants }
       ),
       recipient: recipient.address,
       reserve: reserve.address,
@@ -212,12 +216,18 @@ describe('SDK - Sale', () => {
     await sale.start();
     expect(await sale.saleStatus()).to.be.equals(SaleStatus.Active);
 
-    expect(await sale.canLive(), 'sale should not be ready to not live (end)').to.be.true;
+    expect(await sale.canLive(), 'sale should not be ready to not live (end)')
+      .to.be.true;
 
     // Increase the timestamp to end (+1 to because is AFTER timestamp)
-    await Time.increase(BigNumber.from(endTimestamp).sub(await Time.currentTime()).add(1));
+    await Time.increase(
+      BigNumber.from(endTimestamp)
+        .sub(await Time.currentTime())
+        .add(1)
+    );
 
-    expect(await sale.canLive(), 'sale should be ready to not live (end)').to.be.false;
+    expect(await sale.canLive(), 'sale should be ready to not live (end)').to.be
+      .false;
 
     await sale.end();
   });
@@ -241,14 +251,14 @@ describe('SDK - Sale', () => {
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
     const constants = [staticPrice];
-    const sources = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
+    const sources = VM.createVMSources([[VM.Opcodes.CONSTANT, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
       vmStateConfig: new SaleScriptFrom(
         new SaleDurationInBlocks(startBlock, endBlock),
         new BuyCap(),
-        {sources, constants}
+        { sources, constants }
       ),
       recipient: recipient.address,
       reserve: reserve.address,
@@ -284,7 +294,9 @@ describe('SDK - Sale', () => {
 
     const desiredAmount = totalTokenSupply;
 
-    expect((await sale.calculateBuy(desiredAmount))[1]).to.be.equals(staticPrice);
+    expect((await sale.calculateBuy(desiredAmount))[1]).to.be.equals(
+      staticPrice
+    );
 
     const buyConfig = {
       feeRecipient: zeroAddress,

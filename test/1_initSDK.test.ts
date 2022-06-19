@@ -144,8 +144,6 @@ before('Initializing and deploying contracts to hardhat network', async () => {
     OrderBook: orderBook.address,
     AlwaysTier: AlwaysTier,
   };
-
-  console.log(JSON.stringify(addresses, null, 2));
 });
 
 describe.only('SDK - BookAddress', () => {

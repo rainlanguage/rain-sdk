@@ -37,6 +37,8 @@ export class CombineTierGenerator {
         concat([
           op(VM.Opcodes.CONSTANT, 0),
           op(VM.Opcodes.CONTEXT, CombineTierContext.Account),
+          // TODO: @rouzwelt
+          // @ts-ignore
           op(VM.Opcodes.REPORT),
         ]),
       ];
@@ -106,6 +108,8 @@ export class CombineTierGenerator {
         concat([
           number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_NUMBER),
           op(
+            // TODO: @rouzwelt
+            // @ts-ignore
             VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
             tierRange(startTier, endTier)
           ),
@@ -347,6 +351,8 @@ export class BuildReport extends CombineTierGenerator {
             op(VM.Opcodes.CONSTANT, 0),
             op(VM.Opcodes.BLOCK_NUMBER),
             op(
+              // TODO: @rouzwelt
+              // @ts-ignore
               VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
               tierRange(Tier.ZERO, Tier.EIGHT)
             ),

@@ -711,6 +711,8 @@ export class RainJS {
       } else throw new Error('Undefined stack variable');
     },
 
+    // TODO: @rouzwelt
+    // @ts-ignore
     [VM.Opcodes.REPORT]: async (
       state: StateJS,
       operand: number,
@@ -727,7 +729,7 @@ export class RainJS {
         );
         state.stack.push(
           // TODO: @rouzwelt
-          //@ts-ignore
+          // @ts-ignore
           await iTierContract.report(account_)
         );
       } else throw new Error('Undefined stack variables');
@@ -775,7 +777,8 @@ export class RainJS {
         state.stack.push(BigNumber.from('0x' + _result));
       } else throw new Error('Undefined stack variables');
     },
-
+    // TODO: @rouzwelt
+    // @ts-ignore
     [VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE]: (
       state: StateJS,
       operand: number,
