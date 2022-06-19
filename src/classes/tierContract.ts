@@ -91,19 +91,29 @@ export abstract class TierContract extends FactoryContract {
   ) => Promise<BigNumber>;
 
   /**
-   * @deprecated
    * Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`.
    * Tier 0 is that a address has never interact with the Tier Contract.
    *
    * @param account - address to check the current tier
-   * @param block - (optional) check the level tier of an account with respect to a specific block
+   * @param timestamp - (optional) check the level tier of an account with respect to a specific timestamp
    * @returns current tier level of the account
    */
-  public async currentTier(account: string, block?: number): Promise<number> {
+  public async currentTier(
+    account: string,
+    timestamp?: number
+  ): Promise<number> {
     const currentTier = await this.report(account, []);
-    const againstBlock = block
-      ? block
-      : await this.signer.provider?.getBlockNumber();
+    if (!timestamp) {
+      const _againstBlock = await this.signer.provider?.getBlockNumber();
+      if (!_againstBlock) {
+        throw new Error('Unable to get the block');
+      }
+      timestamp = (await this.signer.provider?.getBlock(_againstBlock))
+        ?.timestamp;
+      if (!timestamp) {
+        throw new Error('Unable to get the timestamp');
+      }
+    }
 
     const parsedReport = paddedUInt256(currentTier)
       .substring(2)
@@ -112,9 +122,9 @@ export abstract class TierContract extends FactoryContract {
       .map((x) => parseInt('0x' + x));
 
     let eligibleStatus = 0;
-    if (parsedReport && againstBlock) {
+    if (parsedReport && timestamp) {
       for (let i = 0; i < 8; i++) {
-        if (parsedReport[i] <= againstBlock) {
+        if (parsedReport[i] <= timestamp) {
           eligibleStatus = i + 1;
         } else {
           break;

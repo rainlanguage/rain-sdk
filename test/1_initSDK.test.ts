@@ -27,7 +27,7 @@ import {
   ERC1155,
   utils,
 } from '../src';
-const {op} = utils;
+const { op } = utils;
 
 /**
  * Addresses saved that are in SDK BookAddresses deployed to Hardhat network.
@@ -121,7 +121,7 @@ before('Initializing and deploying contracts to hardhat network', async () => {
       sources: [op(VM.Opcodes.CONSTANT, 0), sourceReportTimeForTierDefault],
       constants: [0],
     },
-  }
+  };
 
   const tx = await CombineTierFactory.createChildTyped(alwaysArg);
   const AlwaysTier = CombineTier.getNewChildFromReceipt(
@@ -146,7 +146,7 @@ before('Initializing and deploying contracts to hardhat network', async () => {
   };
 });
 
-describe.only('SDK - BookAddress', () => {
+describe('SDK - BookAddress', () => {
   it('should fail if no address stored in the book for a chain', () => {
     const arbitraryChainId = 1234;
     expect(() => AddressBook.getAddressesForChainId(arbitraryChainId)).to.throw(
@@ -185,12 +185,12 @@ describe.only('SDK - BookAddress', () => {
     expect(address).to.be.equals(addresses.CombineTierFactory);
   });
 
-  it('should get the  EmissionsERC20Factory address', async () => {
+  it('should get the EmissionsERC20Factory address', async () => {
     const address = EmissionsERC20.getBookAddress(chainId);
     expect(address).to.be.equals(addresses.EmissionsERC20Factory);
   });
 
-  it('should get the  SaleFactory address', async () => {
+  it('should get the SaleFactory address', async () => {
     const address = Sale.getBookAddress(chainId);
     expect(address).to.be.equals(addresses.SaleFactory);
   });
@@ -238,7 +238,7 @@ describe.only('SDK - BookAddress', () => {
   });
 });
 
-describe.only('SDK - Generics', () => {
+describe('SDK - Generics', () => {
   it('should create and use an ERC20 instance correctly', async () => {
     const [deployer, receiver] = await ethers.getSigners();
 

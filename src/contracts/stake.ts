@@ -6,7 +6,7 @@ import {
   ContractTransaction,
 } from 'ethers';
 import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
-import { FactoryContract } from '../classes/factoryContract';
+import { TierContract } from '../classes/tierContract';
 
 import { Stake__factory, StakeFactory__factory } from '../typechain';
 
@@ -29,7 +29,7 @@ import { Stake__factory, StakeFactory__factory } from '../typechain';
  *```
  */
 
-export class Stake extends FactoryContract {
+export class Stake extends TierContract {
   protected static readonly nameBookReference: string = 'stakeFactory';
 
   /**
@@ -52,8 +52,6 @@ export class Stake extends FactoryContract {
     this.deposit = _stake.deposit;
     this.increaseAllowance = _stake.increaseAllowance;
     this.name = _stake.name;
-    this.report = _stake.report;
-    this.reportTimeForTier = _stake.reportTimeForTier;
     this.supportsInterface = _stake.supportsInterface;
     this.symbol = _stake.symbol;
     this.totalSupply = _stake.totalSupply;
@@ -142,19 +140,6 @@ export class Stake extends FactoryContract {
   ) => Promise<ContractTransaction>;
 
   public readonly name: (overrides?: ReadTxOverrides) => Promise<string>;
-
-  public readonly report: (
-    account_: string,
-    context_: BigNumberish[],
-    overrides?: ReadTxOverrides
-  ) => Promise<BigNumber>;
-
-  public readonly reportTimeForTier: (
-    account_: string,
-    tier_: BigNumberish,
-    context_: BigNumberish[],
-    overrides?: ReadTxOverrides
-  ) => Promise<BigNumber>;
 
   public readonly supportsInterface: (
     interfaceId_: BytesLike,

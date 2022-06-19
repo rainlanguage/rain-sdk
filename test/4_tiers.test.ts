@@ -102,8 +102,6 @@ describe('SDK - CombineTier', () => {
 
     const tier = new CombineTier(alwaysTierAddress, deployer);
 
-    console.log(tier.report(user1.address, []));
-
     // Any address should be allowed in all tiers
     expect(await tier.currentTier(user1.address)).to.be.equals(
       tier.levels.EIGHT
