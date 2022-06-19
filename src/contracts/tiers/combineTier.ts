@@ -2,7 +2,10 @@ import { Signer, BytesLike, BigNumberish } from 'ethers';
 import { TierContract } from '../../classes/tierContract';
 import { ReadTxOverrides, TxOverrides } from '../../classes/rainContract';
 import { StateConfig, StorageOpcodesRange } from '../../classes/vm';
-import { CombineTierFactory__factory, CombineTier__factory } from '../../typechain';
+import {
+  CombineTierFactory__factory,
+  CombineTier__factory,
+} from '../../typechain';
 
 /**
  * @public
@@ -13,14 +16,17 @@ import { CombineTierFactory__factory, CombineTier__factory } from '../../typecha
  * It will be built with the desired configuration for the CombineTier allowing to
  * customize the behavior of the Tier as needed and specified.
  */
-export type CombineTierDeployArgs = StateConfig;
+export type CombineTierDeployArgs = {
+  combinedTiersLength: BigNumberish;
+  sourceConfig: StateConfig;
+};
 
 /**
  * Enum for operand of the combineTier's CONTEXT opcode
  */
- export enum CombineTierContext {
+export enum CombineTierContext {
   /**
-   * 0 or the index of the context array in the combineTier 
+   * 0 or the index of the context array in the combineTier
    * contract used as the operand for CONTEXT opcode.
    * operand for CONTEXT opcode to stack the account that report is being call for.
    */
@@ -28,7 +34,7 @@ export type CombineTierDeployArgs = StateConfig;
   /**
    * length of CombineTier's valid context opcodes
    */
-  length
+  length,
 }
 
 /**
@@ -38,7 +44,7 @@ export enum CombineTierStorage {
   /**
    * length of CombineTier's valid storage opcodes
    */
-  length
+  length,
 }
 
 /**
@@ -85,7 +91,6 @@ export class CombineTier extends TierContract {
    * @returns A new combineTier instance
    */
   constructor(address: string, signer: Signer) {
-
     CombineTier.checkAddress(address);
 
     super(address, signer);
@@ -155,7 +160,7 @@ export class CombineTier extends TierContract {
       this.getBookAddress(await this.getChainId(signer)),
       signer
     );
-      
+
     const tx = await combineTierFactory.createChildTyped(args, overrides);
     const receipt = await tx.wait();
     const address = this.getNewChildFromReceipt(receipt, combineTierFactory);
@@ -180,7 +185,7 @@ export class CombineTier extends TierContract {
 
   /**
    * Pointers to opcode functions, necessary for being able to read the packedBytes
-   * 
+   *
    * @param override - @see ReadTxOverrides
    * @returns the opcode functions pointers
    */
@@ -188,10 +193,10 @@ export class CombineTier extends TierContract {
 
   /**
    * Returns the pointer and length for combineTier's storage opcodes
-   * 
+   *
    * @param override - @see ReadTxOverrides
    * @returns a StorageOpcodesRange
-  */
+   */
   public readonly storageOpcodesRange: (
     overrides?: ReadTxOverrides
   ) => Promise<StorageOpcodesRange>;

@@ -815,6 +815,8 @@ export class RainJS {
             this.signer
           );
           state.stack.push(
+            // TODO: @rouzwelt
+            //@ts-ignore
             await iTierContract.report(account_,)
           );
         }
