@@ -117,7 +117,7 @@ export abstract class TierContract extends FactoryContract {
 
     const parsedReport = paddedUInt256(currentTier)
       .substring(2)
-      .match(/.{1,8}/g)
+      .match(/.{8}/g)
       ?.reverse()
       .map((x) => parseInt('0x' + x));
 
