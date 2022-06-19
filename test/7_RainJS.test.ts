@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { ethers } from 'hardhat';
-import { Tier, Time } from './utils';
+import { Tier, Time, expectAsyncError } from './utils';
 import { BigNumber } from 'ethers';
 import { 
   op,
@@ -11,8 +11,7 @@ import {
   callSize,
   tierRange,
   selectLteLogic,
-  selectLteMode,
-  assertError
+  selectLteMode
 } from '../src/utils'
 import {
   StateConfig,
@@ -972,8 +971,8 @@ describe('SDK - RainJS', () => {
     }
 
     const rainJs = new RainJS(script);
-    await assertError(
-      async () => await rainJs.run(),
+    await expectAsyncError(
+      rainJs.run(),
       errorMessage
     );
   });
@@ -994,8 +993,8 @@ describe('SDK - RainJS', () => {
     }
 
     const rainJs = new RainJS(script);
-    await assertError(
-      async () => await rainJs.run(),
+    await expectAsyncError(
+      rainJs.run(),
       errorMessage
     );
   });
@@ -1023,8 +1022,8 @@ describe('SDK - RainJS', () => {
     }
 
     const rainJs = new RainJS(script);
-    await assertError(
-      async () => await rainJs.run(),
+    await expectAsyncError(
+      rainJs.run(),
       errorMessage
     );
   });
@@ -1055,8 +1054,8 @@ describe('SDK - RainJS', () => {
 
     const rainJs = new RainJS(script);
     
-    await assertError(
-      async () => await rainJs.run(),
+    await expectAsyncError(
+      rainJs.run(),
       errorMessage
     );
   });
@@ -1180,7 +1179,7 @@ describe('SDK - RainJS', () => {
   it("should panic when accumulator underflows with subtraction op", async () => {
 
     const constants = [0, 1];
-    const errorMessage = "negative value not allowed";
+    const errorMessage = "Invalid value (negative value not allowed)";
     const vZero = op(RainJS.Opcodes.VAL, 0);
     const vOne = op(RainJS.Opcodes.VAL, 1);
     // prettier-ignore
@@ -1199,20 +1198,20 @@ describe('SDK - RainJS', () => {
     };
 
     const rainJs = new RainJS(script);
-    await assertError(
-      async () => await rainJs.run(),
+    await expectAsyncError(
+      rainJs.run(),
       errorMessage
     );
   });
 
   // Skipping as of now since overflow check is missing
-  it.skip("should panic when accumulator overflows with multiplication op", async () => {
+  it("should panic when accumulator overflows with multiplication op", async () => {
 
     const max_uint256 = ethers.BigNumber.from(
       "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
     );
     const constants = [max_uint256.div(2), 3];
-    const errorMessage = "Arithmetic overflow error";
+    const errorMessage = "max numeric range overflow";
     const vHalfMaxUInt256 = op(RainJS.Opcodes.VAL, 0);
     const vThree = op(RainJS.Opcodes.VAL, 1);
 
@@ -1231,19 +1230,19 @@ describe('SDK - RainJS', () => {
     };
 
     const rainJs = new RainJS(script);
-    await assertError(
-      async () => await rainJs.run(),
+    await expectAsyncError(
+      rainJs.run(),
       errorMessage
     );
   });
 
-  it.skip("should panic when accumulator overflows with exponentiation op", async () => {
+  it("should panic when accumulator overflows with exponentiation op", async () => {
 
     const max_uint256 = ethers.BigNumber.from(
       "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
     );
     const constants = [max_uint256.div(2), 2];
-    const errorMessage = "Arithmetic overflow error";
+    const errorMessage = "max numeric range overflow";
     const vHalfMaxUInt256 = op(RainJS.Opcodes.VAL, 0);
     const vTwo = op(RainJS.Opcodes.VAL, 1);
 
@@ -1262,25 +1261,25 @@ describe('SDK - RainJS', () => {
     };
 
     const rainJs = new RainJS(script);
-    await assertError(
-      async () => await rainJs.run(),
+    await expectAsyncError(
+      rainJs.run(),
       errorMessage
     );
   });
 
-  it.skip("should panic when accumulator overflows with addition op", async () => {
+  it("should panic when accumulator overflows with addition op", async () => {
 
     const max_uint256 = ethers.BigNumber.from(
       "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
     );
-    const constants = [max_uint256.div(2), 1];
-    const errorMessage = "Arithmetic overflow error";
-    const vHalfMaxUInt256 = op(RainJS.Opcodes.VAL, 0);
+    const constants = [max_uint256, 1];
+    const errorMessage = "max numeric range overflow";
+    const vMaxUint256 = op(RainJS.Opcodes.VAL, 0);
     const vOne = op(RainJS.Opcodes.VAL, 1);
 
     // max_uint256 + 1
     const source0 = concat([
-        vHalfMaxUInt256,
+        vMaxUint256,
         vOne,
       op(RainJS.Opcodes.ADD, 2)
     ]);
@@ -1293,10 +1292,11 @@ describe('SDK - RainJS', () => {
     };
 
     const rainJs = new RainJS(script);
-    await assertError(
-      async () => await rainJs.run(),
+    await expectAsyncError(
+      rainJs.run(),
       errorMessage
-    );
+    )
+   
   });
 
 })
