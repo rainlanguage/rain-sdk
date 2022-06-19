@@ -334,7 +334,7 @@ export class VM {
    * 
    * @returns combined VM script. @see StateConfig
    */
-  public static vmCombiner(
+  public static combiner(
     config1: StateConfig,
     config2: StateConfig,
     options?: {
@@ -352,9 +352,10 @@ export class VM {
     const constants = [...config1.constants, ...config2.constants];
 
     for (let i = 0; i < config2.sources.length; i++) {
-      const sourceModify = arrayify(config2.sources[i], {
-        allowMissingPrefix: true,
-      });
+      const sourceModify = arrayify(
+        config2.sources[i],
+        {allowMissingPrefix: true}
+      );
       for (let j = 0; j < sourceModify.length; j++) {
         if (sourceModify[j] == 1) {
           let argCheck = sourceModify[j + 1] >> 7;
@@ -363,13 +364,11 @@ export class VM {
           }
         }
         if (sourceModify[j] == 3) {
-          const srcIndexIncrement =
-            (config1.sources.length - NumberOfSources);
+          const srcIndexIncrement = config1.sources.length - NumberOfSources;
           const srcIndex = sourceModify[j + 1] & 7;
-          sourceModify[j + 1] =
-            srcIndex < NumberOfSources
-              ? sourceModify[j + 1] + Index
-              : sourceModify[j + 1] + srcIndexIncrement;
+          sourceModify[j + 1] = srcIndex < NumberOfSources
+            ? sourceModify[j + 1] + Index
+            : sourceModify[j + 1] + srcIndexIncrement;
         }
         j++;
       }
@@ -378,9 +377,10 @@ export class VM {
 
     if (options?.position && options.position.length == NumberOfSources) {
       for (let i = 0; i < NumberOfSources; i++) {
-        const sourceModify = arrayify(config1.sources[Index + i], {
-          allowMissingPrefix: true,
-        });
+        const sourceModify = arrayify(
+          config1.sources[Index + i],
+          {allowMissingPrefix: true}
+        );
         config1.sources[Index + i] = concat([
           sourceModify.subarray(0, options.position[i] * 2),
           config2.sources[i],
@@ -426,19 +426,17 @@ export class VM {
    * @param ownerAddress - the address that is going to be the owner of the main VM script.
    * @param options - used for additional configuraions:
    *    - (param) index - to identify which sources item in config.sources the combination starts at, if not specified, it will be 0.
-   *    - (param) numberOfSource - for specifying how many sources item to combine.
    *    - (param) position - An array representing the positions of config script where notOwnerVar sources (if exists)
    *       will be merged at; position, array length must be equal to 'numberOfSources' or else it will be ignored.
    *    - (param) notOwnerVar - the value or the script that will be executed if the owner check fails, if not specified 0 will be applied.
    * 
    * @returns a VM script. @see StateConfig
    */
-  public static makeOwner(
+  public static toOwnerMaker(
     config: StateConfig,
     ownerAddress: string,
     options?: {
       index?: number,
-      numberOfSources?: number,
       position?: number[],
       notOwnerVar?: StateConfig | number,
     }
@@ -448,26 +446,25 @@ export class VM {
 
     const MAKE_OWNER = (i: any) =>
       concat([
-        op(AllStandardOps.VAL, i),
-        op(AllStandardOps.SENDER),
-        op(AllStandardOps.EQUAL_TO),
+        op(VM.Opcodes.VAL, i),
+        op(VM.Opcodes.SENDER),
+        op(VM.Opcodes.EQUAL_TO),
       ]);
 
     if (options?.notOwnerVar && typeof options.notOwnerVar === 'object') {
-      let _result = this.vmCombiner(
+      let _result = this.combiner(
         config,
         options.notOwnerVar,
         {
           index: options.index,
           position: options.position,
-          numberOfSources: options.numberOfSources
         }
       );
       _result.constants.push(ownerAddress);
       _result.sources[Index] = concat([
         MAKE_OWNER(_result.constants.length - 1),
         _result.sources[Index],
-        op(AllStandardOps.EAGER_IF),
+        op(VM.Opcodes.EAGER_IF),
       ]);
       _result.stackLength = BigNumber.from(_result.stackLength).add(4);
 
@@ -482,8 +479,8 @@ export class VM {
       config.sources[Index] = concat([
         MAKE_OWNER(constants.length - 2),
         config.sources[Index],
-        op(AllStandardOps.VAL, constants.length - 1),
-        op(AllStandardOps.EAGER_IF),
+        op(VM.Opcodes.VAL, constants.length - 1),
+        op(VM.Opcodes.EAGER_IF),
       ]);
       const sources = config.sources;
       return {
@@ -509,7 +506,7 @@ export class VM {
    * 
    * @returns a VM script @see StateConfig
    */
-  public static tierBasedDiscounter(
+  public static toTierDiscounter(
     config: StateConfig,
     tierAddress: string,
     tierDiscount: number[],
@@ -664,7 +661,7 @@ export class VM {
    * 
    * @returns a VM script @see StateConfig
    */
-  public static tierBasedMultiplier(
+  public static toTierMultiplier(
     config: StateConfig,
     tierAddress: string,
     tierMultiplier: number[],
@@ -821,7 +818,7 @@ export class VM {
    * 
    * @returns a VM script @see StateConfig
    */
-  public static timeSliceScripts (
+  public static toTimeSlicer (
     configs: StateConfig[],
     times: number[],
     inBlockNumber: boolean = false
@@ -854,15 +851,15 @@ export class VM {
         }
       };
 
-      _result = VM.vmCombiner(SLICER(0), configs[0]);
+      _result = VM.combiner(SLICER(0), configs[0]);
 
       for (let i = 1; i < configs.length; i++) {
         if (i + 1 == configs.length) {
-          _result = VM.vmCombiner(_result, configs[i])
+          _result = VM.combiner(_result, configs[i])
         }
         else {
-          _result = VM.vmCombiner(_result, SLICER(i))
-          _result = VM.vmCombiner(_result, configs[i])
+          _result = VM.combiner(_result, SLICER(i))
+          _result = VM.combiner(_result, configs[i])
         }
       }
       for (let i = 1; i < configs.length; i++) {

@@ -100,14 +100,12 @@ export class PriceCurve {
       100
     );
 
-    this.sources = [
-      concat([
-        EXTRA_TIME_DISCOUNT(this.constants.length),
-        ...this.sources,
-        op(Sale.Opcodes.DUP, 1),
-        DISCOUNT_CONDITION_SOURCES(this.constants.length),
-      ]),
-    ];
+    this.sources[0] = concat([
+      EXTRA_TIME_DISCOUNT(this.constants.length),
+      this.sources[0],
+      op(Sale.Opcodes.DUP, 1),
+      DISCOUNT_CONDITION_SOURCES(this.constants.length),
+    ]);
 
     this.stackLength = Number(this.stackLength) + 20;
 
@@ -130,7 +128,7 @@ export class PriceCurve {
     tierDiscount: number[],
     tierActivation?: (number | string)[]
   ): this {
-    const stateConfig = VM.tierBasedDiscounter(
+    const stateConfig = VM.toTierDiscounter(
       this,
       tierAddress,
       tierDiscount,
@@ -219,7 +217,7 @@ export class PriceCurve {
           stackLength: 1,
           argumentsLength: 0,
         };
-        maxCapConfig = VM.tierBasedMultiplier(
+        maxCapConfig = VM.toTierMultiplier(
           maxCapConfig,
           options.tierAddress,
           options.tierMultiplier,
@@ -235,7 +233,7 @@ export class PriceCurve {
           op(Sale.Opcodes.VAL, maxCapConfig.constants.length - 1),
           op(Sale.Opcodes.EAGER_IF),
         ]);
-        const stateConfig = VM.vmCombiner(this, maxCapConfig);
+        const stateConfig = VM.combiner(this, maxCapConfig);
         this.constants = stateConfig.constants;
         this.sources = stateConfig.sources;
         this.stackLength = stateConfig.stackLength;
@@ -274,7 +272,7 @@ export class PriceCurve {
           stackLength: 1,
           argumentsLength: 0,
         };
-        bothCapConfig = VM.tierBasedMultiplier(
+        bothCapConfig = VM.toTierMultiplier(
           bothCapConfig,
           options.tierAddress,
           options.tierMultiplier,
@@ -296,7 +294,7 @@ export class PriceCurve {
           op(Sale.Opcodes.VAL, bothCapConfig.constants.length - 1),
           op(Sale.Opcodes.EAGER_IF),
         ]);
-        const stateConfig = VM.vmCombiner(this, bothCapConfig);
+        const stateConfig = VM.combiner(this, bothCapConfig);
         this.constants = stateConfig.constants;
         this.sources = stateConfig.sources;
         this.stackLength = stateConfig.stackLength;
@@ -509,7 +507,7 @@ export class IncreasingPrice extends PriceCurve {
  * the desired result, although calling in any order will produce a reliable result, that depends on what the
  * intention is. For example 'applyOwner' should be called at last in order to apply the ownership over the whole script.
  * The general methods calling order in this class is:
- *    1.applyExtarTime
+ *    1.applyExtarTime or afterMinimumRaise (one of which only)
  *    2.applyOwner
  *
  * @example
@@ -559,7 +557,11 @@ export class SaleDurationInTimestamp {
    * @returns this
    *
    */
-  public applyExtraTime(extraTime: number, extraTimeAmount: number): this {
+  public applyExtraTime(
+    extraTime: number,
+    extraTimeAmount: number,
+    ecr20decimals: number = 18
+  ): this {
     const EXTRA_TIME = () =>
       concat([
         op(Sale.Opcodes.TOTAL_RESERVE_IN),
@@ -572,7 +574,7 @@ export class SaleDurationInTimestamp {
         op(Sale.Opcodes.ANY, 2),
       ]);
 
-    const ExtraTimeAmount = parseUnits(extraTimeAmount.toString());
+    const ExtraTimeAmount = parseUnits(extraTimeAmount.toString(), ecr20decimals);
     const ExtraTime = extraTime * 60 + this.timestamp;
     this.constants.push(ExtraTime, ExtraTimeAmount);
     this.sources[0] = concat([this.sources[0], EXTRA_TIME()]);
@@ -595,13 +597,52 @@ export class SaleDurationInTimestamp {
    *
    */
   public applyOwnership(ownerAddress: string): this {
-    const stateConfig = VM.makeOwner(this, ownerAddress);
+    const stateConfig = VM.toOwnerMaker(this, ownerAddress);
     this.constants = stateConfig.constants;
     this.sources = stateConfig.sources;
     this.stackLength = stateConfig.stackLength;
     this.argumentsLength = stateConfig.argumentsLength;
 
     return this;
+  }
+
+  /**
+   * A method for the sale to be able to end once the sale hits minimumRaise i.e. the minimum amount
+   * that needs to be raiseed so the raises status becomes "success" after raise ends.
+   * 
+   * @remark please note that this method should not be used with applyExtraTime as they are opossit 
+   * of eachother and also the order of using this method along with other methods of this class is 
+   * important
+   * 
+   * @param minimumRaise - the minimumRaise parameter of the raise which is passed at the time of
+   * sale's deployment as part of the SaleConfig
+   *  
+   * @returns this
+   */
+  public afterMinimumRaise (minimumRaise: number, erc20decimals: number = 18) : this {
+    const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
+
+    let _minimumRaise: StateConfig = {
+      constants: [MinimumRaise],
+      sources: [
+        concat([
+          op(Sale.Opcodes.VAL, 1),
+          op(Sale.Opcodes.TOTAL_RESERVE_IN),
+          op(Sale.Opcodes.LESS_THAN),
+          op(Sale.Opcodes.ANY, 2),
+        ])
+      ],
+      stackLength: 4,
+      argumentsLength: 0
+    };
+    _minimumRaise = VM.combiner(this, _minimumRaise)
+
+    this.constants = _minimumRaise.constants;
+    this.sources = _minimumRaise.sources;
+    this.stackLength = _minimumRaise.stackLength;
+    this.argumentsLength = _minimumRaise.argumentsLength;
+
+    return this
   }
 }
 
@@ -620,7 +661,7 @@ export class SaleDurationInTimestamp {
  * the desired result, although calling in any order will produce a reliable result, that depends on what the
  * intention is. For example 'applyOwner' should be called at last in order to apply the ownership over the whole script.
  * The general methods calling order in this class is:
- *    1.applyExtarTime
+ *    1.applyExtarTime or afterMinimumRaise (one of which only)
  *    2.applyOwner
  *
  * @example
@@ -672,7 +713,8 @@ export class SaleDurationInBlocks {
    */
   public applyExtraTime(
     extraTimeBlocks: number,
-    extraTimeAmount: number
+    extraTimeAmount: number,
+    erc20decimals: number = 18
   ): this {
     const EXTRA_TIME = () =>
       concat([
@@ -686,7 +728,7 @@ export class SaleDurationInBlocks {
         op(Sale.Opcodes.ANY, 2),
       ]);
 
-    const ExtraTimeAmount = parseUnits(extraTimeAmount.toString());
+    const ExtraTimeAmount = parseUnits(extraTimeAmount.toString(), erc20decimals);
     const ExtraTime = extraTimeBlocks + this.blockNumber;
 
     this.constants.push(ExtraTime, ExtraTimeAmount);
@@ -710,12 +752,51 @@ export class SaleDurationInBlocks {
    *
    */
   public applyOwnership(ownerAddress: string): this {
-    const stateConfig = VM.makeOwner(this, ownerAddress);
+    const stateConfig = VM.toOwnerMaker(this, ownerAddress);
     this.constants = stateConfig.constants;
     this.sources = stateConfig.sources;
     this.stackLength = stateConfig.stackLength;
     this.argumentsLength = stateConfig.argumentsLength;
 
     return this;
+  }
+
+  /**
+   * A method for the sale to be able to end once the sale hits minimumRaise i.e. the minimum amount
+   * that needs to be raiseed so the raises status becomes "success" after raise ends.
+   * 
+   * @remark please note that this method should not be used with applyExtraTime as they are opossit 
+   * of eachother and also the order of using this method along with other methods of this class is 
+   * important
+   * 
+   * @param minimumRaise - the minimumRaise parameter of the raise which is passed at the time of
+   * sale's deployment as part of the SaleConfig
+   *  
+   * @returns this
+   */
+  public afterMinimumRaise (minimumRaise: number, erc20decimals: number = 18) : this {
+    const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
+
+    let _minimumRaise: StateConfig = {
+      constants: [MinimumRaise],
+      sources: [
+        concat([
+          op(Sale.Opcodes.VAL, 1),
+          op(Sale.Opcodes.TOTAL_RESERVE_IN),
+          op(Sale.Opcodes.LESS_THAN),
+          op(Sale.Opcodes.ANY, 2),
+        ])
+      ],
+      stackLength: 4,
+      argumentsLength: 0
+    };
+    _minimumRaise = VM.combiner(this, _minimumRaise)
+
+    this.constants = _minimumRaise.constants;
+    this.sources = _minimumRaise.sources;
+    this.stackLength = _minimumRaise.stackLength;
+    this.argumentsLength = _minimumRaise.argumentsLength;
+
+    return this
   }
 }

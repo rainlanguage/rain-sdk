@@ -1,5 +1,5 @@
 import { BigNumber, Contract, ethers, Signer } from "ethers";
-import { arrayify } from "ethers/lib/utils";
+import { arrayify } from "../utils";
 import { StateConfig, VM } from "../classes/vm";
 import { ERC1155 } from "../contracts/generics/erc1155";
 import { ERC20 } from "../contracts/generics/erc20";
@@ -135,7 +135,7 @@ export class RainJS {
     };
     for (let i = 0; i < state.sources.length; i++) {
       sources.push(
-        arrayify(state.sources[i])
+        arrayify(state.sources[i], {allowMissingPrefix: true})
       )
     };
 
@@ -492,6 +492,9 @@ export class RainJS {
           _item = state.stack.pop();
           if (_item != undefined) {
             _accumulator = _accumulator.add(_item);
+            if (_accumulator.gt(ethers.constants.MaxUint256)) {
+              throw new Error("max numeric range overflow")
+            }
           }
           else throw new Error("Undefined stack variables")
         }
@@ -566,6 +569,9 @@ export class RainJS {
           _item = state.stack.pop();
           if (_item != undefined) {
             _accumulator = _accumulator.mul(_item);
+            if (_accumulator.gt(ethers.constants.MaxUint256)) {
+              throw new Error("max numeric range overflow")
+            }
           }
           else throw new Error("Undefined stack variables")
         }
@@ -636,6 +642,9 @@ export class RainJS {
             _item = items_.shift();
             if (_item != undefined) {
               _accumulator = _accumulator.pow(_item);
+              if (_accumulator.gt(ethers.constants.MaxUint256)) {
+                throw new Error("max numeric range overflow")
+              }
             }
             else throw new Error("Undefined stack variables")
           }
