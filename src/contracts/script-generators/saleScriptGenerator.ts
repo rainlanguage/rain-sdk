@@ -17,10 +17,10 @@ export enum BuyCapMode {
    */
   max,
   /**
-   * both minimum and maximum buy cap, i.e. cannot buy less than a specefied 
+   * both minimum and maximum buy cap, i.e. cannot buy less than a specefied
    * amount and more than another specified amount
    */
-  both
+  both,
 }
 
 /**
@@ -40,7 +40,6 @@ export enum BuyCapMode {
  *
  */
 export class PriceCurve {
-
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -77,15 +76,14 @@ export class PriceCurve {
     extraTimeDiscountThreshold: number,
     extraTimeDiscount: number
   ): this {
-
     let _saleDiscount: StateConfig;
 
     const EXTRA_TIME_DISCOUNT = () =>
       concat([
-        op(VM.Opcodes.CONSTANTS, 0),
+        op(VM.Opcodes.CONSTANT, 0),
         op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(VM.Opcodes.GREATER_THAN),
-        op(VM.Opcodes.CONSTANTS, 1),
+        op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.STORAGE, SaleStorage.TokenAddress),
         op(VM.Opcodes.SENDER),
         op(VM.Opcodes.IERC20_BALANCE_OF),
@@ -95,32 +93,32 @@ export class PriceCurve {
 
     const DISCOUNT_CONDITION_SOURCES = () =>
       concat([
-        op(VM.Opcodes.CONSTANTS, 2),
+        op(VM.Opcodes.CONSTANT, 2),
         op(VM.Opcodes.MUL, 2),
-        op(VM.Opcodes.CONSTANTS, 3),
+        op(VM.Opcodes.CONSTANT, 3),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.EAGER_IF),
       ]);
 
     _saleDiscount = VM.combiner(
-      this, 
+      this,
       {
         constants: [
           endTimestamp,
           parseUnits(extraTimeDiscountThreshold.toString()),
           100 - extraTimeDiscount,
-          100
+          100,
         ],
-        sources: [EXTRA_TIME_DISCOUNT()]
+        sources: [EXTRA_TIME_DISCOUNT()],
       },
-      {position: [0]}
+      { position: [0] }
     );
 
     _saleDiscount.sources[0] = concat([
       _saleDiscount.sources[0],
       op(VM.Opcodes.STACK, 1),
-      DISCOUNT_CONDITION_SOURCES()
-    ])
+      DISCOUNT_CONDITION_SOURCES(),
+    ]);
 
     this.constants = _saleDiscount.constants;
     this.sources = _saleDiscount.sources;
@@ -133,7 +131,7 @@ export class PriceCurve {
    *
    * @param tierAddress - The Tier contract address.
    * @param tierDiscount - An array of each tiers' discount ranging between 0 - 99.
-   * @param tierActivation - (optional) An array of number of blocks for each tier that will be the required period 
+   * @param tierActivation - (optional) An array of number of blocks for each tier that will be the required period
    * of time for that tiered address to hold the tier's in order to be eligible for that tier's discount.
    *
    * @returns this
@@ -144,7 +142,6 @@ export class PriceCurve {
     tierDiscount: number[],
     tierActivation?: (number | string)[]
   ): this {
-
     const _discountConfig = VM.toTierDiscounter(
       this,
       tierAddress,
@@ -157,7 +154,6 @@ export class PriceCurve {
 
     return this;
   }
-  
 }
 
 /**
@@ -183,16 +179,13 @@ export class FixedPrice extends PriceCurve {
   constructor(price: BigNumberish, erc20decimals: number = 18) {
     super({
       constants: [parseUnits(BigNumber.from(price).toString(), erc20decimals)],
-      sources: [
-        concat([
-          FixedPrice.FIXED_PRICE_SOURCES()
-        ])
-      ]
+      sources: [concat([FixedPrice.FIXED_PRICE_SOURCES()])],
     });
   }
 
   // fixed price script
-  public static FIXED_PRICE_SOURCES = () => concat([op(VM.Opcodes.CONSTANTS, 0)]);
+  public static FIXED_PRICE_SOURCES = () =>
+    concat([op(VM.Opcodes.CONSTANT, 0)]);
 }
 
 /**
@@ -242,11 +235,7 @@ export class vLBP extends PriceCurve {
         startTimestamp,
         parseUnits((1).toString()),
       ],
-      sources: [
-        concat([
-          vLBP.vLBP_SOURCES()
-        ])
-      ]
+      sources: [concat([vLBP.vLBP_SOURCES()])],
     });
   }
 
@@ -254,16 +243,16 @@ export class vLBP extends PriceCurve {
   public static vLBP_SOURCES = () =>
     concat([
       op(VM.Opcodes.STORAGE, SaleStorage.TotalReserveIn),
-      op(VM.Opcodes.CONSTANTS, 0),
+      op(VM.Opcodes.CONSTANT, 0),
       op(VM.Opcodes.ADD, 2),
-      op(VM.Opcodes.CONSTANTS, 1),
+      op(VM.Opcodes.CONSTANT, 1),
       op(VM.Opcodes.BLOCK_TIMESTAMP),
-      op(VM.Opcodes.CONSTANTS, 3),
+      op(VM.Opcodes.CONSTANT, 3),
       op(VM.Opcodes.SATURATING_SUB, 2),
-      op(VM.Opcodes.CONSTANTS, 2),
+      op(VM.Opcodes.CONSTANT, 2),
       op(VM.Opcodes.MUL, 2),
       op(VM.Opcodes.SATURATING_SUB, 2),
-      op(VM.Opcodes.CONSTANTS, 4),
+      op(VM.Opcodes.CONSTANT, 4),
       op(VM.Opcodes.MAX, 2),
       op(VM.Opcodes.MUL, 2),
       op(VM.Opcodes.STORAGE, SaleStorage.RemainingUnits),
@@ -311,11 +300,7 @@ export class IncreasingPrice extends PriceCurve {
         parseUnits(priceChange.toFixed(5).toString()),
         startTimestamp,
       ],
-      sources: [
-        concat([
-          IncreasingPrice.INC_PRICE_SOURCES()
-        ])
-      ]
+      sources: [concat([IncreasingPrice.INC_PRICE_SOURCES()])],
     });
   }
 
@@ -323,13 +308,13 @@ export class IncreasingPrice extends PriceCurve {
   public static INC_PRICE_SOURCES = () =>
     concat([
       op(VM.Opcodes.BLOCK_TIMESTAMP),
-      op(VM.Opcodes.CONSTANTS, 3),
+      op(VM.Opcodes.CONSTANT, 3),
       op(VM.Opcodes.SUB, 2),
-      op(VM.Opcodes.CONSTANTS, 2),
+      op(VM.Opcodes.CONSTANT, 2),
       op(VM.Opcodes.MUL, 2),
-      op(VM.Opcodes.CONSTANTS, 0),
+      op(VM.Opcodes.CONSTANT, 0),
       op(VM.Opcodes.ADD, 2),
-      op(VM.Opcodes.CONSTANTS, 1),
+      op(VM.Opcodes.CONSTANT, 1),
       op(VM.Opcodes.MIN, 2),
     ]);
 }
@@ -356,7 +341,6 @@ export class IncreasingPrice extends PriceCurve {
  * ```
  */
 export class SaleDurationInTimestamp {
-
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -379,12 +363,12 @@ export class SaleDurationInTimestamp {
     this.sources = [
       concat([
         op(VM.Opcodes.BLOCK_TIMESTAMP),
-        op(VM.Opcodes.CONSTANTS, 0),
+        op(VM.Opcodes.CONSTANT, 0),
         op(VM.Opcodes.GREATER_THAN),
         op(VM.Opcodes.BLOCK_TIMESTAMP),
-        op(VM.Opcodes.CONSTANTS, 1),
+        op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.LESS_THAN),
-        op(VM.Opcodes.EVERY, 2)
+        op(VM.Opcodes.EVERY, 2),
       ]),
     ];
   }
@@ -407,28 +391,30 @@ export class SaleDurationInTimestamp {
     extraTimeAmount: number,
     erc20decimals: number = 18
   ): this {
-
-    const ExtraTimeAmount = parseUnits(extraTimeAmount.toString(), erc20decimals);
+    const ExtraTimeAmount = parseUnits(
+      extraTimeAmount.toString(),
+      erc20decimals
+    );
     const ExtraTime = extraTime * 60 + this.endTimestamp;
 
     let _extraTime: StateConfig = {
       constants: [ExtraTime, ExtraTimeAmount],
       sources: [
         concat([
-          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANT, 1),
           op(VM.Opcodes.STORAGE, SaleStorage.TotalReserveIn),
           op(VM.Opcodes.LESS_THAN),
           op(VM.Opcodes.ANY, 2),
           op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANT, 0),
           op(VM.Opcodes.LESS_THAN),
           op(VM.Opcodes.EVERY, 2),
-        ])
-      ]
+        ]),
+      ],
     };
 
-    _extraTime = VM.combiner(this, _extraTime, {position: [6]})
-    
+    _extraTime = VM.combiner(this, _extraTime, { position: [6] });
+
     this.constants = _extraTime.constants;
     this.sources = _extraTime.sources;
 
@@ -451,12 +437,12 @@ export class SaleDurationInTimestamp {
   public applyOwnership(ownerAddress: string): this {
     this.constants.push(ownerAddress, 0, ethers.constants.MaxUint256);
 
-    let src = arrayify(this.sources[0], {allowMissingPrefix: true});
+    let src = arrayify(this.sources[0], { allowMissingPrefix: true });
     src = src.slice(0, src.length - 2);
 
     let _top = src.slice(0, 6);
     _top = concat([
-      op(VM.Opcodes.CONSTANTS, this.constants.length - 3),
+      op(VM.Opcodes.CONSTANT, this.constants.length - 3),
       op(VM.Opcodes.SENDER),
       op(VM.Opcodes.EQUAL_TO),
       _top,
@@ -465,17 +451,17 @@ export class SaleDurationInTimestamp {
 
     let _bottom = src.slice(6);
     _bottom = concat([
-      op(VM.Opcodes.CONSTANTS, this.constants.length - 3),
+      op(VM.Opcodes.CONSTANT, this.constants.length - 3),
       op(VM.Opcodes.SENDER),
       op(VM.Opcodes.EQUAL_TO),
-      op(VM.Opcodes.CONSTANTS, this.constants.length - 2),
-      op(VM.Opcodes.CONSTANTS, this.constants.length - 1),
+      op(VM.Opcodes.CONSTANT, this.constants.length - 2),
+      op(VM.Opcodes.CONSTANT, this.constants.length - 1),
       op(VM.Opcodes.EAGER_IF),
       _bottom,
       op(VM.Opcodes.ANY, 2),
       op(VM.Opcodes.EVERY, 2),
     ]);
-    
+
     this.sources = [concat([_top, _bottom])];
 
     return this;
@@ -484,36 +470,39 @@ export class SaleDurationInTimestamp {
   /**
    * A method for the sale to be able to end once the sale hits minimumRaise i.e. the minimum amount
    * that needs to be raiseed so the raises status becomes "success" after raise ends.
-   * 
-   * @remark please note that this method should not be used with applyExtraTime as they are opossit 
-   * of eachother and also the order of using this method along with other methods of this class is 
+   *
+   * @remark please note that this method should not be used with applyExtraTime as they are opossit
+   * of eachother and also the order of using this method along with other methods of this class is
    * important
-   * 
+   *
    * @param minimumRaise - the minimumRaise parameter of the raise which is passed at the time of
    * sale's deployment as part of the SaleConfig
-   *  
+   *
    * @returns this
    */
-  public afterMinimumRaise (minimumRaise: number, erc20decimals: number = 18) : this {
+  public afterMinimumRaise(
+    minimumRaise: number,
+    erc20decimals: number = 18
+  ): this {
     const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
 
     let _minimumRaise: StateConfig = {
       constants: [MinimumRaise],
       sources: [
         concat([
-          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANT, 1),
           op(VM.Opcodes.STORAGE, SaleStorage.TotalReserveIn),
           op(VM.Opcodes.LESS_THAN),
           op(VM.Opcodes.ANY, 2),
-        ])
-      ]
+        ]),
+      ],
     };
-    _minimumRaise = VM.combiner(this, _minimumRaise, {position: [6]})
+    _minimumRaise = VM.combiner(this, _minimumRaise, { position: [6] });
 
     this.constants = _minimumRaise.constants;
     this.sources = _minimumRaise.sources;
 
-    return this
+    return this;
   }
 }
 
@@ -542,7 +531,6 @@ export class SaleDurationInTimestamp {
  * ```
  */
 export class SaleDurationInBlocks {
-
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -564,10 +552,10 @@ export class SaleDurationInBlocks {
     this.sources = [
       concat([
         op(VM.Opcodes.BLOCK_NUMBER),
-        op(VM.Opcodes.CONSTANTS, 0),
+        op(VM.Opcodes.CONSTANT, 0),
         op(VM.Opcodes.GREATER_THAN),
         op(VM.Opcodes.BLOCK_NUMBER),
-        op(VM.Opcodes.CONSTANTS, 1),
+        op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.LESS_THAN),
         op(VM.Opcodes.EVERY, 2),
       ]),
@@ -593,28 +581,30 @@ export class SaleDurationInBlocks {
     extraTimeAmount: number,
     erc20decimals: number = 18
   ): this {
-
-    const ExtraTimeAmount = parseUnits(extraTimeAmount.toString(), erc20decimals);
+    const ExtraTimeAmount = parseUnits(
+      extraTimeAmount.toString(),
+      erc20decimals
+    );
     const ExtraTime = extraTimeBlocks + this.endBlockNumber;
 
     let _extraTime: StateConfig = {
       constants: [ExtraTime, ExtraTimeAmount],
       sources: [
         concat([
-          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANT, 1),
           op(VM.Opcodes.STORAGE, SaleStorage.TotalReserveIn),
           op(VM.Opcodes.LESS_THAN),
           op(VM.Opcodes.ANY, 2),
           op(VM.Opcodes.BLOCK_NUMBER),
-          op(VM.Opcodes.CONSTANTS, 0),
+          op(VM.Opcodes.CONSTANT, 0),
           op(VM.Opcodes.LESS_THAN),
           op(VM.Opcodes.EVERY, 2),
-        ])
-      ]
+        ]),
+      ],
     };
 
-    _extraTime = VM.combiner(this, _extraTime, {position: [6]})
-    
+    _extraTime = VM.combiner(this, _extraTime, { position: [6] });
+
     this.constants = _extraTime.constants;
     this.sources = _extraTime.sources;
 
@@ -637,12 +627,12 @@ export class SaleDurationInBlocks {
   public applyOwnership(ownerAddress: string): this {
     this.constants.push(ownerAddress, 0, ethers.constants.MaxUint256);
 
-    let src = arrayify(this.sources[0], {allowMissingPrefix: true});
+    let src = arrayify(this.sources[0], { allowMissingPrefix: true });
     src = src.slice(0, src.length - 2);
 
     let _top = src.slice(0, 6);
     _top = concat([
-      op(VM.Opcodes.CONSTANTS, this.constants.length - 3),
+      op(VM.Opcodes.CONSTANT, this.constants.length - 3),
       op(VM.Opcodes.SENDER),
       op(VM.Opcodes.EQUAL_TO),
       _top,
@@ -651,17 +641,17 @@ export class SaleDurationInBlocks {
 
     let _bottom = src.slice(6);
     _bottom = concat([
-      op(VM.Opcodes.CONSTANTS, this.constants.length - 3),
+      op(VM.Opcodes.CONSTANT, this.constants.length - 3),
       op(VM.Opcodes.SENDER),
       op(VM.Opcodes.EQUAL_TO),
-      op(VM.Opcodes.CONSTANTS, this.constants.length - 2),
-      op(VM.Opcodes.CONSTANTS, this.constants.length - 1),
+      op(VM.Opcodes.CONSTANT, this.constants.length - 2),
+      op(VM.Opcodes.CONSTANT, this.constants.length - 1),
       op(VM.Opcodes.EAGER_IF),
       _bottom,
       op(VM.Opcodes.ANY, 2),
       op(VM.Opcodes.EVERY, 2),
     ]);
-    
+
     this.sources = [concat([_top, _bottom])];
 
     return this;
@@ -670,72 +660,69 @@ export class SaleDurationInBlocks {
   /**
    * A method for the sale to be able to end once the sale hits minimumRaise i.e. the minimum amount
    * that needs to be raiseed so the raises status becomes "success" after raise ends.
-   * 
-   * @remark please note that this method should not be used with applyExtraTime as they are opossit 
-   * of eachother and also the order of using this method along with other methods of this class is 
+   *
+   * @remark please note that this method should not be used with applyExtraTime as they are opossit
+   * of eachother and also the order of using this method along with other methods of this class is
    * important
-   * 
+   *
    * @param minimumRaise - the minimumRaise parameter of the raise which is passed at the time of
    * sale's deployment as part of the SaleConfig
-   *  
+   *
    * @returns this
    */
-  public afterMinimumRaise (minimumRaise: number, erc20decimals: number = 18) : this {
+  public afterMinimumRaise(
+    minimumRaise: number,
+    erc20decimals: number = 18
+  ): this {
     const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
 
     let _minimumRaise: StateConfig = {
       constants: [MinimumRaise],
       sources: [
         concat([
-          op(VM.Opcodes.CONSTANTS, 1),
+          op(VM.Opcodes.CONSTANT, 1),
           op(VM.Opcodes.STORAGE, SaleStorage.TotalReserveIn),
           op(VM.Opcodes.LESS_THAN),
           op(VM.Opcodes.ANY, 2),
-        ])
-      ]
+        ]),
+      ],
     };
-    _minimumRaise = VM.combiner(this, _minimumRaise, {position: [6]})
+    _minimumRaise = VM.combiner(this, _minimumRaise, { position: [6] });
 
     this.constants = _minimumRaise.constants;
     this.sources = _minimumRaise.sources;
 
-    return this
+    return this;
   }
-};
-
+}
 
 /**
  * @public
- * The fisrt piece of script in a sale's amount/price pair script which determines the amoount 
+ * The fisrt piece of script in a sale's amount/price pair script which determines the amoount
  * or cap that can be bought.
- * 
+ *
  */
 export class BuyCap {
-
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
 
   /**
    * Constructor for this class
-   * 
+   *
    * @param buyCapConfig - (optional) a custom StateConfig as the BuyCap (amount) script
-   * if not passed the current buy units (CONTEXT, 0) will be used as the amount in 
+   * if not passed the current buy units (CONTEXT, 0) will be used as the amount in
    * amount/price script pair for the sale.
    */
-  constructor (public readonly buyCapConfig?: StateConfig) {
-
+  constructor(public readonly buyCapConfig?: StateConfig) {
     if (buyCapConfig != undefined) {
       this.constants = buyCapConfig.constants;
       this.sources = buyCapConfig.sources;
-    }
-    else {
+    } else {
       this.constants = [];
       this.sources = [
-        concat([
-          op(VM.Opcodes.CONTEXT, SaleContext.CurrentBuyUnits)
-        ])
-      ]
+        concat([op(VM.Opcodes.CONTEXT, SaleContext.CurrentBuyUnits)]),
+      ];
     }
   }
 
@@ -765,10 +752,9 @@ export class BuyCap {
       tierActivation?: (number | string)[];
     }
   ): this {
-
     const MIN_CAP_SOURCES = (i: number) =>
       concat([
-        op(VM.Opcodes.CONSTANTS, i),
+        op(VM.Opcodes.CONSTANT, i),
         op(VM.Opcodes.CONTEXT, SaleContext.CurrentBuyUnits),
         op(VM.Opcodes.STORAGE, SaleStorage.TokenAddress),
         op(VM.Opcodes.SENDER),
@@ -789,74 +775,58 @@ export class BuyCap {
     if (mode == BuyCapMode.min && options?.minWalletCap) {
       let minCapConfig: StateConfig = {
         constants: [parseUnits(options.minWalletCap.toString()).sub(1)],
-        sources: [MIN_CAP_SOURCES(0)]
+        sources: [MIN_CAP_SOURCES(0)],
       };
 
       minCapConfig = VM.combiner(minCapConfig, this);
       minCapConfig.sources[0] = concat([
         minCapConfig.sources[0],
-        op(VM.Opcodes.MUL, 2)
+        op(VM.Opcodes.MUL, 2),
       ]);
 
       this.constants = minCapConfig.constants;
       this.sources = minCapConfig.sources;
-    } 
+    }
     if (mode == BuyCapMode.max && options?.maxWalletCap) {
       let maxCapConfig: StateConfig;
 
-      if (
-        options.tierMultiplier &&
-        options.tierAddress
-      ) {
+      if (options.tierMultiplier && options.tierAddress) {
         maxCapConfig = VM.toTierMultiplier(
           {
-            constants: [
-              parseUnits(options.maxWalletCap.toString())
-            ],
-            sources: [
-              concat([op(VM.Opcodes.CONSTANTS, 0)])
-            ]
+            constants: [parseUnits(options.maxWalletCap.toString())],
+            sources: [concat([op(VM.Opcodes.CONSTANT, 0)])],
           },
           options.tierAddress,
           options.tierMultiplier,
           { tierActivation: options.tierActivation }
         );
-        maxCapConfig = VM.combiner(
-          maxCapConfig,
-          {
-            constants: [1],
-            sources: [
-              concat([
-                op(VM.Opcodes.CONSTANTS, 0),
-                op(VM.Opcodes.ADD, 2),
-                MAX_CAP_SOURCES(),
-              ])
-            ]
-          }
-        );
+        maxCapConfig = VM.combiner(maxCapConfig, {
+          constants: [1],
+          sources: [
+            concat([
+              op(VM.Opcodes.CONSTANT, 0),
+              op(VM.Opcodes.ADD, 2),
+              MAX_CAP_SOURCES(),
+            ]),
+          ],
+        });
         maxCapConfig = VM.combiner(maxCapConfig, this);
         maxCapConfig.sources[0] = concat([
           maxCapConfig.sources[0],
-          op(VM.Opcodes.MUL, 2)
+          op(VM.Opcodes.MUL, 2),
         ]);
 
         this.constants = maxCapConfig.constants;
         this.sources = maxCapConfig.sources;
-      }
-      else {
+      } else {
         maxCapConfig = {
           constants: [parseUnits(options.maxWalletCap.toString()).add(1)],
-          sources: [
-            concat([
-              op(VM.Opcodes.CONSTANTS, 0),
-              MAX_CAP_SOURCES()
-            ])
-          ]
-        }
+          sources: [concat([op(VM.Opcodes.CONSTANT, 0), MAX_CAP_SOURCES()])],
+        };
         maxCapConfig = VM.combiner(maxCapConfig, this);
         maxCapConfig.sources[0] = concat([
           maxCapConfig.sources[0],
-          op(VM.Opcodes.MUL, 2)
+          op(VM.Opcodes.MUL, 2),
         ]);
 
         this.constants = maxCapConfig.constants;
@@ -870,13 +840,10 @@ export class BuyCap {
     ) {
       let bothCapConfig: StateConfig;
 
-      if (
-        options.tierMultiplier &&
-        options.tierAddress
-      ) {
+      if (options.tierMultiplier && options.tierAddress) {
         bothCapConfig = {
           constants: [parseUnits(options.maxWalletCap.toString())],
-          sources: [concat([op(VM.Opcodes.CONSTANTS, 0)])]
+          sources: [concat([op(VM.Opcodes.CONSTANT, 0)])],
         };
         bothCapConfig = VM.toTierMultiplier(
           bothCapConfig,
@@ -885,51 +852,47 @@ export class BuyCap {
           { tierActivation: options.tierActivation }
         );
 
-        bothCapConfig = VM.combiner(
-          bothCapConfig,
-          {
-            constants: [1, parseUnits(options.minWalletCap.toString()).sub(1)],
-            sources: [
-              concat([
-                op(VM.Opcodes.CONSTANTS, 0),
-                op(VM.Opcodes.ADD, 2),
-                MAX_CAP_SOURCES(),
-                MIN_CAP_SOURCES(1),
-                op(VM.Opcodes.EVERY, 2),
-              ])
-            ]
-          }
-        )
+        bothCapConfig = VM.combiner(bothCapConfig, {
+          constants: [1, parseUnits(options.minWalletCap.toString()).sub(1)],
+          sources: [
+            concat([
+              op(VM.Opcodes.CONSTANT, 0),
+              op(VM.Opcodes.ADD, 2),
+              MAX_CAP_SOURCES(),
+              MIN_CAP_SOURCES(1),
+              op(VM.Opcodes.EVERY, 2),
+            ]),
+          ],
+        });
 
         bothCapConfig = VM.combiner(bothCapConfig, this);
 
         bothCapConfig.sources[0] = concat([
           bothCapConfig.sources[0],
-          op(VM.Opcodes.MUL, 2)
+          op(VM.Opcodes.MUL, 2),
         ]);
 
         this.constants = bothCapConfig.constants;
         this.sources = bothCapConfig.sources;
-      } 
-      else {
+      } else {
         bothCapConfig = {
           constants: [
             parseUnits(options.maxWalletCap.toString()).add(1),
-            parseUnits(options.minWalletCap.toString()).sub(1)
+            parseUnits(options.minWalletCap.toString()).sub(1),
           ],
           sources: [
-            op(VM.Opcodes.CONSTANTS, 0),
+            op(VM.Opcodes.CONSTANT, 0),
             MAX_CAP_SOURCES(),
             MIN_CAP_SOURCES(1),
             op(VM.Opcodes.EVERY, 2),
-          ]
+          ],
         };
         bothCapConfig = VM.combiner(bothCapConfig, this);
 
         bothCapConfig.sources[0] = concat([
           bothCapConfig.sources[0],
-          op(VM.Opcodes.MUL, 2)
-        ])
+          op(VM.Opcodes.MUL, 2),
+        ]);
 
         this.constants = bothCapConfig.constants;
         this.sources = bothCapConfig.sources;
@@ -943,7 +906,7 @@ export class BuyCap {
 /**
  * @public
  * Builds a sale compatible StateConfig out of 2 individual StateConfigs (canLive and calculateBuy)
- * 
+ *
  * @example
  * ```typescript
  * //For generating a sale compatible StateConfig for the sale pass in 2 individual scripts
@@ -952,25 +915,29 @@ export class BuyCap {
  * ```
  */
 export class SaleScriptFrom {
-
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
 
   /**
    * Constructor of this class
-   * 
+   *
    * @param canLiveScript - canLive StateConfig
    * @param buyCapScript - the StateConfig for buy amount (mxUnits)
    * @param calculateBuyScript - the StateConfig for price
    */
-  constructor (
-    public readonly canLiveScript: SaleDurationInTimestamp | SaleDurationInBlocks | StateConfig,
+  constructor(
+    public readonly canLiveScript:
+      | SaleDurationInTimestamp
+      | SaleDurationInBlocks
+      | StateConfig,
     public readonly buyCapScript: BuyCap | StateConfig,
     public readonly calculateBuyScript: PriceCurve | StateConfig
   ) {
-    let _saleConfig = VM.pair(buyCapScript, calculateBuyScript)
-    _saleConfig = VM.combiner(canLiveScript, _saleConfig, {numberOfSources: 0});
+    let _saleConfig = VM.pair(buyCapScript, calculateBuyScript);
+    _saleConfig = VM.combiner(canLiveScript, _saleConfig, {
+      numberOfSources: 0,
+    });
 
     this.constants = _saleConfig.constants;
     this.sources = _saleConfig.sources;

@@ -52,19 +52,19 @@ export enum AllStandardOps {
   /**
    * Opcode for `IERC20` `balanceOf`.
    */
-  ERC20_BALANCE_OF,
+  IERC20_BALANCE_OF,
   /**
    * Opcode for `IERC20` `totalSupply`.
    */
-  ERC20_TOTAL_SUPPLY,
+  IERC20_TOTAL_SUPPLY,
   /**
    * Opcode for `IERC20` use an Snapshot `balanceOfAt`.
    */
-  ERC20_SNAPSHOT_BALANCE_OF_AT,
+  IERC20_SNAPSHOT_BALANCE_OF_AT,
   /**
    * Opcode for `IERC20` use an Snapshot `totalSupplyAt`.
    */
-  ERC20_SNAPSHOT_TOTAL_SUPPLY_AT,
+  IERC20_SNAPSHOT_TOTAL_SUPPLY_AT,
   /**
    * Opcode for `IERC721` `balanceOf`.
    */
