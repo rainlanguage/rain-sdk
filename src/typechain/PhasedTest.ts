@@ -19,32 +19,28 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface PhasedTestInterface extends utils.Interface {
   functions: {
-    "blockNumberForPhase(uint32[8],uint256)": FunctionFragment;
     "condition()": FunctionFragment;
     "currentPhase()": FunctionFragment;
-    "phaseAtBlockNumber(uint32[8],uint256)": FunctionFragment;
-    "phaseBlocks(uint256)": FunctionFragment;
+    "phaseAtTime(uint32[8],uint256)": FunctionFragment;
+    "phaseTimes(uint256)": FunctionFragment;
     "runsOnlyAtLeastPhase(uint256)": FunctionFragment;
     "runsOnlyPhase(uint256)": FunctionFragment;
     "testScheduleNextPhase(uint256)": FunctionFragment;
+    "timeForPhase(uint32[8],uint256)": FunctionFragment;
     "toggleCondition()": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "blockNumberForPhase",
-    values: [BigNumberish[], BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "condition", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "currentPhase",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "phaseAtBlockNumber",
+    functionFragment: "phaseAtTime",
     values: [BigNumberish[], BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "phaseBlocks",
+    functionFragment: "phaseTimes",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -58,29 +54,26 @@ export interface PhasedTestInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "testScheduleNextPhase",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "timeForPhase",
+    values: [BigNumberish[], BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "toggleCondition",
     values?: undefined
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "blockNumberForPhase",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "condition", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "currentPhase",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "phaseAtBlockNumber",
+    functionFragment: "phaseAtTime",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "phaseBlocks",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "phaseTimes", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "runsOnlyAtLeastPhase",
     data: BytesLike
@@ -91,6 +84,10 @@ export interface PhasedTestInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "testScheduleNextPhase",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "timeForPhase",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -107,7 +104,7 @@ export interface PhasedTestInterface extends utils.Interface {
 
 export type PhaseScheduledEvent = TypedEvent<
   [string, BigNumber, BigNumber],
-  { sender: string; newPhase: BigNumber; scheduledBlock: BigNumber }
+  { sender: string; newPhase: BigNumber; scheduledTime: BigNumber }
 >;
 
 export type PhaseScheduledEventFilter = TypedEventFilter<PhaseScheduledEvent>;
@@ -139,23 +136,19 @@ export interface PhasedTest extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     condition(overrides?: CallOverrides): Promise<[boolean]>;
 
-    currentPhase(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    currentPhase(
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { phase_: BigNumber }>;
 
-    phaseBlocks(
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { phase_: BigNumber }>;
+
+    phaseTimes(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[number]>;
@@ -171,32 +164,32 @@ export interface PhasedTest extends BaseContract {
     ): Promise<[boolean]>;
 
     testScheduleNextPhase(
-      phaseBlock_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { timestamp_: BigNumber }>;
 
     toggleCondition(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
-  blockNumberForPhase(
-    phaseBlocks_: BigNumberish[],
-    phase_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   condition(overrides?: CallOverrides): Promise<boolean>;
 
   currentPhase(overrides?: CallOverrides): Promise<BigNumber>;
 
-  phaseAtBlockNumber(
-    phaseBlocks_: BigNumberish[],
-    blockNumber_: BigNumberish,
+  phaseAtTime(
+    phaseTimes_: BigNumberish[],
+    timestamp_: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  phaseBlocks(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
+  phaseTimes(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
 
   runsOnlyAtLeastPhase(
     phase_: BigNumberish,
@@ -209,32 +202,32 @@ export interface PhasedTest extends BaseContract {
   ): Promise<boolean>;
 
   testScheduleNextPhase(
-    phaseBlock_: BigNumberish,
+    timestamp_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  timeForPhase(
+    phaseTimes_: BigNumberish[],
+    phase_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   toggleCondition(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     condition(overrides?: CallOverrides): Promise<boolean>;
 
     currentPhase(overrides?: CallOverrides): Promise<BigNumber>;
 
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    phaseBlocks(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
+    phaseTimes(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
 
     runsOnlyAtLeastPhase(
       phase_: BigNumberish,
@@ -247,9 +240,15 @@ export interface PhasedTest extends BaseContract {
     ): Promise<boolean>;
 
     testScheduleNextPhase(
-      phaseBlock_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     toggleCondition(overrides?: CallOverrides): Promise<void>;
   };
@@ -258,33 +257,27 @@ export interface PhasedTest extends BaseContract {
     "PhaseScheduled(address,uint256,uint256)"(
       sender?: null,
       newPhase?: null,
-      scheduledBlock?: null
+      scheduledTime?: null
     ): PhaseScheduledEventFilter;
     PhaseScheduled(
       sender?: null,
       newPhase?: null,
-      scheduledBlock?: null
+      scheduledTime?: null
     ): PhaseScheduledEventFilter;
   };
 
   estimateGas: {
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     condition(overrides?: CallOverrides): Promise<BigNumber>;
 
     currentPhase(overrides?: CallOverrides): Promise<BigNumber>;
 
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    phaseBlocks(
+    phaseTimes(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -300,8 +293,14 @@ export interface PhasedTest extends BaseContract {
     ): Promise<BigNumber>;
 
     testScheduleNextPhase(
-      phaseBlock_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     toggleCondition(
@@ -310,23 +309,17 @@ export interface PhasedTest extends BaseContract {
   };
 
   populateTransaction: {
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     condition(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     currentPhase(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    phaseBlocks(
+    phaseTimes(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -342,8 +335,14 @@ export interface PhasedTest extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     testScheduleNextPhase(
-      phaseBlock_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     toggleCondition(

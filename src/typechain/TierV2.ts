@@ -7,25 +7,21 @@ import {
   BigNumberish,
   BytesLike,
   CallOverrides,
-  ContractTransaction,
-  Overrides,
   PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
-import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
+import { FunctionFragment, Result } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export interface VerifyTierInterface extends utils.Interface {
+export interface TierV2Interface extends utils.Interface {
   functions: {
-    "initialize(address)": FunctionFragment;
     "report(address,uint256[])": FunctionFragment;
     "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "initialize", values: [string]): string;
   encodeFunctionData(
     functionFragment: "report",
     values: [string, BigNumberish[]]
@@ -39,7 +35,6 @@ export interface VerifyTierInterface extends utils.Interface {
     values: [BytesLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "reportTimeForTier",
@@ -50,32 +45,15 @@ export interface VerifyTierInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {
-    "Initialize(address,address)": EventFragment;
-    "Initialized(uint8)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  events: {};
 }
 
-export type InitializeEvent = TypedEvent<
-  [string, string],
-  { sender: string; verify: string }
->;
-
-export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
-
-export type InitializedEvent = TypedEvent<[number], { version: number }>;
-
-export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export interface VerifyTier extends BaseContract {
+export interface TierV2 extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: VerifyTierInterface;
+  interface: TierV2Interface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -97,23 +75,18 @@ export interface VerifyTier extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    initialize(
-      verify_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     report(
-      account_: string,
-      arg1: BigNumberish[],
+      account: string,
+      context: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { report: BigNumber }>;
 
     reportTimeForTier(
-      account_: string,
-      arg1: BigNumberish,
-      arg2: BigNumberish[],
+      account: string,
+      tier: BigNumberish,
+      context: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { time: BigNumber }>;
 
     supportsInterface(
       interfaceId_: BytesLike,
@@ -121,21 +94,16 @@ export interface VerifyTier extends BaseContract {
     ): Promise<[boolean]>;
   };
 
-  initialize(
-    verify_: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   report(
-    account_: string,
-    arg1: BigNumberish[],
+    account: string,
+    context: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   reportTimeForTier(
-    account_: string,
-    arg1: BigNumberish,
-    arg2: BigNumberish[],
+    account: string,
+    tier: BigNumberish,
+    context: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -145,18 +113,16 @@ export interface VerifyTier extends BaseContract {
   ): Promise<boolean>;
 
   callStatic: {
-    initialize(verify_: string, overrides?: CallOverrides): Promise<void>;
-
     report(
-      account_: string,
-      arg1: BigNumberish[],
+      account: string,
+      context: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     reportTimeForTier(
-      account_: string,
-      arg1: BigNumberish,
-      arg2: BigNumberish[],
+      account: string,
+      tier: BigNumberish,
+      context: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -166,33 +132,19 @@ export interface VerifyTier extends BaseContract {
     ): Promise<boolean>;
   };
 
-  filters: {
-    "Initialize(address,address)"(
-      sender?: null,
-      verify?: null
-    ): InitializeEventFilter;
-    Initialize(sender?: null, verify?: null): InitializeEventFilter;
-
-    "Initialized(uint8)"(version?: null): InitializedEventFilter;
-    Initialized(version?: null): InitializedEventFilter;
-  };
+  filters: {};
 
   estimateGas: {
-    initialize(
-      verify_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     report(
-      account_: string,
-      arg1: BigNumberish[],
+      account: string,
+      context: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     reportTimeForTier(
-      account_: string,
-      arg1: BigNumberish,
-      arg2: BigNumberish[],
+      account: string,
+      tier: BigNumberish,
+      context: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -203,21 +155,16 @@ export interface VerifyTier extends BaseContract {
   };
 
   populateTransaction: {
-    initialize(
-      verify_: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     report(
-      account_: string,
-      arg1: BigNumberish[],
+      account: string,
+      context: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     reportTimeForTier(
-      account_: string,
-      arg1: BigNumberish,
-      arg2: BigNumberish[],
+      account: string,
+      tier: BigNumberish,
+      context: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

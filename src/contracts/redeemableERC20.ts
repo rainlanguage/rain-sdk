@@ -65,7 +65,6 @@ export class RedeemableERC20 extends FactoryContract {
     this.allowance = _redeemable.allowance;
     this.approve = _redeemable.approve;
     this.balanceOf = _redeemable.balanceOf;
-    this.blockNumberForPhase = _redeemable.blockNumberForPhase;
     this.burn = _redeemable.burn;
     this.burnFrom = _redeemable.burnFrom;
     this.currentPhase = _redeemable.currentPhase;
@@ -80,11 +79,12 @@ export class RedeemableERC20 extends FactoryContract {
     this.name = _redeemable.name;
     this.minimumTier = _redeemable.minimumTier;
     this.newTreasuryAsset = _redeemable.newTreasuryAsset;
-    this.phaseAtBlockNumber = _redeemable.phaseAtBlockNumber;
-    this.phaseBlocks = _redeemable.phaseBlocks;
+    this.phaseAtTime = _redeemable.phaseAtTime;
+    this.phaseTimes = _redeemable.phaseTimes;
     this.redeem = _redeemable.redeem;
     this.symbol = _redeemable.symbol;
     this.tier = _redeemable.tier;
+    this.timeForPhase = _redeemable.timeForPhase;
     this.totalSupply = _redeemable.totalSupply;
     this.transfer = _redeemable.transfer;
     this.transferFrom = _redeemable.transferFrom;
@@ -174,22 +174,6 @@ export class RedeemableERC20 extends FactoryContract {
    */
   public readonly balanceOf: (
     account: string,
-    overrides?: ReadTxOverrides
-  ) => Promise<BigNumber>;
-
-  /**
-   * Pure function to reduce an array of phase blocks and phase to a specific block number.
-   * `Phase.ZERO` will always return block `0`.
-   * Every other phase will map to a block number in `phaseBlocks`.
-   *
-   * @param phaseBlocks - Fixed array of phase blocks to compare against.
-   * @param phase - Determine the relevant block number for this phase.
-   * @param overrides - @see ReadTxOverrides
-   * @returns The block number for the phase according to `phaseBlocks_`.
-   */
-  public readonly blockNumberForPhase: (
-    phaseBlocks: BigNumberish[],
-    phase: BigNumberish,
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
@@ -390,35 +374,30 @@ export class RedeemableERC20 extends FactoryContract {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Pure function to reduce an array of phase blocks and block number to a specific `Phase`.
-   *
-   * The phase will be the highest attained even if several phases have the same block number.
-   *
-   * If every phase block is after the block number then `0` is returned.
-   *
-   * If every phase block is before the block number then `MAX_PHASE` is returned.
-   *
-   * @param phaseBlocks - Fixed array of phase blocks to compare against.
-   * @param blockNumber - Determine the relevant phase relative to this block number.
-   * @param overrides - @see ReadTxOverrides
-   * @returns the phase relative to the block number and phase blocks list.
+   * Pure function to reduce an array of phase times and block timestamp to
+   * a specific `Phase`.
+   * The phase will be the highest attained even if several phases have the
+   * same timestamp.
+   * If every phase block is after the timestamp then `0` is returned.
+   * If every phase block is before the timestamp then `MAX_PHASE` is
+   * returned.
+   * @param phaseTimes_ - Fixed array of phase times to compare against.
+   * @param timestamp_ - Determine the relevant phase relative to this time.
+   * @return phase_ The "current" phase relative to the timestamp and phase
+   * times list.
    */
-  public readonly phaseAtBlockNumber: (
-    phaseBlocks: BigNumberish[],
-    blockNumber: BigNumberish,
+  public readonly phaseAtTime: (
+    phaseTimes_: BigNumberish[],
+    timestamp_: BigNumberish,
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
   /**
-   * Get a phaseBlock
-   *
-   * @param index - The index to get the phaseBlock. There are 8 phases. The index
-   * should be between 0 and 7.
-   * @param overrides - @see ReadTxOverrides
-   * @returns the phase block
+   * 8 phases each as 32 bits to fit a single 32 byte word.
+   * @param arg0 -  The index
    */
-  public readonly phaseBlocks: (
-    index: BigNumberish,
+  public readonly phaseTimes: (
+    arg0: BigNumberish,
     overrides?: ReadTxOverrides
   ) => Promise<number>;
 
@@ -468,6 +447,23 @@ export class RedeemableERC20 extends FactoryContract {
    * @returns The tier contract address
    */
   public readonly tier: (overrides?: ReadTxOverrides) => Promise<string>;
+
+  /**
+   * Pure function to reduce an array of phase times and phase to a
+   * specific timestamp.
+   * `Phase.ZERO` will always return block `0`.
+   * Every other phase will map to a time in `phaseTimes_`.
+   * 
+   * @param phaseTimes_ - Fixed array of phase blocks to compare against.
+   * @param phase_  - Determine the relevant block number for this phase.
+   * @return timestamp_ The timestamp for the phase according to
+   * `phaseTimes_`.
+   */
+  public readonly timeForPhase: (
+    phaseTimes_: BigNumberish[],
+    phase_: BigNumberish,
+    overrides?: ReadTxOverrides
+  ) => Promise<BigNumber>;
 
   /**
    * Returns the amount of tokens in existence.

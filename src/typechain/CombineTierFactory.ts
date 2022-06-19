@@ -27,10 +27,20 @@ export type StateConfigStructOutput = [string[], BigNumber[]] & {
   constants: BigNumber[];
 };
 
+export type CombineTierConfigStruct = {
+  combinedTiersLength: BigNumberish;
+  sourceConfig: StateConfigStruct;
+};
+
+export type CombineTierConfigStructOutput = [
+  BigNumber,
+  StateConfigStructOutput
+] & { combinedTiersLength: BigNumber; sourceConfig: StateConfigStructOutput };
+
 export interface CombineTierFactoryInterface extends utils.Interface {
   functions: {
     "createChild(bytes)": FunctionFragment;
-    "createChildTyped((bytes[],uint256[]))": FunctionFragment;
+    "createChildTyped((uint256,(bytes[],uint256[])))": FunctionFragment;
     "implementation()": FunctionFragment;
     "isChild(address)": FunctionFragment;
   };
@@ -41,7 +51,7 @@ export interface CombineTierFactoryInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createChildTyped",
-    values: [StateConfigStruct]
+    values: [CombineTierConfigStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "implementation",
@@ -119,7 +129,7 @@ export interface CombineTierFactory extends BaseContract {
     ): Promise<ContractTransaction>;
 
     createChildTyped(
-      stateConfig_: StateConfigStruct,
+      config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -134,7 +144,7 @@ export interface CombineTierFactory extends BaseContract {
   ): Promise<ContractTransaction>;
 
   createChildTyped(
-    stateConfig_: StateConfigStruct,
+    config_: CombineTierConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -146,7 +156,7 @@ export interface CombineTierFactory extends BaseContract {
     createChild(data_: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     createChildTyped(
-      stateConfig_: StateConfigStruct,
+      config_: CombineTierConfigStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -179,7 +189,7 @@ export interface CombineTierFactory extends BaseContract {
     ): Promise<BigNumber>;
 
     createChildTyped(
-      stateConfig_: StateConfigStruct,
+      config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -195,7 +205,7 @@ export interface CombineTierFactory extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     createChildTyped(
-      stateConfig_: StateConfigStruct,
+      config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

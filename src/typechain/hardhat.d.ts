@@ -13,34 +13,6 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
-      name: "SSTORE2",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.SSTORE2__factory>;
-    getContractFactory(
-      name: "Bytecode",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Bytecode__factory>;
-    getContractFactory(
-      name: "Factory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Factory__factory>;
-    getContractFactory(
-      name: "IFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IFactory__factory>;
-    getContractFactory(
-      name: "ITier",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ITier__factory>;
-    getContractFactory(
-      name: "OwnableUpgradeable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OwnableUpgradeable__factory>;
-    getContractFactory(
-      name: "IERC2981Upgradeable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC2981Upgradeable__factory>;
-    getContractFactory(
       name: "Initializable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Initializable__factory>;
@@ -61,33 +33,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20Upgradeable__factory>;
     getContractFactory(
-      name: "ERC721Upgradeable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC721Upgradeable__factory>;
-    getContractFactory(
-      name: "IERC721MetadataUpgradeable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC721MetadataUpgradeable__factory>;
-    getContractFactory(
-      name: "IERC721ReceiverUpgradeable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC721ReceiverUpgradeable__factory>;
-    getContractFactory(
-      name: "IERC721Upgradeable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC721Upgradeable__factory>;
-    getContractFactory(
       name: "ContextUpgradeable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ContextUpgradeable__factory>;
-    getContractFactory(
-      name: "ERC165Upgradeable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC165Upgradeable__factory>;
-    getContractFactory(
-      name: "IERC165Upgradeable",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IERC165Upgradeable__factory>;
     getContractFactory(
       name: "AccessControl",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -128,6 +76,10 @@ declare module "hardhat/types/runtime" {
       name: "ERC20Burnable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20Burnable__factory>;
+    getContractFactory(
+      name: "ERC20Snapshot",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Snapshot__factory>;
     getContractFactory(
       name: "IERC20Metadata",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -185,6 +137,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20Redeem__factory>;
     getContractFactory(
+      name: "IERC4626",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC4626__factory>;
+    getContractFactory(
       name: "RedeemableERC20ClaimEscrow",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RedeemableERC20ClaimEscrow__factory>;
@@ -213,14 +169,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Phased__factory>;
     getContractFactory(
-      name: "GatedNFT",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GatedNFT__factory>;
-    getContractFactory(
-      name: "GatedNFTFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GatedNFTFactory__factory>;
-    getContractFactory(
       name: "RedeemableERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RedeemableERC20__factory>;
@@ -241,6 +189,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SaleFactory__factory>;
     getContractFactory(
+      name: "SSTORE2",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SSTORE2__factory>;
+    getContractFactory(
+      name: "Bytecode",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Bytecode__factory>;
+    getContractFactory(
       name: "Stake",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Stake__factory>;
@@ -256,6 +212,10 @@ declare module "hardhat/types/runtime" {
       name: "ERC20PulleeTest",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20PulleeTest__factory>;
+    getContractFactory(
+      name: "FixedPointMathTest",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.FixedPointMathTest__factory>;
     getContractFactory(
       name: "FnPtrsTest",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -273,13 +233,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.PhasedTest__factory>;
     getContractFactory(
+      name: "ReadWriteTier",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ReadWriteTier__factory>;
+    getContractFactory(
       name: "RedeemableERC20Reentrant",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RedeemableERC20Reentrant__factory>;
-    getContractFactory(
-      name: "ReserveNFT",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ReserveNFT__factory>;
     getContractFactory(
       name: "ReserveToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -292,6 +252,10 @@ declare module "hardhat/types/runtime" {
       name: "ReserveTokenERC1155",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ReserveTokenERC1155__factory>;
+    getContractFactory(
+      name: "ReserveTokenERC20Snapshot",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ReserveTokenERC20Snapshot__factory>;
     getContractFactory(
       name: "ReserveTokenERC721",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -329,9 +293,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TierReportTest__factory>;
     getContractFactory(
-      name: "ValueTierTest",
+      name: "TierV2Test",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ValueTierTest__factory>;
+    ): Promise<Contracts.TierV2Test__factory>;
     getContractFactory(
       name: "CombineTier",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -341,45 +305,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CombineTierFactory__factory>;
     getContractFactory(
-      name: "ERC20BalanceTier",
+      name: "ITierV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC20BalanceTier__factory>;
+    ): Promise<Contracts.ITierV2__factory>;
     getContractFactory(
-      name: "ERC20BalanceTierFactory",
+      name: "TierV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC20BalanceTierFactory__factory>;
-    getContractFactory(
-      name: "ERC20TransferTier",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC20TransferTier__factory>;
-    getContractFactory(
-      name: "ERC20TransferTierFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC20TransferTierFactory__factory>;
-    getContractFactory(
-      name: "ERC721BalanceTier",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC721BalanceTier__factory>;
-    getContractFactory(
-      name: "ERC721BalanceTierFactory",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ERC721BalanceTierFactory__factory>;
-    getContractFactory(
-      name: "ITier",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ITier__factory>;
-    getContractFactory(
-      name: "ReadOnlyTier",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ReadOnlyTier__factory>;
-    getContractFactory(
-      name: "ReadWriteTier",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ReadWriteTier__factory>;
-    getContractFactory(
-      name: "ValueTier",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ValueTier__factory>;
+    ): Promise<Contracts.TierV2__factory>;
     getContractFactory(
       name: "VerifyTier",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -414,41 +346,6 @@ declare module "hardhat/types/runtime" {
     ): Promise<Contracts.VMStateBuilder__factory>;
 
     getContractAt(
-      name: "SSTORE2",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.SSTORE2>;
-    getContractAt(
-      name: "Bytecode",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Bytecode>;
-    getContractAt(
-      name: "Factory",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Factory>;
-    getContractAt(
-      name: "IFactory",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IFactory>;
-    getContractAt(
-      name: "ITier",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ITier>;
-    getContractAt(
-      name: "OwnableUpgradeable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.OwnableUpgradeable>;
-    getContractAt(
-      name: "IERC2981Upgradeable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC2981Upgradeable>;
-    getContractAt(
       name: "Initializable",
       address: string,
       signer?: ethers.Signer
@@ -474,40 +371,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20Upgradeable>;
     getContractAt(
-      name: "ERC721Upgradeable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ERC721Upgradeable>;
-    getContractAt(
-      name: "IERC721MetadataUpgradeable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC721MetadataUpgradeable>;
-    getContractAt(
-      name: "IERC721ReceiverUpgradeable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC721ReceiverUpgradeable>;
-    getContractAt(
-      name: "IERC721Upgradeable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC721Upgradeable>;
-    getContractAt(
       name: "ContextUpgradeable",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ContextUpgradeable>;
-    getContractAt(
-      name: "ERC165Upgradeable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ERC165Upgradeable>;
-    getContractAt(
-      name: "IERC165Upgradeable",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IERC165Upgradeable>;
     getContractAt(
       name: "AccessControl",
       address: string,
@@ -558,6 +425,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20Burnable>;
+    getContractAt(
+      name: "ERC20Snapshot",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Snapshot>;
     getContractAt(
       name: "IERC20Metadata",
       address: string,
@@ -629,6 +501,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20Redeem>;
     getContractAt(
+      name: "IERC4626",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC4626>;
+    getContractAt(
       name: "RedeemableERC20ClaimEscrow",
       address: string,
       signer?: ethers.Signer
@@ -664,16 +541,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Phased>;
     getContractAt(
-      name: "GatedNFT",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GatedNFT>;
-    getContractAt(
-      name: "GatedNFTFactory",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.GatedNFTFactory>;
-    getContractAt(
       name: "RedeemableERC20",
       address: string,
       signer?: ethers.Signer
@@ -699,6 +566,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.SaleFactory>;
     getContractAt(
+      name: "SSTORE2",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SSTORE2>;
+    getContractAt(
+      name: "Bytecode",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Bytecode>;
+    getContractAt(
       name: "Stake",
       address: string,
       signer?: ethers.Signer
@@ -718,6 +595,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20PulleeTest>;
+    getContractAt(
+      name: "FixedPointMathTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.FixedPointMathTest>;
     getContractAt(
       name: "FnPtrsTest",
       address: string,
@@ -739,15 +621,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.PhasedTest>;
     getContractAt(
+      name: "ReadWriteTier",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReadWriteTier>;
+    getContractAt(
       name: "RedeemableERC20Reentrant",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.RedeemableERC20Reentrant>;
-    getContractAt(
-      name: "ReserveNFT",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ReserveNFT>;
     getContractAt(
       name: "ReserveToken",
       address: string,
@@ -763,6 +645,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ReserveTokenERC1155>;
+    getContractAt(
+      name: "ReserveTokenERC20Snapshot",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveTokenERC20Snapshot>;
     getContractAt(
       name: "ReserveTokenERC721",
       address: string,
@@ -809,10 +696,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.TierReportTest>;
     getContractAt(
-      name: "ValueTierTest",
+      name: "TierV2Test",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.ValueTierTest>;
+    ): Promise<Contracts.TierV2Test>;
     getContractAt(
       name: "CombineTier",
       address: string,
@@ -824,55 +711,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.CombineTierFactory>;
     getContractAt(
-      name: "ERC20BalanceTier",
+      name: "ITierV2",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.ERC20BalanceTier>;
+    ): Promise<Contracts.ITierV2>;
     getContractAt(
-      name: "ERC20BalanceTierFactory",
+      name: "TierV2",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.ERC20BalanceTierFactory>;
-    getContractAt(
-      name: "ERC20TransferTier",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ERC20TransferTier>;
-    getContractAt(
-      name: "ERC20TransferTierFactory",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ERC20TransferTierFactory>;
-    getContractAt(
-      name: "ERC721BalanceTier",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ERC721BalanceTier>;
-    getContractAt(
-      name: "ERC721BalanceTierFactory",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ERC721BalanceTierFactory>;
-    getContractAt(
-      name: "ITier",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ITier>;
-    getContractAt(
-      name: "ReadOnlyTier",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ReadOnlyTier>;
-    getContractAt(
-      name: "ReadWriteTier",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ReadWriteTier>;
-    getContractAt(
-      name: "ValueTier",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ValueTier>;
+    ): Promise<Contracts.TierV2>;
     getContractAt(
       name: "VerifyTier",
       address: string,

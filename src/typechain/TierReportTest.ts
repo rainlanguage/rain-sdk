@@ -17,20 +17,20 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface TierReportTestInterface extends utils.Interface {
   functions: {
-    "tierAtBlockFromReport(uint256,uint256)": FunctionFragment;
-    "tierBlock(uint256,uint256)": FunctionFragment;
+    "reportTimeForTier(uint256,uint256)": FunctionFragment;
+    "tierAtTimeFromReport(uint256,uint256)": FunctionFragment;
     "truncateTiersAbove(uint256,uint256)": FunctionFragment;
-    "updateBlockAtTier(uint256,uint256,uint256)": FunctionFragment;
-    "updateBlocksForTierRange(uint256,uint256,uint256,uint256)": FunctionFragment;
-    "updateReportWithTierAtBlock(uint256,uint256,uint256,uint256)": FunctionFragment;
+    "updateReportWithTierAtTime(uint256,uint256,uint256,uint256)": FunctionFragment;
+    "updateTimeAtTier(uint256,uint256,uint256)": FunctionFragment;
+    "updateTimesForTierRange(uint256,uint256,uint256,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "tierAtBlockFromReport",
+    functionFragment: "reportTimeForTier",
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "tierBlock",
+    functionFragment: "tierAtTimeFromReport",
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
@@ -38,37 +38,40 @@ export interface TierReportTestInterface extends utils.Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateBlockAtTier",
-    values: [BigNumberish, BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateBlocksForTierRange",
+    functionFragment: "updateReportWithTierAtTime",
     values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateReportWithTierAtBlock",
+    functionFragment: "updateTimeAtTier",
+    values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateTimesForTierRange",
     values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "tierAtBlockFromReport",
+    functionFragment: "reportTimeForTier",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "tierBlock", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tierAtTimeFromReport",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "truncateTiersAbove",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateBlockAtTier",
+    functionFragment: "updateReportWithTierAtTime",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateBlocksForTierRange",
+    functionFragment: "updateTimeAtTier",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateReportWithTierAtBlock",
+    functionFragment: "updateTimesForTierRange",
     data: BytesLike
   ): Result;
 
@@ -102,15 +105,15 @@ export interface TierReportTest extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    tierAtBlockFromReport(
+    reportTimeForTier(
       report_: BigNumberish,
-      blockNumber_: BigNumberish,
+      tier_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    tierBlock(
+    tierAtTimeFromReport(
       report_: BigNumberish,
-      tier_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -120,39 +123,39 @@ export interface TierReportTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    updateBlockAtTier(
+    updateReportWithTierAtTime(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    updateTimeAtTier(
       report_: BigNumberish,
       tier_: BigNumberish,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    updateBlocksForTierRange(
+    updateTimesForTierRange(
       report_: BigNumberish,
       startTier_: BigNumberish,
       endTier_: BigNumberish,
-      blockNumber_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    updateReportWithTierAtBlock(
-      report_: BigNumberish,
-      startTier_: BigNumberish,
-      endTier_: BigNumberish,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
   };
 
-  tierAtBlockFromReport(
+  reportTimeForTier(
     report_: BigNumberish,
-    blockNumber_: BigNumberish,
+    tier_: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  tierBlock(
+  tierAtTimeFromReport(
     report_: BigNumberish,
-    tier_: BigNumberish,
+    timestamp_: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -162,39 +165,39 @@ export interface TierReportTest extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  updateBlockAtTier(
+  updateReportWithTierAtTime(
+    report_: BigNumberish,
+    startTier_: BigNumberish,
+    endTier_: BigNumberish,
+    timestamp_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  updateTimeAtTier(
     report_: BigNumberish,
     tier_: BigNumberish,
-    blockNumber_: BigNumberish,
+    timestamp_: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  updateBlocksForTierRange(
+  updateTimesForTierRange(
     report_: BigNumberish,
     startTier_: BigNumberish,
     endTier_: BigNumberish,
-    blockNumber_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  updateReportWithTierAtBlock(
-    report_: BigNumberish,
-    startTier_: BigNumberish,
-    endTier_: BigNumberish,
-    blockNumber_: BigNumberish,
+    timestamp_: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   callStatic: {
-    tierAtBlockFromReport(
+    reportTimeForTier(
       report_: BigNumberish,
-      blockNumber_: BigNumberish,
+      tier_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    tierBlock(
+    tierAtTimeFromReport(
       report_: BigNumberish,
-      tier_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -204,26 +207,26 @@ export interface TierReportTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    updateBlockAtTier(
+    updateReportWithTierAtTime(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    updateTimeAtTier(
       report_: BigNumberish,
       tier_: BigNumberish,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    updateBlocksForTierRange(
+    updateTimesForTierRange(
       report_: BigNumberish,
       startTier_: BigNumberish,
       endTier_: BigNumberish,
-      blockNumber_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    updateReportWithTierAtBlock(
-      report_: BigNumberish,
-      startTier_: BigNumberish,
-      endTier_: BigNumberish,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -231,15 +234,15 @@ export interface TierReportTest extends BaseContract {
   filters: {};
 
   estimateGas: {
-    tierAtBlockFromReport(
+    reportTimeForTier(
       report_: BigNumberish,
-      blockNumber_: BigNumberish,
+      tier_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    tierBlock(
+    tierAtTimeFromReport(
       report_: BigNumberish,
-      tier_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -249,40 +252,40 @@ export interface TierReportTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    updateBlockAtTier(
+    updateReportWithTierAtTime(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    updateTimeAtTier(
       report_: BigNumberish,
       tier_: BigNumberish,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    updateBlocksForTierRange(
+    updateTimesForTierRange(
       report_: BigNumberish,
       startTier_: BigNumberish,
       endTier_: BigNumberish,
-      blockNumber_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    updateReportWithTierAtBlock(
-      report_: BigNumberish,
-      startTier_: BigNumberish,
-      endTier_: BigNumberish,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    tierAtBlockFromReport(
+    reportTimeForTier(
       report_: BigNumberish,
-      blockNumber_: BigNumberish,
+      tier_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    tierBlock(
+    tierAtTimeFromReport(
       report_: BigNumberish,
-      tier_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -292,26 +295,26 @@ export interface TierReportTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    updateBlockAtTier(
+    updateReportWithTierAtTime(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    updateTimeAtTier(
       report_: BigNumberish,
       tier_: BigNumberish,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    updateBlocksForTierRange(
+    updateTimesForTierRange(
       report_: BigNumberish,
       startTier_: BigNumberish,
       endTier_: BigNumberish,
-      blockNumber_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    updateReportWithTierAtBlock(
-      report_: BigNumberish,
-      startTier_: BigNumberish,
-      endTier_: BigNumberish,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

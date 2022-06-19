@@ -67,7 +67,7 @@ export interface VerifyInterface extends utils.Interface {
     "requestRemove((address,bytes)[])": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
     "state(address)": FunctionFragment;
-    "statusAtBlock((uint32,uint32,uint32),uint256)": FunctionFragment;
+    "statusAtTime((uint32,uint32,uint32),uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
   };
 
@@ -142,7 +142,7 @@ export interface VerifyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "state", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "statusAtBlock",
+    functionFragment: "statusAtTime",
     values: [StateStruct, BigNumberish]
   ): string;
   encodeFunctionData(
@@ -197,7 +197,7 @@ export interface VerifyInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "state", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "statusAtBlock",
+    functionFragment: "statusAtTime",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -421,11 +421,11 @@ export interface Verify extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[StateStructOutput]>;
 
-    statusAtBlock(
+    statusAtTime(
       state_: StateStruct,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { status_: BigNumber }>;
 
     supportsInterface(
       interfaceId: BytesLike,
@@ -520,9 +520,9 @@ export interface Verify extends BaseContract {
     overrides?: CallOverrides
   ): Promise<StateStructOutput>;
 
-  statusAtBlock(
+  statusAtTime(
     state_: StateStruct,
-    blockNumber_: BigNumberish,
+    timestamp_: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -613,9 +613,9 @@ export interface Verify extends BaseContract {
       overrides?: CallOverrides
     ): Promise<StateStructOutput>;
 
-    statusAtBlock(
+    statusAtTime(
       state_: StateStruct,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -787,9 +787,9 @@ export interface Verify extends BaseContract {
 
     state(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    statusAtBlock(
+    statusAtTime(
       state_: StateStruct,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -892,9 +892,9 @@ export interface Verify extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    statusAtBlock(
+    statusAtTime(
       state_: StateStruct,
-      blockNumber_: BigNumberish,
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

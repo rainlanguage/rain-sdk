@@ -1,13 +1,7 @@
-import {
-  Signer,
-  BigNumber,
-  BytesLike,
-  BigNumberish,
-  ContractTransaction,
-} from 'ethers';
-import { TxOverrides, ReadTxOverrides } from './rainContract';
+import { Signer, BigNumber, BigNumberish } from 'ethers';
+import { ReadTxOverrides } from './rainContract';
 import { FactoryContract } from './factoryContract';
-import { ITier__factory } from '../typechain';
+import { ITierV2__factory } from '../typechain';
 import { paddedUInt256 } from '../utils';
 
 /**
@@ -62,9 +56,9 @@ export enum Tier {
 export abstract class TierContract extends FactoryContract {
   constructor(address: string, signer: Signer) {
     super(address, signer);
-    const tier = ITier__factory.connect(address, signer);
+    const tier = ITierV2__factory.connect(address, signer);
     this.report = tier.report;
-    this.setTier = tier.setTier;
+    this.reportTimeForTier = tier.reportTimeForTier;
   }
 
   /** {@inheritDoc Tier} */
@@ -85,30 +79,19 @@ export abstract class TierContract extends FactoryContract {
    */
   public readonly report: (
     account: string,
+    context: BigNumberish[],
+    overrides?: ReadTxOverrides
+  ) => Promise<BigNumber>;
+
+  public readonly reportTimeForTier: (
+    account: string,
+    tier: BigNumberish,
+    context: BigNumberish[],
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
   /**
-   * Updates the tier of an account.
-   *
-   * @remarks
-   * Users can set their own tier by calling `setTier` if is this option available on the Tier contract.
-   * ITier like BalanceTier does not allow this.
-   *
-   * @param account - Account to change the tier for.
-   * @param endTier - Tier after the change.
-   * @param data - Arbitrary input to disambiguate ownership
-   * @param overrides - @see TxOverrides
-   * @returns The report blocks encoded as a uint256.
-   */
-  public readonly setTier: (
-    account: string,
-    endTier: BigNumberish,
-    data: BytesLike,
-    overrides?: TxOverrides
-  ) => Promise<ContractTransaction>;
-
-  /**
+   * @deprecated
    * Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`.
    * Tier 0 is that a address has never interact with the Tier Contract.
    *
@@ -117,7 +100,7 @@ export abstract class TierContract extends FactoryContract {
    * @returns current tier level of the account
    */
   public async currentTier(account: string, block?: number): Promise<number> {
-    const currentTier = await this.report(account);
+    const currentTier = await this.report(account, []);
     const againstBlock = block
       ? block
       : await this.signer.provider?.getBlockNumber();

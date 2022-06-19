@@ -815,7 +815,7 @@ export class RainJS {
             this.signer
           );
           state.stack.push(
-            await iTierContract.report(account_)
+            await iTierContract.report(account_,)
           );
         }
         else throw new Error("Undefined stack variables")

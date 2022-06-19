@@ -15,23 +15,29 @@ import { FunctionFragment, Result } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export interface IERC2981UpgradeableInterface extends utils.Interface {
+export interface TierV2TestInterface extends utils.Interface {
   functions: {
-    "royaltyInfo(uint256,uint256)": FunctionFragment;
+    "report(address,uint256[])": FunctionFragment;
+    "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "royaltyInfo",
-    values: [BigNumberish, BigNumberish]
+    functionFragment: "report",
+    values: [string, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reportTimeForTier",
+    values: [string, BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [BytesLike]
   ): string;
 
+  decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "royaltyInfo",
+    functionFragment: "reportTimeForTier",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -42,12 +48,12 @@ export interface IERC2981UpgradeableInterface extends utils.Interface {
   events: {};
 }
 
-export interface IERC2981Upgradeable extends BaseContract {
+export interface TierV2Test extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IERC2981UpgradeableInterface;
+  interface: TierV2TestInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -69,44 +75,59 @@ export interface IERC2981Upgradeable extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    royaltyInfo(
-      tokenId: BigNumberish,
-      salePrice: BigNumberish,
+    report(
+      arg0: string,
+      arg1: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber] & { receiver: string; royaltyAmount: BigNumber }
-    >;
+    ): Promise<[BigNumber]>;
+
+    reportTimeForTier(
+      arg0: string,
+      arg1: BigNumberish,
+      arg2: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     supportsInterface(
-      interfaceId: BytesLike,
+      interfaceId_: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
   };
 
-  royaltyInfo(
-    tokenId: BigNumberish,
-    salePrice: BigNumberish,
+  report(
+    arg0: string,
+    arg1: BigNumberish[],
     overrides?: CallOverrides
-  ): Promise<
-    [string, BigNumber] & { receiver: string; royaltyAmount: BigNumber }
-  >;
+  ): Promise<BigNumber>;
+
+  reportTimeForTier(
+    arg0: string,
+    arg1: BigNumberish,
+    arg2: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   supportsInterface(
-    interfaceId: BytesLike,
+    interfaceId_: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   callStatic: {
-    royaltyInfo(
-      tokenId: BigNumberish,
-      salePrice: BigNumberish,
+    report(
+      arg0: string,
+      arg1: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber] & { receiver: string; royaltyAmount: BigNumber }
-    >;
+    ): Promise<BigNumber>;
+
+    reportTimeForTier(
+      arg0: string,
+      arg1: BigNumberish,
+      arg2: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     supportsInterface(
-      interfaceId: BytesLike,
+      interfaceId_: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -114,27 +135,41 @@ export interface IERC2981Upgradeable extends BaseContract {
   filters: {};
 
   estimateGas: {
-    royaltyInfo(
-      tokenId: BigNumberish,
-      salePrice: BigNumberish,
+    report(
+      arg0: string,
+      arg1: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    reportTimeForTier(
+      arg0: string,
+      arg1: BigNumberish,
+      arg2: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     supportsInterface(
-      interfaceId: BytesLike,
+      interfaceId_: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    royaltyInfo(
-      tokenId: BigNumberish,
-      salePrice: BigNumberish,
+    report(
+      arg0: string,
+      arg1: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    reportTimeForTier(
+      arg0: string,
+      arg1: BigNumberish,
+      arg2: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     supportsInterface(
-      interfaceId: BytesLike,
+      interfaceId_: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
