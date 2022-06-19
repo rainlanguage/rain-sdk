@@ -51,15 +51,13 @@ export interface Addresses {
   RedeemableERC20Factory: string;
   VerifyFactory: string;
   VerifyTierFactory: string;
-  ERC20BalanceTierFactory: string;
-  ERC20TransferTierFactory: string;
   CombineTierFactory: string;
-  ERC721BalanceTierFactory: string;
-  GatedNFTFactory: string;
   RedeemableERC20ClaimEscrow: string;
   NoticeBoard: string;
   EmissionsERC20Factory: string;
   SaleFactory: string;
+  StakeFactory: string;
+  OrderBook: string;
   AlwaysTier: string;
 }
 
