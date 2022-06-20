@@ -1,7 +1,8 @@
 import { assert } from 'chai';
 import { ethers } from 'hardhat';
-import { expectAsyncError, Tier, Time } from './utils';
 import { BigNumber } from 'ethers';
+import { expectAsyncError, Tier, Time } from './utils';
+import { StateConfig, RainJS, OpcodeFN, ApplyOpFn, VM } from '../src';
 import {
   op,
   paddedUInt32,
@@ -12,7 +13,7 @@ import {
   selectLteLogic,
   selectLteMode,
 } from '../src/utils';
-import { StateConfig, RainJS, OpcodeFN, ApplyOpFn, VM } from '../src';
+
 
 describe('SDK - RainJS', () => {
   it('should perform correctly with custom opcode function', async () => {
@@ -718,17 +719,13 @@ describe('SDK - RainJS', () => {
           op(VM.Opcodes.CONSTANT, 1),
           op(VM.Opcodes.BLOCK_NUMBER),
           op(
-            // TODO: @rouzwelt
-            // @ts-ignore
-            VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+            VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
             tierRange(Tier.ZERO, Tier.EIGHT)
           ),
           op(VM.Opcodes.CONSTANT, 1),
           op(VM.Opcodes.CONSTANT, 0),
           op(
-            // TODO: @rouzwelt
-            // @ts-ignore
-            VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+            VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
             tierRange(Tier.ZERO, Tier.EIGHT)
           ),
           op(VM.Opcodes.SATURATING_DIFF),
@@ -762,17 +759,13 @@ describe('SDK - RainJS', () => {
           op(VM.Opcodes.CONSTANT, 2),
           op(VM.Opcodes.CONSTANT, 0),
           op(
-            // TODO: @rouzwelt
-            // @ts-ignore
-            VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+            VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
             tierRange(Tier.TWO, Tier.FOUR)
           ),
           op(VM.Opcodes.CONSTANT, 2),
           op(VM.Opcodes.CONSTANT, 1),
           op(
-            // TODO: @rouzwelt
-            // @ts-ignore
-            VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+            VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
             tierRange(Tier.TWO, Tier.SIX)
           ),
           op(VM.Opcodes.BLOCK_NUMBER),

@@ -1,11 +1,14 @@
 import { BigNumber, Contract, ethers, Signer } from 'ethers';
-import { arrayify } from '../utils';
+import { Tier } from '../classes/tierContract';
 import { StateConfig, VM } from '../classes/vm';
 import { ERC1155 } from '../contracts/generics/erc1155';
 import { ERC20 } from '../contracts/generics/erc20';
 import { ERC721 } from '../contracts/generics/erc721';
-import { ITier } from '../contracts/tiers/iTier';
+import { ITierV2 } from '../contracts/tiers/iTierV2';
 import { Provider } from '../types';
+import { arrayify, paddedUInt160, paddedUInt256, paddedUInt32 } from '../utils';
+import { ERC20Snapshot__factory } from '../typechain';
+
 
 /**
  * @public
@@ -174,7 +177,8 @@ export class RainJS {
             this.state.sources[sourcesIndex][i + 1],
             data
           );
-        } else {
+        } 
+        else {
           await this.dispatch(
             this.state,
             this.state.sources[sourcesIndex][i],
@@ -182,7 +186,8 @@ export class RainJS {
             data
           );
         }
-      } else {
+      } 
+      else {
         await this.dispatch(
           this.state,
           this.state.sources[sourcesIndex][i],
@@ -234,19 +239,22 @@ export class RainJS {
    * key/value pair of opcodes and their functions for all standard opcodes
    */
   protected readonly _OPCODE_: ApplyOpFn = {
+
     [VM.Opcodes.CONSTANT]: (state: StateJS, operand: number, data?: any) => {
       if (operand < state.constants.length) {
         if (state.constants[operand] != undefined) {
           state.stack.push(state.constants[operand]);
         } else throw new Error('out-of-bound constants');
-      } else {
+      } 
+      else {
         if (
           state.argumentsStack[operand - state.constants.length] != undefined
         ) {
           state.stack.push(
             state.argumentsStack[operand - state.constants.length]
           );
-        } else throw new Error('out-of-bound arguments');
+        }
+        else throw new Error('out-of-bound arguments');
       }
     },
 
@@ -261,7 +269,8 @@ export class RainJS {
     ) => {
       if (this._CONTEXT_) {
         await this._CONTEXT_[operand](state, operand, data);
-      } else throw new Error('no or out of bounds contexxt opcode');
+      } 
+      else throw new Error('no or out of bounds contexxt opcode');
     },
 
     [VM.Opcodes.STORAGE]: async (
@@ -271,7 +280,8 @@ export class RainJS {
     ) => {
       if (this._STORAGE_) {
         await this._STORAGE_[operand](state, operand, data);
-      } else throw new Error('no or out-of-bound storage opcode');
+      } 
+      else throw new Error('no or out-of-bound storage opcode');
     },
 
     [VM.Opcodes.ZIPMAP]: async (
@@ -295,10 +305,8 @@ export class RainJS {
             state.argumentsStack.push(
               BigNumber.from(
                 '0x' +
-                  items_[j]
-                    .toHexString()
+                  paddedUInt256(items_[j])
                     .substring(2)
-                    .padStart(64, '0')
                     .slice(_startIndex, _endIndex)
               )
             );
@@ -315,7 +323,8 @@ export class RainJS {
                   this.state.sources[sourceIndex_][i + 1],
                   data
                 );
-              } else {
+              } 
+              else {
                 await this.dispatch(
                   this.state,
                   this.state.sources[sourceIndex_][i],
@@ -323,7 +332,8 @@ export class RainJS {
                   data
                 );
               }
-            } else {
+            } 
+            else {
               await this.dispatch(
                 this.state,
                 this.state.sources[sourceIndex_][i],
@@ -336,576 +346,15 @@ export class RainJS {
           _startIndex -= valSize_;
           _endIndex -= valSize_;
         }
-      } else throw new Error('Undefined stack variables');
+      } 
+      else throw new Error('Undefined stack variables');
     },
 
     [VM.Opcodes.DEBUG]: (state: StateJS, operand: number, data?: any) => {
       if (operand < 4) {
         console.log(state.stack);
-      } else throw new Error('out-of-bound debug operand');
-    },
-
-    [VM.Opcodes.BLOCK_NUMBER]: async (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      if (this.provider != undefined) {
-        state.stack.push(BigNumber.from(await this.provider.getBlockNumber()));
-      } else throw new Error('Undefined Provider');
-    },
-
-    [VM.Opcodes.BLOCK_TIMESTAMP]: async (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      if (this.provider != undefined) {
-        state.stack.push(
-          BigNumber.from(
-            (await this.provider.getBlock(await this.provider.getBlockNumber()))
-              .timestamp
-          )
-        );
-      } else throw new Error('Undefined Provider');
-    },
-
-    [VM.Opcodes.SENDER]: async (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      if (this.signer != undefined) {
-        state.stack.push(BigNumber.from(await this.signer.getAddress()));
-      }
-    },
-
-    [VM.Opcodes.THIS_ADDRESS]: async (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      if (this.contract != undefined) {
-        state.stack.push(BigNumber.from(this.contract.address));
-      } else throw new Error('Undefined contract');
-    },
-
-    [VM.Opcodes.SCALE18_MUL]: (state: StateJS, operand: number, data?: any) => {
-      const item2_ = state.stack.pop();
-      const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
-        state.stack.push(
-          item2_.mul(
-            operand <= 18
-              ? item1_.mul((10 ** (18 - operand)).toString())
-              : item1_.div((10 ** (operand - 18)).toString())
-          )
-        );
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.SCALE18_DIV]: (state: StateJS, operand: number, data?: any) => {
-      const item2_ = state.stack.pop();
-      const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
-        state.stack.push(
-          (operand <= 18
-            ? item1_.mul((10 ** (18 - operand)).toString())
-            : item1_.div((10 ** (operand - 18)).toString())
-          ).div(item2_)
-        );
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.SCALE18]: (state: StateJS, operand: number, data?: any) => {
-      const item_ = state.stack.pop();
-      if (item_ != undefined) {
-        state.stack.push(
-          operand <= 18
-            ? item_.mul((10 ** (18 - operand)).toString())
-            : item_.div((10 ** (operand - 18)).toString())
-        );
-      } else throw new Error('Undefined stack variable');
-    },
-
-    [VM.Opcodes.SCALEN]: (state: StateJS, operand: number, data?: any) => {
-      const item_ = state.stack.pop();
-      if (item_ != undefined) {
-        state.stack.push(
-          operand <= 18
-            ? item_.div((10 ** (18 - operand)).toString())
-            : item_.mul((10 ** (operand - 18)).toString())
-        );
-      } else throw new Error('Undefined stack variable');
-    },
-
-    [VM.Opcodes.SCALE_BY]: (state: StateJS, operand: number, data?: any) => {
-      const item_ = state.stack.pop();
-      const operandSign_ = (operand & 255) >> 7;
-      let _operand = operand & 127;
-      if (item_ != undefined) {
-        if (operandSign_) {
-          state.stack.push(item_.div((10 ** _operand).toString()));
-        } else {
-          state.stack.push(item_.mul((10 ** _operand).toString()));
-        }
-      } else throw new Error('Undefined stack variable');
-    },
-
-    [VM.Opcodes.ADD]: (state: StateJS, operand: number, data?: any) => {
-      let _item;
-      let _accumulator = ethers.constants.Zero;
-      for (let i = 0; i < operand; i++) {
-        _item = state.stack.pop();
-        if (_item != undefined) {
-          _accumulator = _accumulator.add(_item);
-          if (_accumulator.gt(ethers.constants.MaxUint256)) {
-            throw new Error('max numeric range overflow');
-          }
-        } else throw new Error('Undefined stack variables');
-      }
-      state.stack.push(_accumulator);
-    },
-
-    [VM.Opcodes.SATURATING_ADD]: (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      const items_ = state.stack.splice(-operand);
-      let _accumulator = ethers.constants.Zero;
-      let _item;
-      for (let i = 0; i < operand; i++) {
-        _item = items_.shift();
-        if (_item != undefined) {
-          _accumulator = _accumulator.add(_item);
-          _accumulator = _accumulator.gt(ethers.constants.MaxUint256)
-            ? ethers.constants.MaxUint256
-            : _accumulator;
-        } else throw new Error('Undefined stack variables');
-      }
-      state.stack.push(_accumulator);
-    },
-
-    [VM.Opcodes.SUB]: (state: StateJS, operand: number, data?: any) => {
-      const items_ = state.stack.splice(-operand);
-      let _accumulator = items_.shift();
-      let _item;
-      if (_accumulator != undefined) {
-        for (let i = 1; i < operand; i++) {
-          _item = items_.shift();
-          if (_item != undefined) {
-            _accumulator = _accumulator.sub(_item);
-          } else throw new Error('Undefined stack variables');
-        }
-        if (_accumulator.isNegative()) {
-          throw new Error('Invalid value (negative value not allowed)');
-        } else state.stack.push(_accumulator);
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.SATURATING_SUB]: (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      const items_ = state.stack.splice(-operand);
-      let _accumulator = items_.shift();
-      let _item;
-      if (_accumulator != undefined) {
-        for (let i = 1; i < operand; i++) {
-          _item = items_.shift();
-          if (_item != undefined) {
-            _accumulator = _accumulator?.sub(_item);
-            _accumulator = _accumulator.gt(0)
-              ? _accumulator
-              : ethers.constants.Zero;
-          } else throw new Error('Undefined stack variabble');
-        }
-        state.stack.push(_accumulator);
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.MUL]: (state: StateJS, operand: number, data?: any) => {
-      let _accumulator = ethers.constants.One;
-      let _item;
-      for (let i = 0; i < operand; i++) {
-        _item = state.stack.pop();
-        if (_item != undefined) {
-          _accumulator = _accumulator.mul(_item);
-          if (_accumulator.gt(ethers.constants.MaxUint256)) {
-            throw new Error('max numeric range overflow');
-          }
-        } else throw new Error('Undefined stack variables');
-      }
-      state.stack.push(_accumulator);
-    },
-
-    [VM.Opcodes.SATURATING_MUL]: (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      const items_ = state.stack.splice(-operand);
-      let _accumulator = ethers.constants.One;
-      let _item;
-      for (let i = 0; i < operand; i++) {
-        _item = items_.shift();
-        if (_item != undefined) {
-          _accumulator = _accumulator.mul(_item);
-          _accumulator = _accumulator.gt(ethers.constants.MaxUint256)
-            ? ethers.constants.MaxUint256
-            : _accumulator;
-        } else throw new Error('Undefined stack variables');
-      }
-      state.stack.push(_accumulator);
-    },
-
-    [VM.Opcodes.DIV]: (state: StateJS, operand: number, data?: any) => {
-      const items_ = state.stack.splice(-operand);
-      let _accumulator = items_.shift();
-      let _item;
-      if (_accumulator != undefined) {
-        for (let i = 1; i < operand; i++) {
-          _item = items_.shift();
-          if (_item != undefined) {
-            _accumulator = _accumulator.div(_item);
-          } else throw new Error('Undefined stack variables');
-        }
-        state.stack.push(_accumulator);
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.MOD]: (state: StateJS, operand: number, data?: any) => {
-      const items_ = state.stack.splice(-operand);
-      let _accumulator = items_.shift();
-      let _item;
-      if (_accumulator != undefined) {
-        for (let i = 1; i < operand; i++) {
-          _item = items_.shift();
-          if (_item != undefined) {
-            _accumulator = _accumulator.mod(_item);
-          } else throw new Error('Undefined stack variables');
-        }
-        state.stack.push(_accumulator);
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.EXP]: (state: StateJS, operand: number, data?: any) => {
-      const items_ = state.stack.splice(-operand);
-      let _accumulator = items_.shift();
-      let _item;
-      if (_accumulator != undefined) {
-        for (let i = 1; i < operand; i++) {
-          _item = items_.shift();
-          if (_item != undefined) {
-            _accumulator = _accumulator.pow(_item);
-            if (_accumulator.gt(ethers.constants.MaxUint256)) {
-              throw new Error('max numeric range overflow');
-            }
-          } else throw new Error('Undefined stack variables');
-        }
-        state.stack.push(_accumulator);
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.MIN]: (state: StateJS, operand: number, data?: any) => {
-      const items_ = state.stack.splice(-operand);
-      if (items_.length == operand) {
-        state.stack.push(items_.reduce((e, m) => (e.lt(m) ? e : m)));
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.MAX]: (state: StateJS, operand: number, data?: any) => {
-      const items_ = state.stack.splice(-operand);
-      if ((items_.length = operand)) {
-        state.stack.push(items_.reduce((e, m) => (e.gt(m) ? e : m)));
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.ISZERO]: (state: StateJS, operand: number, data?: any) => {
-      const item_ = state.stack.pop();
-      if (item_ != undefined) {
-        state.stack.push(
-          item_.isZero() ? ethers.constants.One : ethers.constants.Zero
-        );
-      } else throw new Error('Undefined stack variable');
-    },
-
-    [VM.Opcodes.EAGER_IF]: (state: StateJS, operand: number, data?: any) => {
-      const false_ = state.stack.pop();
-      const true_ = state.stack.pop();
-      const condition_ = state.stack.pop();
-      if (false_ && true_ && condition_ != undefined) {
-        state.stack.push(condition_.gt(0) ? true_ : false_);
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.EQUAL_TO]: (state: StateJS, operand: number, data?: any) => {
-      const item2_ = state.stack.pop();
-      const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
-        state.stack.push(
-          item2_.eq(item1_) ? ethers.constants.One : ethers.constants.Zero
-        );
-      } else throw new Error('Underfined stack variables');
-    },
-
-    [VM.Opcodes.LESS_THAN]: (state: StateJS, operand: number, data?: any) => {
-      const item2_ = state.stack.pop();
-      const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
-        state.stack.push(
-          item2_.gt(item1_) ? ethers.constants.One : ethers.constants.Zero
-        );
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.GREATER_THAN]: (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      const item2_ = state.stack.pop();
-      const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
-        state.stack.push(
-          item2_.lt(item1_) ? ethers.constants.One : ethers.constants.Zero
-        );
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.EVERY]: (state: StateJS, operand: number, data?: any) => {
-      const items_ = state.stack.splice(-operand);
-      let _check;
-      let _item;
-      for (let i = 0; i < operand; i++) {
-        _item = items_.shift();
-        if (_item != undefined) {
-          if (_item.isZero()) {
-            _check = ethers.constants.Zero;
-            break;
-          } else _check = ethers.constants.One;
-        } else throw new Error('Undefined stack variables');
-      }
-      if (_check != undefined) {
-        state.stack.push(_check);
-      } else throw new Error('Undefined stack variable');
-    },
-
-    [VM.Opcodes.ANY]: (state: StateJS, operand: number, data?: any) => {
-      const items_ = state.stack.splice(-operand);
-      let _check;
-      let _item;
-      for (let i = 0; i < operand; i++) {
-        _item = items_.shift();
-        if (_item != undefined) {
-          if (_item.gt(0)) {
-            _check = ethers.constants.One;
-            break;
-          } else _check = ethers.constants.Zero;
-        } else throw new Error('Undefined stack variables');
-      }
-      if (_check != undefined) {
-        state.stack.push(_check);
-      } else throw new Error('Undefined stack variable');
-    },
-
-    // TODO: @rouzwelt
-    // @ts-ignore
-    [VM.Opcodes.REPORT]: async (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      const item2_ = state.stack.pop();
-      const item1_ = state.stack.pop();
-      if (item1_ && item2_ && this.signer != undefined) {
-        const account_ =
-          '0x' + item2_.toHexString().substring(2).padStart(40, '0');
-        const iTierContract = new ITier(
-          '0x' + item1_.toHexString().substring(2).padStart(40, '0'),
-          this.signer
-        );
-        state.stack.push(
-          // TODO: @rouzwelt
-          // @ts-ignore
-          await iTierContract.report(account_)
-        );
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.SATURATING_DIFF]: (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      const report2_ = state.stack
-        .pop()
-        ?.toHexString()
-        .substring(2)
-        .padStart(64, '0');
-      const report1_ = state.stack
-        .pop()
-        ?.toHexString()
-        .substring(2)
-        .padStart(64, '0');
-      if (report1_ && report2_ != undefined) {
-        let _startIndex = 0;
-        let _endIndex = 8;
-        let _result = '';
-        let _tierRep1;
-        let _tierRep2;
-
-        for (let i = 0; i < 8; i++) {
-          _tierRep1 = BigNumber.from(
-            '0x' + report1_.slice(_startIndex, _endIndex)
-          );
-          _tierRep2 = BigNumber.from(
-            '0x' + report2_.slice(_startIndex, _endIndex)
-          );
-          _result += _tierRep1.gt(_tierRep2)
-            ? _tierRep1
-                .sub(_tierRep2)
-                .toHexString()
-                .substring(2)
-                .padStart(8, '0')
-            : '00000000';
-          _startIndex += 8;
-          _endIndex += 8;
-        }
-        state.stack.push(BigNumber.from('0x' + _result));
-      } else throw new Error('Undefined stack variables');
-    },
-    // TODO: @rouzwelt
-    // @ts-ignore
-    [VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE]: (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      const endTier_ = operand >> 4;
-      const startTier_ = operand & 15;
-      const blockNumber_ = state.stack
-        .pop()
-        ?.toHexString()
-        .substring(2)
-        .padStart(8, '0');
-      const report_ = state.stack
-        .pop()
-        ?.toHexString()
-        .substring(2)
-        .padStart(64, '0');
-      if (report_ && blockNumber_ != undefined) {
-        let _startIndex = (8 - endTier_) * 8;
-        let _endIndex = _startIndex + 8;
-        let _result = report_.slice(0, _startIndex);
-        const resultLow_ = report_.slice(
-          _startIndex + (endTier_ - startTier_) * 8
-        );
-
-        for (let i = 0; i < endTier_ - startTier_; i++) {
-          _result +=
-            report_.slice(_startIndex, _endIndex) > blockNumber_
-              ? blockNumber_
-              : report_.slice(_startIndex, _endIndex);
-          _startIndex += 8;
-          _endIndex += 8;
-        }
-        state.stack.push(BigNumber.from('0x' + _result + resultLow_));
-      } else throw new Error('Undefined stack variables');
-    },
-
-    [VM.Opcodes.SELECT_LTE]: (state: StateJS, operand: number, data?: any) => {
-      const length_ = operand & 31;
-      const mode_ = (operand & 96) >> 5;
-      const logic_ = (operand & 128) >> 7;
-      const blockNumber_ = state.stack
-        .pop()
-        ?.toHexString()
-        .substring(2)
-        .padStart(8, '0');
-      let _item;
-      // array of raw reports
-      let _reports: string[] = [];
-      // array of array of each tier's lte report
-      let _reportsAtTier: string[][] = [[], [], [], [], [], [], [], []];
-      let _result = '';
-
-      //building an array of each tier's report against blockNumber_
-      //tiers greater than blockNumber_ will get "ffffffff"
-      if (blockNumber_ != undefined) {
-        for (let i = 0; i < length_; i++) {
-          let _startIndex = 0;
-          let _endIndex = 8;
-          _item = state.stack.pop();
-          if (_item != undefined) {
-            _reports[i] = _item.toHexString().substring(2).padStart(64, '0');
-            for (let j = 0; j < 8; j++) {
-              _reportsAtTier[j].push(
-                blockNumber_ < _reports[i].slice(_startIndex, _endIndex)
-                  ? 'ffffffff'
-                  : _reports[i].slice(_startIndex, _endIndex)
-              );
-              _startIndex += 8;
-              _endIndex += 8;
-            }
-          } else throw new Error('Undefined stack variables');
-        }
-      } else throw new Error('Undefined stack variable');
-
-      // logic_ and mode_ selections
-      if (logic_) {
-        for (let i = 0; i < 8; i++) {
-          if (mode_ == 0) {
-            _reportsAtTier[i] = [
-              _reportsAtTier[i].reduce((e, m) => (e < m ? e : m)),
-            ];
-          } else if (mode_ == 1) {
-            //filter out "ffffffff"
-            _reportsAtTier[i] = _reportsAtTier[i].filter(
-              (e) => e != 'ffffffff'
-            );
-            _reportsAtTier[i] =
-              _reportsAtTier[i].length > 0
-                ? [_reportsAtTier[i].reduce((e, m) => (e > m ? e : m))]
-                : ['ffffffff'];
-          } else if (mode_ == 2) {
-            //filter out "ffffffff"
-            _reportsAtTier[i] = _reportsAtTier[i].filter(
-              (e) => e != 'ffffffff'
-            );
-            _reportsAtTier[i] =
-              _reportsAtTier[i].length > 0
-                ? [_reportsAtTier[i][_reportsAtTier[i].length - 1]]
-                : ['ffffffff'];
-          }
-        }
-      } else {
-        for (let i = 0; i < 8; i++) {
-          if (mode_ == 0) {
-            //check if "ffffffff" exists within the tier's array
-            _reportsAtTier[i] = _reportsAtTier[i].includes('ffffffff')
-              ? ['ffffffff']
-              : [_reportsAtTier[i].reduce((e, m) => (e < m ? e : m))];
-          } else if (mode_ == 1) {
-            //check if "ffffffff" exists within the tier's array
-            _reportsAtTier[i] = _reportsAtTier[i].includes('ffffffff')
-              ? ['ffffffff']
-              : [_reportsAtTier[i].reduce((e, m) => (e > m ? e : m))];
-          } else if (mode_ == 2) {
-            //check if "ffffffff" exists within the tier's array
-            _reportsAtTier[i] = _reportsAtTier[i].includes('ffffffff')
-              ? ['ffffffff']
-              : [_reportsAtTier[i][_reportsAtTier[i].length - 1]];
-          }
-        }
-      }
-      //building the final report
-      for (let i = 0; i < 8; i++) {
-        _result += _reportsAtTier[i][0];
-      }
-      state.stack.push(BigNumber.from('0x' + _result));
+      } 
+      else throw new Error('out-of-bound debug operand');
     },
 
     [VM.Opcodes.IERC20_BALANCE_OF]: async (
@@ -916,13 +365,12 @@ export class RainJS {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
       if (item1_ && item2_ && this.signer != undefined) {
-        const account_ =
-          '0x' + item2_.toHexString().substring(2).padStart(40, '0');
-        const erc20Address_ =
-          '0x' + item1_.toHexString().substring(2).padStart(40, '0');
+        const account_ = paddedUInt160(item2_);
+        const erc20Address_ = paddedUInt160(item1_);
         const erc20Contract_ = new ERC20(erc20Address_, this.signer);
         state.stack.push(await erc20Contract_.balanceOf(account_));
-      } else throw new Error('Undefined stack variables');
+      } 
+      else throw new Error('Undefined stack variables');
     },
 
     [VM.Opcodes.IERC20_TOTAL_SUPPLY]: async (
@@ -932,11 +380,45 @@ export class RainJS {
     ) => {
       const item_ = state.stack.pop();
       if (item_ && this.signer != undefined) {
-        const erc20Address_ =
-          '0x' + item_.toHexString().substring(2).padStart(40, '0');
+        const erc20Address_ = paddedUInt160(item_);
         const erc20Contract_ = new ERC20(erc20Address_, this.signer);
         state.stack.push(await erc20Contract_.totalSupply());
-      } else throw new Error('Undefined stack variable');
+      } 
+      else throw new Error('Undefined stack variable');
+    },
+
+    [VM.Opcodes.IERC20_SNAPSHOT_BALANCE_OF_AT]: async (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const item3_ = state.stack.pop();
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+      if (item1_ && item2_ && item3_ && this.signer != undefined) {
+        const snapshotId_ = item3_;
+        const account_ = paddedUInt160(item2_);
+        const erc20Address_ = paddedUInt160(item1_);
+        const erc20Snapshot_ = ERC20Snapshot__factory.connect(erc20Address_, this.signer);
+        state.stack.push(await erc20Snapshot_.balanceOfAt(account_, snapshotId_));
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.IERC20_SNAPSHOT_TOTAL_SUPPLY_AT]: async (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+      if (item1_ && item2_ && this.signer != undefined) {
+        const snapshotId_ = item2_;
+        const erc20Address_ = paddedUInt160(item1_);
+        const erc20Snapshot_ = ERC20Snapshot__factory.connect(erc20Address_, this.signer);
+        state.stack.push(await erc20Snapshot_.totalSupplyAt(snapshotId_));
+      } 
+      else throw new Error('Undefined stack variables');
     },
 
     [VM.Opcodes.IERC721_BALANCE_OF]: async (
@@ -947,13 +429,12 @@ export class RainJS {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
       if (item1_ && item2_ && this.signer != undefined) {
-        const account_ =
-          '0x' + item2_.toHexString().substring(2).padStart(40, '0');
-        const erc721Address_ =
-          '0x' + item1_.toHexString().substring(2).padStart(40, '0');
+        const account_ = paddedUInt160(item2_);
+        const erc721Address_ = paddedUInt160(item1_);
         const erc721Contract_ = new ERC721(erc721Address_, this.signer);
         state.stack.push(await erc721Contract_.balanceOf(account_));
-      } else throw new Error('Undefined stack variables');
+      } 
+      else throw new Error('Undefined stack variables');
     },
 
     [VM.Opcodes.IERC721_OWNER_OF]: async (
@@ -965,13 +446,13 @@ export class RainJS {
       const item1_ = state.stack.pop();
       if (item1_ && item2_ && this.signer != undefined) {
         const tokenId_ = BigNumber.from(item2_);
-        const erc721Address_ =
-          '0x' + item1_.toHexString().substring(2).padStart(40, '0');
+        const erc721Address_ = paddedUInt160(item1_);
         const erc721Contract_ = new ERC721(erc721Address_, this.signer);
         state.stack.push(
           BigNumber.from(await erc721Contract_.ownerOf(tokenId_))
         );
-      } else throw new Error('Undefined stack variable');
+      } 
+      else throw new Error('Undefined stack variable');
     },
 
     [VM.Opcodes.IERC1155_BALANCE_OF]: async (
@@ -984,13 +465,12 @@ export class RainJS {
       const item1_ = state.stack.pop();
       if (item1_ && item2_ && item3_ && this.signer != undefined) {
         const id_ = BigNumber.from(item3_);
-        const account_ =
-          '0x' + item2_.toHexString().substring(2).padStart(40, '0');
-        const erc1155Address_ =
-          '0x' + item1_.toHexString().substring(2).padStart(40, '0');
+        const account_ = paddedUInt160(item2_);
+        const erc1155Address_ = paddedUInt160(item1_);
         const erc1155Contract_ = new ERC1155(erc1155Address_, this.signer);
         state.stack.push(await erc1155Contract_.balanceOf(account_, id_));
-      } else throw new Error('Undefined stack variables');
+      } 
+      else throw new Error('Undefined stack variables');
     },
 
     [VM.Opcodes.IERC1155_BALANCE_OF_BATCH]: async (
@@ -1014,17 +494,634 @@ export class RainJS {
         }
         const accounts_: string[] = [];
         for (let i = 0; i < item2_.length; i++) {
-          accounts_.push(
-            '0x' + item2_[i].toHexString().substring(2).padStart(40, '0')
-          );
+          accounts_.push(paddedUInt160(item2_[i]));
         }
-        const erc1155Address_ =
-          '0x' + item1_.toHexString().substring(2).padStart(40, '0');
+        const erc1155Address_ = paddedUInt160(item1_);
         const erc1155Contract_ = new ERC1155(erc1155Address_, this.signer);
         state.stack.push(
           ...(await erc1155Contract_.balanceOfBatch(accounts_, tokenIds_))
         );
-      } else throw new Error('Undefined stack variable');
+      } 
+      else throw new Error('Undefined stack variable');
+    },
+
+    [VM.Opcodes.BLOCK_NUMBER]: async (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      if (this.provider != undefined) {
+        state.stack.push(BigNumber.from(await this.provider.getBlockNumber()));
+      } 
+      else throw new Error('Undefined Provider');
+    },
+
+    [VM.Opcodes.SENDER]: async (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      if (this.signer != undefined) {
+        state.stack.push(BigNumber.from(await this.signer.getAddress()));
+      }
+      else throw new Error("undefined signer")
+    },
+
+    [VM.Opcodes.THIS_ADDRESS]: async (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      if (this.contract != undefined) {
+        state.stack.push(BigNumber.from(this.contract.address));
+      } 
+      else throw new Error('Undefined contract');
+    },
+
+    [VM.Opcodes.BLOCK_TIMESTAMP]: async (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      if (this.provider != undefined) {
+        state.stack.push(
+          BigNumber.from(
+            (await this.provider.getBlock(await this.provider.getBlockNumber()))
+              .timestamp
+          )
+        );
+      } 
+      else throw new Error('Undefined Provider');
+    },
+
+    [VM.Opcodes.SCALE18]: (state: StateJS, operand: number, data?: any) => {
+      const item_ = state.stack.pop();
+      if (item_ != undefined) {
+        state.stack.push(
+          operand <= 18
+            ? item_.mul((10 ** (18 - operand)).toString())
+            : item_.div((10 ** (operand - 18)).toString())
+        );
+      } 
+      else throw new Error('Undefined stack variable');
+    },
+
+    [VM.Opcodes.SCALE18_DIV]: (state: StateJS, operand: number, data?: any) => {
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+      if (item1_ && item2_ != undefined) {
+        state.stack.push(
+          (operand <= 18
+            ? item1_.mul((10 ** (18 - operand)).toString())
+            : item1_.div((10 ** (operand - 18)).toString())
+          ).div(item2_)
+        );
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.SCALE18_MUL]: (state: StateJS, operand: number, data?: any) => {
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+      if (item1_ && item2_ != undefined) {
+        state.stack.push(
+          item2_.mul(
+            operand <= 18
+              ? item1_.mul((10 ** (18 - operand)).toString())
+              : item1_.div((10 ** (operand - 18)).toString())
+          )
+        );
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.SCALE_BY]: (state: StateJS, operand: number, data?: any) => {
+      const item_ = state.stack.pop();
+      if (item_ != undefined) {
+        if (operand > 127) {
+          operand = 256 - operand;
+          state.stack.push(
+            item_.div((10 ** (operand)).toString())
+          );
+        }
+        else {
+          state.stack.push(
+            item_.mul((10 ** (operand)).toString())
+          );
+        }
+      }
+      else throw new Error("Undefined stack variable")
+    },
+
+    [VM.Opcodes.SCALEN]: (state: StateJS, operand: number, data?: any) => {
+      const item_ = state.stack.pop();
+      if (item_ != undefined) {
+        state.stack.push(
+          operand <= 18
+            ? item_.div((10 ** (18 - operand)).toString())
+            : item_.mul((10 ** (operand - 18)).toString())
+        );
+      } 
+      else throw new Error('Undefined stack variable');
+    },
+
+    [VM.Opcodes.ANY]: (state: StateJS, operand: number, data?: any) => {
+      const items_ = state.stack.splice(-operand);
+      let _check;
+      let _item;
+      for (let i = 0; i < operand; i++) {
+        _item = items_.shift();
+        if (_item != undefined) {
+          if (_item.gt(0)) {
+            _check = ethers.constants.One;
+            break;
+          } else _check = ethers.constants.Zero;
+        } 
+        else throw new Error('Undefined stack variables');
+      }
+      if (_check != undefined) {
+        state.stack.push(_check);
+      } 
+      else throw new Error('Undefined stack variable');
+    },
+
+    [VM.Opcodes.EAGER_IF]: (state: StateJS, operand: number, data?: any) => {
+      const false_ = state.stack.pop();
+      const true_ = state.stack.pop();
+      const condition_ = state.stack.pop();
+      if (false_ && true_ && condition_ != undefined) {
+        state.stack.push(condition_.gt(0) ? true_ : false_);
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.EQUAL_TO]: (state: StateJS, operand: number, data?: any) => {
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+      if (item1_ && item2_ != undefined) {
+        state.stack.push(
+          item2_.eq(item1_) ? ethers.constants.One : ethers.constants.Zero
+        );
+      } 
+      else throw new Error('Underfined stack variables');
+    },
+
+    [VM.Opcodes.EVERY]: (state: StateJS, operand: number, data?: any) => {
+      const items_ = state.stack.splice(-operand);
+      let _check;
+      let _item;
+      for (let i = 0; i < operand; i++) {
+        _item = items_.shift();
+        if (_item != undefined) {
+          if (_item.isZero()) {
+            _check = ethers.constants.Zero;
+            break;
+          } else _check = ethers.constants.One;
+        } 
+        else throw new Error('Undefined stack variables');
+      }
+      if (_check != undefined) {
+        state.stack.push(_check);
+      } 
+      else throw new Error('Undefined stack variable');
+    },
+
+    [VM.Opcodes.GREATER_THAN]: (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+      if (item1_ && item2_ != undefined) {
+        state.stack.push(
+          item2_.lt(item1_) ? ethers.constants.One : ethers.constants.Zero
+        );
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.ISZERO]: (state: StateJS, operand: number, data?: any) => {
+      const item_ = state.stack.pop();
+      if (item_ != undefined) {
+        state.stack.push(
+          item_.isZero() ? ethers.constants.One : ethers.constants.Zero
+        );
+      } 
+      else throw new Error('Undefined stack variable');
+    },
+
+    [VM.Opcodes.LESS_THAN]: (state: StateJS, operand: number, data?: any) => {
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+      if (item1_ && item2_ != undefined) {
+        state.stack.push(
+          item2_.gt(item1_) ? ethers.constants.One : ethers.constants.Zero
+        );
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.SATURATING_ADD]: (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const items_ = state.stack.splice(-operand);
+      let _accumulator = ethers.constants.Zero;
+      let _item;
+      for (let i = 0; i < operand; i++) {
+        _item = items_.shift();
+        if (_item != undefined) {
+          _accumulator = _accumulator.add(_item);
+          _accumulator = _accumulator.gt(ethers.constants.MaxUint256)
+            ? ethers.constants.MaxUint256
+            : _accumulator;
+        } 
+        else throw new Error('Undefined stack variables');
+      }
+      state.stack.push(_accumulator);
+    },
+
+    [VM.Opcodes.SATURATING_SUB]: (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const items_ = state.stack.splice(-operand);
+      let _accumulator = items_.shift();
+      let _item;
+      if (_accumulator != undefined) {
+        for (let i = 1; i < operand; i++) {
+          _item = items_.shift();
+          if (_item != undefined) {
+            _accumulator = _accumulator?.sub(_item);
+            _accumulator = _accumulator.gt(0)
+              ? _accumulator
+              : ethers.constants.Zero;
+          } 
+          else throw new Error('Undefined stack variabble');
+        }
+        state.stack.push(_accumulator);
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.SATURATING_MUL]: (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const items_ = state.stack.splice(-operand);
+      let _accumulator = ethers.constants.One;
+      let _item;
+      for (let i = 0; i < operand; i++) {
+        _item = items_.shift();
+        if (_item != undefined) {
+          _accumulator = _accumulator.mul(_item);
+          _accumulator = _accumulator.gt(ethers.constants.MaxUint256)
+            ? ethers.constants.MaxUint256
+            : _accumulator;
+        } 
+        else throw new Error('Undefined stack variables');
+      }
+      state.stack.push(_accumulator);
+    },
+
+    [VM.Opcodes.ADD]: (state: StateJS, operand: number, data?: any) => {
+      let _item;
+      let _accumulator = ethers.constants.Zero;
+      for (let i = 0; i < operand; i++) {
+        _item = state.stack.pop();
+        if (_item != undefined) {
+          _accumulator = _accumulator.add(_item);
+          if (_accumulator.gt(ethers.constants.MaxUint256)) {
+            throw new Error('max numeric range overflow');
+          }
+        } 
+        else throw new Error('Undefined stack variables');
+      }
+      state.stack.push(_accumulator);
+    },
+
+    [VM.Opcodes.DIV]: (state: StateJS, operand: number, data?: any) => {
+      const items_ = state.stack.splice(-operand);
+      let _accumulator = items_.shift();
+      let _item;
+      if (_accumulator != undefined) {
+        for (let i = 1; i < operand; i++) {
+          _item = items_.shift();
+          if (_item != undefined) {
+            _accumulator = _accumulator.div(_item);
+          } 
+          else throw new Error('Undefined stack variables');
+        }
+        state.stack.push(_accumulator);
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.EXP]: (state: StateJS, operand: number, data?: any) => {
+      const items_ = state.stack.splice(-operand);
+      let _accumulator = items_.shift();
+      let _item;
+      if (_accumulator != undefined) {
+        for (let i = 1; i < operand; i++) {
+          _item = items_.shift();
+          if (_item != undefined) {
+            _accumulator = _accumulator.pow(_item);
+            if (_accumulator.gt(ethers.constants.MaxUint256)) {
+              throw new Error('max numeric range overflow');
+            }
+          } 
+          else throw new Error('Undefined stack variables');
+        }
+        state.stack.push(_accumulator);
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.MAX]: (state: StateJS, operand: number, data?: any) => {
+      const items_ = state.stack.splice(-operand);
+      if ((items_.length = operand)) {
+        state.stack.push(items_.reduce((e, m) => (e.gt(m) ? e : m)));
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.MIN]: (state: StateJS, operand: number, data?: any) => {
+      const items_ = state.stack.splice(-operand);
+      if (items_.length == operand) {
+        state.stack.push(items_.reduce((e, m) => (e.lt(m) ? e : m)));
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.MOD]: (state: StateJS, operand: number, data?: any) => {
+      const items_ = state.stack.splice(-operand);
+      let _accumulator = items_.shift();
+      let _item;
+      if (_accumulator != undefined) {
+        for (let i = 1; i < operand; i++) {
+          _item = items_.shift();
+          if (_item != undefined) {
+            _accumulator = _accumulator.mod(_item);
+          } 
+          else throw new Error('Undefined stack variables');
+        }
+        state.stack.push(_accumulator);
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.MUL]: (state: StateJS, operand: number, data?: any) => {
+      let _accumulator = ethers.constants.One;
+      let _item;
+      for (let i = 0; i < operand; i++) {
+        _item = state.stack.pop();
+        if (_item != undefined) {
+          _accumulator = _accumulator.mul(_item);
+          if (_accumulator.gt(ethers.constants.MaxUint256)) {
+            throw new Error('max numeric range overflow');
+          }
+        } 
+        else throw new Error('Undefined stack variables');
+      }
+      state.stack.push(_accumulator);
+    },
+
+    [VM.Opcodes.SUB]: (state: StateJS, operand: number, data?: any) => {
+      const items_ = state.stack.splice(-operand);
+      let _accumulator = items_.shift();
+      let _item;
+      if (_accumulator != undefined) {
+        for (let i = 1; i < operand; i++) {
+          _item = items_.shift();
+          if (_item != undefined) {
+            _accumulator = _accumulator.sub(_item);
+          } 
+          else throw new Error('Undefined stack variables');
+        }
+        if (_accumulator.isNegative()) {
+          throw new Error('Invalid value (negative value not allowed)');
+        } 
+        else state.stack.push(_accumulator);
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.ITIERV2_REPORT]: async (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+      const context_ = state.stack.splice(-operand);
+
+      if (item1_ && item2_ && this.signer != undefined && context_.length != operand) {
+        const account_ = paddedUInt160(item2_);
+        const iTierV2Contract = new ITierV2(
+          paddedUInt160(item1_),
+          this.signer
+        );
+        state.stack.push(
+          await iTierV2Contract.report(account_, context_)
+        );
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.ITIERV2_REPORT_TIME_FOR_TIER]: async (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const item3_ = state.stack.pop();
+      if (item3_ != undefined && item3_.toNumber() > Tier.ONE && item3_.toNumber() < Tier.EIGHT) {
+
+        const item2_ = state.stack.pop();
+        const item1_ = state.stack.pop();
+        const context_ = state.stack.splice(-operand);
+
+        if (item1_ && item2_  && this.signer != undefined && context_.length != operand) {
+          const tier_ = item3_;
+          const account_ = paddedUInt160(item2_);
+          const iTierV2Contract = new ITierV2(
+            paddedUInt160(item1_),
+            this.signer
+          );
+          state.stack.push(
+            await iTierV2Contract.reportTimeForTier(account_, tier_,context_)
+          );
+        }
+        else throw new Error('Undefined stack variables');
+      }
+      else throw new Error("not valid tier"); 
+    },
+
+    [VM.Opcodes.SATURATING_DIFF]: (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+      
+      if (item1_ && item2_ != undefined) {
+        const report1_ = paddedUInt256(item1_).substring(2);
+        const report2_ = paddedUInt256(item2_).substring(2);
+        let _startIndex = 0;
+        let _endIndex = 8;
+        let _result = '';
+        let _tierRep1;
+        let _tierRep2;
+
+        for (let i = 0; i < 8; i++) {
+          _tierRep1 = BigNumber.from(
+            '0x' + report1_.slice(_startIndex, _endIndex)
+          );
+          _tierRep2 = BigNumber.from(
+            '0x' + report2_.slice(_startIndex, _endIndex)
+          );
+          _result += _tierRep1.gt(_tierRep2)
+            ? paddedUInt32(_tierRep1.sub(_tierRep2))
+            : '00000000';
+          _startIndex += 8;
+          _endIndex += 8;
+        }
+        state.stack.push(BigNumber.from('0x' + _result));
+      } 
+      else throw new Error('Undefined stack variables');
+    },
+
+    [VM.Opcodes.SELECT_LTE]: (state: StateJS, operand: number, data?: any) => {
+      const length_ = operand & 31;
+      const mode_ = (operand & 96) >> 5;
+      const logic_ = (operand & 128) >> 7;
+      const item_ = state.stack.pop();
+      let _item;
+      // array of raw reports
+      let _reports: string[] = [];
+      // array of array of each tier's lte report
+      let _reportsAtTier: string[][] = [[], [], [], [], [], [], [], []];
+      let _result = '';
+
+      //building an array of each tier's report against blockNumber_
+      //tiers greater than blockNumber_ will get "ffffffff"
+      if (item_ != undefined) {
+        const blockNumber_ = paddedUInt32(item_);
+        for (let i = 0; i < length_; i++) {
+          let _startIndex = 0;
+          let _endIndex = 8;
+          _item = state.stack.pop();
+          if (_item != undefined) {
+            _reports[i] = paddedUInt256(_item).substring(2);
+            for (let j = 0; j < 8; j++) {
+              _reportsAtTier[j].push(
+                blockNumber_ < _reports[i].slice(_startIndex, _endIndex)
+                  ? 'ffffffff'
+                  : _reports[i].slice(_startIndex, _endIndex)
+              );
+              _startIndex += 8;
+              _endIndex += 8;
+            }
+          } 
+          else throw new Error('Undefined stack variables');
+        }
+      } 
+      else throw new Error('Undefined stack variable');
+
+      // logic_ and mode_ selections
+      if (logic_) {
+        for (let i = 0; i < 8; i++) {
+          if (mode_ == 0) {
+            _reportsAtTier[i] = [
+              _reportsAtTier[i].reduce((e, m) => (e < m ? e : m)),
+            ];
+          } 
+          else if (mode_ == 1) {
+            //filter out "ffffffff"
+            _reportsAtTier[i] = _reportsAtTier[i].filter(
+              (e) => e != 'ffffffff'
+            );
+            _reportsAtTier[i] =
+              _reportsAtTier[i].length > 0
+                ? [_reportsAtTier[i].reduce((e, m) => (e > m ? e : m))]
+                : ['ffffffff'];
+          } 
+          else if (mode_ == 2) {
+            //filter out "ffffffff"
+            _reportsAtTier[i] = _reportsAtTier[i].filter(
+              (e) => e != 'ffffffff'
+            );
+            _reportsAtTier[i] =
+              _reportsAtTier[i].length > 0
+                ? [_reportsAtTier[i][_reportsAtTier[i].length - 1]]
+                : ['ffffffff'];
+          }
+        }
+      } 
+      else {
+        for (let i = 0; i < 8; i++) {
+          if (mode_ == 0) {
+            //check if "ffffffff" exists within the tier's array
+            _reportsAtTier[i] = _reportsAtTier[i].includes('ffffffff')
+              ? ['ffffffff']
+              : [_reportsAtTier[i].reduce((e, m) => (e < m ? e : m))];
+          } 
+          else if (mode_ == 1) {
+            //check if "ffffffff" exists within the tier's array
+            _reportsAtTier[i] = _reportsAtTier[i].includes('ffffffff')
+              ? ['ffffffff']
+              : [_reportsAtTier[i].reduce((e, m) => (e > m ? e : m))];
+          } 
+          else if (mode_ == 2) {
+            //check if "ffffffff" exists within the tier's array
+            _reportsAtTier[i] = _reportsAtTier[i].includes('ffffffff')
+              ? ['ffffffff']
+              : [_reportsAtTier[i][_reportsAtTier[i].length - 1]];
+          }
+        }
+      }
+      //building the final report
+      for (let i = 0; i < 8; i++) {
+        _result += _reportsAtTier[i][0];
+      }
+      state.stack.push(BigNumber.from('0x' + _result));
+    },
+
+    [VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE]: (
+      state: StateJS,
+      operand: number,
+      data?: any
+    ) => {
+      const endTier_ = operand >> 4;
+      const startTier_ = operand & 15;
+      const item2_ = state.stack.pop();
+      const item1_ = state.stack.pop();
+
+      if (item1_ && item2_ != undefined) {
+        const _blockNumber = paddedUInt32(item2_);
+        const _report = paddedUInt256(item1_).substring(2);
+        let _startIndex = (8 - endTier_) * 8;
+        let _endIndex = _startIndex + 8;
+        let _result = _report.slice(0, _startIndex);
+        const resultLow_ = _report.slice(
+          _startIndex + (endTier_ - startTier_) * 8
+        );
+
+        for (let i = 0; i < endTier_ - startTier_; i++) {
+          _result +=
+            _report.slice(_startIndex, _endIndex) > _blockNumber
+              ? _blockNumber
+              : _report.slice(_startIndex, _endIndex);
+          _startIndex += 8;
+          _endIndex += 8;
+        }
+        state.stack.push(BigNumber.from('0x' + _result + resultLow_));
+      } 
+      else throw new Error('Undefined stack variables');
     },
   };
 }

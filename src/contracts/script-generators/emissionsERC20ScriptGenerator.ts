@@ -195,9 +195,7 @@ export class LinearEmissions {
         op(VM.Opcodes.CONSTANT, 0),
         op(VM.Opcodes.BLOCK_NUMBER),
         op(
-    // TODO: @rouzwelt
-    // @ts-ignore
-          VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+          VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
           tierRange(Tier.ZERO, Tier.EIGHT)
         ),
       ]);
@@ -210,9 +208,7 @@ export class LinearEmissions {
           VM.Opcodes.CONTEXT,
           EmissionsERC20Context.ClaimantAccount
         ),
-    // TODO: @rouzwelt
-    // @ts-ignore
-        op(VM.Opcodes.REPORT),
+        op(VM.Opcodes.ITIERV2_REPORT),
       ]);
 
     // prettier-ignore
@@ -223,9 +219,7 @@ export class LinearEmissions {
           VM.Opcodes.CONTEXT,
           EmissionsERC20Context.ClaimantAccount
         ),
-              // TODO: @rouzwelt
-    // @ts-ignore
-        op(VM.Opcodes.REPORT),
+        op(VM.Opcodes.ITIERV2_REPORT),
       ]);
 
     // prettier-ignore
@@ -505,27 +499,19 @@ export class SequentialEmissions {
         op(VM.Opcodes.CONSTANT, 0),
         op(VM.Opcodes.BLOCK_NUMBER),
         op(
-          // TODO: @rouzwelt
-          // @ts-ignore
-          VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE,
+          VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
           tierRange(Tier.ZERO, Tier.EIGHT)
         ),
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.CONTEXT, EmissionsERC20Context.ClaimantAccount),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.REPORT),
+        op(VM.Opcodes.ITIERV2_REPORT),
         op(VM.Opcodes.SATURATING_DIFF),
         op(VM.Opcodes.THIS_ADDRESS),
         op(VM.Opcodes.CONTEXT, EmissionsERC20Context.ClaimantAccount),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.REPORT),
+        op(VM.Opcodes.ITIERV2_REPORT),
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.CONTEXT, EmissionsERC20Context.ClaimantAccount),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.REPORT),
+        op(VM.Opcodes.ITIERV2_REPORT),
         op(VM.Opcodes.SATURATING_DIFF),
         op(VM.Opcodes.CONSTANT, 2),
         op(VM.Opcodes.CONSTANT, 3),

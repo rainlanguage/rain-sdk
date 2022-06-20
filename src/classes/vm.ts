@@ -214,6 +214,9 @@ export enum AllStandardOps {
    * Opcode to update the timestamp over a range of tiers for a report.
    */
   UPDATE_TIMES_FOR_TIER_RANGE,
+  /**
+   * length of available opcodes
+   */
   length,
 }
 

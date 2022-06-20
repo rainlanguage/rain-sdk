@@ -24,7 +24,7 @@ export * from './RainJS/CombineTierJS';
 export * from './RainJS/EmissionsERC20JS';
 export * from './RainJS/SaleJS';
 
-export * from './contracts/tiers/iTier';
+export * from './contracts/tiers/iTierV2';
 export * from './contracts/tiers/combineTier';
 export * from './contracts/tiers/verifyTier';
 

@@ -187,3 +187,33 @@ export type WithdrawConfig = {
   vaultId: BigNumberish;
   amount: BigNumberish;
 };
+
+/**
+ * Enum for operand of the Orderbook's CONTEXT opcode
+ */
+ export enum OrderbookContext {
+  /**
+   * 0 or the index of the context array for Orderbook CONTEXT opcode
+   * stacks the Orderhash
+   */
+  OrderHash,
+  /**
+   * 1 or the index of the context array in the Oderbook CONTEXT opcode
+   * stacks the counterparty address
+   */
+  CounterParty,
+  /**
+   * length of Orderbook's valid context opcodes
+   */
+  length
+};
+
+/**
+ * Enum for operand of the Orderbook's STORAGE opcode
+ */
+ export enum OrderbookStroage {
+  /**
+   * length of Orederbook's valid storage opcodes
+   */
+  length
+}

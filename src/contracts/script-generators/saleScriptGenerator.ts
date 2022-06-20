@@ -75,7 +75,7 @@ export class PriceCurve {
     endTimestamp: number,
     extraTimeDiscountThreshold: number,
     extraTimeDiscount: number
-  ): this {
+  ): PriceCurve {
     let _saleDiscount: StateConfig;
 
     const EXTRA_TIME_DISCOUNT = () =>
@@ -141,7 +141,7 @@ export class PriceCurve {
     tierAddress: string,
     tierDiscount: number[],
     tierActivation?: (number | string)[]
-  ): this {
+  ): PriceCurve {
     const _discountConfig = VM.toTierDiscounter(
       this,
       tierAddress,
@@ -390,7 +390,7 @@ export class SaleDurationInTimestamp {
     extraTime: number,
     extraTimeAmount: number,
     erc20decimals: number = 18
-  ): this {
+  ): SaleDurationInTimestamp {
     const ExtraTimeAmount = parseUnits(
       extraTimeAmount.toString(),
       erc20decimals
@@ -434,7 +434,7 @@ export class SaleDurationInTimestamp {
    * @returns this
    *
    */
-  public applyOwnership(ownerAddress: string): this {
+  public applyOwnership(ownerAddress: string): SaleDurationInTimestamp {
     this.constants.push(ownerAddress, 0, ethers.constants.MaxUint256);
 
     let src = arrayify(this.sources[0], { allowMissingPrefix: true });
@@ -483,7 +483,7 @@ export class SaleDurationInTimestamp {
   public afterMinimumRaise(
     minimumRaise: number,
     erc20decimals: number = 18
-  ): this {
+  ): SaleDurationInTimestamp {
     const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
 
     let _minimumRaise: StateConfig = {
@@ -580,7 +580,7 @@ export class SaleDurationInBlocks {
     extraTimeBlocks: number,
     extraTimeAmount: number,
     erc20decimals: number = 18
-  ): this {
+  ): SaleDurationInBlocks {
     const ExtraTimeAmount = parseUnits(
       extraTimeAmount.toString(),
       erc20decimals
@@ -624,7 +624,7 @@ export class SaleDurationInBlocks {
    * @returns this
    *
    */
-  public applyOwnership(ownerAddress: string): this {
+  public applyOwnership(ownerAddress: string): SaleDurationInBlocks {
     this.constants.push(ownerAddress, 0, ethers.constants.MaxUint256);
 
     let src = arrayify(this.sources[0], { allowMissingPrefix: true });
@@ -673,7 +673,7 @@ export class SaleDurationInBlocks {
   public afterMinimumRaise(
     minimumRaise: number,
     erc20decimals: number = 18
-  ): this {
+  ): SaleDurationInBlocks {
     const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
 
     let _minimumRaise: StateConfig = {
@@ -751,7 +751,7 @@ export class BuyCap {
       tierMultiplier?: number[];
       tierActivation?: (number | string)[];
     }
-  ): this {
+  ): BuyCap {
     const MIN_CAP_SOURCES = (i: number) =>
       concat([
         op(VM.Opcodes.CONSTANT, i),
