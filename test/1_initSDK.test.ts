@@ -108,7 +108,6 @@ before('Initializing and deploying contracts to hardhat network', async () => {
   const ctxAccount = op(VM.Opcodes.CONTEXT, 0);
 
   // prettier-ignore
-  // return default report
   const sourceReportTimeForTierDefault = VM.createVMSources([
       op(VM.Opcodes.THIS_ADDRESS),
       ctxAccount,

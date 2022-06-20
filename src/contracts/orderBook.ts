@@ -4,8 +4,21 @@ import {
   ReadTxOverrides,
   TxOverrides,
 } from '../classes/rainContract';
-import { StateConfig, StorageOpcodesRange } from '../classes/vm';
+import {
+  StateConfig,
+  StorageOpcodesRange,
+  AllStandardOps,
+} from '../classes/vm';
 import { OrderBook__factory } from '../typechain';
+
+/**
+ * @public
+ * Type for the opcodes availables in a OrderBook instance.
+ */
+export type OrderBookOpcodes = typeof AllStandardOps & {
+  ORDER_FUNDS_CLEARED: number;
+  COUNTERPARTY_FUNDS_CLEARED: number;
+};
 
 /**
  * @public
@@ -56,6 +69,18 @@ export class OrderBook extends RainContract {
     this.storageOpcodesRange = _orderBook.storageOpcodesRange;
     this.withdraw = _orderBook.withdraw;
   }
+
+  /**
+   * All the opcodes avaialbles in the OrderBook contract.
+   *
+   * @remarks
+   * This expose all the standard opcodes along with the specific opcodes of the OrderBook.
+   */
+  public static Opcodes: OrderBookOpcodes = {
+    ...AllStandardOps,
+    ORDER_FUNDS_CLEARED: 0 + AllStandardOps.length,
+    COUNTERPARTY_FUNDS_CLEARED: 1 + AllStandardOps.length,
+  };
 
   /**
    * Get the OrderBook instance
