@@ -353,10 +353,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.FixedPointMathOpsTest__factory>;
     getContractFactory(
-      name: "Token",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Token__factory>;
-    getContractFactory(
       name: "MockISale",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockISale__factory>;
@@ -954,11 +950,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.FixedPointMathOpsTest>;
-    getContractAt(
-      name: "Token",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.Token>;
     getContractAt(
       name: "MockISale",
       address: string,
