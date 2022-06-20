@@ -257,6 +257,7 @@ export class CombineTierGenerator {
           op(CombineTier.Opcodes.VAL, 2),
           op(CombineTier.Opcodes.VAL, arg(2)),
           op(CombineTier.Opcodes.EXP, 2),
+          op(CombineTier.Opcodes.MUL, 2),
         ])
       ],
       stackLength: 15,
