@@ -640,12 +640,12 @@ describe('SDK - RainJS', () => {
 
     const script: StateConfig = {
       constants: [
-        "44371183800127436851408839",
+        "443711838",
     ],
       sources: [
         concat([
           op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.SCALE_BY, 136),
+          op(RainJS.Opcodes.SCALE_BY, 13),
         ])
       ],
       stackLength: 2,
@@ -655,7 +655,7 @@ describe('SDK - RainJS', () => {
     const rainJs = new RainJS(script);
     const result = await rainJs.run();
 
-    const expected = BigNumber.from("443711838001274368");
+    const expected = BigNumber.from("4437118380000000000000");
 
     assert(
       expected.eq(result),
