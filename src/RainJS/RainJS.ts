@@ -457,17 +457,16 @@ export class RainJS {
     [RainJS.Opcodes.SCALE_BY] : 
       (state: StateJS, operand: number, data?: any) => {
         const item_ = state.stack.pop();
-        const operandSign_ = (operand & 255) >> 7;
-        let _operand = operand & 127;
         if (item_ != undefined) {
-          if (operandSign_) {
+          if (operand > 127) {
+            operand = 256 - operand;
             state.stack.push(
-              item_.div((10 ** (_operand)).toString())
+              item_.div((10 ** (operand)).toString())
             );
           }
           else {
             state.stack.push(
-              item_.mul((10 ** (_operand)).toString())
+              item_.mul((10 ** (operand)).toString())
             );
           }
         }
