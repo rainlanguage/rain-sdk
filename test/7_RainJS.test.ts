@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { ethers } from 'hardhat';
-import { Tier, Time, expectAsyncError } from './utils';
+import { Tier, Time, expectAsyncError, deployErc20 } from './utils';
 import { BigNumber } from 'ethers';
 import { 
   op,
@@ -1299,22 +1299,20 @@ describe('SDK - RainJS', () => {
    
   });
   
-  it('should return the balnce of an ERC20 token', async () => {
+  it.only('should return the balnce of an ERC20 token', async () => {
 
-    // Deploying and minting tokens
-    const signers = await ethers.getSigners();
-    const Erc20 = await ethers.getContractFactory("Token");
-    const rTKN = await Erc20.deploy("Rain Token", "rTKN");
-    await rTKN.deployed()
-    let account = signers[0];
-    await rTKN.connect(account).mintTokens(5)
+   // Deploying and minting tokens
+   const signers = await ethers.getSigners();
+   let account = signers[0];
+   
+   const rTKN = await deployErc20(account);
+   await rTKN.deployed()
 
-
-    // Generating script
-    const constants = [
-       rTKN.address,
-       BigNumber.from(await account.getAddress())
-    ];
+   // Generating script
+   const constants = [
+     rTKN.address,
+     BigNumber.from(await account.getAddress())
+   ];
 
     // JSVM Script
     const scriptJSVM: StateConfig = {
@@ -1332,7 +1330,7 @@ describe('SDK - RainJS', () => {
      // JSVM run
      const rainJs = new RainJS(scriptJSVM,{signer: account});
      const resultJSVM = await rainJs.run();
-     const expected = BigNumber.from("5000000000000000000");
+     const expected = BigNumber.from("1000000000000000000000000000");
 
 
      // Asserting 
