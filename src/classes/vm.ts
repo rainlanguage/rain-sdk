@@ -313,8 +313,21 @@ export class VM {
    * operand. Please @see OPerand
    * @returns A source
    */
-  public static createVMSources(OPerands: OPerand[]): [Uint8Array] {
-    return [concat(OPerands.map((x) => op(x[0], x[1] || 0)))];
+   public static createVMSources(
+    OPerands: (OPerand | Uint8Array)[]
+  ): [Uint8Array] {
+    // return [concat(OPerands.map((x) => op(x[0], x[1] || 0)))];
+    return [
+      concat(
+        OPerands.map((x) => {
+          if (x.constructor === Uint8Array) {
+            return x;
+          } else {
+            return op(x[0], x[1] || 0);
+          }
+        })
+      ),
+    ];
   }
 
 

@@ -35,3 +35,5 @@ export * from './contracts/tiers/verifyTier';
 export * from './contracts/generics/erc20';
 export * from './contracts/generics/erc721';
 export * from './contracts/generics/erc1155';
+
+export * from './friendlySource';
