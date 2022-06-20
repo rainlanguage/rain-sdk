@@ -1299,7 +1299,7 @@ describe('SDK - RainJS', () => {
    
   });
   
-  it.only('should return the balnce of an ERC20 token', async () => {
+  it('should return the balnce of an ERC20 token', async () => {
 
    // Deploying and minting tokens
    const signers = await ethers.getSigners();
