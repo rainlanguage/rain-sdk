@@ -1,35 +1,18 @@
 import { assert } from 'chai';
 import { ethers } from 'hardhat';
-// import { Tier, Time, expectAsyncError } from './utils';
-// import { BigNumber } from 'ethers';
 import {
   op,
-  // paddedUInt32,
-  // selectLte,
-  // arg,
   concat,
-  // paddedUInt32,
-  // arg,
-  // callSize,
-  // bytify,
-  // tierRange,
-  // selectLteLogic,
-  // selectLteMode
 } from '../src/utils'
 import {
-  // StateConfig,
   RainJS, StateConfig,
-  // OpcodeFN,
-  // ApplyOpFn,
-  // VM,
 } from '../src';
 
 import { BigNumber, Contract } from "ethers";
 import type { CalculatorTest } from "../typechain/CalculatorTest";
 import type { FixedPointMathOpsTest } from "../typechain/FixedPointMathOpsTest";
-import { Time } from './utils';
-// import { Time } from './utils';
-
+import type { TokenOpsTest } from "../typechain/TokenOpsTest";
+import { deployErc20, deployErc721, deployErc1155, Time } from './utils';
 
 const enum RainVMOpcode {
   SKIP,
@@ -68,8 +51,21 @@ const enum FixedPointMathOpcode {
   ONE,
   DECIMALS,
 }
+const enum TokenOpsOpcode {
+  SKIP,
+  VAL,
+  DUP,
+  ZIPMAP,
+  DEBUG,
+  IERC20_BALANCE_OF,
+  IERC20_TOTAL_SUPPLY,
+  IERC721_BALANCE_OF,
+  IERC721_OWNER_OF, 
+  IERC1155_BALANCE_OF,
+  IERC1155_BALANCE_OF_BATCH
+}
 
-describe.only('Comparing RainVM with RainJS', () => {
+describe('Comparing RainVM with RainJS', () => {
 
   it('should perform addition operation with block number', async () => {
 
@@ -691,7 +687,7 @@ describe.only('Comparing RainVM with RainJS', () => {
        got ${resultJSVM}`
     );
   })
-  
+
   it('should perform scale_by operation correctly', async () => {
     const constants = [
       "2000",
@@ -750,6 +746,370 @@ describe.only('Comparing RainVM with RainJS', () => {
        got ${resultJSVM}`
     );
   })
+
+  it('should return the balnce of an ERC20 token', async () => {
+
+    // Deploying and minting tokens
+    const signers = await ethers.getSigners();
+    let account = signers[0];
+    
+    const rTKN = await deployErc20(account);
+    await rTKN.deployed()
+
+    // Generating script
+    const constants = [
+      rTKN.address,
+      BigNumber.from(await account.getAddress())
+    ];
+
+    // JSVM Script
+    const scriptJSVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(RainJS.Opcodes.VAL, 0),
+          op(RainJS.Opcodes.SENDER),
+          op(RainJS.Opcodes.IERC20_BALANCE_OF),
+        ])
+      ],
+      stackLength: 3,
+      argumentsLength: 0
+    }
+
+    // RainVM Script
+    const scriptVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(TokenOpsOpcode.VAL, 0),
+          op(TokenOpsOpcode.VAL, 1),
+          op(TokenOpsOpcode.IERC20_BALANCE_OF),
+        ])
+      ],
+      stackLength: 3,
+      argumentsLength: 0
+    }
+
+    // JSVM run
+    const rainJs = new RainJS(scriptJSVM, { signer: account });
+    const resultJSVM = await rainJs.run();
+    const expected = BigNumber.from("1000000000000000000000000000");
+
+    // RainVM run
+    const tokenOpsFactory = await ethers.getContractFactory("TokenOpsTest");
+    const tokenOps = (await tokenOpsFactory.deploy(scriptVM)) as TokenOpsTest & Contract;
+    const resultVM = await tokenOps.run();
+
+    // Asserting 
+    assert(
+      expected.eq(resultJSVM),
+      `
+       The IERC20_BALANCE_OF operation failed:
+       expected ${expected}
+       got ${resultJSVM}`
+    );
+
+    // RainVM vs JSVM
+    assert(
+      resultJSVM.eq(resultVM),
+      `
+       JSVM results mismatched with RainVM:
+       expected ${resultVM}
+       got ${resultJSVM}`
+    );
+  });
+
+  it('should return the balnce of an ERC721 token', async () => {
+
+    // Deploying and minting tokens
+    const signers = await ethers.getSigners();
+    let account = signers[0];
+    let account2 = signers[1];
+    
+    const rTKN = await deployErc721(account);
+    await rTKN.deployed();
+    await rTKN.connect(account2).mintNewToken();
+    await rTKN.connect(account2).mintNewToken();
+
+    // Generating script
+    const constants = [
+      rTKN.address,
+      BigNumber.from(await account2.getAddress())
+    ];
+
+    // JSVM Script
+    const scriptJSVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(RainJS.Opcodes.VAL, 0),
+          op(RainJS.Opcodes.SENDER),
+          op(RainJS.Opcodes.IERC721_BALANCE_OF),
+        ])
+      ],
+      stackLength: 3,
+      argumentsLength: 0
+    }
+
+    // RainVM Script
+    const scriptVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(TokenOpsOpcode.VAL, 0),
+          op(TokenOpsOpcode.VAL, 1),
+          op(TokenOpsOpcode.IERC721_BALANCE_OF),
+        ])
+      ],
+      stackLength: 3,
+      argumentsLength: 0
+    }
+
+    // JSVM run
+    const rainJs = new RainJS(scriptJSVM, { signer: account2 });
+    const resultJSVM = await rainJs.run();
+    const expected = BigNumber.from("2");
+
+    // RainVM run
+    const tokenOpsFactory = await ethers.getContractFactory("TokenOpsTest");
+    const tokenOps = (await tokenOpsFactory.deploy(scriptVM)) as TokenOpsTest & Contract;
+    const resultVM = await tokenOps.run();
+
+    // Asserting 
+    assert(
+      expected.eq(resultJSVM),
+      `
+       The IERC721_BALANCE_OF operation failed:
+       expected ${expected}
+       got ${resultJSVM}`
+    );
+
+    // RainVM vs JSVM
+    assert(
+      resultJSVM.eq(resultVM),
+      `
+       JSVM results mismatched with RainVM:
+       expected ${resultVM}
+       got ${resultJSVM}`
+    );
+  });
+  
+  it('should return the balnce of an ERC1155 token', async () => {
+
+    // Deploying and minting tokens
+    const signers = await ethers.getSigners();
+    let account = signers[0];
+    let account2 = signers[1];
+    
+    const rTKN = await deployErc1155(account);
+    await rTKN.deployed();
+    await rTKN.connect(account2).mintNewToken();
+    // Generating script
+    const constants = [
+      rTKN.address,
+      BigNumber.from(await account2.getAddress()),
+      1
+    ];
+
+    // JSVM Script
+    const scriptJSVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(RainJS.Opcodes.VAL, 0),
+          op(RainJS.Opcodes.SENDER),
+          op(RainJS.Opcodes.VAL, 2),
+          op(RainJS.Opcodes.IERC1155_BALANCE_OF),
+        ])
+      ],
+      stackLength: 3,
+      argumentsLength: 0
+    }
+
+    // RainVM Script
+    const scriptVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(TokenOpsOpcode.VAL, 0),
+          op(TokenOpsOpcode.VAL, 1),
+          op(RainJS.Opcodes.VAL, 2),
+          op(TokenOpsOpcode.IERC1155_BALANCE_OF),
+        ])
+      ],
+      stackLength: 3,
+      argumentsLength: 0
+    }
+
+    // JSVM run
+    const rainJs = new RainJS(scriptJSVM, { signer: account2 });
+    const resultJSVM = await rainJs.run();
+    const expected = BigNumber.from("1000000000000000");
+
+    // RainVM run
+    const tokenOpsFactory = await ethers.getContractFactory("TokenOpsTest");
+    const tokenOps = (await tokenOpsFactory.deploy(scriptVM)) as TokenOpsTest & Contract;
+    const resultVM = await tokenOps.run();
+
+    // Asserting 
+    assert(
+      expected.eq(resultJSVM),
+      `
+       The IERC1155_BALANCE_OF operation failed:
+       expected ${expected}
+       got ${resultJSVM}`
+    );
+
+    // RainVM vs JSVM
+    assert(
+      resultJSVM.eq(resultVM),
+      `
+       JSVM results mismatched with RainVM:
+       expected ${resultVM}
+       got ${resultJSVM}`
+    );
+  });
+
+  it('should give the minimum value among the values', async () => {
+
+    // Generating script
+    const constants = [10, 20, 30, 40, 50, 60];
+
+    // JSVM Script
+    const scriptJSVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(RainJS.Opcodes.VAL, 0),
+          op(RainJS.Opcodes.VAL, 1),
+          op(RainJS.Opcodes.VAL, 2),
+          op(RainJS.Opcodes.VAL, 3),
+          op(RainJS.Opcodes.VAL, 4),
+          op(RainJS.Opcodes.MIN, 5),
+        ])
+      ],
+      stackLength: 6,
+      argumentsLength: 0
+    }
+
+    // RainVM Script
+    const scriptVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(RainVMOpcode.VAL, 0),
+          op(RainVMOpcode.VAL, 1),
+          op(RainVMOpcode.VAL, 2),
+          op(RainVMOpcode.VAL, 3),
+          op(RainVMOpcode.VAL, 4),
+          op(RainVMOpcode.MIN, 5),
+        ])
+      ],
+      stackLength: 6,
+      argumentsLength: 0
+    }
+
+    // JSVM run
+    const rainJs = new RainJS(scriptJSVM);
+    const resultJSVM = await rainJs.run();
+    const expected = BigNumber.from("10");
+
+
+    // RainVM run
+    const calculatorFactory = await ethers.getContractFactory("CalculatorTest");
+    const calculator = (await calculatorFactory.deploy(scriptVM)) as CalculatorTest & Contract;
+    const resultVM = await calculator.run();
+
+    // Asserting 
+    assert(
+      expected.eq(resultJSVM),
+      `
+       The MIN operation failed:
+       expected ${expected}
+       got ${resultJSVM}`
+    );
+
+    // RainVM vs JSVM
+    assert(
+      resultJSVM.eq(resultVM),
+      `
+       JSVM results mismatched with RainVM:
+       expected ${resultVM}
+       got ${resultJSVM}`
+    );
+  });
+  
+  it('should give the maximum value among the values', async () => {
+
+    // Generating script
+    const constants = [10, 20, 30, 40, 50, 60];
+
+    // JSVM Script
+    const scriptJSVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(RainJS.Opcodes.VAL, 0),
+          op(RainJS.Opcodes.VAL, 1),
+          op(RainJS.Opcodes.VAL, 2),
+          op(RainJS.Opcodes.VAL, 3),
+          op(RainJS.Opcodes.VAL, 4),
+          op(RainJS.Opcodes.VAL, 5),
+          op(RainJS.Opcodes.MAX, 6),
+        ])
+      ],
+      stackLength: 7,
+      argumentsLength: 0
+    }
+
+    // RainVM Script
+    const scriptVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(RainVMOpcode.VAL, 0),
+          op(RainVMOpcode.VAL, 1),
+          op(RainVMOpcode.VAL, 2),
+          op(RainVMOpcode.VAL, 3),
+          op(RainVMOpcode.VAL, 4),
+          op(RainVMOpcode.VAL, 5),
+          op(RainVMOpcode.MAX, 6),
+        ])
+      ],
+      stackLength: 7,
+      argumentsLength: 0
+    }
+
+    // JSVM run
+    const rainJs = new RainJS(scriptJSVM);
+    const resultJSVM = await rainJs.run();
+    const expected = BigNumber.from("60");
+
+
+    // RainVM run
+    const calculatorFactory = await ethers.getContractFactory("CalculatorTest");
+    const calculator = (await calculatorFactory.deploy(scriptVM)) as CalculatorTest & Contract;
+    const resultVM = await calculator.run();
+
+    // Asserting 
+    assert(
+      expected.eq(resultJSVM),
+      `
+       The MAX operation failed:
+       expected ${expected}
+       got ${resultJSVM}`
+    );
+
+    // RainVM vs JSVM
+    assert(
+      resultJSVM.eq(resultVM),
+      `
+       JSVM results mismatched with RainVM:
+       expected ${resultVM}
+       got ${resultJSVM}`
+    );
+  });
+
 
 });
 

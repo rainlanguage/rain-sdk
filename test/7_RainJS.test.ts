@@ -1298,5 +1298,51 @@ describe('SDK - RainJS', () => {
     )
    
   });
+  
+  it('should return the balnce of an ERC20 token', async () => {
 
+    // Deploying and minting tokens
+    const signers = await ethers.getSigners();
+    const Erc20 = await ethers.getContractFactory("Token");
+    const rTKN = await Erc20.deploy("Rain Token", "rTKN");
+    await rTKN.deployed()
+    let account = signers[0];
+    await rTKN.connect(account).mintTokens(5)
+
+
+    // Generating script
+    const constants = [
+       rTKN.address,
+       BigNumber.from(await account.getAddress())
+    ];
+
+    // JSVM Script
+    const scriptJSVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(RainJS.Opcodes.VAL, 0),
+          op(RainJS.Opcodes.SENDER),
+          op(RainJS.Opcodes.IERC20_BALANCE_OF),
+        ])
+      ],
+      stackLength: 3,
+      argumentsLength: 0
+    }
+     // JSVM run
+     const rainJs = new RainJS(scriptJSVM,{signer: account});
+     const resultJSVM = await rainJs.run();
+     const expected = BigNumber.from("5000000000000000000");
+
+
+     // Asserting 
+     assert(
+      expected.eq(resultJSVM),
+      `
+       The IERC20_BALANCE_OF operation failed:
+       expected ${expected}
+       got ${resultJSVM}`
+    );
+
+  });
 })
