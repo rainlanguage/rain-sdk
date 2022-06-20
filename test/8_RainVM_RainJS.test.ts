@@ -692,9 +692,9 @@ describe.only('Comparing RainVM with RainJS', () => {
     );
   })
   
-  it.only('should perform scale_by operation correctly', async () => {
+  it('should perform scale_by operation correctly', async () => {
     const constants = [
-      "2",
+      "2000",
     ];
 
     const scriptJSVM: StateConfig = {
@@ -702,7 +702,7 @@ describe.only('Comparing RainVM with RainJS', () => {
       sources: [
         concat([
           op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.SCALE_BY, 128),
+          op(RainJS.Opcodes.SCALE_BY, 253),
         ])
       ],
       stackLength: 2,
@@ -714,7 +714,7 @@ describe.only('Comparing RainVM with RainJS', () => {
       sources: [
         concat([
           op(FixedPointMathOpcode.VAL, 0),
-          op(FixedPointMathOpcode.SCALE_BY, 128),
+          op(FixedPointMathOpcode.SCALE_BY, 253),
         ])
       ],
       stackLength: 2,
@@ -731,7 +731,7 @@ describe.only('Comparing RainVM with RainJS', () => {
     const rainJs = new RainJS(scriptJSVM);
     const resultJSVM = await rainJs.run();
     const expected = BigNumber.from("2");
-    console.log(resultJSVM)
+
     // Asserting 
     assert(
       expected.eq(resultJSVM),
