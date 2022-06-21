@@ -559,7 +559,7 @@ describe('SDK - RainJS', () => {
     const script: StateConfig = {
       constants: ['44371183800127436851408839'],
       sources: [
-        concat([op(VM.Opcodes.CONSTANT, 0), op(VM.Opcodes.SCALE_BY, 136)]),
+        concat([op(VM.Opcodes.CONSTANT, 0), op(VM.Opcodes.SCALE_BY, 248)]),
       ],
     };
 

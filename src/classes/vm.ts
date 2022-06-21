@@ -912,6 +912,7 @@ export class VM {
    *
    * @param configs - An array of StateConfigs that will be merged and executed at runtime in order by time slices
    * @param times - An array of numbers representing either BLOCK_NUMBER or TIMESTAMP that time slices will be between each of the 2 items in the array
+   * its length should be number of configs - 1.
    * @param inBlockNumber - (optional) false by default which means the time slices will be based on TIMESTAMP, pass true to base it on BLOCK_NUMBER
    *
    * @returns a VM script @see StateConfig
@@ -921,25 +922,19 @@ export class VM {
     times: number[],
     inBlockNumber: boolean = false
   ): StateConfig {
-    if (configs.length == times.length) {
+    if (configs.length == times.length + 1) {
       let _result: StateConfig;
 
       const SLICER = (i: number): StateConfig => {
         return {
-          constants: [times[i], times[i + 1]],
+          constants: [times[i]],
           sources: [
             concat([
+              inBlockNumber
+                ? op(VM.Opcodes.BLOCK_NUMBER)
+                : op(VM.Opcodes.BLOCK_TIMESTAMP),
               op(VM.Opcodes.CONSTANT, 0),
-              inBlockNumber
-                ? op(VM.Opcodes.BLOCK_NUMBER)
-                : op(VM.Opcodes.BLOCK_TIMESTAMP),
-              op(VM.Opcodes.LESS_THAN),
-              inBlockNumber
-                ? op(VM.Opcodes.BLOCK_NUMBER)
-                : op(VM.Opcodes.BLOCK_TIMESTAMP),
-              op(VM.Opcodes.CONSTANT, 1),
-              op(VM.Opcodes.LESS_THAN),
-              op(VM.Opcodes.EVERY),
+              op(VM.Opcodes.LESS_THAN)
             ]),
           ],
         };
@@ -963,6 +958,6 @@ export class VM {
       }
 
       return _result;
-    } else throw new Error('invalid arguments');
+    } else throw new Error('invalid number of times or configs arguments');
   }
 }
