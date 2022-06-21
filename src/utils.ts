@@ -1,6 +1,5 @@
 import { BigNumber, ethers, utils } from 'ethers';
 import type { BytesLike } from 'ethers';
-
 export const {
   /**
    * @public ethers concat

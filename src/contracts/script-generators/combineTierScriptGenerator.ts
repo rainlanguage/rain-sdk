@@ -68,7 +68,7 @@ export class CombineTierGenerator {
    * 
    * @returns this
    */
-  public combine (
+  public combineWith (
     reportVar: string | StateConfig,
     logic: selectLteLogic,
     mode: selectLteMode,
@@ -93,8 +93,8 @@ export class CombineTierGenerator {
       argumentsLength: 0
     }
 
-    let _result: StateConfig = VM.vmCombiner(_buttom, _combiner);
-    _result = VM.vmCombiner(this, _result);
+    let _result: StateConfig = VM.combiner(_buttom, _combiner);
+    _result = VM.combiner(this, _result);
 
     this.constants = _result.constants;
     this.sources = _result.sources;
@@ -113,7 +113,7 @@ export class CombineTierGenerator {
    * 
    * @returns this
    */
-  public updateReportAtTierRange (
+  public updateReport (
     startTier: Tier,
     endTier: Tier,
     number?: number
@@ -136,7 +136,7 @@ export class CombineTierGenerator {
       argumentsLength: 0
     };
 
-    const _result: StateConfig = VM.vmCombiner(this, _updater);
+    const _result: StateConfig = VM.combiner(this, _updater);
 
     this.constants = _result.constants;
     this.sources = _result.sources;
@@ -154,7 +154,7 @@ export class CombineTierGenerator {
    * 
    * @returns this
    */
-  public satDiff (
+  public differenceFrom (
     reportVar: string | StateConfig,
   ) : this {
 
@@ -173,8 +173,8 @@ export class CombineTierGenerator {
       argumentsLength: 0
     };
 
-    let _result: StateConfig = VM.vmCombiner(_buttom, _differ);
-    _result = VM.vmCombiner(this, _result);
+    let _result: StateConfig = VM.combiner(_buttom, _differ);
+    _result = VM.combiner(this, _result);
 
     this.constants = _result.constants;
     this.sources = _result.sources;
@@ -188,12 +188,12 @@ export class CombineTierGenerator {
   /**
    * Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier.
    * 
-   * @param reportVar - either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of StateConfig desired)
+   * @param reportVar - either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of report-like StateConfig desired)
    * @param numberOfBlocks - A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report.
    * 
    * @returns this
    */
-  public holdingTimeTransferTier (
+  public isTierHeldFor (
     reportVar: string | StateConfig,
     numberOfBlocks: number | number[],
   ) : this {
@@ -257,13 +257,14 @@ export class CombineTierGenerator {
           op(CombineTier.Opcodes.VAL, 2),
           op(CombineTier.Opcodes.VAL, arg(2)),
           op(CombineTier.Opcodes.EXP, 2),
+          op(CombineTier.Opcodes.MUL, 2),
         ])
       ],
       stackLength: 15,
       argumentsLength: 3
     };
 
-    _result = VM.vmCombiner(_report, _result);
+    _result = VM.combiner(_report, _result);
 
     this.constants = _result.constants;
     this.sources = _result.sources;

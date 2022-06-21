@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { ethers } from 'hardhat';
-import { Tier, Time } from './utils';
+import { Tier, Time, expectAsyncError, deployErc20 } from './utils';
 import { BigNumber } from 'ethers';
 import { 
   op,
@@ -640,12 +640,12 @@ describe('SDK - RainJS', () => {
 
     const script: StateConfig = {
       constants: [
-        "44371183800127436851408839",
+        "443711838",
     ],
       sources: [
         concat([
           op(RainJS.Opcodes.VAL, 0),
-          op(RainJS.Opcodes.SCALE_BY, 136),
+          op(RainJS.Opcodes.SCALE_BY, 13),
         ])
       ],
       stackLength: 2,
@@ -655,7 +655,7 @@ describe('SDK - RainJS', () => {
     const rainJs = new RainJS(script);
     const result = await rainJs.run();
 
-    const expected = BigNumber.from("443711838001274368");
+    const expected = BigNumber.from("4437118380000000000000");
 
     assert(
       expected.eq(result),
@@ -887,9 +887,460 @@ describe('SDK - RainJS', () => {
       got ${result}`
     );
   })
+  
+  it('should solve a mathematical expression (division, multiplication, summation)', async () => {
+    
+    const [signer] = await ethers.getSigners();
+    
+    const v4 = op(RainJS.Opcodes.VAL, 0);
+    const v5 = op(RainJS.Opcodes.VAL, 1);
+    const v2 = op(RainJS.Opcodes.VAL, 2);
+    // ((((4 5 2 +) 2 /) 5 *) 4 5 *) 
+    const script: StateConfig = {
+      constants: [4, 5, 2],
+      sources: [
+        concat([
+                v4,
+                v5,
+                v2,
+                op(RainJS.Opcodes.ADD, 3),
+              v2,
+              op(RainJS.Opcodes.DIV, 2),
+            v5,
+            op(RainJS.Opcodes.MUL, 2),
+          v4, 
+          v5,
+          op(RainJS.Opcodes.MUL, 3),
+        ])
+      ],
+      stackLength: 11,
+      argumentsLength: 0
+    }
 
+    const rainJs = new RainJS(script, {signer});
+    const result = await rainJs.run();
+    const expected = BigNumber.from(4+5+2).div(2).mul(5).mul(4).mul(5);
+    assert(
+      expected.eq(result),
+      `
+      The addition operation failed:
+      expected ${expected}
+      got ${result}`
+    );
+
+  })
+
+  it("should error when trying to read an out-of-bounds argument", async () => {
+
+    const errorMessage = "out-of-bound arguments";
+    const constants = [1, 2, 3];
+    const v1 = op(RainJS.Opcodes.VAL, 0);
+    const v2 = op(RainJS.Opcodes.VAL, 1);
+    const v3 = op(RainJS.Opcodes.VAL, 2);
+
+    const a0 = op(RainJS.Opcodes.VAL, arg(0));
+    const a1 = op(RainJS.Opcodes.VAL, arg(1));
+    const aOOB = op(RainJS.Opcodes.VAL, arg(3)); // Should fail here
+
+    // zero-based counting
+    const sourceIndex = 1; // 1
+    const loopSize = 0; // 1
+    const valSize = 2; // 3
+
+    const sources = [
+      concat([
+        v1,
+        v2,
+        v3,
+        op(RainJS.Opcodes.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
+      ]),
+      concat([
+        // (arg0 arg1 arg2 add)
+        a0,
+        a1,
+        aOOB,
+        op(RainJS.Opcodes.ADD, 3),
+      ]),
+    ];
+
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 3,
+      stackLength: 3,
+    }
+
+    const rainJs = new RainJS(script);
+    await expectAsyncError(
+      rainJs.run(),
+      errorMessage
+    );
+  });
+  
+  it("should error when trying to read an out-of-bounds constant", async () => {
+    
+    const errorMessage = "out-of-bound constants";
+    const constants = [1];
+    const vOOB = op(RainJS.Opcodes.VAL, 1);
+
+    const sources = [concat([vOOB])];
+
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 1,
+    }
+
+    const rainJs = new RainJS(script);
+    await expectAsyncError(
+      rainJs.run(),
+      errorMessage
+    );
+  });
+
+  it("should throw error when stack underflows [eager_if]", async () => {
+        
+    const errorMessage = "Undefined stack variables";
+    const constants = [0, 1];
+    const v0 = op(RainJS.Opcodes.VAL, 0);
+    const v1 = op(RainJS.Opcodes.VAL, 1);
+
+    const sources = [
+      concat([
+        v0, 
+        v1,
+        op(RainJS.Opcodes.EAGER_IF),
+      ]),
+    ];
+
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 3,
+    }
+
+    const rainJs = new RainJS(script);
+    await expectAsyncError(
+      rainJs.run(),
+      errorMessage
+    );
+  });
+
+  it("should throw error when stack underflows [add]", async () => {
+        
+    const errorMessage = "Undefined stack variables";
+    const constants = [10, 1, 4];
+    const v0 = op(RainJS.Opcodes.VAL, 0);
+    const v1 = op(RainJS.Opcodes.VAL, 1);
+    const v2 = op(RainJS.Opcodes.VAL, 2);
+
+    const sources = [
+      concat([
+        v0, 
+        v1,
+        v2,
+        op(RainJS.Opcodes.ADD, 4),
+      ]),
+    ];
+
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 0,
+      stackLength: 0,
+    }
+
+    const rainJs = new RainJS(script);
+    
+    await expectAsyncError(
+      rainJs.run(),
+      errorMessage
+    );
+  });
+
+  it("should handle a zipmap op with maxed sourceIndex and valSize", async () => {
+    const constants = [10, 20, 30, 40, 50, 60, 70, 80];
+
+    const a0 = op(RainJS.Opcodes.VAL, arg(0));
+    const a1 = op(RainJS.Opcodes.VAL, arg(1));
+    const a2 = op(RainJS.Opcodes.VAL, arg(2));
+    const a3 = op(RainJS.Opcodes.VAL, arg(3));
+    const a4 = op(RainJS.Opcodes.VAL, arg(4));
+    const a5 = op(RainJS.Opcodes.VAL, arg(5));
+    const a6 = op(RainJS.Opcodes.VAL, arg(6));
+    const a7 = op(RainJS.Opcodes.VAL, arg(7));
+
+    // zero-based counting
+    const sourceIndex = 1;
+    const loopSize = 0; // no subdivision of uint256, normal constants
+    const valSize = 7;
+
+    const sources = [
+      concat([
+        op(RainJS.Opcodes.VAL, 0), // val0
+        op(RainJS.Opcodes.VAL, 1), // val1
+        op(RainJS.Opcodes.VAL, 2), // val2
+        op(RainJS.Opcodes.VAL, 3), // val3
+        op(RainJS.Opcodes.VAL, 4), // val4
+        op(RainJS.Opcodes.VAL, 5), // val5
+        op(RainJS.Opcodes.VAL, 6), // val6
+        op(RainJS.Opcodes.VAL, 7), // val7
+        op(RainJS.Opcodes.ZIPMAP, callSize(sourceIndex, loopSize, valSize)),
+      ]),
+      concat([
+        // (arg0 arg1 arg2 ... add) (arg0 arg1 arg2 ... add)
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        op(RainJS.Opcodes.ADD, 32), // max no. items
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        a0,
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        op(RainJS.Opcodes.ADD, 30),
+      ]),
+    ];
+    const script = {
+      sources,
+      constants,
+      argumentsLength: 8,
+      stackLength: 32,
+    };
+    const rainJs = new RainJS(script);
+    
+    const actualAdd = await rainJs.run();
+    const expectedAdd = 1290; // second add
+    assert(
+      actualAdd.eq(expectedAdd),
+      `wrong result of zipmap
+      expected  ${expectedAdd}
+      got       ${actualAdd}`
+    );
+   
+  });
+
+  it("should panic when accumulator underflows with subtraction op", async () => {
+
+    const constants = [0, 1];
+    const errorMessage = "Invalid value (negative value not allowed)";
+    const vZero = op(RainJS.Opcodes.VAL, 0);
+    const vOne = op(RainJS.Opcodes.VAL, 1);
+    // prettier-ignore
+    const source = concat([
+        vZero,
+        vOne,
+      op(RainJS.Opcodes.SUB, 2)
+    ]);
+
+
+    const script = {
+      sources: [source],
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const rainJs = new RainJS(script);
+    await expectAsyncError(
+      rainJs.run(),
+      errorMessage
+    );
+  });
+
+  // Skipping as of now since overflow check is missing
+  it("should panic when accumulator overflows with multiplication op", async () => {
+
+    const max_uint256 = ethers.BigNumber.from(
+      "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    );
+    const constants = [max_uint256.div(2), 3];
+    const errorMessage = "max numeric range overflow";
+    const vHalfMaxUInt256 = op(RainJS.Opcodes.VAL, 0);
+    const vThree = op(RainJS.Opcodes.VAL, 1);
+
+    // (max_uint/2) * 3
+    const source0 = concat([
+        vHalfMaxUInt256,
+        vThree,
+      op(RainJS.Opcodes.MUL, 2)
+    ]);
+
+    const script = {
+      sources: [source0],
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const rainJs = new RainJS(script);
+    await expectAsyncError(
+      rainJs.run(),
+      errorMessage
+    );
+  });
+
+  it("should panic when accumulator overflows with exponentiation op", async () => {
+
+    const max_uint256 = ethers.BigNumber.from(
+      "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    );
+    const constants = [max_uint256.div(2), 2];
+    const errorMessage = "max numeric range overflow";
+    const vHalfMaxUInt256 = op(RainJS.Opcodes.VAL, 0);
+    const vTwo = op(RainJS.Opcodes.VAL, 1);
+
+    // (max_uint/2) ** 2
+    const source0 = concat([
+        vHalfMaxUInt256,
+        vTwo,
+      op(RainJS.Opcodes.EXP, 2)
+    ]);
+
+    const script = {
+      sources: [source0],
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const rainJs = new RainJS(script);
+    await expectAsyncError(
+      rainJs.run(),
+      errorMessage
+    );
+  });
+
+  it("should panic when accumulator overflows with addition op", async () => {
+
+    const max_uint256 = ethers.BigNumber.from(
+      "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    );
+    const constants = [max_uint256, 1];
+    const errorMessage = "max numeric range overflow";
+    const vMaxUint256 = op(RainJS.Opcodes.VAL, 0);
+    const vOne = op(RainJS.Opcodes.VAL, 1);
+
+    // max_uint256 + 1
+    const source0 = concat([
+        vMaxUint256,
+        vOne,
+      op(RainJS.Opcodes.ADD, 2)
+    ]);
+
+    const script = {
+      sources: [source0],
+      constants,
+      argumentsLength: 0,
+      stackLength: 10,
+    };
+
+    const rainJs = new RainJS(script);
+    await expectAsyncError(
+      rainJs.run(),
+      errorMessage
+    )
+   
+  });
+  
+  it('should return the balnce of an ERC20 token', async () => {
+
+   // Deploying and minting tokens
+   const signers = await ethers.getSigners();
+   let account = signers[0];
+   
+   const rTKN = await deployErc20(account);
+   await rTKN.deployed()
+
+   // Generating script
+   const constants = [
+     rTKN.address,
+     BigNumber.from(await account.getAddress())
+   ];
+
+    // JSVM Script
+    const scriptJSVM: StateConfig = {
+      constants: constants,
+      sources: [
+        concat([
+          op(RainJS.Opcodes.VAL, 0),
+          op(RainJS.Opcodes.SENDER),
+          op(RainJS.Opcodes.IERC20_BALANCE_OF),
+        ])
+      ],
+      stackLength: 3,
+      argumentsLength: 0
+    }
+     // JSVM run
+     const rainJs = new RainJS(scriptJSVM,{signer: account});
+     const resultJSVM = await rainJs.run();
+     const expected = BigNumber.from("1000000000000000000000000000");
+
+
+     // Asserting 
+     assert(
+      expected.eq(resultJSVM),
+      `
+       The IERC20_BALANCE_OF operation failed:
+       expected ${expected}
+       got ${resultJSVM}`
+    );
+
+  });
 })
-
-
-
-
