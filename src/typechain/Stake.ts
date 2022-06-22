@@ -42,7 +42,9 @@ export interface StakeInterface extends utils.Interface {
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initialize((address,uint256,string,string))": FunctionFragment;
     "name()": FunctionFragment;
-    "report(address,bytes)": FunctionFragment;
+    "report(address,uint256[])": FunctionFragment;
+    "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
+    "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -79,7 +81,15 @@ export interface StakeInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "report",
-    values: [string, BytesLike]
+    values: [string, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reportTimeForTier",
+    values: [string, BigNumberish, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
@@ -115,6 +125,14 @@ export interface StakeInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "reportTimeForTier",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
@@ -234,9 +252,21 @@ export interface Stake extends BaseContract {
 
     report(
       account_: string,
-      data_: BytesLike,
+      context_: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { report_: BigNumber }>;
+
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      context_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { time_: BigNumber }>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
@@ -303,9 +333,21 @@ export interface Stake extends BaseContract {
 
   report(
     account_: string,
-    data_: BytesLike,
+    context_: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  reportTimeForTier(
+    account_: string,
+    tier_: BigNumberish,
+    context_: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  supportsInterface(
+    interfaceId_: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -369,9 +411,21 @@ export interface Stake extends BaseContract {
 
     report(
       account_: string,
-      data_: BytesLike,
+      context_: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      context_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -469,7 +523,19 @@ export interface Stake extends BaseContract {
 
     report(
       account_: string,
-      data_: BytesLike,
+      context_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      context_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -542,7 +608,19 @@ export interface Stake extends BaseContract {
 
     report(
       account_: string,
-      data_: BytesLike,
+      context_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      context_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

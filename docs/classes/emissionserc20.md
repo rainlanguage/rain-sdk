@@ -35,7 +35,6 @@ await EmissionsERC20.isChild(signer, newEmission.address);
 |  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
 |  [isChild](./emissionserc20.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this RedeemableERC20Factory on a specific network |
 |  [nameBookReference](./emissionserc20.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address.<br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
-|  [Opcodes](./emissionserc20.md#Opcodes-property-static) | [EmissionsERC20Opcodes](../types/emissionserc20opcodes.md) | All the opcodes avaialbles in the EmissionsERC20 contract. |
 
 ## Properties
 
@@ -51,12 +50,15 @@ await EmissionsERC20.isChild(signer, newEmission.address);
 |  [connect](./emissionserc20.md#connect-property) | `(signer: Signer) => EmissionsERC20` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [decimals](./emissionserc20.md#decimals-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the number of decimals used to get its user representation. |
 |  [decreaseAllowance](./emissionserc20.md#decreaseAllowance-property) | `(spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically decreases the allowance granted to `spender` by the caller.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
+|  [fnPtrs](./emissionserc20.md#fnPtrs-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [increaseAllowance](./emissionserc20.md#increaseAllowance-property) | `(spender: string, addedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically increases the allowance granted to `spender` by the caller.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
 |  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
 |  [name](./emissionserc20.md#name-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the name of the token. |
-|  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
-|  [setTier](./emissionserc20.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides \| undefined) => Promise<never>` | It is NOT implemented in Emissions. Always will throw an error<br></br>*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)* |
+|  [report](./tiercontract.md#report-property) | `(account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
+|  [reportTimeForTier](./tiercontract.md#reportTimeForTier-property) | `(account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | *Inherited from [TierContract.reportTimeForTier](./tiercontract.md#reportTimeForTier-property)* |
+|  [setTier](./emissionserc20.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>` | It is NOT implemented in Emissions. Always will throw an error |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
+|  [storageOpcodesRange](./emissionserc20.md#storageOpcodesRange-property) | `(overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>` | Returns the pointer and length for emissionERC20's storage opcodes |
 |  [symbol](./emissionserc20.md#symbol-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the symbol of the token, usually a shorter version of the name. |
 |  [totalSupply](./emissionserc20.md#totalSupply-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens in existence. |
 |  [transfer](./emissionserc20.md#transfer-property) | `(to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from the caller's account to `to`<!-- -->.<br></br>Requirements:<br></br>- `to` cannot be the zero address. - the caller must have a balance of at least `amount`<!-- -->. |
@@ -75,7 +77,7 @@ await EmissionsERC20.isChild(signer, newEmission.address);
 |  Method | Description |
 |  --- | --- |
 |  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br>*Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)* |
-|  [currentTier(account, block)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br>*Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)* |
+|  [currentTier(account, timestamp)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br>*Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)* |
 
 ## Static Property Details
 
@@ -117,20 +119,6 @@ Should be implemented in each class to find the factory or main address in the b
 
 ```typescript
 protected static readonly nameBookReference: string;
-```
-
-<a id="Opcodes-property-static"></a>
-
-### Opcodes
-
-All the opcodes avaialbles in the EmissionsERC20 contract.
-
-This expose all the standard opcodes along with the specific opcodes of the EmissionsERC20.
-
-<b>Signature:</b>
-
-```typescript
-static Opcodes: EmissionsERC20Opcodes;
 ```
 
 ## Property Details
@@ -249,6 +237,18 @@ This is an alternative to `approve()` that can be used as a mitigation for probl
 readonly decreaseAllowance: (spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>;
 ```
 
+<a id="fnPtrs-property"></a>
+
+### fnPtrs
+
+Pointers to opcode functions, necessary for being able to read the packedBytes
+
+<b>Signature:</b>
+
+```typescript
+readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
+```
+
 <a id="increaseAllowance-property"></a>
 
 ### increaseAllowance
@@ -281,14 +281,22 @@ readonly name: (overrides?: ReadTxOverrides) => Promise<string>;
 
 It is NOT implemented in Emissions. Always will throw an error
 
-*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)*
+<b>Signature:</b>
 
-Users can set their own tier by calling `setTier` if is this option available on the Tier contract. ITier like BalanceTier does not allow this.
+```typescript
+readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>;
+```
+
+<a id="storageOpcodesRange-property"></a>
+
+### storageOpcodesRange
+
+Returns the pointer and length for emissionERC20's storage opcodes
 
 <b>Signature:</b>
 
 ```typescript
-readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides | undefined) => Promise<never>;
+readonly storageOpcodesRange: (overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>;
 ```
 
 <a id="symbol-property"></a>

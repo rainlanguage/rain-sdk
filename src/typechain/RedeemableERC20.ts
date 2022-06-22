@@ -58,7 +58,6 @@ export interface RedeemableERC20Interface extends utils.Interface {
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "blockNumberForPhase(uint32[8],uint256)": FunctionFragment;
     "burn(uint256)": FunctionFragment;
     "burnFrom(address,uint256)": FunctionFragment;
     "currentPhase()": FunctionFragment;
@@ -74,11 +73,12 @@ export interface RedeemableERC20Interface extends utils.Interface {
     "minimumTier()": FunctionFragment;
     "name()": FunctionFragment;
     "newTreasuryAsset(address)": FunctionFragment;
-    "phaseAtBlockNumber(uint32[8],uint256)": FunctionFragment;
-    "phaseBlocks(uint256)": FunctionFragment;
+    "phaseAtTime(uint32[8],uint256)": FunctionFragment;
+    "phaseTimes(uint256)": FunctionFragment;
     "redeem(address[],uint256)": FunctionFragment;
     "symbol()": FunctionFragment;
     "tier()": FunctionFragment;
+    "timeForPhase(uint32[8],uint256)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
@@ -93,10 +93,6 @@ export interface RedeemableERC20Interface extends utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "blockNumberForPhase",
-    values: [BigNumberish[], BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "burn", values: [BigNumberish]): string;
   encodeFunctionData(
     functionFragment: "burnFrom",
@@ -140,11 +136,11 @@ export interface RedeemableERC20Interface extends utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "phaseAtBlockNumber",
+    functionFragment: "phaseAtTime",
     values: [BigNumberish[], BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "phaseBlocks",
+    functionFragment: "phaseTimes",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -153,6 +149,10 @@ export interface RedeemableERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(functionFragment: "tier", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "timeForPhase",
+    values: [BigNumberish[], BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
@@ -169,10 +169,6 @@ export interface RedeemableERC20Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "blockNumberForPhase",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burnFrom", data: BytesLike): Result;
   decodeFunctionResult(
@@ -213,16 +209,17 @@ export interface RedeemableERC20Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "phaseAtBlockNumber",
+    functionFragment: "phaseAtTime",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "phaseBlocks",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "phaseTimes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tier", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "timeForPhase",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -276,7 +273,7 @@ export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type PhaseScheduledEvent = TypedEvent<
   [string, BigNumber, BigNumber],
-  { sender: string; newPhase: BigNumber; scheduledBlock: BigNumber }
+  { sender: string; newPhase: BigNumber; scheduledTime: BigNumber }
 >;
 
 export type PhaseScheduledEventFilter = TypedEventFilter<PhaseScheduledEvent>;
@@ -362,12 +359,6 @@ export interface RedeemableERC20 extends BaseContract {
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     burn(
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -379,7 +370,9 @@ export interface RedeemableERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    currentPhase(overrides?: CallOverrides): Promise<[BigNumber]>;
+    currentPhase(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { phase_: BigNumber }>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
@@ -434,13 +427,13 @@ export interface RedeemableERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { phase_: BigNumber }>;
 
-    phaseBlocks(
+    phaseTimes(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[number]>;
@@ -454,6 +447,12 @@ export interface RedeemableERC20 extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
     tier(overrides?: CallOverrides): Promise<[string]>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { timestamp_: BigNumber }>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -484,12 +483,6 @@ export interface RedeemableERC20 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  blockNumberForPhase(
-    phaseBlocks_: BigNumberish[],
-    phase_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   burn(
     amount: BigNumberish,
@@ -554,13 +547,13 @@ export interface RedeemableERC20 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  phaseAtBlockNumber(
-    phaseBlocks_: BigNumberish[],
-    blockNumber_: BigNumberish,
+  phaseAtTime(
+    phaseTimes_: BigNumberish[],
+    timestamp_: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  phaseBlocks(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
+  phaseTimes(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
 
   redeem(
     treasuryAssets_: string[],
@@ -571,6 +564,12 @@ export interface RedeemableERC20 extends BaseContract {
   symbol(overrides?: CallOverrides): Promise<string>;
 
   tier(overrides?: CallOverrides): Promise<string>;
+
+  timeForPhase(
+    phaseTimes_: BigNumberish[],
+    phase_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -601,12 +600,6 @@ export interface RedeemableERC20 extends BaseContract {
     ): Promise<boolean>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     burn(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
@@ -665,13 +658,13 @@ export interface RedeemableERC20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    phaseBlocks(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
+    phaseTimes(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
 
     redeem(
       treasuryAssets_: string[],
@@ -682,6 +675,12 @@ export interface RedeemableERC20 extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<string>;
 
     tier(overrides?: CallOverrides): Promise<string>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -723,12 +722,12 @@ export interface RedeemableERC20 extends BaseContract {
     "PhaseScheduled(address,uint256,uint256)"(
       sender?: null,
       newPhase?: null,
-      scheduledBlock?: null
+      scheduledTime?: null
     ): PhaseScheduledEventFilter;
     PhaseScheduled(
       sender?: null,
       newPhase?: null,
-      scheduledBlock?: null
+      scheduledTime?: null
     ): PhaseScheduledEventFilter;
 
     "Receiver(address,address)"(
@@ -788,12 +787,6 @@ export interface RedeemableERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     burn(
       amount: BigNumberish,
@@ -861,13 +854,13 @@ export interface RedeemableERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    phaseBlocks(
+    phaseTimes(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -881,6 +874,12 @@ export interface RedeemableERC20 extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     tier(overrides?: CallOverrides): Promise<BigNumber>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -913,12 +912,6 @@ export interface RedeemableERC20 extends BaseContract {
 
     balanceOf(
       account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -988,13 +981,13 @@ export interface RedeemableERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    phaseBlocks(
+    phaseTimes(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1008,6 +1001,12 @@ export interface RedeemableERC20 extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     tier(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

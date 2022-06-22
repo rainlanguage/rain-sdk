@@ -38,7 +38,6 @@ await existingSale.buy(config_)
 |  [getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static) | `(chainId: number) => string` | Obtain the latest subgraph endpoint related to the version that use the SDK.<br></br>*Inherited from [AddressBook.getSubgraphEndpoint](./addressbook.md#getSubgraphEndpoint-property-static)* |
 |  [isChild](./sale.md#isChild-property-static) | `(signer: Signer, maybeChild: string) => Promise<boolean>` | Checks if address is registered as a child contract of this SaleFactory on a specific network |
 |  [nameBookReference](./sale.md#nameBookReference-property-static) | `string` | Name reference to find the address of the contract in the book address.<br></br>*Overrides [RainContract.nameBookReference](./raincontract.md#nameBookReference-property-static)* |
-|  [Opcodes](./sale.md#Opcodes-property-static) | [SaleOpcodes](../types/saleopcodes.md) | All the standard and Sale Opcodes |
 
 ## Properties
 
@@ -46,19 +45,20 @@ await existingSale.buy(config_)
 |  --- | --- | --- |
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
 |  [buy](./sale.md#buy-property) | `(config: BuyConfig, overrides?: TxOverrides) => Promise<ContractTransaction>` | Main entrypoint to the sale. Sells rTKN in exchange for reserve token. The price curve is eval'd to produce a reserve price quote. Each 1 unit of rTKN costs `price` reserve token where BOTH the rTKN units and price are treated as 18 decimal fixed point values. If the reserve token has more or less precision by its own conventions (e.g. "decimals" method on ERC20 tokens) then the price will need to scale accordingly. The receipt is \_logged\_ rather than returned as it cannot be used in same block for a refund anyway due to cooldowns. |
-|  [calculatePrice](./sale.md#calculatePrice-property) | `(units: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Calculates the current reserve price quoted for 1 unit of rTKN. Used internally to process `buy` |
-|  [canEnd](./sale.md#canEnd-property) | `(overrides?: ReadTxOverrides) => Promise<boolean>` | Can the sale end? Evals `canEndStatePointer` to a boolean that determines whether the sale can end (move from active to success/fail). Buying will fail if the sale has ended. If the sale is out of rTKN stock it can ALWAYS end and in this case will NOT eval the "can end" script. The sale can ONLY end if it is currently in active status. |
-|  [canStart](./sale.md#canStart-property) | `(overrides?: ReadTxOverrides) => Promise<boolean>` | Can the sale start? Evals `canStartStatePointer` to a boolean that determines whether the sale can start (move from pending to active). Buying from and ending the sale will both always fail if the sale never started. The sale can ONLY start if it is currently in pending status. |
+|  [calculateBuy](./sale.md#calculateBuy-property) | `(targetUnits: BigNumberish, overrides?: ReadTxOverrides) => Promise<[BigNumber, BigNumber]>` | Calculates the current reserve price quoted for 1 unit of rTKN. Used internally to process `buy` |
+|  [canLive](./sale.md#canLive-property) | `(overrides?: ReadTxOverrides) => Promise<boolean>` | Can the sale live? Evals the "can live" script. If a non zero value is returned then the sale can move from pending to active, or remain active. If a zero value is returned the sale can remain pending or move from active to a finalised status. An out of stock (0 remaining units) WILL ALWAYS return `false` without evaluating the script. |
 |  [claimFees](./sale.md#claimFees-property) | `(recipient: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | After a sale ends in success all fees collected for a recipient can be cleared. If the raise is active or fails then fees cannot be claimed as they are set aside in case of refund. A failed raise implies that all buyers should immediately refund and zero fees claimed. |
 |  [connect](./sale.md#connect-property) | `(signer: Signer) => Sale` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
-|  [end](./sale.md#end-property) | `(overrides?: TxOverrides) => Promise<ContractTransaction>` | End the sale (move from active to success or fail). - `canEnd` MUST return true. |
+|  [end](./sale.md#end-property) | `(overrides?: TxOverrides) => Promise<ContractTransaction>` | End the sale (move from active to success or fail). This is also done automatically inline with each `buy` call so is optional for anon to call outside of a purchase. - `canLive` MUST return true and sale status must be either `Active`<!-- -->. |
+|  [fnPtrs](./sale.md#fnPtrs-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [getRedeemable](./sale.md#getRedeemable-property) | `(signer?: Signer) => Promise<RedeemableERC20>` | Obtain the instance redeemable token from this sale. |
 |  [getReserve](./sale.md#getReserve-property) | `(signer?: Signer) => Promise<ERC20>` | Obtain the instance of the reserve from this sale as a generic ERC20 Token |
 |  [refund](./sale.md#refund-property) | `(receipt: Receipt, overrides?: TxOverrides) => Promise<ContractTransaction>` | Rollback a buy given its receipt. Ignoring gas (which cannot be refunded) the refund process rolls back all state changes caused by a buy, other than the receipt id increment. Refunds are limited by the global cooldown to mitigate rapid buy/refund cycling that could cause volatile price curves or other unwanted side effects for other sale participants. Cooldowns are bypassed if the sale ends and is a failure. |
 |  [reserve](./sale.md#reserve-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the address of the token that sale prices are denominated in. MUST NOT change during the lifecycle of the sale contract. |
 |  [saleStatus](./sale.md#saleStatus-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the current `SaleStatus` of the sale. Represents a linear progression of the sale through its major lifecycle events. |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
-|  [start](./sale.md#start-property) | `(overrides?: TxOverrides) => Promise<ContractTransaction>` | Start the sale (move from pending to active). - `canStart` MUST return true. |
+|  [start](./sale.md#start-property) | `(overrides?: TxOverrides) => Promise<ContractTransaction>` | Start the sale (move from pending to active). This is also done automatically inline with each `buy` call so is optional for anon to call outside of a purchase. - `canLive` MUST return true and sale status must be `Pending`<!-- -->. |
+|  [storageOpcodesRange](./sale.md#storageOpcodesRange-property) | `(overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>` | Returns the pointer and length for sale's storage opcodes |
 |  [timeout](./sale.md#timeout-property) | `(overrides?: TxOverrides) => Promise<ContractTransaction>` | Timeout the sale (move from pending or active to fail). The ONLY condition for a timeout is that the `saleTimeout` block set during initialize is in the past. This means that regardless of what happens re: starting, ending, buying, etc. if the sale does NOT manage to unambiguously end by the timeout block then it can timeout to a fail state. This means that any downstream escrows or similar can always expect that eventually they will see a pass/fail state and so are safe to lock funds while a Sale is active. |
 |  [token](./sale.md#token-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the address of the token being sold in the sale. MUST NOT change during the lifecycle of the sale contract. |
 
@@ -118,18 +118,6 @@ Should be implemented in each class to find the factory or main address in the b
 protected static readonly nameBookReference: string;
 ```
 
-<a id="Opcodes-property-static"></a>
-
-### Opcodes
-
-All the standard and Sale Opcodes
-
-<b>Signature:</b>
-
-```typescript
-static Opcodes: SaleOpcodes;
-```
-
 ## Property Details
 
 <a id="buy-property"></a>
@@ -144,40 +132,28 @@ Main entrypoint to the sale. Sells rTKN in exchange for reserve token. The price
 readonly buy: (config: BuyConfig, overrides?: TxOverrides) => Promise<ContractTransaction>;
 ```
 
-<a id="calculatePrice-property"></a>
+<a id="calculateBuy-property"></a>
 
-### calculatePrice
+### calculateBuy
 
 Calculates the current reserve price quoted for 1 unit of rTKN. Used internally to process `buy`
 
 <b>Signature:</b>
 
 ```typescript
-readonly calculatePrice: (units: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>;
+readonly calculateBuy: (targetUnits: BigNumberish, overrides?: ReadTxOverrides) => Promise<[BigNumber, BigNumber]>;
 ```
 
-<a id="canEnd-property"></a>
+<a id="canLive-property"></a>
 
-### canEnd
+### canLive
 
-Can the sale end? Evals `canEndStatePointer` to a boolean that determines whether the sale can end (move from active to success/fail). Buying will fail if the sale has ended. If the sale is out of rTKN stock it can ALWAYS end and in this case will NOT eval the "can end" script. The sale can ONLY end if it is currently in active status.
+Can the sale live? Evals the "can live" script. If a non zero value is returned then the sale can move from pending to active, or remain active. If a zero value is returned the sale can remain pending or move from active to a finalised status. An out of stock (0 remaining units) WILL ALWAYS return `false` without evaluating the script.
 
 <b>Signature:</b>
 
 ```typescript
-readonly canEnd: (overrides?: ReadTxOverrides) => Promise<boolean>;
-```
-
-<a id="canStart-property"></a>
-
-### canStart
-
-Can the sale start? Evals `canStartStatePointer` to a boolean that determines whether the sale can start (move from pending to active). Buying from and ending the sale will both always fail if the sale never started. The sale can ONLY start if it is currently in pending status.
-
-<b>Signature:</b>
-
-```typescript
-readonly canStart: (overrides?: ReadTxOverrides) => Promise<boolean>;
+readonly canLive: (overrides?: ReadTxOverrides) => Promise<boolean>;
 ```
 
 <a id="claimFees-property"></a>
@@ -210,12 +186,24 @@ readonly connect: (signer: Signer) => Sale;
 
 ### end
 
-End the sale (move from active to success or fail). - `canEnd` MUST return true.
+End the sale (move from active to success or fail). This is also done automatically inline with each `buy` call so is optional for anon to call outside of a purchase. - `canLive` MUST return true and sale status must be either `Active`<!-- -->.
 
 <b>Signature:</b>
 
 ```typescript
 readonly end: (overrides?: TxOverrides) => Promise<ContractTransaction>;
+```
+
+<a id="fnPtrs-property"></a>
+
+### fnPtrs
+
+Pointers to opcode functions, necessary for being able to read the packedBytes
+
+<b>Signature:</b>
+
+```typescript
+readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
 ```
 
 <a id="getRedeemable-property"></a>
@@ -282,12 +270,24 @@ readonly saleStatus: (overrides?: ReadTxOverrides) => Promise<number>;
 
 ### start
 
-Start the sale (move from pending to active). - `canStart` MUST return true.
+Start the sale (move from pending to active). This is also done automatically inline with each `buy` call so is optional for anon to call outside of a purchase. - `canLive` MUST return true and sale status must be `Pending`<!-- -->.
 
 <b>Signature:</b>
 
 ```typescript
 readonly start: (overrides?: TxOverrides) => Promise<ContractTransaction>;
+```
+
+<a id="storageOpcodesRange-property"></a>
+
+### storageOpcodesRange
+
+Returns the pointer and length for sale's storage opcodes
+
+<b>Signature:</b>
+
+```typescript
+readonly storageOpcodesRange: (overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>;
 ```
 
 <a id="timeout-property"></a>

@@ -1,13 +1,7 @@
-import {
-  Signer,
-  BigNumber,
-  BytesLike,
-  BigNumberish,
-  ContractTransaction,
-} from 'ethers';
-import { TxOverrides, ReadTxOverrides } from './rainContract';
+import { Signer, BigNumber, BigNumberish } from 'ethers';
+import { ReadTxOverrides } from './rainContract';
 import { FactoryContract } from './factoryContract';
-import { ITier__factory } from '../typechain';
+import { ITierV2__factory } from '../typechain';
 import { paddedUInt256 } from '../utils';
 
 /**
@@ -62,9 +56,9 @@ export enum Tier {
 export abstract class TierContract extends FactoryContract {
   constructor(address: string, signer: Signer) {
     super(address, signer);
-    const tier = ITier__factory.connect(address, signer);
+    const tier = ITierV2__factory.connect(address, signer);
     this.report = tier.report;
-    this.setTier = tier.setTier;
+    this.reportTimeForTier = tier.reportTimeForTier;
   }
 
   /** {@inheritDoc Tier} */
@@ -85,53 +79,52 @@ export abstract class TierContract extends FactoryContract {
    */
   public readonly report: (
     account: string,
+    context: BigNumberish[],
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
-  /**
-   * Updates the tier of an account.
-   *
-   * @remarks
-   * Users can set their own tier by calling `setTier` if is this option available on the Tier contract.
-   * ITier like BalanceTier does not allow this.
-   *
-   * @param account - Account to change the tier for.
-   * @param endTier - Tier after the change.
-   * @param data - Arbitrary input to disambiguate ownership
-   * @param overrides - @see TxOverrides
-   * @returns The report blocks encoded as a uint256.
-   */
-  public readonly setTier: (
+  public readonly reportTimeForTier: (
     account: string,
-    endTier: BigNumberish,
-    data: BytesLike,
-    overrides?: TxOverrides
-  ) => Promise<ContractTransaction>;
+    tier: BigNumberish,
+    context: BigNumberish[],
+    overrides?: ReadTxOverrides
+  ) => Promise<BigNumber>;
 
   /**
    * Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`.
    * Tier 0 is that a address has never interact with the Tier Contract.
    *
    * @param account - address to check the current tier
-   * @param block - (optional) check the level tier of an account with respect to a specific block
+   * @param timestamp - (optional) check the level tier of an account with respect to a specific timestamp
    * @returns current tier level of the account
    */
-  public async currentTier(account: string, block?: number): Promise<number> {
-    const currentTier = await this.report(account);
-    const againstBlock = block
-      ? block
-      : await this.signer.provider?.getBlockNumber();
+  public async currentTier(
+    account: string,
+    timestamp?: number
+  ): Promise<number> {
+    const currentTier = await this.report(account, []);
+    if (!timestamp) {
+      const _againstBlock = await this.signer.provider?.getBlockNumber();
+      if (!_againstBlock) {
+        throw new Error('Unable to get the block');
+      }
+      timestamp = (await this.signer.provider?.getBlock(_againstBlock))
+        ?.timestamp;
+      if (!timestamp) {
+        throw new Error('Unable to get the timestamp');
+      }
+    }
 
     const parsedReport = paddedUInt256(currentTier)
       .substring(2)
-      .match(/.{1,8}/g)
+      .match(/.{8}/g)
       ?.reverse()
       .map((x) => parseInt('0x' + x));
 
     let eligibleStatus = 0;
-    if (parsedReport && againstBlock) {
+    if (parsedReport && timestamp) {
       for (let i = 0; i < 8; i++) {
-        if (parsedReport[i] <= againstBlock) {
+        if (parsedReport[i] <= timestamp) {
           eligibleStatus = i + 1;
         } else {
           break;

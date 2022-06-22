@@ -13,21 +13,21 @@ import {
   VM,
   AddressBook,
   Sale,
+  Stake,
   Verify,
-  GatedNFT,
+  OrderBook,
   VerifyTier,
   CombineTier,
   NoticeBoard,
   EmissionsERC20,
   RedeemableERC20,
-  ERC20BalanceTier,
-  ERC20TransferTier,
-  ERC721BalanceTier,
   RedeemableERC20ClaimEscrow,
   ERC20,
   ERC721,
   ERC1155,
+  utils,
 } from '../src';
+const { op } = utils;
 
 /**
  * Addresses saved that are in SDK BookAddresses deployed to Hardhat network.
@@ -51,24 +51,8 @@ before('Initializing and deploying contracts to hardhat network', async () => {
     'VerifyTierFactory'
   );
 
-  const ERC20BalanceTierFactoryFactory = await ethers.getContractFactory(
-    'ERC20BalanceTierFactory'
-  );
-
-  const ERC20TransferTierFactoryFactory = await ethers.getContractFactory(
-    'ERC20TransferTierFactory'
-  );
-
   const CombineTierFactoryFactory = await ethers.getContractFactory(
     'CombineTierFactory'
-  );
-
-  const ERC721BalanceTierFactoryFactory = await ethers.getContractFactory(
-    'ERC721BalanceTierFactory'
-  );
-
-  const GatedNFTFactoryFactory = await ethers.getContractFactory(
-    'GatedNFTFactory'
   );
 
   const RedeemableERC20ClaimEscrowFactory = await ethers.getContractFactory(
@@ -83,34 +67,59 @@ before('Initializing and deploying contracts to hardhat network', async () => {
 
   const SaleFactoryFactory = await ethers.getContractFactory('SaleFactory');
 
+  const StakeFactoryFactory = await ethers.getContractFactory('StakeFactory');
+
+  const OrderBookStateBuilderFactory = await ethers.getContractFactory(
+    'OrderBookStateBuilder'
+  );
+  const OrderBookFactory = await ethers.getContractFactory('OrderBook');
+
   // ⚠️ Deployments to hardhat test network ⚠️
   const vmStateBuilder = await vmStateBuilderFactory.deploy();
   const RedeemableERC20Factory = await RedeemableERC20FactoryFactory.deploy();
   const VerifyFactory = await VerifyFactoryFactory.deploy();
   const VerifyTierFactory = await VerifyTierFactoryFactory.deploy();
-  const ERC20BalanceTierFactory = await ERC20BalanceTierFactoryFactory.deploy();
-  const ERC20TransferTierFactory =
-    await ERC20TransferTierFactoryFactory.deploy();
-  const CombineTierFactory = await CombineTierFactoryFactory.deploy(vmStateBuilder.address);
-  const ERC721BalanceTierFactory =
-    await ERC721BalanceTierFactoryFactory.deploy();
-  const GatedNFTFactory = await GatedNFTFactoryFactory.deploy();
+
+  const CombineTierFactory = await CombineTierFactoryFactory.deploy(
+    vmStateBuilder.address
+  );
   const RedeemableERC20ClaimEscrow =
     await RedeemableERC20ClaimEscrowFactory.deploy();
   const NoticeBoard = await NoticeBoardFactory.deploy();
-  const EmissionsERC20Factory = await EmissionsERC20FactoryFactory.deploy(vmStateBuilder.address);
+  const EmissionsERC20Factory = await EmissionsERC20FactoryFactory.deploy(
+    vmStateBuilder.address
+  );
+
   const SaleFactory = await SaleFactoryFactory.deploy({
     maximumSaleTimeout: 10000,
     maximumCooldownDuration: 1000,
     redeemableERC20Factory: RedeemableERC20Factory.address,
-    vmStateBuilder: vmStateBuilder.address
+    vmStateBuilder: vmStateBuilder.address,
   });
 
+  const stakeFactory = await StakeFactoryFactory.deploy();
+
+  const orderBookStateBuilder = await OrderBookStateBuilderFactory.deploy();
+  const orderBook = await OrderBookFactory.deploy(
+    orderBookStateBuilder.address
+  );
+
   // Deploying AlwaysTier
-  const sourceAlways = VM.createVMSources([[VM.Opcodes.CONSTANTS, 0]]);
+  const ctxAccount = op(VM.Opcodes.CONTEXT, 0);
+
+  // prettier-ignore
+  const sourceReportTimeForTierDefault = VM.createVMSources([
+      op(VM.Opcodes.THIS_ADDRESS),
+      ctxAccount,
+    op(VM.Opcodes.ITIERV2_REPORT),
+  ])[0];
+
   const alwaysArg = {
-    sources: sourceAlways,
-    constants: [0],
+    combinedTiersLength: 0,
+    sourceConfig: {
+      sources: [op(VM.Opcodes.CONSTANT, 0), sourceReportTimeForTierDefault],
+      constants: [0],
+    },
   };
 
   const tx = await CombineTierFactory.createChildTyped(alwaysArg);
@@ -125,23 +134,21 @@ before('Initializing and deploying contracts to hardhat network', async () => {
     RedeemableERC20Factory: RedeemableERC20Factory.address,
     VerifyFactory: VerifyFactory.address,
     VerifyTierFactory: VerifyTierFactory.address,
-    ERC20BalanceTierFactory: ERC20BalanceTierFactory.address,
-    ERC20TransferTierFactory: ERC20TransferTierFactory.address,
     CombineTierFactory: CombineTierFactory.address,
-    ERC721BalanceTierFactory: ERC721BalanceTierFactory.address,
-    GatedNFTFactory: GatedNFTFactory.address,
     RedeemableERC20ClaimEscrow: RedeemableERC20ClaimEscrow.address,
     NoticeBoard: NoticeBoard.address,
     EmissionsERC20Factory: EmissionsERC20Factory.address,
     SaleFactory: SaleFactory.address,
+    StakeFactory: stakeFactory.address,
+    OrderBook: orderBook.address,
     AlwaysTier: AlwaysTier,
   };
 });
 
 describe('SDK - BookAddress', () => {
   it('should fail if no address stored in the book for a chain', () => {
-    const arbitraryId = 1234;
-    expect(() => AddressBook.getAddressesForChainId(arbitraryId)).to.throw(
+    const arbitraryChainId = 1234;
+    expect(() => AddressBook.getAddressesForChainId(arbitraryChainId)).to.throw(
       Error,
       'No deployed contracts for this chain.'
     );
@@ -172,37 +179,17 @@ describe('SDK - BookAddress', () => {
     expect(address).to.be.equals(addresses.VerifyTierFactory);
   });
 
-  it('should get the ERC20BalanceTierFactory address', async () => {
-    const address = ERC20BalanceTier.getBookAddress(chainId);
-    expect(address).to.be.equals(addresses.ERC20BalanceTierFactory);
-  });
-
-  it('should get the ERC20TransferTierFactory address', async () => {
-    const address = ERC20TransferTier.getBookAddress(chainId);
-    expect(address).to.be.equals(addresses.ERC20TransferTierFactory);
-  });
-
   it('should get the CombineTierFactory address', async () => {
     const address = CombineTier.getBookAddress(chainId);
     expect(address).to.be.equals(addresses.CombineTierFactory);
   });
 
-  it('should get the  ERC721BalanceTierFactory address', async () => {
-    const address = ERC721BalanceTier.getBookAddress(chainId);
-    expect(address).to.be.equals(addresses.ERC721BalanceTierFactory);
-  });
-
-  it('should get the  GatedNFTFactory address', async () => {
-    const address = GatedNFT.getBookAddress(chainId);
-    expect(address).to.be.equals(addresses.GatedNFTFactory);
-  });
-
-  it('should get the  EmissionsERC20Factory address', async () => {
+  it('should get the EmissionsERC20Factory address', async () => {
     const address = EmissionsERC20.getBookAddress(chainId);
     expect(address).to.be.equals(addresses.EmissionsERC20Factory);
   });
 
-  it('should get the  SaleFactory address', async () => {
+  it('should get the SaleFactory address', async () => {
     const address = Sale.getBookAddress(chainId);
     expect(address).to.be.equals(addresses.SaleFactory);
   });
@@ -210,6 +197,16 @@ describe('SDK - BookAddress', () => {
   it('should get the RedeemableERC20ClaimEscrow address', () => {
     const address = RedeemableERC20ClaimEscrow.getBookAddress(chainId);
     expect(address).to.be.equals(addresses.RedeemableERC20ClaimEscrow);
+  });
+
+  it('should get the Orderbook address', () => {
+    const address = OrderBook.getBookAddress(chainId);
+    expect(address).to.be.equals(addresses.OrderBook);
+  });
+
+  it('should get the Stake address', () => {
+    const address = Stake.getBookAddress(chainId);
+    expect(address).to.be.equals(addresses.StakeFactory);
   });
 
   it('should get the NoticeBoard address', () => {

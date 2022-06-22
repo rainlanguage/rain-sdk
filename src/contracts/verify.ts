@@ -94,7 +94,7 @@ export class Verify extends FactoryContract {
     this.requestBan = _verify.requestBan;
     this.requestRemove = _verify.requestRemove;
     this.state = _verify.state;
-    this.statusAtBlock = _verify.statusAtBlock;
+    this.statusAtTime = _verify.statusAtTime;
 
     this.hasRole = _verify.hasRole;
     this.getRoleAdmin = _verify.getRoleAdmin;
@@ -345,19 +345,16 @@ export class Verify extends FactoryContract {
   ) => Promise<VerifyState>;
 
   /**
-   * Derives a single `Status` from a `State` and a reference block number.
-   *
-   * @param state - The raw `State` to reduce into a `Status`.
-   * @param blockNumber - The block number to compare `State` against.
-   * @param overrides - @see ReadTxOverrides
-   * @returns A `BigNumber` that represent the `status` in `blockNumber`.
+   * Derives a single `Status` from a `State` and a reference timestamp.
+   * @param state_ - The raw `State` to reduce into a `Status`.
+   * @param timestamp_ - The timestamp to compare `State` against.
+   * @returns status_ The status in `State` given `timestamp_`.
    */
-  public readonly statusAtBlock: (
-    state: VerifyState,
-    blockNumber: BigNumberish,
+  public readonly statusAtTime: (
+    state_: VerifyState,
+    timestamp_: BigNumberish,
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
-
   /**
    * Check if an `account` have a determined `role` in the Verify Contract.
    *

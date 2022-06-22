@@ -27,6 +27,16 @@ export type StateConfigStructOutput = [string[], BigNumber[]] & {
   constants: BigNumber[];
 };
 
+export type CombineTierConfigStruct = {
+  combinedTiersLength: BigNumberish;
+  sourceConfig: StateConfigStruct;
+};
+
+export type CombineTierConfigStructOutput = [
+  BigNumber,
+  StateConfigStructOutput
+] & { combinedTiersLength: BigNumber; sourceConfig: StateConfigStructOutput };
+
 export type StorageOpcodesRangeStruct = {
   pointer: BigNumberish;
   length: BigNumberish;
@@ -40,61 +50,70 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
 export interface CombineTierInterface extends utils.Interface {
   functions: {
     "fnPtrs()": FunctionFragment;
-    "initialize((bytes[],uint256[]))": FunctionFragment;
-    "report(address)": FunctionFragment;
-    "setTier(address,uint256,bytes)": FunctionFragment;
+    "initialize((uint256,(bytes[],uint256[])))": FunctionFragment;
+    "report(address,uint256[])": FunctionFragment;
+    "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
+    "supportsInterface(bytes4)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [StateConfigStruct]
+    values: [CombineTierConfigStruct]
   ): string;
-  encodeFunctionData(functionFragment: "report", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "setTier",
-    values: [string, BigNumberish, BytesLike]
+    functionFragment: "report",
+    values: [string, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reportTimeForTier",
+    values: [string, BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "storageOpcodesRange",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
+  ): string;
 
   decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setTier", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "reportTimeForTier",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "storageOpcodesRange",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
 
   events: {
+    "Initialize(address,tuple)": EventFragment;
     "Initialized(uint8)": EventFragment;
-    "TierChange(address,address,uint256,uint256,bytes)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TierChange"): EventFragment;
 }
+
+export type InitializeEvent = TypedEvent<
+  [string, CombineTierConfigStructOutput],
+  { sender: string; config: CombineTierConfigStructOutput }
+>;
+
+export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
 
 export type InitializedEvent = TypedEvent<[number], { version: number }>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export type TierChangeEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber, string],
-  {
-    sender: string;
-    account: string;
-    startTier: BigNumber;
-    endTier: BigNumber;
-    data: string;
-  }
->;
-
-export type TierChangeEventFilter = TypedEventFilter<TierChangeEvent>;
 
 export interface CombineTier extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -126,127 +145,160 @@ export interface CombineTier extends BaseContract {
     fnPtrs(overrides?: CallOverrides): Promise<[string]>;
 
     initialize(
-      sourceConfig_: StateConfigStruct,
+      config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    report(account_: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    setTier(
-      arg0: string,
-      arg1: BigNumberish,
-      arg2: BytesLike,
+    report(
+      account_: string,
+      context_: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<[void]>;
+    ): Promise<[BigNumber] & { report_: BigNumber }>;
+
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      context_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { time_: BigNumber }>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<[StorageOpcodesRangeStructOutput]>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
   };
 
   fnPtrs(overrides?: CallOverrides): Promise<string>;
 
   initialize(
-    sourceConfig_: StateConfigStruct,
+    config_: CombineTierConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  report(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  setTier(
-    arg0: string,
-    arg1: BigNumberish,
-    arg2: BytesLike,
+  report(
+    account_: string,
+    context_: BigNumberish[],
     overrides?: CallOverrides
-  ): Promise<void>;
+  ): Promise<BigNumber>;
+
+  reportTimeForTier(
+    account_: string,
+    tier_: BigNumberish,
+    context_: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   storageOpcodesRange(
     overrides?: CallOverrides
   ): Promise<StorageOpcodesRangeStructOutput>;
 
+  supportsInterface(
+    interfaceId_: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   callStatic: {
     fnPtrs(overrides?: CallOverrides): Promise<string>;
 
     initialize(
-      sourceConfig_: StateConfigStruct,
+      config_: CombineTierConfigStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    report(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    setTier(
-      arg0: string,
-      arg1: BigNumberish,
-      arg2: BytesLike,
+    report(
+      account_: string,
+      context_: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
+
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      context_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<StorageOpcodesRangeStructOutput>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
   };
 
   filters: {
+    "Initialize(address,tuple)"(
+      sender?: null,
+      config?: null
+    ): InitializeEventFilter;
+    Initialize(sender?: null, config?: null): InitializeEventFilter;
+
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
-
-    "TierChange(address,address,uint256,uint256,bytes)"(
-      sender?: null,
-      account?: null,
-      startTier?: null,
-      endTier?: null,
-      data?: null
-    ): TierChangeEventFilter;
-    TierChange(
-      sender?: null,
-      account?: null,
-      startTier?: null,
-      endTier?: null,
-      data?: null
-    ): TierChangeEventFilter;
   };
 
   estimateGas: {
     fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
-      sourceConfig_: StateConfigStruct,
+      config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    report(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
+    report(
+      account_: string,
+      context_: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    setTier(
-      arg0: string,
-      arg1: BigNumberish,
-      arg2: BytesLike,
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      context_: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     storageOpcodesRange(overrides?: CallOverrides): Promise<BigNumber>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
-      sourceConfig_: StateConfigStruct,
+      config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     report(
       account_: string,
+      context_: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setTier(
-      arg0: string,
-      arg1: BigNumberish,
-      arg2: BytesLike,
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      context_: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     storageOpcodesRange(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

@@ -19,52 +19,49 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface PhasedScheduleTestInterface extends utils.Interface {
   functions: {
-    "blockNumberForPhase(uint32[8],uint256)": FunctionFragment;
     "currentPhase()": FunctionFragment;
-    "phaseAtBlockNumber(uint32[8],uint256)": FunctionFragment;
-    "phaseBlocks(uint256)": FunctionFragment;
+    "phaseAtTime(uint32[8],uint256)": FunctionFragment;
+    "phaseTimes(uint256)": FunctionFragment;
     "testScheduleNextPhase()": FunctionFragment;
+    "timeForPhase(uint32[8],uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "blockNumberForPhase",
-    values: [BigNumberish[], BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "currentPhase",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "phaseAtBlockNumber",
+    functionFragment: "phaseAtTime",
     values: [BigNumberish[], BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "phaseBlocks",
+    functionFragment: "phaseTimes",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "testScheduleNextPhase",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "timeForPhase",
+    values: [BigNumberish[], BigNumberish]
+  ): string;
 
-  decodeFunctionResult(
-    functionFragment: "blockNumberForPhase",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "currentPhase",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "phaseAtBlockNumber",
+    functionFragment: "phaseAtTime",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "phaseBlocks",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "phaseTimes", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "testScheduleNextPhase",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "timeForPhase",
     data: BytesLike
   ): Result;
 
@@ -77,7 +74,7 @@ export interface PhasedScheduleTestInterface extends utils.Interface {
 
 export type PhaseScheduledEvent = TypedEvent<
   [string, BigNumber, BigNumber],
-  { sender: string; newPhase: BigNumber; scheduledBlock: BigNumber }
+  { sender: string; newPhase: BigNumber; scheduledTime: BigNumber }
 >;
 
 export type PhaseScheduledEventFilter = TypedEventFilter<PhaseScheduledEvent>;
@@ -109,21 +106,17 @@ export interface PhasedScheduleTest extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
+    currentPhase(
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { phase_: BigNumber }>;
 
-    currentPhase(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<[BigNumber] & { phase_: BigNumber }>;
 
-    phaseBlocks(
+    phaseTimes(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[number]>;
@@ -131,108 +124,114 @@ export interface PhasedScheduleTest extends BaseContract {
     testScheduleNextPhase(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-  };
 
-  blockNumberForPhase(
-    phaseBlocks_: BigNumberish[],
-    phase_: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { timestamp_: BigNumber }>;
+  };
 
   currentPhase(overrides?: CallOverrides): Promise<BigNumber>;
 
-  phaseAtBlockNumber(
-    phaseBlocks_: BigNumberish[],
-    blockNumber_: BigNumberish,
+  phaseAtTime(
+    phaseTimes_: BigNumberish[],
+    timestamp_: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  phaseBlocks(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
+  phaseTimes(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
 
   testScheduleNextPhase(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  timeForPhase(
+    phaseTimes_: BigNumberish[],
+    phase_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   callStatic: {
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
+    currentPhase(overrides?: CallOverrides): Promise<BigNumber>;
+
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    phaseTimes(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
+
+    testScheduleNextPhase(overrides?: CallOverrides): Promise<void>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
       phase_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    currentPhase(overrides?: CallOverrides): Promise<BigNumber>;
-
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    phaseBlocks(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
-
-    testScheduleNextPhase(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
     "PhaseScheduled(address,uint256,uint256)"(
       sender?: null,
       newPhase?: null,
-      scheduledBlock?: null
+      scheduledTime?: null
     ): PhaseScheduledEventFilter;
     PhaseScheduled(
       sender?: null,
       newPhase?: null,
-      scheduledBlock?: null
+      scheduledTime?: null
     ): PhaseScheduledEventFilter;
   };
 
   estimateGas: {
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     currentPhase(overrides?: CallOverrides): Promise<BigNumber>;
 
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    phaseBlocks(
+    phaseTimes(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     testScheduleNextPhase(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    blockNumberForPhase(
-      phaseBlocks_: BigNumberish[],
-      phase_: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     currentPhase(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    phaseAtBlockNumber(
-      phaseBlocks_: BigNumberish[],
-      blockNumber_: BigNumberish,
+    phaseAtTime(
+      phaseTimes_: BigNumberish[],
+      timestamp_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    phaseBlocks(
+    phaseTimes(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     testScheduleNextPhase(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    timeForPhase(
+      phaseTimes_: BigNumberish[],
+      phase_: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

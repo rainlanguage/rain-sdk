@@ -110,6 +110,9 @@
      * DEFAULT VALUE: See api-extractor-defaults.json for the complete table of extractorMessageReporting mappings
      */
     "extractorMessageReporting": {
+      "ae-wrong-input-file-type": {
+        "logLevel": "none"
+      },
       "default": {
         "logLevel": "warning"
         // "addToApiReportFile": true

@@ -81,9 +81,10 @@ export interface EmissionsERC20Interface extends utils.Interface {
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initialize((bool,(string,string,address,uint256),(bytes[],uint256[])))": FunctionFragment;
     "name()": FunctionFragment;
-    "report(address)": FunctionFragment;
-    "setTier(address,uint256,bytes)": FunctionFragment;
+    "report(address,uint256[])": FunctionFragment;
+    "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
+    "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -126,14 +127,21 @@ export interface EmissionsERC20Interface extends utils.Interface {
     values: [EmissionsERC20ConfigStruct]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(functionFragment: "report", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "setTier",
-    values: [string, BigNumberish, BytesLike]
+    functionFragment: "report",
+    values: [string, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reportTimeForTier",
+    values: [string, BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "storageOpcodesRange",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
@@ -174,9 +182,16 @@ export interface EmissionsERC20Interface extends utils.Interface {
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setTier", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "reportTimeForTier",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "storageOpcodesRange",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
@@ -193,9 +208,8 @@ export interface EmissionsERC20Interface extends utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "Claim(address,address,bytes)": EventFragment;
-    "Initialize(address,bool)": EventFragment;
+    "Initialize(address,tuple)": EventFragment;
     "Initialized(uint8)": EventFragment;
-    "TierChange(address,address,uint256,uint256,bytes)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
@@ -203,7 +217,6 @@ export interface EmissionsERC20Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Claim"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TierChange"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -222,8 +235,8 @@ export type ClaimEvent = TypedEvent<
 export type ClaimEventFilter = TypedEventFilter<ClaimEvent>;
 
 export type InitializeEvent = TypedEvent<
-  [string, boolean],
-  { sender: string; allowDelegatedClaims: boolean }
+  [string, EmissionsERC20ConfigStructOutput],
+  { sender: string; config: EmissionsERC20ConfigStructOutput }
 >;
 
 export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
@@ -231,19 +244,6 @@ export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
 export type InitializedEvent = TypedEvent<[number], { version: number }>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
-
-export type TierChangeEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber, string],
-  {
-    sender: string;
-    account: string;
-    startTier: BigNumber;
-    endTier: BigNumber;
-    data: string;
-  }
->;
-
-export type TierChangeEventFilter = TypedEventFilter<TierChangeEvent>;
 
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
@@ -329,18 +329,27 @@ export interface EmissionsERC20 extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
-    report(account_: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    setTier(
-      arg0: string,
-      arg1: BigNumberish,
-      arg2: BytesLike,
+    report(
+      account_: string,
+      arg1: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<[void]>;
+    ): Promise<[BigNumber]>;
+
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      arg2: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<[StorageOpcodesRangeStructOutput]>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
@@ -410,18 +419,27 @@ export interface EmissionsERC20 extends BaseContract {
 
   name(overrides?: CallOverrides): Promise<string>;
 
-  report(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  setTier(
-    arg0: string,
-    arg1: BigNumberish,
-    arg2: BytesLike,
+  report(
+    account_: string,
+    arg1: BigNumberish[],
     overrides?: CallOverrides
-  ): Promise<void>;
+  ): Promise<BigNumber>;
+
+  reportTimeForTier(
+    account_: string,
+    tier_: BigNumberish,
+    arg2: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   storageOpcodesRange(
     overrides?: CallOverrides
   ): Promise<StorageOpcodesRangeStructOutput>;
+
+  supportsInterface(
+    interfaceId_: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -491,18 +509,27 @@ export interface EmissionsERC20 extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<string>;
 
-    report(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    setTier(
-      arg0: string,
-      arg1: BigNumberish,
-      arg2: BytesLike,
+    report(
+      account_: string,
+      arg1: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
+
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      arg2: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<StorageOpcodesRangeStructOutput>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -541,32 +568,14 @@ export interface EmissionsERC20 extends BaseContract {
     ): ClaimEventFilter;
     Claim(sender?: null, claimant?: null, data?: null): ClaimEventFilter;
 
-    "Initialize(address,bool)"(
+    "Initialize(address,tuple)"(
       sender?: null,
-      allowDelegatedClaims?: null
+      config?: null
     ): InitializeEventFilter;
-    Initialize(
-      sender?: null,
-      allowDelegatedClaims?: null
-    ): InitializeEventFilter;
+    Initialize(sender?: null, config?: null): InitializeEventFilter;
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
-
-    "TierChange(address,address,uint256,uint256,bytes)"(
-      sender?: null,
-      account?: null,
-      startTier?: null,
-      endTier?: null,
-      data?: null
-    ): TierChangeEventFilter;
-    TierChange(
-      sender?: null,
-      account?: null,
-      startTier?: null,
-      endTier?: null,
-      data?: null
-    ): TierChangeEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: string | null,
@@ -631,16 +640,25 @@ export interface EmissionsERC20 extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
-    report(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
+    report(
+      account_: string,
+      arg1: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
-    setTier(
-      arg0: string,
-      arg1: BigNumberish,
-      arg2: BytesLike,
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      arg2: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     storageOpcodesRange(overrides?: CallOverrides): Promise<BigNumber>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -718,17 +736,23 @@ export interface EmissionsERC20 extends BaseContract {
 
     report(
       account_: string,
+      arg1: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    setTier(
-      arg0: string,
-      arg1: BigNumberish,
-      arg2: BytesLike,
+    reportTimeForTier(
+      account_: string,
+      tier_: BigNumberish,
+      arg2: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     storageOpcodesRange(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

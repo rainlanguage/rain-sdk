@@ -19,18 +19,84 @@ import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
 export interface ReadWriteTierInterface extends utils.Interface {
   functions: {
-    "report(address)": FunctionFragment;
+    "report(address,uint256[])": FunctionFragment;
+    "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
     "setTier(address,uint256,bytes)": FunctionFragment;
+    "supportsInterface(bytes4)": FunctionFragment;
+    "tierAtTimeFromReport(uint256,uint256)": FunctionFragment;
+    "truncateTiersAbove(uint256,uint256)": FunctionFragment;
+    "updateReportWithTierAtTime(uint256,uint256,uint256,uint256)": FunctionFragment;
+    "updateTimeAtTier(uint256,uint256,uint256)": FunctionFragment;
+    "updateTimesForTierRange(uint256,uint256,uint256,uint256)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "report", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "report",
+    values: [string, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reportTimeForTier",
+    values: [string, BigNumberish, BigNumberish[]]
+  ): string;
   encodeFunctionData(
     functionFragment: "setTier",
     values: [string, BigNumberish, BytesLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "tierAtTimeFromReport",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "truncateTiersAbove",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateReportWithTierAtTime",
+    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateTimeAtTier",
+    values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateTimesForTierRange",
+    values: [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+  ): string;
 
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "reportTimeForTier",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setTier", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "tierAtTimeFromReport",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "truncateTiersAbove",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateReportWithTierAtTime",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateTimeAtTier",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateTimesForTierRange",
+    data: BytesLike
+  ): Result;
 
   events: {
     "TierChange(address,address,uint256,uint256,bytes)": EventFragment;
@@ -79,7 +145,24 @@ export interface ReadWriteTier extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    report(account_: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+    report(
+      account_: string,
+      arg1: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "reportTimeForTier(address,uint256,uint256[])"(
+      account_: string,
+      tier_: BigNumberish,
+      arg2: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    "reportTimeForTier(uint256,uint256)"(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { timestamp_: BigNumber }>;
 
     setTier(
       account_: string,
@@ -87,9 +170,66 @@ export interface ReadWriteTier extends BaseContract {
       data_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    tierAtTimeFromReport(
+      report_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { tier_: BigNumber }>;
+
+    truncateTiersAbove(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    updateReportWithTierAtTime(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { updatedReport_: BigNumber }>;
+
+    updateTimeAtTier(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { updatedReport_: BigNumber }>;
+
+    updateTimesForTierRange(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { updatedReport_: BigNumber }>;
   };
 
-  report(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
+  report(
+    account_: string,
+    arg1: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "reportTimeForTier(address,uint256,uint256[])"(
+    account_: string,
+    tier_: BigNumberish,
+    arg2: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "reportTimeForTier(uint256,uint256)"(
+    report_: BigNumberish,
+    tier_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   setTier(
     account_: string,
@@ -98,8 +238,65 @@ export interface ReadWriteTier extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  supportsInterface(
+    interfaceId_: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  tierAtTimeFromReport(
+    report_: BigNumberish,
+    timestamp_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  truncateTiersAbove(
+    report_: BigNumberish,
+    tier_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  updateReportWithTierAtTime(
+    report_: BigNumberish,
+    startTier_: BigNumberish,
+    endTier_: BigNumberish,
+    timestamp_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  updateTimeAtTier(
+    report_: BigNumberish,
+    tier_: BigNumberish,
+    timestamp_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  updateTimesForTierRange(
+    report_: BigNumberish,
+    startTier_: BigNumberish,
+    endTier_: BigNumberish,
+    timestamp_: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   callStatic: {
-    report(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
+    report(
+      account_: string,
+      arg1: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "reportTimeForTier(address,uint256,uint256[])"(
+      account_: string,
+      tier_: BigNumberish,
+      arg2: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "reportTimeForTier(uint256,uint256)"(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     setTier(
       account_: string,
@@ -107,6 +304,46 @@ export interface ReadWriteTier extends BaseContract {
       data_: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    tierAtTimeFromReport(
+      report_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    truncateTiersAbove(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    updateReportWithTierAtTime(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    updateTimeAtTier(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    updateTimesForTierRange(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -127,7 +364,24 @@ export interface ReadWriteTier extends BaseContract {
   };
 
   estimateGas: {
-    report(account_: string, overrides?: CallOverrides): Promise<BigNumber>;
+    report(
+      account_: string,
+      arg1: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "reportTimeForTier(address,uint256,uint256[])"(
+      account_: string,
+      tier_: BigNumberish,
+      arg2: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "reportTimeForTier(uint256,uint256)"(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     setTier(
       account_: string,
@@ -135,11 +389,65 @@ export interface ReadWriteTier extends BaseContract {
       data_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    tierAtTimeFromReport(
+      report_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    truncateTiersAbove(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    updateReportWithTierAtTime(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    updateTimeAtTier(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    updateTimesForTierRange(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     report(
       account_: string,
+      arg1: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "reportTimeForTier(address,uint256,uint256[])"(
+      account_: string,
+      tier_: BigNumberish,
+      arg2: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "reportTimeForTier(uint256,uint256)"(
+      report_: BigNumberish,
+      tier_: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -148,6 +456,46 @@ export interface ReadWriteTier extends BaseContract {
       endTier_: BigNumberish,
       data_: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    supportsInterface(
+      interfaceId_: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    tierAtTimeFromReport(
+      report_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    truncateTiersAbove(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    updateReportWithTierAtTime(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    updateTimeAtTier(
+      report_: BigNumberish,
+      tier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    updateTimesForTierRange(
+      report_: BigNumberish,
+      startTier_: BigNumberish,
+      endTier_: BigNumberish,
+      timestamp_: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

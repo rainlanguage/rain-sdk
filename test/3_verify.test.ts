@@ -31,9 +31,9 @@ describe('Verify', () => {
     // Obtaining the current state of user1
     const stateUser1 = await verify.state(user1.address);
     // Current block in chain
-    const currentBlock = await Time.currentBlock();
+    const currentTime = await Time.currentTime();
 
-    expect(await verify.statusAtBlock(stateUser1, currentBlock)).to.be.equals(
+    expect(await verify.statusAtTime(stateUser1, currentTime)).to.be.equals(
       verify.status.APPROVED
     );
   });
