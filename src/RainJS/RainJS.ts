@@ -915,9 +915,9 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
+      const context_ = operand ? state.stack.splice(-operand) : [];
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      const context_ = state.stack.splice(-operand);
 
       if (item1_ && item2_ && this.signer != undefined && context_.length != operand) {
         const account_ = paddedUInt160(item2_);
@@ -937,12 +937,11 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
+      const context_ = operand ? state.stack.splice(-operand) : [];
       const item3_ = state.stack.pop();
       if (item3_ != undefined && item3_.toNumber() > Tier.ONE && item3_.toNumber() < Tier.EIGHT) {
-
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
-        const context_ = state.stack.splice(-operand);
 
         if (item1_ && item2_  && this.signer != undefined && context_.length != operand) {
           const tier_ = item3_;

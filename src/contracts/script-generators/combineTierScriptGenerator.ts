@@ -29,11 +29,11 @@ export class CombineTierGenerator {
   /**
    * Constructor for this class
    *
-   * @param reportVar - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
+   * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
    */
-  constructor(reportVar: string | StateConfig) {
-    if (typeof reportVar == 'string') {
-      this.constants = [reportVar];
+  constructor(reporter: string | StateConfig) {
+    if (typeof reporter == 'string') {
+      this.constants = [reporter];
       this.sources = [
         concat([
           op(VM.Opcodes.CONSTANT, 0),
@@ -42,37 +42,37 @@ export class CombineTierGenerator {
         ]),
       ];
     } else {
-      this.constants = reportVar.constants;
-      this.sources = reportVar.sources;
+      this.constants = reporter.constants;
+      this.sources = reporter.sources;
     }
   }
 
   /**
    * Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode
    *
-   * @param reportVar - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
+   * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
    * @param logic - selectLte logic
    * @param mode - selectLte mode
-   * @param number - (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK_NUMBER
+   * @param number - (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK_TIMESTAMP
    *
    * @returns this
    */
   public combineWith(
-    reportVar: string | StateConfig,
+    reporter: string | StateConfig,
     logic: selectLteLogic,
     mode: selectLteMode,
     number?: number
-  ): this {
+  ): CombineTierGenerator {
     const _buttom: StateConfig =
-      typeof reportVar == 'string'
-        ? new CombineTierGenerator(reportVar)
-        : reportVar;
+      typeof reporter == 'string'
+        ? new CombineTierGenerator(reporter)
+        : reporter;
 
     const _combiner: StateConfig = {
       constants: number ? [number] : [],
       sources: [
         concat([
-          number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_NUMBER),
+          number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_TIMESTAMP),
           op(VM.Opcodes.SELECT_LTE, selectLte(logic, mode, 2)),
         ]),
       ],
@@ -92,7 +92,7 @@ export class CombineTierGenerator {
    *
    * @param startTier - start of the report updating range (exclusive)
    * @param endTier - end of the report updating range (inclusive)
-   * @param number - (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK_NUMBER
+   * @param number - (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK_TIMESTAMP
    *
    * @returns this
    */
@@ -100,12 +100,12 @@ export class CombineTierGenerator {
     startTier: Tier,
     endTier: Tier,
     number?: number
-  ): this {
+  ): CombineTierGenerator {
     const _updater: StateConfig = {
       constants: number ? [number] : [],
       sources: [
         concat([
-          number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_NUMBER),
+          number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_TIMESTAMP),
           op(
             VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
             tierRange(startTier, endTier)
@@ -125,15 +125,15 @@ export class CombineTierGenerator {
   /**
    * Saturating difference between 2 reports
    *
-   * @param reportVar - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
+   * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
    *
    * @returns this
    */
-  public differenceFrom(reportVar: string | StateConfig): this {
+  public differenceFrom(reporter: string | StateConfig): this {
     const _buttom: StateConfig =
-      typeof reportVar == 'string'
-        ? new CombineTierGenerator(reportVar)
-        : reportVar;
+      typeof reporter == 'string'
+        ? new CombineTierGenerator(reporter)
+        : reporter;
 
     const _differ: StateConfig = {
       constants: [],
@@ -152,19 +152,45 @@ export class CombineTierGenerator {
   /**
    * Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier.
    *
-   * @param reportVar - either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of StateConfig desired)
+   * @param reporter - either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of StateConfig desired)
    * @param numberOfBlocks - A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report.
    *
    * @returns this
    */
   public isTierHeldFor(
-    reportVar: string | StateConfig,
-    numberOfBlocks: number | number[]
-  ): this {
+    reporter: string | StateConfig,
+    numberOfBlocks: number | number[],
+    thresholds?: (number | string)[],
+    tokenDecimals: number = 18
+  ): CombineTierGenerator {
+    let stakeContext: StateConfig = {
+      constants: [],
+      sources: []
+    };
+    if (thresholds && thresholds.length > 0) {
+      for (let i = 0; i < thresholds.length; i++) {
+        stakeContext.constants.push(
+          parseUnits(thresholds[i].toString(), tokenDecimals)
+        );
+        stakeContext.sources.push(
+          concat([
+            op(VM.Opcodes.CONSTANT, i)
+          ])
+        );
+      }
+      stakeContext.sources = [
+        concat([
+          ...stakeContext.sources
+        ])
+      ];
+    }
+
     const _report: StateConfig =
-      typeof reportVar == 'string'
-        ? new CombineTierGenerator(reportVar)
-        : reportVar;
+      typeof reporter == 'string'
+        ? stakeContext.constants.length > 0 
+          ? VM.combiner(new CombineTierGenerator(reporter), stakeContext, {position: [2]}) 
+          : new CombineTierGenerator(reporter)
+        : reporter;
 
     const _shifter = paddedUInt256(
           paddedUInt32('7') +
@@ -233,7 +259,7 @@ export class CombineTierGenerator {
           op(VM.Opcodes.ADD, 8),
         ]),
         concat([
-          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.BLOCK_TIMESTAMP),
           op(VM.Opcodes.CONSTANT, 5),
           op(VM.Opcodes.SATURATING_SUB, 2),
           op(VM.Opcodes.CONSTANT, 6),
@@ -266,7 +292,7 @@ export class BuildReport extends CombineTierGenerator {
    * Contructor of this class
    *
    * @param number - (optional) A number or an array of numbers represting the report at each tier,
-   * if not passed, BLOCK_NUMBER will be used to creat the report of each tier
+   * if not passed, BLOCK_TIMESTAMP will be used to creat the report of each tier
    */
   constructor(number?: number | number[]) {
     let _result: StateConfig;
@@ -344,7 +370,7 @@ export class BuildReport extends CombineTierGenerator {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.BLOCK_NUMBER),
+            op(VM.Opcodes.BLOCK_TIMESTAMP),
             op(
               VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
               tierRange(Tier.ZERO, Tier.EIGHT)
