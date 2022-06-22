@@ -8,5 +8,8 @@ It will be built with the desired configuration for the CombineTier allowing to 
 <b>Signature:</b>
 
 ```typescript
-type CombineTierDeployArgs = StateConfig;
+type CombineTierDeployArgs = {
+    combinedTiersLength: BigNumberish;
+    sourceConfig: StateConfig;
+};
 ```

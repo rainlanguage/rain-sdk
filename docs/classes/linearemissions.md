@@ -13,22 +13,10 @@ class LinearEmissions
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [argumentsLength](./linearemissions.md#argumentsLength-property) | `BigNumberish` |  |
 |  [constants](./linearemissions.md#constants-property) | `BigNumberish[]` |  |
 |  [sources](./linearemissions.md#sources-property) | `BytesLike[]` |  |
-|  [stackLength](./linearemissions.md#stackLength-property) | `BigNumberish` |  |
 
 ## Property Details
-
-<a id="argumentsLength-property"></a>
-
-### argumentsLength
-
-<b>Signature:</b>
-
-```typescript
-argumentsLength: BigNumberish;
-```
 
 <a id="constants-property"></a>
 
@@ -48,14 +36,4 @@ constants: BigNumberish[];
 
 ```typescript
 sources: BytesLike[];
-```
-
-<a id="stackLength-property"></a>
-
-### stackLength
-
-<b>Signature:</b>
-
-```typescript
-stackLength: BigNumberish;
 ```

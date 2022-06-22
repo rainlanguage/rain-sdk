@@ -1,10 +1,10 @@
 
 # Variable utils.paddedUInt256
 
-Utility function that transforms a BigNumber from the output of the ITier contract report
+Utility function that transforms a BigNumberish from the output of the ITierV2 contract report
 
 <b>Signature:</b>
 
 ```typescript
-paddedUInt256: (report: BigNumber) => string
+paddedUInt256: (report: BigNumberish) => string
 ```

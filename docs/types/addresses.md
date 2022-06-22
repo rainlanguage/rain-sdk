@@ -8,18 +8,17 @@ Type for all the addresses stored in the Book.
 ```typescript
 type Addresses = {
     [key: string]: string;
+    vmStateBuilder: string;
     redeemableERC20Factory: string;
     verifyFactory: string;
     verifyTierFactory: string;
-    erc20BalanceTierFactory: string;
-    erc20TransferTierFactory: string;
     combineTierFactory: string;
-    erc721BalanceTierFactory: string;
-    gatedNFTFactory: string;
     redeemableERC20ClaimEscrow: string;
     noticeBoard: string;
     emissionsERC20Factory: string;
     saleFactory: string;
     alwaysTier: string;
+    stakeFactory: string;
+    orderBook: string;
 };
 ```

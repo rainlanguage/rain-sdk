@@ -22,6 +22,7 @@ export type CombineTierDeployArgs = {
 };
 
 /**
+ * @public
  * Enum for operand of the combineTier's CONTEXT opcode
  */
 export enum CombineTierContext {
@@ -38,6 +39,7 @@ export enum CombineTierContext {
 }
 
 /**
+ * @public
  * Enum for operand of the CombineTier's STORAGE opcode
  */
 export enum CombineTierStorage {

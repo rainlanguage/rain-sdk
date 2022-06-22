@@ -12,7 +12,7 @@ import {
   arrayify,
 } from '../utils';
 
-/*
+/**
  * @public
  *
  * All the standard Op Codes
@@ -237,6 +237,7 @@ export interface StateConfig {
 }
 
 /**
+ * @public
  * Interface for accessible by vm storage's slots range available for a contract to be
  * used as local opcodes.
  */
@@ -253,6 +254,7 @@ export interface StorageOpcodesRange {
 }
 
 /**
+ * @public
  * Enum for DEBUG opcode operands
  */
 export enum Debug {

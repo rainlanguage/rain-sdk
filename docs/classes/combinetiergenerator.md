@@ -17,31 +17,19 @@ new CombineTier(a tierAddress or a StateConfig)
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [argumentsLength](./combinetiergenerator.md#argumentsLength-property) | `BigNumberish` |  |
 |  [constants](./combinetiergenerator.md#constants-property) | `BigNumberish[]` |  |
 |  [sources](./combinetiergenerator.md#sources-property) | `BytesLike[]` |  |
-|  [stackLength](./combinetiergenerator.md#stackLength-property) | `BigNumberish` |  |
 
 ## Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [combine(reportVar, logic, mode, number)](./combinetiergenerator.md#combine-method-1) | Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode |
-|  [holdingTimeTransferTier(reportVar, numberOfBlocks)](./combinetiergenerator.md#holdingTimeTransferTier-method-1) | Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier. |
-|  [satDiff(reportVar)](./combinetiergenerator.md#satDiff-method-1) | Saturating difference between 2 reports |
-|  [updateReportAtTierRange(startTier, endTier, number)](./combinetiergenerator.md#updateReportAtTierRange-method-1) | Method to update a report at given tier range (can be any range between 0 to 8) |
+|  [combineWith(reporter, logic, mode, number)](./combinetiergenerator.md#combineWith-method-1) | Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode |
+|  [differenceFrom(reporter)](./combinetiergenerator.md#differenceFrom-method-1) | Saturating difference between 2 reports |
+|  [isTierHeldFor(reporter, numberOfBlocks, thresholds, tokenDecimals)](./combinetiergenerator.md#isTierHeldFor-method-1) | Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier. |
+|  [updateReport(startTier, endTier, number)](./combinetiergenerator.md#updateReport-method-1) | Method to update a report at given tier range (can be any range between 0 to 8) |
 
 ## Property Details
-
-<a id="argumentsLength-property"></a>
-
-### argumentsLength
-
-<b>Signature:</b>
-
-```typescript
-argumentsLength: BigNumberish;
-```
 
 <a id="constants-property"></a>
 
@@ -63,87 +51,52 @@ constants: BigNumberish[];
 sources: BytesLike[];
 ```
 
-<a id="stackLength-property"></a>
-
-### stackLength
-
-<b>Signature:</b>
-
-```typescript
-stackLength: BigNumberish;
-```
-
 ## Method Details
 
-<a id="combine-method-1"></a>
+<a id="combineWith-method-1"></a>
 
-### combine(reportVar, logic, mode, number)
+### combineWith(reporter, logic, mode, number)
 
 Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode
 
 <b>Signature:</b>
 
 ```typescript
-combine(reportVar: string | StateConfig, logic: selectLteLogic, mode: selectLteMode, number?: number): this;
+combineWith(reporter: string | StateConfig, logic: selectLteLogic, mode: selectLteMode, number?: number): CombineTierGenerator;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  reportVar | `string \| StateConfig` | either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired) |
+|  reporter | `string \| StateConfig` | either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired) |
 |  logic | `selectLteLogic` | selectLte logic |
 |  mode | `selectLteMode` | selectLte mode |
-|  number | `number` | (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK\_NUMBER |
+|  number | `number` | (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK\_TIMESTAMP |
 
 <b>Returns:</b>
 
-`this`
+`CombineTierGenerator`
 
 this
 
-<a id="holdingTimeTransferTier-method-1"></a>
+<a id="differenceFrom-method-1"></a>
 
-### holdingTimeTransferTier(reportVar, numberOfBlocks)
-
-Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier.
-
-<b>Signature:</b>
-
-```typescript
-holdingTimeTransferTier(reportVar: string | StateConfig, numberOfBlocks: number | number[]): this;
-```
-
-#### Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  reportVar | `string \| StateConfig` | either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of StateConfig desired) |
-|  numberOfBlocks | `number \| number[]` | A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report. |
-
-<b>Returns:</b>
-
-`this`
-
-this
-
-<a id="satDiff-method-1"></a>
-
-### satDiff(reportVar)
+### differenceFrom(reporter)
 
 Saturating difference between 2 reports
 
 <b>Signature:</b>
 
 ```typescript
-satDiff(reportVar: string | StateConfig): this;
+differenceFrom(reporter: string | StateConfig): this;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  reportVar | `string \| StateConfig` | either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired) |
+|  reporter | `string \| StateConfig` | either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired) |
 
 <b>Returns:</b>
 
@@ -151,16 +104,43 @@ satDiff(reportVar: string | StateConfig): this;
 
 this
 
-<a id="updateReportAtTierRange-method-1"></a>
+<a id="isTierHeldFor-method-1"></a>
 
-### updateReportAtTierRange(startTier, endTier, number)
+### isTierHeldFor(reporter, numberOfBlocks, thresholds, tokenDecimals)
+
+Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier.
+
+<b>Signature:</b>
+
+```typescript
+isTierHeldFor(reporter: string | StateConfig, numberOfBlocks: number | number[], thresholds?: (number | string)[], tokenDecimals?: number): CombineTierGenerator;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  reporter | `string \| StateConfig` | either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of StateConfig desired) |
+|  numberOfBlocks | `number \| number[]` | A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report. |
+|  thresholds | `(number \| string)[]` |  |
+|  tokenDecimals | `number` |  |
+
+<b>Returns:</b>
+
+`CombineTierGenerator`
+
+this
+
+<a id="updateReport-method-1"></a>
+
+### updateReport(startTier, endTier, number)
 
 Method to update a report at given tier range (can be any range between 0 to 8)
 
 <b>Signature:</b>
 
 ```typescript
-updateReportAtTierRange(startTier: Tier, endTier: Tier, number?: number): this;
+updateReport(startTier: Tier, endTier: Tier, number?: number): CombineTierGenerator;
 ```
 
 #### Parameters
@@ -169,11 +149,11 @@ updateReportAtTierRange(startTier: Tier, endTier: Tier, number?: number): this;
 |  --- | --- | --- |
 |  startTier | [Tier](../enums/tier.md) | start of the report updating range (exclusive) |
 |  endTier | [Tier](../enums/tier.md) | end of the report updating range (inclusive) |
-|  number | `number` | (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK\_NUMBER |
+|  number | `number` | (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK\_TIMESTAMP |
 
 <b>Returns:</b>
 
-`this`
+`CombineTierGenerator`
 
 this
 

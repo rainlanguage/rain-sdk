@@ -383,7 +383,7 @@ export class RedeemableERC20 extends FactoryContract {
    * returned.
    * @param phaseTimes_ - Fixed array of phase times to compare against.
    * @param timestamp_ - Determine the relevant phase relative to this time.
-   * @return phase_ The "current" phase relative to the timestamp and phase
+   * @returns phase_ The "current" phase relative to the timestamp and phase
    * times list.
    */
   public readonly phaseAtTime: (
@@ -453,10 +453,10 @@ export class RedeemableERC20 extends FactoryContract {
    * specific timestamp.
    * `Phase.ZERO` will always return block `0`.
    * Every other phase will map to a time in `phaseTimes_`.
-   * 
+   *
    * @param phaseTimes_ - Fixed array of phase blocks to compare against.
    * @param phase_  - Determine the relevant block number for this phase.
-   * @return timestamp_ The timestamp for the phase according to
+   * @returns timestamp_ The timestamp for the phase according to
    * `phaseTimes_`.
    */
   public readonly timeForPhase: (

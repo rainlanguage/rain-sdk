@@ -189,9 +189,10 @@ export type WithdrawConfig = {
 };
 
 /**
+ * @public
  * Enum for operand of the Orderbook's CONTEXT opcode
  */
- export enum OrderbookContext {
+export enum OrderbookContext {
   /**
    * 0 or the index of the context array for Orderbook CONTEXT opcode
    * stacks the Orderhash
@@ -205,15 +206,16 @@ export type WithdrawConfig = {
   /**
    * length of Orderbook's valid context opcodes
    */
-  length
-};
+  length,
+}
 
 /**
+ * @public
  * Enum for operand of the Orderbook's STORAGE opcode
  */
- export enum OrderbookStroage {
+export enum OrderbookStroage {
   /**
    * length of Orederbook's valid storage opcodes
    */
-  length
+  length,
 }

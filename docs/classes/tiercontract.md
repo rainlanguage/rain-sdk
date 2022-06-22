@@ -25,8 +25,8 @@ abstract class TierContract extends FactoryContract
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
 |  [connect](./raincontract.md#connect-property) | `(signer: Signer) => RainContract` | Connect the current contract instance to a new ethers signer.<br></br>*Inherited from [RainContract.connect](./raincontract.md#connect-property)* |
 |  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts. |
-|  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->. |
-|  [setTier](./tiercontract.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<ContractTransaction>` | Updates the tier of an account. |
+|  [report](./tiercontract.md#report-property) | `(account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->. |
+|  [reportTimeForTier](./tiercontract.md#reportTimeForTier-property) | `(account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` |  |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 
 ## Static Methods
@@ -42,7 +42,7 @@ abstract class TierContract extends FactoryContract
 |  Method | Description |
 |  --- | --- |
 |  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br>*Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)* |
-|  [currentTier(account, block)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract. |
+|  [currentTier(account, timestamp)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract. |
 
 ## Property Details
 
@@ -69,35 +69,31 @@ There are 9 possible tier, starting with tier 0 for `0` offset or "never held an
 <b>Signature:</b>
 
 ```typescript
-readonly report: (account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>;
+readonly report: (account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>;
 ```
 
-<a id="setTier-property"></a>
+<a id="reportTimeForTier-property"></a>
 
-### setTier
-
-Updates the tier of an account.
-
-Users can set their own tier by calling `setTier` if is this option available on the Tier contract. ITier like BalanceTier does not allow this.
+### reportTimeForTier
 
 <b>Signature:</b>
 
 ```typescript
-readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<ContractTransaction>;
+readonly reportTimeForTier: (account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>;
 ```
 
 ## Method Details
 
 <a id="currentTier-method-1"></a>
 
-### currentTier(account, block)
+### currentTier(account, timestamp)
 
 Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.
 
 <b>Signature:</b>
 
 ```typescript
-currentTier(account: string, block?: number): Promise<number>;
+currentTier(account: string, timestamp?: number): Promise<number>;
 ```
 
 #### Parameters
@@ -105,7 +101,7 @@ currentTier(account: string, block?: number): Promise<number>;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  account | `string` | address to check the current tier |
-|  block | `number` | (optional) check the level tier of an account with respect to a specific block |
+|  timestamp | `number` | (optional) check the level tier of an account with respect to a specific timestamp |
 
 <b>Returns:</b>
 

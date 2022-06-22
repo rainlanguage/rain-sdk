@@ -471,7 +471,7 @@ export class SaleDurationInTimestamp {
    * A method for the sale to be able to end once the sale hits minimumRaise i.e. the minimum amount
    * that needs to be raiseed so the raises status becomes "success" after raise ends.
    *
-   * @remark please note that this method should not be used with applyExtraTime as they are opossit
+   * @remarks please note that this method should not be used with applyExtraTime as they are opossit
    * of eachother and also the order of using this method along with other methods of this class is
    * important
    *
@@ -661,7 +661,7 @@ export class SaleDurationInBlocks {
    * A method for the sale to be able to end once the sale hits minimumRaise i.e. the minimum amount
    * that needs to be raiseed so the raises status becomes "success" after raise ends.
    *
-   * @remark please note that this method should not be used with applyExtraTime as they are opossit
+   * @remarks please note that this method should not be used with applyExtraTime as they are opossit
    * of eachother and also the order of using this method along with other methods of this class is
    * important
    *

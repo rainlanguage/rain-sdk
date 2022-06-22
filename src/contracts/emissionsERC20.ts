@@ -17,13 +17,13 @@ import {
   ContractTransaction,
 } from 'ethers';
 
-
 /**
+ * @public
  * Enum for operand of the emissionsERC20's CONTEXT opcode
  */
- export enum EmissionsERC20Context {
+export enum EmissionsERC20Context {
   /**
-   * 0 or the index of the context array in the emissionsERC20 
+   * 0 or the index of the context array in the emissionsERC20
    * contract used as the operand for CONTEXT opcode.
    * operand for CONTEXT opcode to stack the claimant account that report is being call for.
    */
@@ -31,17 +31,18 @@ import {
   /**
    * length of EmissionsERC20's valid context opcodes
    */
-  length
+  length,
 }
 
 /**
+ * @public
  * Enum for operand of the EmissionsERC20's STORAGE opcode
  */
- export enum EmissionsERC20Storage {
+export enum EmissionsERC20Storage {
   /**
    * length of EmissionsERC20's valid storage opcodes
    */
-  length
+  length,
 }
 
 /**
@@ -75,7 +76,6 @@ export class EmissionsERC20 extends TierContract {
    *
    */
   constructor(address: string, signer: Signer) {
-
     EmissionsERC20.checkAddress(address);
 
     super(address, signer);
@@ -365,7 +365,7 @@ export class EmissionsERC20 extends TierContract {
 
   /**
    * Pointers to opcode functions, necessary for being able to read the packedBytes
-   * 
+   *
    * @param override - @see ReadTxOverrides
    * @returns the opcode functions pointers
    */
@@ -373,7 +373,7 @@ export class EmissionsERC20 extends TierContract {
 
   /**
    * Returns the pointer and length for emissionERC20's storage opcodes
-   * 
+   *
    * @param override - @see ReadTxOverrides
    * @returns a StorageOpcodesRange
    */

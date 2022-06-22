@@ -54,7 +54,6 @@ await RedeemableERC20.isChild(signer, maybeChildAddress);
 |  [allowance](./redeemableerc20.md#allowance-property) | `(owner: string, spender: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom()`<!-- -->. This is zero by default.<br></br>This value changes when `approve()` or `transferFrom()` are called. |
 |  [approve](./redeemableerc20.md#approve-property) | `(spender: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Sets `amount` as the allowance of `spender` over the caller's tokens. |
 |  [balanceOf](./redeemableerc20.md#balanceOf-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens owned by `account`<!-- -->. |
-|  [blockNumberForPhase](./redeemableerc20.md#blockNumberForPhase-property) | `(phaseBlocks: BigNumberish[], phase: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Pure function to reduce an array of phase blocks and phase to a specific block number. `Phase.ZERO` will always return block `0`<!-- -->. Every other phase will map to a block number in `phaseBlocks`<!-- -->. |
 |  [burn](./redeemableerc20.md#burn-property) | `(amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Destroys `amount` tokens from the caller, reducing the total supply. Emits a `Transfer` event with `to` set to the zero address.<br></br>Requirements: - Caller MUST have at least `amount` tokens. |
 |  [burnFrom](./redeemableerc20.md#burnFrom-property) | `(account: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Destroys `amount` tokens from `account`<!-- -->, deducting from the caller's allowance.<br></br>Requirements: - The caller must have allowance for `accounts`<!-- -->'s tokens of at least `amount`<!-- -->. |
 |  [connect](./redeemableerc20.md#connect-property) | `(signer: Signer) => RedeemableERC20` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
@@ -70,12 +69,13 @@ await RedeemableERC20.isChild(signer, maybeChildAddress);
 |  [minimumTier](./redeemableerc20.md#minimumTier-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | The minimum status that a user must hold to receive transfers during `Phase.ZERO`<!-- -->. |
 |  [name](./redeemableerc20.md#name-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the name of the token. |
 |  [newTreasuryAsset](./redeemableerc20.md#newTreasuryAsset-property) | `(newTreasuryAsset: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | Anon can emit a `TreasuryAsset` event to notify token holders that an asset could be redeemed by burning `RedeemableERC20` tokens.<br></br>As this is callable by anon the events should be filtered by the indexer to those from trusted entities only. |
-|  [phaseAtBlockNumber](./redeemableerc20.md#phaseAtBlockNumber-property) | `(phaseBlocks: BigNumberish[], blockNumber: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Pure function to reduce an array of phase blocks and block number to a specific `Phase`<!-- -->.<br></br>The phase will be the highest attained even if several phases have the same block number.<br></br>If every phase block is after the block number then `0` is returned.<br></br>If every phase block is before the block number then `MAX_PHASE` is returned. |
-|  [phaseBlocks](./redeemableerc20.md#phaseBlocks-property) | `(index: BigNumberish, overrides?: ReadTxOverrides) => Promise<number>` | Get a phaseBlock |
+|  [phaseAtTime](./redeemableerc20.md#phaseAtTime-property) | `(phaseTimes_: BigNumberish[], timestamp_: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Pure function to reduce an array of phase times and block timestamp to a specific `Phase`<!-- -->. The phase will be the highest attained even if several phases have the same timestamp. If every phase block is after the timestamp then `0` is returned. If every phase block is before the timestamp then `MAX_PHASE` is returned. |
+|  [phaseTimes](./redeemableerc20.md#phaseTimes-property) | `(arg0: BigNumberish, overrides?: ReadTxOverrides) => Promise<number>` | 8 phases each as 32 bits to fit a single 32 byte word. |
 |  [redeem](./redeemableerc20.md#redeem-property) | `(treasuryAssets: string[], redeemAmount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Burn tokens for a prorata share of the current treasury. The assets to be redeemed for must be specified as an array. This keeps the redeem functionality:<br></br>- Gas efficient as we avoid tracking assets in storage - Decentralised as any user can deposit any asset to be redeemed - Error resistant as any individual asset reverting can be avoided by redeeming againt sans the problematic asset.<br></br>It is also a super sharp edge if someone burns their tokens prematurely or with an incorrect asset list. Implementing contracts are strongly encouraged to implement additional safety rails to prevent high value mistakes.<br></br>Only "vanilla" erc20 token balances are supported as treasury assets. I.e. if the balance is changing such as due to a rebasing token or other mechanism then the WRONG token amounts will be redeemed. The redemption calculation is very simple and naive in that it takes the current balance of this contract of the assets being claimed via redemption to calculate the "prorata" entitlement. If the contract's balance of the claimed token is changing between redemptions (other than due to the redemption itself) then each redemption will send incorrect amounts. |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [symbol](./redeemableerc20.md#symbol-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the symbol of the token, usually a shorter version of the name. |
 |  [tier](./redeemableerc20.md#tier-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Tier contract that produces the report that `minimumTier` is checked against. |
+|  [timeForPhase](./redeemableerc20.md#timeForPhase-property) | `(phaseTimes_: BigNumberish[], phase_: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Pure function to reduce an array of phase times and phase to a specific timestamp. `Phase.ZERO` will always return block `0`<!-- -->. Every other phase will map to a time in `phaseTimes_`<!-- -->. |
 |  [totalSupply](./redeemableerc20.md#totalSupply-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens in existence. |
 |  [transfer](./redeemableerc20.md#transfer-property) | `(to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from the caller's account to `to`<!-- -->.<br></br>Requirements:<br></br>- `to` cannot be the zero address. - the caller must have a balance of at least `amount`<!-- -->. |
 |  [transferFrom](./redeemableerc20.md#transferFrom-property) | `(from: string, to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.<br></br>NOTE: Does not update the allowance if the current allowance is the maximum `uint256`<!-- -->.<br></br>Requirements:<br></br>- `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`<!-- -->. - the caller must have allowance for `from`<!-- -->'s tokens of at least `amount`<!-- -->. |
@@ -174,18 +174,6 @@ Returns the amount of tokens owned by `account`<!-- -->.
 
 ```typescript
 readonly balanceOf: (account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>;
-```
-
-<a id="blockNumberForPhase-property"></a>
-
-### blockNumberForPhase
-
-Pure function to reduce an array of phase blocks and phase to a specific block number. `Phase.ZERO` will always return block `0`<!-- -->. Every other phase will map to a block number in `phaseBlocks`<!-- -->.
-
-<b>Signature:</b>
-
-```typescript
-readonly blockNumberForPhase: (phaseBlocks: BigNumberish[], phase: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>;
 ```
 
 <a id="burn-property"></a>
@@ -390,34 +378,28 @@ As this is callable by anon the events should be filtered by the indexer to thos
 readonly newTreasuryAsset: (newTreasuryAsset: string, overrides?: TxOverrides) => Promise<ContractTransaction>;
 ```
 
-<a id="phaseAtBlockNumber-property"></a>
+<a id="phaseAtTime-property"></a>
 
-### phaseAtBlockNumber
+### phaseAtTime
 
-Pure function to reduce an array of phase blocks and block number to a specific `Phase`<!-- -->.
-
-The phase will be the highest attained even if several phases have the same block number.
-
-If every phase block is after the block number then `0` is returned.
-
-If every phase block is before the block number then `MAX_PHASE` is returned.
+Pure function to reduce an array of phase times and block timestamp to a specific `Phase`<!-- -->. The phase will be the highest attained even if several phases have the same timestamp. If every phase block is after the timestamp then `0` is returned. If every phase block is before the timestamp then `MAX_PHASE` is returned.
 
 <b>Signature:</b>
 
 ```typescript
-readonly phaseAtBlockNumber: (phaseBlocks: BigNumberish[], blockNumber: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>;
+readonly phaseAtTime: (phaseTimes_: BigNumberish[], timestamp_: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>;
 ```
 
-<a id="phaseBlocks-property"></a>
+<a id="phaseTimes-property"></a>
 
-### phaseBlocks
+### phaseTimes
 
-Get a phaseBlock
+8 phases each as 32 bits to fit a single 32 byte word.
 
 <b>Signature:</b>
 
 ```typescript
-readonly phaseBlocks: (index: BigNumberish, overrides?: ReadTxOverrides) => Promise<number>;
+readonly phaseTimes: (arg0: BigNumberish, overrides?: ReadTxOverrides) => Promise<number>;
 ```
 
 <a id="redeem-property"></a>
@@ -460,6 +442,18 @@ Tier contract that produces the report that `minimumTier` is checked against.
 
 ```typescript
 readonly tier: (overrides?: ReadTxOverrides) => Promise<string>;
+```
+
+<a id="timeForPhase-property"></a>
+
+### timeForPhase
+
+Pure function to reduce an array of phase times and phase to a specific timestamp. `Phase.ZERO` will always return block `0`<!-- -->. Every other phase will map to a time in `phaseTimes_`<!-- -->.
+
+<b>Signature:</b>
+
+```typescript
+readonly timeForPhase: (phaseTimes_: BigNumberish[], phase_: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>;
 ```
 
 <a id="totalSupply-property"></a>

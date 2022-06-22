@@ -1,18 +1,18 @@
 
-# Class ITier
+# Class ITierV2
 
-Class to interact with ITier contracts
+Class to interact with ITierV2 contracts
 
-Generic class to interact with any ITier contract in chain with the basic methods and functions.
+Generic class to interact with any ITierV2 contract in chain with the basic methods and functions.
 
-`ITier` is a simple interface that contracts can implement to provide membership lists for other contracts.
+`ITierV2` is a simple interface that contracts can implement to provide membership lists for other contracts.
 
-This class can be used to interact with any contract that implement the ITier interface in their code, but does not know if the contract has implemented the code. E.g: if a contract does not implementent `setTier` as a BalanceTier Contract, the call will be reverted.
+This class can be used to interact with any contract that implement the ITierV2 interface in their code, but does not know if the contract has implemented the code.
 
 <b>Signature:</b>
 
 ```typescript
-class ITier extends TierContract 
+class ITierV2 extends TierContract 
 ```
 
 ## Static Properties
@@ -29,10 +29,10 @@ class ITier extends TierContract
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
-|  [connect](./itier.md#connect-property) | `(signer: Signer) => ITier` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./itierv2.md#connect-property) | `(signer: Signer) => ITierV2` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
-|  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
-|  [setTier](./tiercontract.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<ContractTransaction>` | Updates the tier of an account.<br></br>*Inherited from [TierContract.setTier](./tiercontract.md#setTier-property)* |
+|  [report](./tiercontract.md#report-property) | `(account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
+|  [reportTimeForTier](./tiercontract.md#reportTimeForTier-property) | `(account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | *Inherited from [TierContract.reportTimeForTier](./tiercontract.md#reportTimeForTier-property)* |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 
 ## Static Methods
@@ -48,7 +48,7 @@ class ITier extends TierContract
 |  Method | Description |
 |  --- | --- |
 |  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br>*Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)* |
-|  [currentTier(account, block)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br>*Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)* |
+|  [currentTier(account, timestamp)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br>*Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)* |
 
 ## Property Details
 
@@ -63,5 +63,5 @@ Connect the current contract instance to a new ethers signer.
 <b>Signature:</b>
 
 ```typescript
-readonly connect: (signer: Signer) => ITier;
+readonly connect: (signer: Signer) => ITierV2;
 ```

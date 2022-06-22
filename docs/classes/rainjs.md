@@ -9,17 +9,13 @@
 class RainJS 
 ```
 
-## Static Properties
-
-|  Property | Type | Description |
-|  --- | --- | --- |
-|  [Opcodes](./rainjs.md#Opcodes-property-static) | `typeof import("../classes/vm").AllStandardOps` | All of RainVM standard opcodes, i.e. AllStandardOps |
-
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
+|  [\_CONTEXT\_](./rainjs.md#_CONTEXT_-property) | [ApplyOpFn](../interfaces/applyopfn.md) | Object that contains the CONTEXT opcode functions (i.e. local opcodes) the required value need to be passed to "run" method as the context array in "data" object. the reason is the CONTEXT opcode is contextual and is passed the VM at runtime. |
 |  [\_OPCODE\_](./rainjs.md#_OPCODE_-property) | [ApplyOpFn](../interfaces/applyopfn.md) | key/value pair of opcodes and their functions for all standard opcodes |
+|  [\_STORAGE\_](./rainjs.md#_STORAGE_-property) | [ApplyOpFn](../interfaces/applyopfn.md) | Object that contains the STORAGE opcode functions (i.e. local opcodes) |
 |  [contract](./rainjs.md#contract-property) | `Contract` | An ethers Contract |
 |  [lastState](./rainjs.md#lastState-property) | `BigNumber[]` | The result state of the executed Rainjs. |
 |  [provider](./rainjs.md#provider-property) | `Provider` | An ethers provider. |
@@ -31,21 +27,19 @@ class RainJS
 |  --- | --- |
 |  [run(data)](./rainjs.md#run-method-1) | Method to execute the RainJS. |
 
-## Static Property Details
+## Property Details
 
-<a id="Opcodes-property-static"></a>
+<a id="_CONTEXT_-property"></a>
 
-### Opcodes
+### \_CONTEXT\_
 
-All of RainVM standard opcodes, i.e. AllStandardOps
+Object that contains the CONTEXT opcode functions (i.e. local opcodes) the required value need to be passed to "run" method as the context array in "data" object. the reason is the CONTEXT opcode is contextual and is passed the VM at runtime.
 
 <b>Signature:</b>
 
 ```typescript
-static Opcodes: typeof import("../classes/vm").AllStandardOps;
+protected _CONTEXT_?: ApplyOpFn;
 ```
-
-## Property Details
 
 <a id="_OPCODE_-property"></a>
 
@@ -57,6 +51,18 @@ key/value pair of opcodes and their functions for all standard opcodes
 
 ```typescript
 protected readonly _OPCODE_: ApplyOpFn;
+```
+
+<a id="_STORAGE_-property"></a>
+
+### \_STORAGE\_
+
+Object that contains the STORAGE opcode functions (i.e. local opcodes)
+
+<b>Signature:</b>
+
+```typescript
+protected _STORAGE_?: ApplyOpFn;
 ```
 
 <a id="contract-property"></a>
