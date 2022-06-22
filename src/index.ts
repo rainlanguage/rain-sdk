@@ -34,3 +34,5 @@ export * from './contracts/generics/erc1155';
 
 export * from './contracts/stake';
 export * from './contracts/orderBook';
+
+export * from './friendlySource';
