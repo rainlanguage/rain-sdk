@@ -9,17 +9,13 @@
 class CombineTierJS extends RainJS 
 ```
 
-## Static Properties
-
-|  Property | Type | Description |
-|  --- | --- | --- |
-|  [Opcodes](./combinetierjs.md#Opcodes-property-static) | `import("../contracts/tiers/combineTier").CombineTierOpcodes` | Local CombineTier Opcodes + AllstandardOps<br></br>*Overrides [RainJS.Opcodes](./rainjs.md#Opcodes-property-static)* |
-
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [\_OPCODE\_](./combinetierjs.md#_OPCODE_-property) | [ApplyOpFn](../interfaces/applyopfn.md) | key/value pair of opcodes and their functions for all standard opcodes + EmissionsERC20 local opcodes<br></br>*Overrides [RainJS.\_OPCODE\_](./rainjs.md#_OPCODE_-property)* |
+|  [\_CONTEXT\_](./combinetierjs.md#_CONTEXT_-property) | [ApplyOpFn](../interfaces/applyopfn.md) | key/value pair of CONTEXT opcodes of the CombineTier JSVM the required value need to be passed to "run" method as the context array in "data" object. the reason is the CONTEXT opcode is contextual and is passed the VM at runtime.<br></br>*Overrides [RainJS.\_CONTEXT\_](./rainjs.md#_CONTEXT_-property)* |
+|  [\_OPCODE\_](./rainjs.md#_OPCODE_-property) | [ApplyOpFn](../interfaces/applyopfn.md) | key/value pair of opcodes and their functions for all standard opcodes<br></br>*Inherited from [RainJS.\_OPCODE\_](./rainjs.md#_OPCODE_-property)* |
+|  [\_STORAGE\_](./combinetierjs.md#_STORAGE_-property) | [ApplyOpFn](../interfaces/applyopfn.md) | key/value pair of STORAGE opcodes of the CombineTier JSVM (empty with no functions)<br></br>*Overrides [RainJS.\_STORAGE\_](./rainjs.md#_STORAGE_-property)* |
 |  [contract](./rainjs.md#contract-property) | `Contract` | An ethers Contract<br></br>*Inherited from [RainJS.contract](./rainjs.md#contract-property)* |
 |  [lastState](./rainjs.md#lastState-property) | `BigNumber[]` | The result state of the executed Rainjs.<br></br>*Inherited from [RainJS.lastState](./rainjs.md#lastState-property)* |
 |  [provider](./rainjs.md#provider-property) | `Provider` | An ethers provider.<br></br>*Inherited from [RainJS.provider](./rainjs.md#provider-property)* |
@@ -31,34 +27,34 @@ class CombineTierJS extends RainJS
 |  --- | --- |
 |  [run(data)](./rainjs.md#run-method-1) | Method to execute the RainJS.<br></br>*Inherited from [RainJS.run()](./rainjs.md#run-method-1)* |
 
-## Static Property Details
-
-<a id="Opcodes-property-static"></a>
-
-### Opcodes
-
-Local CombineTier Opcodes + AllstandardOps
-
-*Overrides [RainJS.Opcodes](./rainjs.md#Opcodes-property-static)*
-
-<b>Signature:</b>
-
-```typescript
-static Opcodes: import("../contracts/tiers/combineTier").CombineTierOpcodes;
-```
-
 ## Property Details
 
-<a id="_OPCODE_-property"></a>
+<a id="_CONTEXT_-property"></a>
 
-### \_OPCODE\_
+### \_CONTEXT\_
 
-key/value pair of opcodes and their functions for all standard opcodes + EmissionsERC20 local opcodes
+key/value pair of CONTEXT opcodes of the CombineTier JSVM the required value need to be passed to "run" method as the context array in "data" object. the reason is the CONTEXT opcode is contextual and is passed the VM at runtime.
 
-*Overrides [RainJS.\_OPCODE\_](./rainjs.md#_OPCODE_-property)*
+*Overrides [RainJS.\_CONTEXT\_](./rainjs.md#_CONTEXT_-property)*
 
 <b>Signature:</b>
 
 ```typescript
-protected readonly _OPCODE_: ApplyOpFn;
+protected _CONTEXT_: ApplyOpFn;
+```
+
+<a id="_STORAGE_-property"></a>
+
+### \_STORAGE\_
+
+key/value pair of STORAGE opcodes of the CombineTier JSVM (empty with no functions)
+
+*Overrides [RainJS.\_STORAGE\_](./rainjs.md#_STORAGE_-property)*
+
+CombineTier doesnt have any STORAGE opcode by default and in its contract level, however in JSVM there is the ability to pass in custom opcode functions to it
+
+<b>Signature:</b>
+
+```typescript
+protected _STORAGE_: ApplyOpFn;
 ```

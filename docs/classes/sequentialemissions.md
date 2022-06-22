@@ -13,22 +13,10 @@ class SequentialEmissions
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [argumentsLength](./sequentialemissions.md#argumentsLength-property) | `BigNumberish` |  |
 |  [constants](./sequentialemissions.md#constants-property) | `BigNumberish[]` |  |
 |  [sources](./sequentialemissions.md#sources-property) | `BytesLike[]` |  |
-|  [stackLength](./sequentialemissions.md#stackLength-property) | `BigNumberish` |  |
 
 ## Property Details
-
-<a id="argumentsLength-property"></a>
-
-### argumentsLength
-
-<b>Signature:</b>
-
-```typescript
-argumentsLength: BigNumberish;
-```
 
 <a id="constants-property"></a>
 
@@ -48,14 +36,4 @@ constants: BigNumberish[];
 
 ```typescript
 sources: BytesLike[];
-```
-
-<a id="stackLength-property"></a>
-
-### stackLength
-
-<b>Signature:</b>
-
-```typescript
-stackLength: BigNumberish;
 ```

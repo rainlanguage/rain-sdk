@@ -70,7 +70,7 @@ const existingVerify = new Verify(address, signer)
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [state](./verify.md#state-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<VerifyState>` | Typed accessor into states. |
 |  [status](./verify.md#status-property) | `typeof VerifyStatus` | Summary statuses derived from a `State` by comparing the `Since` times against a specific block number. |
-|  [statusAtBlock](./verify.md#statusAtBlock-property) | `(state: VerifyState, blockNumber: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Derives a single `Status` from a `State` and a reference block number. |
+|  [statusAtTime](./verify.md#statusAtTime-property) | `(state_: VerifyState, timestamp_: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Derives a single `Status` from a `State` and a reference timestamp. |
 |  [supportsInterface](./verify.md#supportsInterface-property) | `(interfaceId: BytesLike, overrides?: ReadTxOverrides) => Promise<boolean>` | Returns true if this contract implements the interface defined by `interfaceId`<!-- -->. See the corresponding https://eips.ethereum.org/EIPS/eip-165\#how-interfaces-are-identified\[EIP section\] to learn more about how these ids are created. |
 
 ## Static Methods
@@ -437,16 +437,16 @@ Summary statuses derived from a `State` by comparing the `Since` times against a
 status: typeof VerifyStatus;
 ```
 
-<a id="statusAtBlock-property"></a>
+<a id="statusAtTime-property"></a>
 
-### statusAtBlock
+### statusAtTime
 
-Derives a single `Status` from a `State` and a reference block number.
+Derives a single `Status` from a `State` and a reference timestamp.
 
 <b>Signature:</b>
 
 ```typescript
-readonly statusAtBlock: (state: VerifyState, blockNumber: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>;
+readonly statusAtTime: (state_: VerifyState, timestamp_: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>;
 ```
 
 <a id="supportsInterface-property"></a>

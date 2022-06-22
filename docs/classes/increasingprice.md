@@ -30,10 +30,8 @@ const saleType = new IncreasingPrice(startPrice, endPrice, startTimestamp, endTi
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [argumentsLength](./pricecurve.md#argumentsLength-property) | `BigNumberish` | *Inherited from [PriceCurve.argumentsLength](./pricecurve.md#argumentsLength-property)* |
 |  [constants](./pricecurve.md#constants-property) | `BigNumberish[]` | *Inherited from [PriceCurve.constants](./pricecurve.md#constants-property)* |
 |  [sources](./pricecurve.md#sources-property) | `BytesLike[]` | *Inherited from [PriceCurve.sources](./pricecurve.md#sources-property)* |
-|  [stackLength](./pricecurve.md#stackLength-property) | `BigNumberish` | *Inherited from [PriceCurve.stackLength](./pricecurve.md#stackLength-property)* |
 
 ## Methods
 
@@ -41,7 +39,6 @@ const saleType = new IncreasingPrice(startPrice, endPrice, startTimestamp, endTi
 |  --- | --- |
 |  [applyExtraTimeDiscount(endTimestamp, extraTimeDiscountThreshold, extraTimeDiscount)](./pricecurve.md#applyExtraTimeDiscount-method-1) | Method to apply extra time discount to the sale. if sale's continues into extra time then those addresses that have met the critera of extra time discount which is already purchased a certain amount of rTKN will get some discount on price for their next purchase.<br></br>*Inherited from [PriceCurve.applyExtraTimeDiscount()](./pricecurve.md#applyExtraTimeDiscount-method-1)* |
 |  [applyTierDiscount(tierAddress, tierDiscount, tierActivation)](./pricecurve.md#applyTierDiscount-method-1) | Method to apply tiers' discounts to the sale. Tiered addresses will get discount based on the tier they hold.<br></br>*Inherited from [PriceCurve.applyTierDiscount()](./pricecurve.md#applyTierDiscount-method-1)* |
-|  [applyWalletCap(mode, options)](./pricecurve.md#applyWalletCap-method-1) | Method to apply cap per wallet to the sale. addresses can only buy that certain amount of rTKNs. With the option of applying multiplier for max cap per wallet.<br></br>*Inherited from [PriceCurve.applyWalletCap()](./pricecurve.md#applyWalletCap-method-1)* |
 
 ## Static Property Details
 

@@ -348,7 +348,7 @@ export class Verify extends FactoryContract {
    * Derives a single `Status` from a `State` and a reference timestamp.
    * @param state_ - The raw `State` to reduce into a `Status`.
    * @param timestamp_ - The timestamp to compare `State` against.
-   * @return status_ The status in `State` given `timestamp_`.
+   * @returns status_ The status in `State` given `timestamp_`.
    */
   public readonly statusAtTime: (
     state_: VerifyState,

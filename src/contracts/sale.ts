@@ -12,6 +12,7 @@ import {
 
 
 /**
+ * @public
  * Enum for operand of the sale's Storage Opcodes
  */
 export enum SaleStorage {
@@ -46,6 +47,7 @@ export enum SaleStorage {
 };
 
 /**
+ * @public
  * Enum for operand of the sale's CONTEXT opcode
  */
 export enum SaleContext {
