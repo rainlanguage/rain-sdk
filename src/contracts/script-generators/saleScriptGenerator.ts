@@ -626,10 +626,10 @@ export class SaleDurationInTimestamp {
       constants: [MinimumRaise],
       sources: [
         concat([
-          op(Sale.Opcodes.VAL, 1),
+          op(Sale.Opcodes.VAL, 0),
           op(Sale.Opcodes.TOTAL_RESERVE_IN),
           op(Sale.Opcodes.LESS_THAN),
-          op(Sale.Opcodes.ANY, 2),
+          op(Sale.Opcodes.ANY, 2)
         ])
       ],
       stackLength: 4,
@@ -781,7 +781,7 @@ export class SaleDurationInBlocks {
       constants: [MinimumRaise],
       sources: [
         concat([
-          op(Sale.Opcodes.VAL, 1),
+          op(Sale.Opcodes.VAL, 0),
           op(Sale.Opcodes.TOTAL_RESERVE_IN),
           op(Sale.Opcodes.LESS_THAN),
           op(Sale.Opcodes.ANY, 2),

@@ -822,46 +822,39 @@ export class VM {
   }
 
 
-  /**
+/**
    * A method to merge multiple (more than 1) scripts to be executed based on time slices.
-   * 
+   *
    * @param configs - An array of StateConfigs that will be merged and executed at runtime in order by time slices
    * @param times - An array of numbers representing either BLOCK_NUMBER or TIMESTAMP that time slices will be between each of the 2 items in the array
+   * its length should be number of configs - 1.
    * @param inBlockNumber - (optional) false by default which means the time slices will be based on TIMESTAMP, pass true to base it on BLOCK_NUMBER
-   * 
+   *
    * @returns a VM script @see StateConfig
    */
-  public static toTimeSlicer (
+  public static toTimeSlicer(
     configs: StateConfig[],
     times: number[],
     inBlockNumber: boolean = false
-  ) : StateConfig {
-
-    if (configs.length == times.length) {
-
+  ): StateConfig {
+    if (configs.length == times.length + 1) {
       let _result: StateConfig;
 
-      const SLICER = (i: number) : StateConfig => {
+      const SLICER = (i: number): StateConfig => {
         return {
-          constants: [times[i], times[i+1]],
+          constants: [times[i]],
           sources: [
             concat([
+              inBlockNumber
+                ? op(VM.Opcodes.BLOCK_NUMBER)
+                : op(VM.Opcodes.BLOCK_TIMESTAMP),
               op(VM.Opcodes.VAL, 0),
-              inBlockNumber
-              ? op(VM.Opcodes.BLOCK_NUMBER)
-              : op(VM.Opcodes.BLOCK_TIMESTAMP),
-              op(VM.Opcodes.LESS_THAN),
-              inBlockNumber
-              ? op(VM.Opcodes.BLOCK_NUMBER)
-              : op(VM.Opcodes.BLOCK_TIMESTAMP),
-              op(VM.Opcodes.VAL, 1),
-              op(VM.Opcodes.LESS_THAN),
-              op(VM.Opcodes.EVERY),
+              op(VM.Opcodes.LESS_THAN)
             ])
           ],
-          stackLength: 7,
+          stackLength: 3,
           argumentsLength: 0
-        }
+        };
       };
 
       _result = VM.combiner(SLICER(0), configs[0]);
@@ -869,7 +862,7 @@ export class VM {
       for (let i = 1; i < configs.length; i++) {
         if (i + 1 == configs.length) {
           _result = VM.combiner(_result, configs[i])
-        }
+        } 
         else {
           _result = VM.combiner(_result, SLICER(i))
           _result = VM.combiner(_result, configs[i])
@@ -880,11 +873,10 @@ export class VM {
           _result.sources[0],
           op(VM.Opcodes.EAGER_IF)
         ]);
-        _result.stackLength = Number(_result.stackLength) + 1;
       }
 
       return _result;
-    }
-    else throw new Error("invalid arguments")
+    } 
+    else throw new Error('invalid number of times or configs arguments');
   }
 }

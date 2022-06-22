@@ -102,10 +102,9 @@ export class RainJS {
   public provider?: Provider;
 
   /**
-   * An ethers Contract
+   * An ethers Contract address
    */
-  public contract?: Contract;
-
+  public contract?: string;
 
   /**
    * The constructor of RainJS which initiates the RainJS and also a StateJS for a RainVM script.
@@ -119,7 +118,7 @@ export class RainJS {
     options?: {
       signer?: Signer,
       provider?: Provider,
-      contract?: Contract,
+      contract?: string,
       applyOpFn?: ApplyOpFn,
     }
   ) {
@@ -383,13 +382,14 @@ export class RainJS {
             BigNumber.from(await this.signer.getAddress())
           )
         }
+        else throw new Error("undefined signer")
       },
 
     [RainJS.Opcodes.THIS_ADDRESS] : 
       async(state: StateJS, operand: number, data?: any) => {
         if(this.contract != undefined) {
           state.stack.push(
-            BigNumber.from(this.contract.address)
+            BigNumber.from(this.contract)
           )
         }
         else throw new Error("Undefined contract")
