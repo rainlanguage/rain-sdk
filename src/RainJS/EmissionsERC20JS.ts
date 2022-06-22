@@ -1,7 +1,7 @@
-import { BigNumber, Contract, Signer } from 'ethers';
-import { StateConfig } from '../classes/vm';
-import { ApplyOpFn, RainJS, StateJS } from './RainJS';
-import {
+import { BigNumber, Signer } from "ethers";
+import { StateConfig } from "../classes/vm";
+import { ApplyOpFn, RainJS, StateJS } from "./RainJS";
+import { 
   EmissionsERC20Context,
   EmissionsERC20Storage,
 } from '../contracts/emissionsERC20';
@@ -24,18 +24,21 @@ export class EmissionsERC20JS extends RainJS {
   constructor(
     state: StateConfig,
     options?: {
-      signer?: Signer;
-      contract?: Contract;
-      applyOpFn?: ApplyOpFn;
-      storageOpFn?: ApplyOpFn; // for overriding the EmissionsERC20's STORAGE opcode function
-      contextOpFn?: ApplyOpFn; // for overriding the EmissionsERC20's CONTEXT opcode function
+      signer?: Signer,
+      contract?: string,
+      applyOpFn?: ApplyOpFn,
+      storageOpFn?: ApplyOpFn, // for overriding the EmissionsERC20's STORAGE opcode function
+      contextOpFn?: ApplyOpFn // for overriding the EmissionsERC20's CONTEXT opcode function
     }
   ) {
-    super(state, {
-      signer: options?.signer,
-      contract: options?.contract,
-      applyOpFn: options?.applyOpFn,
-    });
+    super(
+      state,
+      {
+        signer: options?.signer,
+        contract: options?.contract,
+        applyOpFn: options?.applyOpFn,
+      }
+    );
 
     // assigning custom functions to the STORAGE/CONTEXT functions
     // custom functions should be passed at the time construction
