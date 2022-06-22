@@ -1,4 +1,4 @@
-import { BigNumber, Contract, Signer } from "ethers";
+import { BigNumber, Signer } from "ethers";
 import { StateConfig } from "../classes/vm";
 import { ApplyOpFn, RainJS, StateJS } from "./RainJS";
 import { 
@@ -27,7 +27,7 @@ export class CombineTierJS extends RainJS {
     state: StateConfig,
     options?: {
       signer?: Signer,
-      contract?: Contract,
+      contract?: string,
       applyOpFn?: ApplyOpFn,
       storageOpFn?: ApplyOpFn, // for overriding the CombineTierJS's STORAGE opcode function
       contextOpFn?: ApplyOpFn // for overriding the CombineTierJS's CONTEXT opcode function
@@ -38,7 +38,7 @@ export class CombineTierJS extends RainJS {
       {
         signer: options?.signer,
         contract: options?.contract,
-        applyOpFn: options?.applyOpFn
+        applyOpFn: options?.applyOpFn,
       }
     );
 

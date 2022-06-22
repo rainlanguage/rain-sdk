@@ -154,38 +154,18 @@ export class LinearEmissions {
     // prettier-ignore
     const REWARD = () =>
       concat([
+        op(VM.Opcodes.CONSTANT, 5),
         op(VM.Opcodes.CONSTANT, 6),
-        op(VM.Opcodes.CONSTANT, 7),
         op(VM.Opcodes.MUL, 2),
-      ]);
-
-    // prettier-ignore
-    const PROGRESS = () =>
-      concat([
-        op(VM.Opcodes.CONSTANT, 4),
-        op(VM.Opcodes.CONSTANT, 6),
-        op(VM.Opcodes.CONSTANT, 4),
-        op(VM.Opcodes.MUL, 2),
-        op(VM.Opcodes.CONSTANT, 3),
-        op(VM.Opcodes.DIV, 2),
-        op(VM.Opcodes.MIN, 2),
-      ]);
-
-    // prettier-ignore
-    const MULTIPLIER = () =>
-      concat([
-        PROGRESS(),
-        op(VM.Opcodes.CONSTANT, 4),
-        op(VM.Opcodes.ADD, 2),
       ]);
 
     // prettier-ignore
     const FN = () =>
       concat([
         REWARD(),
-        MULTIPLIER(),
+        op(VM.Opcodes.CONSTANT, 3),
         op(VM.Opcodes.MUL, 2),
-        op(VM.Opcodes.CONSTANT, 5),
+        op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
       ]);
 
@@ -249,7 +229,6 @@ export class LinearEmissions {
       ethers.constants.MaxUint256,
       config.tierAddress,
       BASE_REWARD_PER_TIER,
-      BLOCKS_PER_PERIOD,
       BN_ONE,
       BN_ONE_REWARD,
     ];
