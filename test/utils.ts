@@ -65,7 +65,7 @@ export interface Addresses {
 export const sixZeros = '000000';
 export const eighteenZeros = '000000000000000000';
 export const max_uint256 = ethers.BigNumber.from(
-  "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+  '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
 );
 
 export const RESERVE_ONE = ethers.BigNumber.from('1' + sixZeros);
@@ -315,10 +315,22 @@ export function blockNumbersToReport(blockNos: number[]): BigNumber {
   assert(blockNos.length === 8);
 
   return ethers.BigNumber.from(
-    "0x" +
+    '0x' +
       [...blockNos]
         .reverse()
-        .map((i) => BigInt(i).toString(16).padStart(8, "0"))
-        .join("")
+        .map((i) => BigInt(i).toString(16).padStart(8, '0'))
+        .join('')
   );
+}
+
+/**
+ * Convert a number or hexadecimal expression to his representation as signed 8-bit expression
+ * @param _value -  The value to convert
+ * @returns The signed expression
+ */
+export function getSigned8(_value: number): number {
+  if ((_value & 0x80) > 0) {
+    _value = _value - 0x100;
+  }
+  return _value;
 }

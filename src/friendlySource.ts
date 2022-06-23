@@ -2,6 +2,10 @@ import { BytesLike, BigNumberish, BigNumber } from 'ethers';
 import { AllStandardOps, StateConfig } from './classes/vm';
 import { arrayify, paddedUInt256 } from './utils';
 
+import { CombineTier } from './contracts/tiers/combineTier';
+import { EmissionsERC20 } from './contracts/emissionsERC20';
+import { Sale } from './contracts/sale';
+
 interface OpMeta {
   opcode: number;
   name: string;
@@ -20,6 +24,39 @@ interface State {
 }
 
 type Pair = [number, number];
+
+/**
+ * @public
+ *
+ * Specific the configuration of the generation method
+ */
+export type Config = {
+  /**
+   * With this we can get the context.
+   * This will be the contract name eg: sale, combineTier
+   */
+  contract?: string;
+  /**
+   * Enable the prettify to the result of get
+   */
+  pretty?: boolean;
+};
+
+/**
+ * @public
+ *
+ * Specific the configuration of the Prettify method.
+ */
+export type PrettifyConfig = {
+  /**
+   * Multiplier to the indent space
+   */
+  n?: number;
+  /**
+   * Max length to each line
+   */
+  length?: number;
+};
 
 const newOpMeta: OpMeta[] = [
   {
@@ -254,6 +291,50 @@ const newOpMeta: OpMeta[] = [
   },
 ];
 
+const opSaleMeta: OpMeta[] = [
+  {
+    opcode: Sale.Opcodes.REMAINING_UNITS,
+    name: 'REMAINING_UNITS',
+    input: 'REMAINING_UNITS',
+  },
+  {
+    opcode: Sale.Opcodes.TOTAL_RESERVE_IN,
+    name: 'TOTAL_RESERVE_IN',
+    input: 'TOTAL_RESERVE_IN',
+  },
+  {
+    opcode: Sale.Opcodes.CURRENT_BUY_UNITS,
+    name: 'CURRENT_BUY_UNITS',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: Sale.Opcodes.TOKEN_ADDRESS,
+    name: 'TOKEN_ADDRESS',
+    input: 'TOKEN_ADDRESS',
+  },
+  {
+    opcode: Sale.Opcodes.RESERVE_ADDRESS,
+    name: 'RESERVE_ADDRESS',
+    input: 'RESERVE_ADDRESS',
+  },
+];
+
+const opCombineTierMeta: OpMeta[] = [
+  {
+    opcode: CombineTier.Opcodes.ACCOUNT,
+    name: 'ACCOUNT',
+    input: 'ACCOUNT',
+  },
+];
+
+const opEmissionsMeta: OpMeta[] = [
+  {
+    opcode: EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT,
+    name: 'CLAIMANT_ACCOUNT',
+    input: 'CLAIMANT_ACCOUNT',
+  },
+];
+
 /**
  * @public
  * The generator of friendly human readable source.
@@ -267,9 +348,15 @@ const newOpMeta: OpMeta[] = [
  */
 export class HumanFriendlySource {
   private static opMeta: OpMeta[] = newOpMeta;
+  private static _context: string | undefined;
+  private static _pretty: boolean;
 
-  public static get(_state: StateConfig): string {
-    // public static get(sources: BytesLike[], constants: BigNumberish[]): string {
+  public static get(
+    _state: StateConfig,
+    _config: Config = { contract: '', pretty: false }
+  ): string {
+    this._context = _config?.contract?.toLowerCase();
+    this._pretty = _config.pretty ? true : false;
     const state: State = {
       stackIndex: 0,
       stack: [],
@@ -277,7 +364,64 @@ export class HumanFriendlySource {
       constants: _state.constants,
     };
 
-    return this._eval(state, 0);
+    const _result = this._eval(state, 0);
+    return this._pretty ? this.prettify(_result) : _result;
+  }
+
+  /**
+   * Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis
+   *
+   * @remarks
+   * If the string is already indentend, the method will wrongly generate the string
+   *
+   * @param _text - The output from the HumanFriendlySource
+   * @param _config - The configuration of the prettify method (experimental)
+   * @returns The pretty output
+   */
+  public static prettify(_text: string, _config: PrettifyConfig = {}): string {
+    let { n, length } = _config;
+    if (!n) n = 2;
+    if (!length) length = 20;
+
+    _text = _text.replace(/\s/g, '');
+    let space = ' ';
+    let counter = 0;
+    let skip = 0;
+    for (let i = 0; i < _text.length; i++) {
+      if (
+        _text[i] === '(' ||
+        _text[i] === '[' ||
+        (_text[i] === ',' && skip === 0)
+      ) {
+        if (
+          _text[i] === ',' ||
+          this.needIndent(_text, i, length - counter * n)
+        ) {
+          if (_text[i] !== ',') counter++;
+          _text =
+            _text.slice(0, i + 1) +
+            '\n' +
+            space.repeat(counter * n) +
+            _text.slice(i + 1);
+        } else {
+          skip++;
+        }
+      }
+      if (_text[i] === ')' || _text[i] === ']') {
+        if (skip === 0) {
+          counter--;
+          _text =
+            _text.slice(0, i) +
+            '\n' +
+            space.repeat(counter * n) +
+            _text.slice(i);
+          i = i + counter * n + 1;
+        } else {
+          skip--;
+        }
+      }
+    }
+    return _text;
   }
 
   private static _eval = (state: State, sourceIndex: number) => {
@@ -285,9 +429,32 @@ export class HumanFriendlySource {
     let op: OpInfo;
 
     const ops = this.pairs(state.sources[sourceIndex]).map((pair) => {
-      const opmeta = this.opMeta.find((opmeta) => opmeta.opcode === pair[0]);
+      let opmeta = this.opMeta.find((opmeta) => opmeta.opcode === pair[0]);
       if (typeof opmeta === 'undefined') {
-        throw Error(`Unknown opcode: ${pair[0]}`);
+        // Search with local opcodes if context provided
+        if (this._context) {
+          const _contract = this._context;
+          if (_contract === 'sale') {
+            opmeta = opSaleMeta.find((opmeta) => opmeta.opcode === pair[0]);
+          } else if (_contract === 'combinetier') {
+            opmeta = opCombineTierMeta.find(
+              (opmeta) => opmeta.opcode === pair[0]
+            );
+          } else if (_contract === 'emissions') {
+            opmeta = opEmissionsMeta.find(
+              (opmeta) => opmeta.opcode === pair[0]
+            );
+          } else {
+            throw Error(
+              `Unknown opcode: ${pair[0]} using context ${_contract}`
+            );
+          }
+        }
+
+        // still undefined
+        if (typeof opmeta === 'undefined') {
+          throw Error(`Unknown opcode: ${pair[0]}`);
+        }
       }
 
       return {
@@ -353,6 +520,48 @@ export class HumanFriendlySource {
       } else if (op.input === 'NEVER') {
         state.stack[_stackIndex] = {
           val: 'NEVER()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'REMAINING_UNITS') {
+        state.stack[_stackIndex] = {
+          val: 'REMAINING_UNITS()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'TOTAL_RESERVE_IN') {
+        state.stack[_stackIndex] = {
+          val: 'TOTAL_RESERVE_IN()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'CURRENT_BUY_UNITS') {
+        state.stack[_stackIndex] = {
+          val: 'CURRENT_BUY_UNITS()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'TOKEN_ADDRESS') {
+        state.stack[_stackIndex] = {
+          val: 'TOKEN_ADDRESS()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'RESERVE_ADDRESS') {
+        state.stack[_stackIndex] = {
+          val: 'RESERVE_ADDRESS()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'ACCOUNT') {
+        state.stack[_stackIndex] = {
+          val: 'ACCOUNT()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'CLAIMANT_ACCOUNT') {
+        state.stack[_stackIndex] = {
+          val: 'CLAIMANT_ACCOUNT()',
           consumed: false,
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
@@ -547,5 +756,21 @@ export class HumanFriendlySource {
     const startTier_ = _op & 0x0f;
     const endTier_ = (_op >> 4) & 0x0f;
     return [startTier_, endTier_];
+  }
+
+  private static needIndent(text: string, index: number, max: number): boolean {
+    const openRef = text[index];
+    const closeRef = openRef === '(' ? ')' : ']';
+    text = text.slice(index + 1);
+
+    let counter = 0;
+    for (let i = 0; i < text.length && i < max + 1; i++) {
+      if (text[i] === openRef) counter++;
+      if (text[i] === closeRef) {
+        if (counter === 0) return false;
+        counter--;
+      }
+    }
+    return true;
   }
 }

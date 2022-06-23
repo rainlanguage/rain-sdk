@@ -7,6 +7,7 @@ import {
   utils,
   AllStandardOps,
   StateConfig,
+  vLBP,
 } from '../src';
 import {
   eighteenZeros,
@@ -14,6 +15,8 @@ import {
   max_uint256,
   Tier,
   blockNumbersToReport,
+  getSigned8,
+  Time,
 } from './utils';
 
 const {
@@ -28,18 +31,6 @@ const {
 } = utils;
 
 const Opcode = AllStandardOps;
-
-/**
- * Convert a number or hexadecimal expression to his representation as signed 8-bit expression
- * @param _value -  The value to convert
- * @returns The signed expression
- */
-function getSigned8(_value: number): number {
-  if ((_value & 0x80) > 0) {
-    _value = _value - 0x100;
-  }
-  return _value;
-}
 
 describe('Human Friendly Source Generator', () => {
   it('should generate the human friendly from an exponentiation op source', async () => {
@@ -1824,5 +1815,51 @@ describe('Human Friendly Source Generator', () => {
     expect(friendly).to.be.equal(
       `IERC20_BALANCE_OF(${tokenERC20.address}, ${signer1.address})`
     );
+  });
+
+  it('should support sale local opcodes', async () => {
+    const startPrice = 100000;
+    const startTimestamp = await Time.currentTime();
+    const endTimestamp = startTimestamp + 30;
+    const minimumRaise = 20000000;
+    const initialSupply = 5000000;
+
+    const script = new vLBP(
+      startPrice,
+      startTimestamp,
+      endTimestamp,
+      minimumRaise,
+      initialSupply
+    );
+
+    const friendly0 = HumanFriendlySource.get(script, {
+      contract: 'Sale',
+      pretty: true,
+    });
+
+    const expected = `DIV(
+  MUL(
+    ADD(
+      TOTAL_RESERVE_IN(),
+      100000000000000000000000000
+    ),
+    MAX(
+      SATURATING_SUB(
+        5000000000000000000000,
+        MUL(
+          SATURATING_SUB(
+            BLOCK_TIMESTAMP(),
+            ${startTimestamp}
+          ),
+          166633330000000000000
+        )
+      ),
+      1000000000000000000
+    )
+  ),
+  REMAINING_UNITS()
+)`;
+
+    expect(friendly0).to.be.equals(expected);
   });
 });
