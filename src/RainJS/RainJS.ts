@@ -1,4 +1,4 @@
-import { BigNumber, Contract, ethers, Signer } from 'ethers';
+import { BigNumber, ethers, Signer } from 'ethers';
 import { Tier } from '../classes/tierContract';
 import { StateConfig, VM } from '../classes/vm';
 import { ERC1155 } from '../contracts/generics/erc1155';
@@ -90,7 +90,7 @@ export class RainJS {
   /**
    * An ethers Contract
    */
-  public contract?: Contract;
+  public contract?: string;
 
   /**
    * Object that contains the CONTEXT opcode functions (i.e. local opcodes)
@@ -116,7 +116,7 @@ export class RainJS {
     options?: {
       signer?: Signer;
       provider?: Provider;
-      contract?: Contract;
+      contract?: string;
       applyOpFn?: ApplyOpFn;
       storageOpFn?: ApplyOpFn; // for overriding the CombineTierJS's STORAGE opcode function
       contextOpFn?: ApplyOpFn; // for overriding the CombineTierJS's CONTEXT opcode function
@@ -524,16 +524,16 @@ export class RainJS {
       if (this.signer !== undefined) {
         state.stack.push(BigNumber.from(await this.signer.getAddress()));
       }
-      else throw new Error("undefined signer")
+      else throw new Error("undefined signer or signer address")
     },
 
-    [VM.Opcodes.THIS_ADDRESS]: async (
+    [VM.Opcodes.THIS_ADDRESS]: (
       state: StateJS,
       operand: number,
       data?: any
     ) => {
       if (this.contract !== undefined) {
-        state.stack.push(BigNumber.from(this.contract.address));
+        state.stack.push(BigNumber.from(this.contract));
       } 
       else throw new Error('Undefined contract');
     },

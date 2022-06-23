@@ -1,8 +1,8 @@
-import { BigNumber, Contract, Signer } from "ethers";
+import { BigNumber, Signer } from "ethers";
 import { StateConfig } from "../classes/vm";
 import { ApplyOpFn, RainJS, StateJS } from "./RainJS";
 import { ERC20 } from "../contracts/generics/erc20";
-import { SaleContext, SaleStorage } from "../contracts/sale";
+import { Sale, SaleContext, SaleStorage } from "../contracts/sale";
 
 
 
@@ -27,7 +27,7 @@ export class SaleJS extends RainJS {
     state: StateConfig,
     options?: {
       signer?: Signer,
-      contract?: Contract,
+      contract?: string,
       applyOpFn?: ApplyOpFn,
       storageOpFn?: ApplyOpFn, // for overriding the SaleJS's STORAGE opcode function
       contextOpFn?: ApplyOpFn // for overriding the SaleJS's CONTEXT opcode function
@@ -38,7 +38,7 @@ export class SaleJS extends RainJS {
       {
         signer: options?.signer,
         contract: options?.contract,
-        applyOpFn: options?.applyOpFn
+        applyOpFn: options?.applyOpFn,
       }
     );
 
@@ -64,14 +64,15 @@ export class SaleJS extends RainJS {
     [SaleStorage.RemainingUnits] : 
       async(state: StateJS, operand: number, data?: any) => {
         if (this.signer && this.contract !== undefined) {
-          const rTKNAddress_ = await this.contract.token();
+          const salecontract_ = new Sale(this.contract, this.signer);
+          const rTKNAddress_ = await salecontract_.token();
           const rTKNContract_ = new ERC20(
             rTKNAddress_,
             this.signer
           );
           state.stack.push(
             BigNumber.from(
-              await rTKNContract_.balanceOf(this.contract.address)
+              await rTKNContract_.balanceOf(this.contract)
             )
           )
         }
@@ -81,14 +82,15 @@ export class SaleJS extends RainJS {
     [SaleStorage.TotalReserveIn] : 
       async(state: StateJS, operand: number, data?: any) => {
         if (this.signer && this.contract !== undefined) {
-          const reserveAddress_ = await this.contract.reserve();
+          const salecontract_ = new Sale(this.contract, this.signer);
+          const reserveAddress_ = await salecontract_.reserve();
           const reserveContract_ = new ERC20(
             reserveAddress_,
             this.signer
           );
           state.stack.push(
             BigNumber.from(
-              await reserveContract_.balanceOf(this.contract.address)
+              await reserveContract_.balanceOf(this.contract)
             )
           )
         }
@@ -98,9 +100,10 @@ export class SaleJS extends RainJS {
     [SaleStorage.TokenAddress] : 
       async(state: StateJS, operand: number, data?: any) => {
         if (this.signer && this.contract !== undefined) {
+          const salecontract_ = new Sale(this.contract, this.signer);
           state.stack.push(
             BigNumber.from(
-              await this.contract.token()
+              await salecontract_.token()
             )
           )
         }
@@ -110,9 +113,10 @@ export class SaleJS extends RainJS {
     [SaleStorage.ReserveAddress] : 
       async(state: StateJS, operand: number, data?: any) => {
       if (this.signer && this.contract !== undefined) {
+        const salecontract_ = new Sale(this.contract, this.signer);
         state.stack.push(
           BigNumber.from(
-            await this.contract.reserve()
+            await salecontract_.reserve()
           )
         )
       }
