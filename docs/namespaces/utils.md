@@ -12,7 +12,7 @@
 
 |  Function | Description |
 |  --- | --- |
-|  [callSize(sourceIndex, loopSize, valSize)](./utils/variables/callsize_1.md) | Constructs the operand for RainVM's `call` AllStandardOps by packing 3 numbers into a single byte. All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 \* 32 bytes) on the stack. |
+|  [callSize(sourceIndex, loopSize, valSize)](./utils/variables/callsize_1.md) | Constructs the operand for RainVM's `zipmap` opcode by packing 3 numbers into a single byte. All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 \* 32 bytes) on the stack. |
 |  [selectLte(logic, mode, length)](./utils/variables/selectlte_1.md) | function to set up the operand for a SELECT\_LTE opcode |
 |  [tierRange(startTier, endTier)](./utils/variables/tierrange_1.md) | function to pack start/end tier range into a byte size number for the UPDATE\_BLOCKS\_FOR\_TIER\_RANGE opcode |
 

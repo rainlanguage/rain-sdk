@@ -97,6 +97,7 @@
 |  [Addresses](./types/addresses.md) | Type for all the addresses stored in the Book. |
 |  [BountyConfig](./types/bountyconfig.md) |  |
 |  [CombineTierDeployArgs](./types/combinetierdeployargs.md) | The argument of the CombineTier. The StateConfig will be deployed as a pointer under VM State Pointer. |
+|  [Config](./types/config.md) | Specific the configuration of the generation method |
 |  [DepositConfig](./types/depositconfig.md) |  |
 |  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
 |  [OpcodeFN](./types/opcodefn.md) | A type for functions to override the default opcodes functions with it. |
@@ -104,6 +105,7 @@
 |  [Order](./types/order.md) | Order |
 |  [OrderBookOpcodes](./types/orderbookopcodes.md) | Type for the opcodes availables in a OrderBook instance. |
 |  [OrderConfig](./types/orderconfig.md) |  |
+|  [PrettifyConfig](./types/prettifyconfig.md) | Specific the configuration of the Prettify method. |
 |  [StakeDeployArgs](./types/stakedeployargs.md) |  |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
 |  [WithdrawConfig](./types/withdrawconfig.md) |  |

@@ -1,0 +1,10 @@
+## Deps
+node_modules
+
+## Hardhat
+artifacts
+cache
+contracts
+dist
+typechain
+/src/typechain

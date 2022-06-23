@@ -1,5 +1,9 @@
 import { BytesLike, BigNumberish, BigNumber } from 'ethers';
 import { AllStandardOps, StateConfig } from './classes/vm';
+import { CombineTierContext } from './contracts/tiers/combineTier';
+import { EmissionsERC20Context } from './contracts/emissionsERC20';
+import { OrderbookContext } from './contracts/orderBook';
+import { SaleContext } from './contracts/sale';
 import { arrayify, paddedUInt256 } from './utils';
 
 interface OpMeta {
@@ -20,6 +24,39 @@ interface State {
 }
 
 type Pair = [number, number];
+
+/**
+ * @public
+ *
+ * Specific the configuration of the generation method
+ */
+export type Config = {
+  /**
+   * With this we can get the context.
+   * This will be the contract name eg: sale, combineTier
+   */
+  contract?: string;
+  /**
+   * Enable the prettify to the result of get
+   */
+  pretty?: boolean;
+};
+
+/**
+ * @public 
+ *
+ * Specific the configuration of the Prettify method.
+ */
+export type PrettifyConfig = {
+  /**
+   * Multiplier to the indent space
+   */
+  n?: number;
+  /**
+   * Max length to each line
+   */
+  length?: number;
+};
 
 const newOpMeta: OpMeta[] = [
   {
@@ -267,8 +304,16 @@ const newOpMeta: OpMeta[] = [
  */
 export class HumanFriendlySource {
   private static opMeta: OpMeta[] = newOpMeta;
+  private static _context: string | undefined;
+  private static _pretty: boolean;
 
-  public static get(_state: StateConfig): string {
+  public static get(
+    _state: StateConfig,
+    _config: Config = { contract: '', pretty: false }
+  ): string {
+    this._context = _config?.contract?.toLowerCase();
+    this._pretty = _config.pretty ? true : false;
+
     // public static get(sources: BytesLike[], constants: BigNumberish[]): string {
     const state: State = {
       stackIndex: 0,
@@ -277,32 +322,61 @@ export class HumanFriendlySource {
       constants: _state.constants,
     };
 
-    return this._eval(state, 0);
+    const _result = this._eval(state, 0);
+    return this._pretty ? this.prettify(_result) : _result;
   }
 
   /**
-   * Make more readable the output from the HumanFriendly Source with an indented
+   * Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis
+   *
+   * @remarks
+   * If the string is already indentend, the method will wrongly generate the string
+   *
    * @param _text - The output from the HumanFriendlySource
-   * @param n - The amount spaces based of each indent
-   * @returns The pretty output 
+   * @param _config - The configuration of the prettify method (experimental)
+   * @returns The pretty output
    */
-  public static prettify (_text: string, n: number = 2): string {
+  public static prettify(_text: string, _config: PrettifyConfig = {}): string {
+    let { n, length } = _config;
+    if (!n) n = 2;
+    if (!length) length = 20;
+
+    _text = _text.replace(/\s/g, '');
     let space = ' ';
     let counter = 0;
+    let skip = 0;
     for (let i = 0; i < _text.length; i++) {
-      if (_text[i] === '(' || _text[i] === ',') {
-        if (_text[i] !== ',') counter++;
-        _text =
-          _text.slice(0, i + 1) +
-          '\n' +
-          space.repeat(_text[i] !== ',' ? counter * n : counter * n - 1) +
-          _text.slice(i + 1);
+      if (
+        _text[i] === '(' ||
+        _text[i] === '[' ||
+        (_text[i] === ',' && skip === 0)
+      ) {
+        if (
+          _text[i] === ',' ||
+          this.needIndent(_text, i, length - counter * n)
+        ) {
+          if (_text[i] !== ',') counter++;
+          _text =
+            _text.slice(0, i + 1) +
+            '\n' +
+            space.repeat(counter * n) +
+            _text.slice(i + 1);
+        } else {
+          skip++;
+        }
       }
-      if (_text[i] === ')') {
-        counter--;
-        _text =
-          _text.slice(0, i) + '\n' + space.repeat(counter * n) + _text.slice(i);
-        i = i + counter * n + 1;
+      if (_text[i] === ')' || _text[i] === ']') {
+        if (skip === 0) {
+          counter--;
+          _text =
+            _text.slice(0, i) +
+            '\n' +
+            space.repeat(counter * n) +
+            _text.slice(i);
+          i = i + counter * n + 1;
+        } else {
+          skip--;
+        }
       }
     }
     return _text;
@@ -379,8 +453,21 @@ export class HumanFriendlySource {
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
       } else if (op.input === 'CONTEXT') {
+        //
+        let context: string;
+        if (this._context === 'sale') {
+          context = SaleContext[op.operand];
+        } else if (this._context === 'emissions') {
+          context = EmissionsERC20Context[op.operand];
+        } else if (this._context === 'orderbook') {
+          context = OrderbookContext[op.operand];
+        } else if (this._context === 'combinetier') {
+          context = CombineTierContext[op.operand];
+        } else {
+          context = `CONTEXT[${op.operand}]`;
+        }
         state.stack[_stackIndex] = {
-          val: `CONTEXT[${op.operand}]`,
+          val: context,
           consumed: false,
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
@@ -575,5 +662,21 @@ export class HumanFriendlySource {
     const startTier_ = _op & 0x0f;
     const endTier_ = (_op >> 4) & 0x0f;
     return [startTier_, endTier_];
+  }
+
+  private static needIndent(text: string, index: number, max: number): boolean {
+    const openRef = text[index];
+    const closeRef = openRef === '(' ? ')' : ']';
+    text = text.slice(index + 1);
+
+    let counter = 0;
+    for (let i = 0; i < text.length && i < max + 1; i++) {
+      if (text[i] === openRef) counter++;
+      if (text[i] === closeRef) {
+        if (counter === 0) return false;
+        counter--;
+      }
+    }
+    return true;
   }
 }

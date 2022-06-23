@@ -166,7 +166,7 @@ export class RainJS {
     const sourcesIndex = index ? index : 0;
 
     for (let i = 0; i < this.state.sources[sourcesIndex].length; i++) {
-      if (this.applyOpFn != undefined) {
+      if (this.applyOpFn !== undefined) {
         if (
           Object.keys(this.applyOpFn).includes(
             this.state.sources[sourcesIndex][i].toString()
@@ -242,13 +242,13 @@ export class RainJS {
 
     [VM.Opcodes.CONSTANT]: (state: StateJS, operand: number, data?: any) => {
       if (operand < state.constants.length) {
-        if (state.constants[operand] != undefined) {
+        if (state.constants[operand] !== undefined) {
           state.stack.push(state.constants[operand]);
         } else throw new Error('out-of-bound constants');
       } 
       else {
         if (
-          state.argumentsStack[operand - state.constants.length] != undefined
+          state.argumentsStack[operand - state.constants.length] !== undefined
         ) {
           state.stack.push(
             state.argumentsStack[operand - state.constants.length]
@@ -292,13 +292,13 @@ export class RainJS {
       const sourceIndex_ = operand & 7;
       const numberOfVals_ = (operand & 224) >> 5;
       const a_ = (operand & 24) >> 3;
-      const valSize_ = a_ == 3 ? 8 : a_ == 2 ? 16 : a_ == 1 ? 32 : 64;
+      const valSize_ = a_ === 3 ? 8 : a_ === 2 ? 16 : a_ === 1 ? 32 : 64;
       const loopSize_ = 64 / valSize_;
       const items_ = state.stack.splice(-(numberOfVals_ + 1));
       let _startIndex = 64 - valSize_;
       let _endIndex = 64;
 
-      if (items_.length == numberOfVals_ + 1) {
+      if (items_.length === numberOfVals_ + 1) {
         for (let i = 0; i < loopSize_; i++) {
           state.argumentsStack.splice(-(numberOfVals_ + 1));
           for (let j = 0; j < items_.length; j++) {
@@ -312,7 +312,7 @@ export class RainJS {
             );
           }
           for (let i = 0; i < this.state.sources[sourceIndex_].length; i++) {
-            if (this.applyOpFn != undefined) {
+            if (this.applyOpFn !== undefined) {
               if (
                 Object.keys(this.applyOpFn).includes(
                   this.state.sources[sourceIndex_][i].toString()
@@ -364,7 +364,7 @@ export class RainJS {
     ) => {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ && this.signer != undefined) {
+      if (item1_ && item2_ && this.signer !== undefined) {
         const account_ = paddedUInt160(item2_);
         const erc20Address_ = paddedUInt160(item1_);
         const erc20Contract_ = new ERC20(erc20Address_, this.signer);
@@ -379,7 +379,7 @@ export class RainJS {
       data?: any
     ) => {
       const item_ = state.stack.pop();
-      if (item_ && this.signer != undefined) {
+      if (item_ && this.signer !== undefined) {
         const erc20Address_ = paddedUInt160(item_);
         const erc20Contract_ = new ERC20(erc20Address_, this.signer);
         state.stack.push(await erc20Contract_.totalSupply());
@@ -395,7 +395,7 @@ export class RainJS {
       const item3_ = state.stack.pop();
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ && item3_ && this.signer != undefined) {
+      if (item1_ && item2_ && item3_ && this.signer !== undefined) {
         const snapshotId_ = item3_;
         const account_ = paddedUInt160(item2_);
         const erc20Address_ = paddedUInt160(item1_);
@@ -412,7 +412,7 @@ export class RainJS {
     ) => {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ && this.signer != undefined) {
+      if (item1_ && item2_ && this.signer !== undefined) {
         const snapshotId_ = item2_;
         const erc20Address_ = paddedUInt160(item1_);
         const erc20Snapshot_ = ERC20Snapshot__factory.connect(erc20Address_, this.signer);
@@ -428,7 +428,7 @@ export class RainJS {
     ) => {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ && this.signer != undefined) {
+      if (item1_ && item2_ && this.signer !== undefined) {
         const account_ = paddedUInt160(item2_);
         const erc721Address_ = paddedUInt160(item1_);
         const erc721Contract_ = new ERC721(erc721Address_, this.signer);
@@ -444,7 +444,7 @@ export class RainJS {
     ) => {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ && this.signer != undefined) {
+      if (item1_ && item2_ && this.signer !== undefined) {
         const tokenId_ = BigNumber.from(item2_);
         const erc721Address_ = paddedUInt160(item1_);
         const erc721Contract_ = new ERC721(erc721Address_, this.signer);
@@ -463,7 +463,7 @@ export class RainJS {
       const item3_ = state.stack.pop();
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ && item3_ && this.signer != undefined) {
+      if (item1_ && item2_ && item3_ && this.signer !== undefined) {
         const id_ = BigNumber.from(item3_);
         const account_ = paddedUInt160(item2_);
         const erc1155Address_ = paddedUInt160(item1_);
@@ -485,8 +485,8 @@ export class RainJS {
         item1_ &&
         item2_ &&
         item3_ &&
-        this.signer != undefined &&
-        item2_.length == item3_.length
+        this.signer !== undefined &&
+        item2_.length === item3_.length
       ) {
         const tokenIds_: BigNumber[] = [];
         for (let i = 0; i < item3_.length; i++) {
@@ -510,7 +510,7 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
-      if (this.provider != undefined) {
+      if (this.provider !== undefined) {
         state.stack.push(BigNumber.from(await this.provider.getBlockNumber()));
       } 
       else throw new Error('Undefined Provider');
@@ -521,7 +521,7 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
-      if (this.signer != undefined) {
+      if (this.signer !== undefined) {
         state.stack.push(BigNumber.from(await this.signer.getAddress()));
       }
       else throw new Error("undefined signer")
@@ -532,7 +532,7 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
-      if (this.contract != undefined) {
+      if (this.contract !== undefined) {
         state.stack.push(BigNumber.from(this.contract.address));
       } 
       else throw new Error('Undefined contract');
@@ -543,7 +543,7 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
-      if (this.provider != undefined) {
+      if (this.provider !== undefined) {
         state.stack.push(
           BigNumber.from(
             (await this.provider.getBlock(await this.provider.getBlockNumber()))
@@ -556,7 +556,7 @@ export class RainJS {
 
     [VM.Opcodes.SCALE18]: (state: StateJS, operand: number, data?: any) => {
       const item_ = state.stack.pop();
-      if (item_ != undefined) {
+      if (item_ !== undefined) {
         state.stack.push(
           operand <= 18
             ? item_.mul((10 ** (18 - operand)).toString())
@@ -569,7 +569,7 @@ export class RainJS {
     [VM.Opcodes.SCALE18_DIV]: (state: StateJS, operand: number, data?: any) => {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
+      if (item1_ && item2_ !== undefined) {
         state.stack.push(
           (operand <= 18
             ? item1_.mul((10 ** (18 - operand)).toString())
@@ -583,7 +583,7 @@ export class RainJS {
     [VM.Opcodes.SCALE18_MUL]: (state: StateJS, operand: number, data?: any) => {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
+      if (item1_ && item2_ !== undefined) {
         state.stack.push(
           item2_.mul(
             operand <= 18
@@ -597,7 +597,7 @@ export class RainJS {
 
     [VM.Opcodes.SCALE_BY]: (state: StateJS, operand: number, data?: any) => {
       const item_ = state.stack.pop();
-      if (item_ != undefined) {
+      if (item_ !== undefined) {
         if (operand > 127) {
           operand = 256 - operand;
           state.stack.push(
@@ -615,7 +615,7 @@ export class RainJS {
 
     [VM.Opcodes.SCALEN]: (state: StateJS, operand: number, data?: any) => {
       const item_ = state.stack.pop();
-      if (item_ != undefined) {
+      if (item_ !== undefined) {
         state.stack.push(
           operand <= 18
             ? item_.div((10 ** (18 - operand)).toString())
@@ -631,7 +631,7 @@ export class RainJS {
       let _item;
       for (let i = 0; i < operand; i++) {
         _item = items_.shift();
-        if (_item != undefined) {
+        if (_item !== undefined) {
           if (_item.gt(0)) {
             _check = ethers.constants.One;
             break;
@@ -639,7 +639,7 @@ export class RainJS {
         } 
         else throw new Error('Undefined stack variables');
       }
-      if (_check != undefined) {
+      if (_check !== undefined) {
         state.stack.push(_check);
       } 
       else throw new Error('Undefined stack variable');
@@ -649,7 +649,7 @@ export class RainJS {
       const false_ = state.stack.pop();
       const true_ = state.stack.pop();
       const condition_ = state.stack.pop();
-      if (false_ && true_ && condition_ != undefined) {
+      if (false_ && true_ && condition_ !== undefined) {
         state.stack.push(condition_.gt(0) ? true_ : false_);
       } 
       else throw new Error('Undefined stack variables');
@@ -658,7 +658,7 @@ export class RainJS {
     [VM.Opcodes.EQUAL_TO]: (state: StateJS, operand: number, data?: any) => {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
+      if (item1_ && item2_ !== undefined) {
         state.stack.push(
           item2_.eq(item1_) ? ethers.constants.One : ethers.constants.Zero
         );
@@ -672,7 +672,7 @@ export class RainJS {
       let _item;
       for (let i = 0; i < operand; i++) {
         _item = items_.shift();
-        if (_item != undefined) {
+        if (_item !== undefined) {
           if (_item.isZero()) {
             _check = ethers.constants.Zero;
             break;
@@ -680,7 +680,7 @@ export class RainJS {
         } 
         else throw new Error('Undefined stack variables');
       }
-      if (_check != undefined) {
+      if (_check !== undefined) {
         state.stack.push(_check);
       } 
       else throw new Error('Undefined stack variable');
@@ -693,7 +693,7 @@ export class RainJS {
     ) => {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
+      if (item1_ && item2_ !== undefined) {
         state.stack.push(
           item2_.lt(item1_) ? ethers.constants.One : ethers.constants.Zero
         );
@@ -703,7 +703,7 @@ export class RainJS {
 
     [VM.Opcodes.ISZERO]: (state: StateJS, operand: number, data?: any) => {
       const item_ = state.stack.pop();
-      if (item_ != undefined) {
+      if (item_ !== undefined) {
         state.stack.push(
           item_.isZero() ? ethers.constants.One : ethers.constants.Zero
         );
@@ -714,7 +714,7 @@ export class RainJS {
     [VM.Opcodes.LESS_THAN]: (state: StateJS, operand: number, data?: any) => {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
-      if (item1_ && item2_ != undefined) {
+      if (item1_ && item2_ !== undefined) {
         state.stack.push(
           item2_.gt(item1_) ? ethers.constants.One : ethers.constants.Zero
         );
@@ -732,7 +732,7 @@ export class RainJS {
       let _item;
       for (let i = 0; i < operand; i++) {
         _item = items_.shift();
-        if (_item != undefined) {
+        if (_item !== undefined) {
           _accumulator = _accumulator.add(_item);
           _accumulator = _accumulator.gt(ethers.constants.MaxUint256)
             ? ethers.constants.MaxUint256
@@ -751,10 +751,10 @@ export class RainJS {
       const items_ = state.stack.splice(-operand);
       let _accumulator = items_.shift();
       let _item;
-      if (_accumulator != undefined) {
+      if (_accumulator !== undefined) {
         for (let i = 1; i < operand; i++) {
           _item = items_.shift();
-          if (_item != undefined) {
+          if (_item !== undefined) {
             _accumulator = _accumulator?.sub(_item);
             _accumulator = _accumulator.gt(0)
               ? _accumulator
@@ -777,7 +777,7 @@ export class RainJS {
       let _item;
       for (let i = 0; i < operand; i++) {
         _item = items_.shift();
-        if (_item != undefined) {
+        if (_item !== undefined) {
           _accumulator = _accumulator.mul(_item);
           _accumulator = _accumulator.gt(ethers.constants.MaxUint256)
             ? ethers.constants.MaxUint256
@@ -793,7 +793,7 @@ export class RainJS {
       let _accumulator = ethers.constants.Zero;
       for (let i = 0; i < operand; i++) {
         _item = state.stack.pop();
-        if (_item != undefined) {
+        if (_item !== undefined) {
           _accumulator = _accumulator.add(_item);
           if (_accumulator.gt(ethers.constants.MaxUint256)) {
             throw new Error('max numeric range overflow');
@@ -808,10 +808,10 @@ export class RainJS {
       const items_ = state.stack.splice(-operand);
       let _accumulator = items_.shift();
       let _item;
-      if (_accumulator != undefined) {
+      if (_accumulator !== undefined) {
         for (let i = 1; i < operand; i++) {
           _item = items_.shift();
-          if (_item != undefined) {
+          if (_item !== undefined) {
             _accumulator = _accumulator.div(_item);
           } 
           else throw new Error('Undefined stack variables');
@@ -825,10 +825,10 @@ export class RainJS {
       const items_ = state.stack.splice(-operand);
       let _accumulator = items_.shift();
       let _item;
-      if (_accumulator != undefined) {
+      if (_accumulator !== undefined) {
         for (let i = 1; i < operand; i++) {
           _item = items_.shift();
-          if (_item != undefined) {
+          if (_item !== undefined) {
             _accumulator = _accumulator.pow(_item);
             if (_accumulator.gt(ethers.constants.MaxUint256)) {
               throw new Error('max numeric range overflow');
@@ -851,7 +851,7 @@ export class RainJS {
 
     [VM.Opcodes.MIN]: (state: StateJS, operand: number, data?: any) => {
       const items_ = state.stack.splice(-operand);
-      if (items_.length == operand) {
+      if (items_.length === operand) {
         state.stack.push(items_.reduce((e, m) => (e.lt(m) ? e : m)));
       } 
       else throw new Error('Undefined stack variables');
@@ -861,10 +861,10 @@ export class RainJS {
       const items_ = state.stack.splice(-operand);
       let _accumulator = items_.shift();
       let _item;
-      if (_accumulator != undefined) {
+      if (_accumulator !== undefined) {
         for (let i = 1; i < operand; i++) {
           _item = items_.shift();
-          if (_item != undefined) {
+          if (_item !== undefined) {
             _accumulator = _accumulator.mod(_item);
           } 
           else throw new Error('Undefined stack variables');
@@ -879,7 +879,7 @@ export class RainJS {
       let _item;
       for (let i = 0; i < operand; i++) {
         _item = state.stack.pop();
-        if (_item != undefined) {
+        if (_item !== undefined) {
           _accumulator = _accumulator.mul(_item);
           if (_accumulator.gt(ethers.constants.MaxUint256)) {
             throw new Error('max numeric range overflow');
@@ -894,10 +894,10 @@ export class RainJS {
       const items_ = state.stack.splice(-operand);
       let _accumulator = items_.shift();
       let _item;
-      if (_accumulator != undefined) {
+      if (_accumulator !== undefined) {
         for (let i = 1; i < operand; i++) {
           _item = items_.shift();
-          if (_item != undefined) {
+          if (_item !== undefined) {
             _accumulator = _accumulator.sub(_item);
           } 
           else throw new Error('Undefined stack variables');
@@ -919,7 +919,7 @@ export class RainJS {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
 
-      if (item1_ && item2_ && this.signer != undefined && context_.length != operand) {
+      if (item1_ && item2_ && this.signer !== undefined && context_.length !== operand) {
         const account_ = paddedUInt160(item2_);
         const iTierV2Contract = new ITierV2(
           paddedUInt160(item1_),
@@ -939,11 +939,11 @@ export class RainJS {
     ) => {
       const context_ = operand ? state.stack.splice(-operand) : [];
       const item3_ = state.stack.pop();
-      if (item3_ != undefined && item3_.toNumber() > Tier.ONE && item3_.toNumber() < Tier.EIGHT) {
+      if (item3_ !== undefined && item3_.toNumber() > Tier.ONE && item3_.toNumber() < Tier.EIGHT) {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
 
-        if (item1_ && item2_  && this.signer != undefined && context_.length != operand) {
+        if (item1_ && item2_  && this.signer !== undefined && context_.length !== operand) {
           const tier_ = item3_;
           const account_ = paddedUInt160(item2_);
           const iTierV2Contract = new ITierV2(
@@ -967,7 +967,7 @@ export class RainJS {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
       
-      if (item1_ && item2_ != undefined) {
+      if (item1_ && item2_ !== undefined) {
         const report1_ = paddedUInt256(item1_).substring(2);
         const report2_ = paddedUInt256(item2_).substring(2);
         let _startIndex = 0;
@@ -1008,13 +1008,13 @@ export class RainJS {
 
       //building an array of each tier's report against blockNumber_
       //tiers greater than blockNumber_ will get "ffffffff"
-      if (item_ != undefined) {
+      if (item_ !== undefined) {
         const blockNumber_ = paddedUInt32(item_);
         for (let i = 0; i < length_; i++) {
           let _startIndex = 0;
           let _endIndex = 8;
           _item = state.stack.pop();
-          if (_item != undefined) {
+          if (_item !== undefined) {
             _reports[i] = paddedUInt256(_item).substring(2);
             for (let j = 0; j < 8; j++) {
               _reportsAtTier[j].push(
@@ -1034,25 +1034,25 @@ export class RainJS {
       // logic_ and mode_ selections
       if (logic_) {
         for (let i = 0; i < 8; i++) {
-          if (mode_ == 0) {
+          if (mode_ === 0) {
             _reportsAtTier[i] = [
               _reportsAtTier[i].reduce((e, m) => (e < m ? e : m)),
             ];
           } 
-          else if (mode_ == 1) {
+          else if (mode_ === 1) {
             //filter out "ffffffff"
             _reportsAtTier[i] = _reportsAtTier[i].filter(
-              (e) => e != 'ffffffff'
+              (e) => e !== 'ffffffff'
             );
             _reportsAtTier[i] =
               _reportsAtTier[i].length > 0
                 ? [_reportsAtTier[i].reduce((e, m) => (e > m ? e : m))]
                 : ['ffffffff'];
           } 
-          else if (mode_ == 2) {
+          else if (mode_ === 2) {
             //filter out "ffffffff"
             _reportsAtTier[i] = _reportsAtTier[i].filter(
-              (e) => e != 'ffffffff'
+              (e) => e !== 'ffffffff'
             );
             _reportsAtTier[i] =
               _reportsAtTier[i].length > 0
@@ -1063,19 +1063,19 @@ export class RainJS {
       } 
       else {
         for (let i = 0; i < 8; i++) {
-          if (mode_ == 0) {
+          if (mode_ === 0) {
             //check if "ffffffff" exists within the tier's array
             _reportsAtTier[i] = _reportsAtTier[i].includes('ffffffff')
               ? ['ffffffff']
               : [_reportsAtTier[i].reduce((e, m) => (e < m ? e : m))];
           } 
-          else if (mode_ == 1) {
+          else if (mode_ === 1) {
             //check if "ffffffff" exists within the tier's array
             _reportsAtTier[i] = _reportsAtTier[i].includes('ffffffff')
               ? ['ffffffff']
               : [_reportsAtTier[i].reduce((e, m) => (e > m ? e : m))];
           } 
-          else if (mode_ == 2) {
+          else if (mode_ === 2) {
             //check if "ffffffff" exists within the tier's array
             _reportsAtTier[i] = _reportsAtTier[i].includes('ffffffff')
               ? ['ffffffff']
@@ -1100,7 +1100,7 @@ export class RainJS {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
 
-      if (item1_ && item2_ != undefined) {
+      if (item1_ && item2_ !== undefined) {
         const _blockNumber = paddedUInt32(item2_);
         const _report = paddedUInt256(item1_).substring(2);
         let _startIndex = (8 - endTier_) * 8;

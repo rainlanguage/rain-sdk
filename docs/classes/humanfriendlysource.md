@@ -17,19 +17,19 @@ class HumanFriendlySource
 
 |  Method | Description |
 |  --- | --- |
-|  [get(\_state)](./humanfriendlysource.md#get-method-static-1) |  |
-|  [prettify(\_text, n)](./humanfriendlysource.md#prettify-method-static-1) | Make more readable the output from the HumanFriendly Source with an indented |
+|  [get(\_state, \_config)](./humanfriendlysource.md#get-method-static-1) |  |
+|  [prettify(\_text, \_config)](./humanfriendlysource.md#prettify-method-static-1) | Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis |
 
 ## Static Method Details
 
 <a id="get-method-static-1"></a>
 
-### get(\_state)
+### get(\_state, \_config)
 
 <b>Signature:</b>
 
 ```typescript
-static get(_state: StateConfig): string;
+static get(_state: StateConfig, _config?: Config): string;
 ```
 
 #### Parameters
@@ -37,6 +37,7 @@ static get(_state: StateConfig): string;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  \_state | [StateConfig](../interfaces/stateconfig.md) |  |
+|  \_config | [Config](../types/config.md) |  |
 
 <b>Returns:</b>
 
@@ -44,14 +45,16 @@ static get(_state: StateConfig): string;
 
 <a id="prettify-method-static-1"></a>
 
-### prettify(\_text, n)
+### prettify(\_text, \_config)
 
-Make more readable the output from the HumanFriendly Source with an indented
+Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis
+
+If the string is already indentend, the method will wrongly generate the string
 
 <b>Signature:</b>
 
 ```typescript
-static prettify(_text: string, n?: number): string;
+static prettify(_text: string, _config?: PrettifyConfig): string;
 ```
 
 #### Parameters
@@ -59,7 +62,7 @@ static prettify(_text: string, n?: number): string;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  \_text | `string` | The output from the HumanFriendlySource |
-|  n | `number` | The amount spaces based of each indent |
+|  \_config | [PrettifyConfig](../types/prettifyconfig.md) | The configuration of the prettify method (experimental) |
 
 <b>Returns:</b>
 

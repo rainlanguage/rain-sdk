@@ -63,7 +63,7 @@ export class SaleJS extends RainJS {
     
     [SaleStorage.RemainingUnits] : 
       async(state: StateJS, operand: number, data?: any) => {
-        if (this.signer && this.contract != undefined) {
+        if (this.signer && this.contract !== undefined) {
           const rTKNAddress_ = await this.contract.token();
           const rTKNContract_ = new ERC20(
             rTKNAddress_,
@@ -80,7 +80,7 @@ export class SaleJS extends RainJS {
 
     [SaleStorage.TotalReserveIn] : 
       async(state: StateJS, operand: number, data?: any) => {
-        if (this.signer && this.contract != undefined) {
+        if (this.signer && this.contract !== undefined) {
           const reserveAddress_ = await this.contract.reserve();
           const reserveContract_ = new ERC20(
             reserveAddress_,
@@ -97,7 +97,7 @@ export class SaleJS extends RainJS {
 
     [SaleStorage.TokenAddress] : 
       async(state: StateJS, operand: number, data?: any) => {
-        if (this.signer && this.contract != undefined) {
+        if (this.signer && this.contract !== undefined) {
           state.stack.push(
             BigNumber.from(
               await this.contract.token()
@@ -109,7 +109,7 @@ export class SaleJS extends RainJS {
 
     [SaleStorage.ReserveAddress] : 
       async(state: StateJS, operand: number, data?: any) => {
-      if (this.signer && this.contract != undefined) {
+      if (this.signer && this.contract !== undefined) {
         state.stack.push(
           BigNumber.from(
             await this.contract.reserve()
@@ -128,7 +128,7 @@ export class SaleJS extends RainJS {
   protected _CONTEXT_: ApplyOpFn = {
     [SaleContext.CurrentBuyUnits] : 
     async(state: StateJS, operand: number, data?: any) => {
-      if(data && data.context != undefined) {
+      if(data && data.context !== undefined) {
         state.stack.push(
           BigNumber.from(
             data.context[SaleContext.CurrentBuyUnits]

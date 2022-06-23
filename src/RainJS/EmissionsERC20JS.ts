@@ -62,7 +62,7 @@ export class EmissionsERC20JS extends RainJS {
       operand: number,
       data?: any
     ) => {
-      if (data && data.context != undefined) {
+      if (data && data.context !== undefined) {
         state.stack.push(
           BigNumber.from(data.context[EmissionsERC20Context.ClaimantAccount])
         );
