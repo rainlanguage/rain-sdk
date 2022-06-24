@@ -8,6 +8,7 @@ import {
   AllStandardOps,
   StateConfig,
   vLBP,
+  FixedPrice,
 } from '../src';
 import {
   eighteenZeros,
@@ -409,7 +410,7 @@ describe('Human Friendly Source Generator', () => {
 
     const friendly0 = HumanFriendlySource.get(state);
 
-    expect(friendly0).to.eq(`ZIPMAP(
+    expect(friendly0).to.eq(`ZIPMAP_8(
     ["00000001", "00000000", "00000003", "00000000", "00000005", "00000000", "00000007", "00000008"],
     ["FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF"],
     EAGER_IF(ISZERO(^0), ^1, ^0)
@@ -1023,7 +1024,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP(
+    expect(friendly).to.eq(`ZIPMAP_8(
     [1, 2, 3, 4, 5, 6, 7, 8],
     [10, 20, 30, 40, 50, 60, 70, 80],
     MUL(^0, ^1) ADD(^0, ^1)
@@ -1072,7 +1073,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP(
+    expect(friendly).to.eq(`ZIPMAP_2(
     [5, 3],
     [4, 2],
     [3, 1],
@@ -1185,7 +1186,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP(
+    expect(friendly).to.eq(`ZIPMAP_1(
     10,
     20,
     30,
@@ -1252,7 +1253,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP(
+    expect(friendly).to.eq(`ZIPMAP_1(
     1,
     2,
     3,
@@ -1304,7 +1305,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP(
+    expect(friendly).to.eq(`ZIPMAP_1(
     3,
     4,
     5,
@@ -1351,7 +1352,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP(
+    expect(friendly).to.eq(`ZIPMAP_1(
     1,
     2,
     3,
@@ -1861,5 +1862,93 @@ describe('Human Friendly Source Generator', () => {
 )`;
 
     expect(friendly0).to.be.equals(expected);
+  });
+
+  it('applyTierDiscount', async () => {
+    const [arbitrary] = await ethers.getSigners();
+    const tierAddress = arbitrary.address;
+
+    const script = new FixedPrice(10).applyTierDiscount(
+      tierAddress,
+      [1, 2, 3, 4, 5, 6, 7, 8]
+    );
+
+    const friendly = HumanFriendlySource.get(script, { pretty: true });
+
+    const expectedOutput = `DIV(
+  MUL(
+    SATURATING_DIFF(
+      UPDATE_BLOCKS_FOR_TIER_RANGE(
+        NEVER(),
+        (0, 8),
+        100
+      ),
+      SELECT_LTE(
+        every,
+        first,
+        2,
+        0x0000005c0000005d0000005e0000005f00000060000000610000006200000063,
+        REPORT(
+          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266,
+          SENDER()
+        ),
+        BLOCK_NUMBER()
+      )
+    ),
+    MIN(
+      ZIPMAP_8(
+        [
+          "00000000",
+          "00000000",
+          "00000000",
+          "00000000",
+          "00000000",
+          "00000000",
+          "8ac72304",
+          "89e80000"
+        ],
+        SUB(100, ^0)
+      )
+    )
+  ),
+  100
+)`;
+
+    expect(friendly).to.be.equals(expectedOutput);
+  });
+
+  it('applyTierDiscount', async () => {
+    const script = new FixedPrice(10).applyExtraTimeDiscount(16, 17, 5);
+
+    const friendly0 = HumanFriendlySource.get(script, {
+      contract: 'sale',
+      pretty: true,
+    });
+
+    const outputExpected = `EAGER_IF(
+  ANY(
+    GREATER_THAN(
+      16,
+      BLOCK_TIMESTAMP()
+    ),
+    GREATER_THAN(
+      17000000000000000000,
+      IERC20_BALANCE_OF(
+        TOKEN_ADDRESS(),
+        SENDER()
+      )
+    )
+  ),
+  10000000000000000000,
+  DIV(
+    MUL(
+      10000000000000000000,
+      95
+    ),
+    100
+  )
+)`;
+
+    expect(friendly0).to.be.equals(outputExpected);
   });
 });
