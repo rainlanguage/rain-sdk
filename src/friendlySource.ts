@@ -307,7 +307,7 @@ const opSaleMeta: OpMeta[] = [
   {
     opcode: Sale.Opcodes.CURRENT_BUY_UNITS,
     name: 'CURRENT_BUY_UNITS',
-    input: 'takeFromStack',
+    input: 'CURRENT_BUY_UNITS',
   },
   {
     opcode: Sale.Opcodes.TOKEN_ADDRESS,
@@ -480,6 +480,10 @@ export class HumanFriendlySource {
       op = ops[i];
       i++;
 
+      // console.log('====================================\n');
+      // console.log(state.stack);
+      // console.log(op);
+      // console.log('====================================\n');
       if (op.input === 'constantIndex') {
         if (op.operand < 128) {
           state.stack[_stackIndex] = {
