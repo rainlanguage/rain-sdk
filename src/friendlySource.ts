@@ -480,10 +480,6 @@ export class HumanFriendlySource {
       op = ops[i];
       i++;
 
-      // console.log('====================================\n');
-      // console.log(state.stack);
-      // console.log(op);
-      // console.log('====================================\n');
       if (op.input === 'constantIndex') {
         if (op.operand < 128) {
           state.stack[_stackIndex] = {
@@ -504,7 +500,11 @@ export class HumanFriendlySource {
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
       } else if (op.input === 'DUP') {
-        state.stack.push(state.stack[op.operand]);
+        const valueDup = {
+          val: state.stack[op.operand].val,
+          consumed: false,
+        };
+        state.stack.push(valueDup);
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
       } else if (op.input === 'msgSender') {
         state.stack[_stackIndex] = {
@@ -592,7 +592,7 @@ export class HumanFriendlySource {
     }
 
     return state.stack
-      .filter((item) => item.consumed === false)
+      .filter((item) => item.consumed === false && typeof item.val === 'string')
       .map((item) => {
         item.consumed = true;
         return item.val;
@@ -712,6 +712,7 @@ export class HumanFriendlySource {
       tempArr = [];
     } else if (
       op.opcode === AllStandardOps.MIN ||
+      op.opcode === AllStandardOps.MAX ||
       op.opcode === AllStandardOps.ADD ||
       op.opcode === AllStandardOps.SUB ||
       op.opcode === AllStandardOps.MUL ||

@@ -2130,7 +2130,7 @@ describe('Human Friendly Source Generator', () => {
     expect(friendly).to.be.equals(expectedOutput);
   });
 
-  it('should generate friendly output from a sale FixedPrice with apply botj Wallet Cap', async () => {
+  it('should generate friendly output from a sale FixedPrice with apply both Wallet Cap', async () => {
     const script = new FixedPrice(10).applyWalletCap(WalletCapMode.min, {
       minWalletCap: 10,
       maxWalletCap: 20,
@@ -2645,5 +2645,77 @@ describe('Human Friendly Source Generator', () => {
 )`;
 
     expect(friendly).to.be.equals(outputExpected);
+  });
+
+  it('should generate friendly output from a sale FixedPrice with apply WalletCap tier multiplier', async () => {
+    const tierAddresss = '0x859834199ebd4d53750be5588ebb64ad841266aa';
+    const script = new FixedPrice(10).applyWalletCap(1, {
+      maxWalletCap: 10,
+      tierMultiplierMode: true,
+      tierAddress: tierAddresss,
+      tierMultiplier: [1, 1, 1, 12, 1, 1, 1, 1],
+    });
+
+    const friendly = HumanFriendlySource.get(script, {
+      pretty: true,
+      contract: 'sale', // It's not case-sensitive
+    });
+
+    const expectedOutput = `EAGER_IF(
+  GREATER_THAN(
+    ADD(
+      DIV(
+        MUL(
+          SELECT_LTE(
+            every,
+            first,
+            2,
+            0x00000064000000640000006400000064000004b0000000640000006400000064,
+            REPORT(
+              ${tierAddresss},
+              SENDER()
+            ),
+            BLOCK_NUMBER()
+          ),
+          MAX(
+            ZIPMAP_8(
+              [
+                "00000000",
+                "00000000",
+                "00000000",
+                "00000000",
+                "00000000",
+                "00000000",
+                "8ac72304",
+                "89e80000"
+              ],
+              EAGER_IF(
+                LESS_THAN(
+                  ^0,
+                  0xffffffff
+                ),
+                ^0,
+                100
+              )
+            )
+          )
+        ),
+        100
+      ),
+      1
+    ),
+    ADD(
+      CURRENT_BUY_UNITS(),
+      IERC20_BALANCE_OF(
+        TOKEN_ADDRESS(),
+        SENDER()
+      )
+    )
+  ),
+  10000000000000000000,
+  115792089237316195423570985008687907853269984665640564039457584007913129639935
+)`;
+
+    expect(friendly).to.be.equals(expectedOutput);
   });
 });
