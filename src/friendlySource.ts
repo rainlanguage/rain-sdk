@@ -35,7 +35,7 @@ type Pair = [number, number];
 export type Config = {
   /**
    * With this we can get the context.
-   * This will be the contract name eg: sale, combineTier
+   * This will be the contract name eg: sale, combineTier (It's not case-sensitive)
    */
   contract?: string;
   /**
@@ -706,8 +706,17 @@ export class HumanFriendlySource {
       baseIndex = _stackIndex - 3;
       cursor = baseIndex;
       tempArr = [];
-    } else if (op.opcode === AllStandardOps.MIN) {
-      const operand = identifyZipmap(state.stack, op.operand);
+    } else if (
+      op.opcode === AllStandardOps.MIN ||
+      op.opcode === AllStandardOps.ADD ||
+      op.opcode === AllStandardOps.SUB ||
+      op.opcode === AllStandardOps.MUL ||
+      op.opcode === AllStandardOps.DIV ||
+      op.opcode === AllStandardOps.SATURATING_ADD ||
+      op.opcode === AllStandardOps.SATURATING_SUB ||
+      op.opcode === AllStandardOps.SATURATING_MUL
+    ) {
+      const operand = this.identifyZipmap(state.stack, op.operand);
 
       // At least one zipmap was found to fll all the required stack from MIN
       if (operand !== -1) {
@@ -770,8 +779,8 @@ export class HumanFriendlySource {
     };
     state.stackIndex = baseIndex + 1;
 
-    // Cleanign the stack
-    state.stack = cleanStack(state.stack, state.stackIndex);
+    // Cleaning the stack
+    state.stack = this.cleanStack(state.stack, state.stackIndex);
   };
 
   private static flagOp(_a: number) {
@@ -843,38 +852,38 @@ export class HumanFriendlySource {
     }
     return true;
   }
-}
 
-function identifyZipmap(
-  _stack: { val: any; consumed: boolean }[],
-  stackToRead: number
-): number {
-  if (stackToRead <= 0) {
-    return -1;
-  }
-  let zipmapCounter = 0;
-  let _stackReturn = stackToRead;
-  //
-  let i = _stack.length - 1;
-  while (i >= 0 && _stack.length - i <= _stackReturn) {
-    const _text: string = _stack[i].val.toString();
-    if (_text.slice(0, 6) === 'ZIPMAP') {
-      zipmapCounter++;
-      const _zipmapStack = parseInt(_text.slice(7, 8));
-      _stackReturn -= _zipmapStack;
+  private static cleanStack(
+    _stack: { val: any; consumed: boolean }[],
+    length: number
+  ): { val: any; consumed: boolean }[] {
+    let _newStack: { val: any; consumed: boolean }[] = [];
+    for (let i = 0; i < length; i++) {
+      _newStack[i] = _stack[i];
     }
-    i--;
+    return _newStack;
   }
-  return _stackReturn === stackToRead ? -1 : _stackReturn + zipmapCounter - 1;
-}
 
-function cleanStack(
-  _stack: { val: any; consumed: boolean }[],
-  length: number
-): { val: any; consumed: boolean }[] {
-  let _newStack: { val: any; consumed: boolean }[] = [];
-  for (let i = 0; i < length; i++) {
-    _newStack[i] = _stack[i];
+  private static identifyZipmap(
+    _stack: { val: any; consumed: boolean }[],
+    stackToRead: number
+  ): number {
+    if (stackToRead <= 0) {
+      return -1;
+    }
+    let zipmapCounter = 0;
+    let _stackReturn = stackToRead;
+    //
+    let i = _stack.length - 1;
+    while (i >= 0 && _stack.length - i <= _stackReturn) {
+      const _text: string = _stack[i].val.toString();
+      if (_text.slice(0, 6) === 'ZIPMAP') {
+        zipmapCounter++;
+        const _zipmapStack = parseInt(_text.slice(7, 8));
+        _stackReturn -= _zipmapStack;
+      }
+      i--;
+    }
+    return _stackReturn === stackToRead ? -1 : _stackReturn + zipmapCounter - 1;
   }
-  return _newStack;
 }

@@ -7,9 +7,18 @@ import {
   utils,
   AllStandardOps,
   StateConfig,
+  // Sales prices Scripts
   vLBP,
   FixedPrice,
+  // CombineTier Scripts
+  CombineTierGenerator,
+  BuildReport,
+  // Emissions Scripts
+  EmissionsConfig,
+  LinearEmissions,
+  SequentialEmissions,
 } from '../src';
+
 import {
   eighteenZeros,
   sixZeros,
@@ -29,6 +38,8 @@ const {
   paddedUInt256,
   paddedUInt32,
   tierRange,
+  selectLteLogic,
+  selectLteMode,
 } = utils;
 
 const Opcode = AllStandardOps;
@@ -1818,7 +1829,7 @@ describe('Human Friendly Source Generator', () => {
     );
   });
 
-  it('should support sale local opcodes', async () => {
+  it('should generate the source friendly from vLBP', async () => {
     const startPrice = 100000;
     const startTimestamp = await Time.currentTime();
     const endTimestamp = startTimestamp + 30;
@@ -1864,7 +1875,103 @@ describe('Human Friendly Source Generator', () => {
     expect(friendly0).to.be.equals(expected);
   });
 
-  it('applyTierDiscount', async () => {
+  it('should generate friendly output from a sale vLBP with applyTierDiscount', async () => {
+    const startPrice = 100000;
+    const startTimestamp = await Time.currentTime();
+    const endTimestamp = startTimestamp + 30;
+    const minimumRaise = 20000000;
+    const initialSupply = 5000000;
+
+    const script = new vLBP(
+      startPrice,
+      startTimestamp,
+      endTimestamp,
+      minimumRaise,
+      initialSupply
+    );
+
+    script.applyTierDiscount(
+      '0x859834199ebd4d53750be5588ebb64ad841266aa',
+      [5, 10, 15, 20, 25, 30, 35, 40],
+      [8, 7, 6, 5, 4, 3, 2, 1]
+    );
+
+    const friendly = HumanFriendlySource.get(script, {
+      contract: 'Sale',
+      pretty: true,
+    });
+
+    const outputExpected = `DIV(
+  MUL(
+    0x0000000100000002000000030000000400000005000000060000000700000008,
+    MIN(
+      ZIPMAP_8(
+        DIV(
+          MUL(
+            ADD(
+              TOTAL_RESERVE_IN(),
+              100000000000000000000000000
+            ),
+            MAX(
+              SATURATING_SUB(
+                5000000000000000000000,
+                MUL(
+                  SATURATING_SUB(
+                    BLOCK_TIMESTAMP(),
+                    ${startTimestamp}
+                  ),
+                  166633330000000000000
+                )
+              ),
+              1000000000000000000
+            )
+          ),
+          REMAINING_UNITS()
+        ),
+        SATURATING_DIFF(
+          UPDATE_BLOCKS_FOR_TIER_RANGE(
+            NEVER(),
+            (0, 8),
+            100
+          ),
+          SELECT_LTE(
+            every,
+            first,
+            2,
+            0x0000003c00000041000000460000004b00000050000000550000005a0000005f,
+            REPORT(
+              0x859834199ebd4d53750be5588ebb64ad841266aa,
+              SENDER()
+            ),
+            BLOCK_NUMBER()
+          )
+        ),
+        SATURATING_DIFF(
+          UPDATE_BLOCKS_FOR_TIER_RANGE(
+            NEVER(),
+            (0, 8),
+            BLOCK_NUMBER()
+          ),
+          REPORT(
+            0x859834199ebd4d53750be5588ebb64ad841266aa,
+            SENDER()
+          )
+        ),
+        EAGER_IF(
+          LESS_THAN(^1, ^2),
+          100,
+          SUB(100, ^0)
+        )
+      )
+    )
+  ),
+  100
+)`;
+
+    expect(friendly).to.be.equals(outputExpected);
+  });
+
+  it('should generate friendly output from a sale FixedPrice with applyTierDiscount', async () => {
     const [arbitrary] = await ethers.getSigners();
     const tierAddress = arbitrary.address;
 
@@ -1889,7 +1996,7 @@ describe('Human Friendly Source Generator', () => {
         2,
         0x0000005c0000005d0000005e0000005f00000060000000610000006200000063,
         REPORT(
-          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266,
+          ${tierAddress},
           SENDER()
         ),
         BLOCK_NUMBER()
@@ -1917,38 +2024,540 @@ describe('Human Friendly Source Generator', () => {
     expect(friendly).to.be.equals(expectedOutput);
   });
 
-  it('applyTierDiscount', async () => {
-    const script = new FixedPrice(10).applyExtraTimeDiscount(16, 17, 5);
+  it('should generate friendly output from a sale FixedPrice with applyExtraTimeDiscount', async () => {
+    const priceBase = 10;
+    const endTimestamp = await Time.currentTime();
+    const extraTimeDiscountThreshold = 17;
+    const extraTimeDiscount = 5;
+
+    const script = new FixedPrice(priceBase).applyExtraTimeDiscount(
+      endTimestamp,
+      extraTimeDiscountThreshold,
+      extraTimeDiscount
+    );
 
     const friendly0 = HumanFriendlySource.get(script, {
       contract: 'sale',
       pretty: true,
     });
 
+    const pricePExpected = priceBase + eighteenZeros;
+    const extraTimeDiscountExpected = 100 - extraTimeDiscount;
+    const extraTimeDiscountThresholdExpected =
+      extraTimeDiscountThreshold + eighteenZeros;
+
     const outputExpected = `EAGER_IF(
   ANY(
     GREATER_THAN(
-      16,
+      ${endTimestamp},
       BLOCK_TIMESTAMP()
     ),
     GREATER_THAN(
-      17000000000000000000,
+      ${extraTimeDiscountThresholdExpected},
       IERC20_BALANCE_OF(
         TOKEN_ADDRESS(),
         SENDER()
       )
     )
   ),
-  10000000000000000000,
+  ${pricePExpected},
   DIV(
     MUL(
-      10000000000000000000,
-      95
+      ${pricePExpected},
+      ${extraTimeDiscountExpected}
     ),
     100
   )
 )`;
 
     expect(friendly0).to.be.equals(outputExpected);
+  });
+
+  it('should generate the friendly source output with opcodes getting values from stack generated by zipmap', async () => {
+    const constants1 = [1, 2, 100];
+
+    const source0 = concat([
+      op(VM.Opcodes.VAL, 2),
+      op(VM.Opcodes.ZIPMAP, callSize(1, 3, 0)),
+      op(VM.Opcodes.MUL, 8),
+    ]);
+
+    // arg(0) < 1 ? 1 : arg(0)
+    const source1 = concat([
+      op(VM.Opcodes.VAL, arg(0)),
+      op(VM.Opcodes.VAL, 0),
+      op(VM.Opcodes.LESS_THAN),
+      op(VM.Opcodes.VAL, 0),
+      op(VM.Opcodes.VAL, arg(0)),
+      op(VM.Opcodes.EAGER_IF),
+    ]);
+
+    const state = {
+      sources: [source0, source1],
+      constants: constants1,
+      argumentsLength: 0,
+      stackLength: 3,
+    };
+
+    const friendly0 = HumanFriendlySource.get(state, {
+      pretty: true,
+    });
+
+    const outputExpected = `MUL(
+  ZIPMAP_8(
+    [
+      "00000000",
+      "00000000",
+      "00000000",
+      "00000000",
+      "00000000",
+      "00000000",
+      "00000000",
+      "00000064"
+    ],
+    EAGER_IF(
+      LESS_THAN(^0, 1),
+      1,
+      ^0
+    )
+  )
+)`;
+
+    expect(friendly0).to.be.equals(outputExpected);
+  });
+
+  it('should  generate the friendly source output from a CombineTier script with combineWith', async () => {
+    const [arbitrary1, arbitrary2] = await ethers.getSigners();
+
+    const tier1 = arbitrary1.address;
+    const tier2 = arbitrary2.address;
+
+    const script = new CombineTierGenerator(tier1).combineWith(
+      tier2,
+      selectLteLogic.any,
+      selectLteMode.min
+    );
+
+    const friendly = HumanFriendlySource.get(script, {
+      pretty: true,
+      contract: 'combineTier', // It's not case-sensitive
+    });
+
+    const outputExpected = `SELECT_LTE(
+  any,
+  min,
+  2,
+  REPORT(
+    ${tier1},
+    ACCOUNT()
+  ),
+  REPORT(
+    ${tier2},
+    ACCOUNT()
+  ),
+  BLOCK_NUMBER()
+)`;
+
+    expect(friendly).to.be.equals(outputExpected);
+  });
+
+  it('should  generate the friendly source output from a CombineTier script with updateReport', async () => {
+    const [arbitrary1, arbitrary2] = await ethers.getSigners();
+
+    const tier1 = arbitrary1.address;
+    const tier2 = arbitrary2.address;
+
+    const script = new CombineTierGenerator(tier1)
+      .combineWith(tier2, selectLteLogic.any, selectLteMode.min)
+      .updateReport(0, 8);
+
+    const friendly = HumanFriendlySource.get(script, {
+      pretty: true,
+      contract: 'combineTier', // It's not case-sensitive
+    });
+
+    const outputExpected = `UPDATE_BLOCKS_FOR_TIER_RANGE(
+  SELECT_LTE(
+    any,
+    min,
+    2,
+    REPORT(
+      ${tier1},
+      ACCOUNT()
+    ),
+    REPORT(
+      ${tier2},
+      ACCOUNT()
+    ),
+    BLOCK_NUMBER()
+  ),
+  (0, 8),
+  BLOCK_NUMBER()
+)`;
+
+    expect(friendly).to.be.equals(outputExpected);
+  });
+
+  it('should  generate the friendly source output from a CombineTier script with updateReport and differenceFrom', async () => {
+    const [arbitrary1, arbitrary2, arbitrary3] = await ethers.getSigners();
+
+    const tier1 = arbitrary1.address;
+    const tier2 = arbitrary2.address;
+    const tier3 = arbitrary3.address;
+
+    const script = new CombineTierGenerator(tier1)
+      .combineWith(tier2, selectLteLogic.any, selectLteMode.min)
+      .updateReport(0, 8)
+      .differenceFrom(tier3);
+
+    const friendly = HumanFriendlySource.get(script, {
+      pretty: true,
+      contract: 'combineTier', // It's not case-sensitive
+    });
+
+    const outputExpected = `SATURATING_DIFF(
+  UPDATE_BLOCKS_FOR_TIER_RANGE(
+    SELECT_LTE(
+      any,
+      min,
+      2,
+      REPORT(
+        ${tier1},
+        ACCOUNT()
+      ),
+      REPORT(
+        ${tier2},
+        ACCOUNT()
+      ),
+      BLOCK_NUMBER()
+    ),
+    (0, 8),
+    BLOCK_NUMBER()
+  ),
+  REPORT(
+    ${tier3},
+    ACCOUNT()
+  )
+)`;
+
+    expect(friendly).to.be.equals(outputExpected);
+  });
+
+  it('should  generate the friendly source output from a BuildReport script with updateReport and differenceFrom', async () => {
+    const [arbitrary1, arbitrary2] = await ethers.getSigners();
+
+    const tier1 = arbitrary1.address;
+    const tier2 = arbitrary2.address;
+
+    const script = new BuildReport()
+      .combineWith(tier1, selectLteLogic.any, selectLteMode.min)
+      .updateReport(0, 8)
+      .differenceFrom(tier2);
+
+    const friendly = HumanFriendlySource.get(script, {
+      pretty: true,
+      contract: 'combineTier', // It's not case-sensitive
+    });
+
+    const outputExpected = `SATURATING_DIFF(
+  UPDATE_BLOCKS_FOR_TIER_RANGE(
+    SELECT_LTE(
+      any,
+      min,
+      2,
+      UPDATE_BLOCKS_FOR_TIER_RANGE(
+        NEVER(),
+        (0, 8),
+        BLOCK_NUMBER()
+      ),
+      REPORT(
+        ${tier1},
+        ACCOUNT()
+      ),
+      BLOCK_NUMBER()
+    ),
+    (0, 8),
+    BLOCK_NUMBER()
+  ),
+  REPORT(
+    ${tier2},
+    ACCOUNT()
+  )
+)`;
+
+    expect(friendly).to.be.equals(outputExpected);
+  });
+
+  it('should  generate the friendly source output from LinearEmissions', async () => {
+    const [arbitrary1] = await ethers.getSigners();
+
+    const tier = arbitrary1.address;
+    const blockTime = 10;
+    const period = 20;
+    const periodicRewards = {
+      tier1: 2,
+      tier2: 4,
+      tier3: 6,
+      tier4: 8,
+      tier5: 10,
+      tier6: 12,
+      tier7: 14,
+      tier8: 16,
+    };
+
+    const emissionConfig: EmissionsConfig = {
+      tierAddress: tier,
+      blockTime: blockTime,
+      period: period,
+      periodicRewards: periodicRewards,
+    };
+
+    const script = new LinearEmissions(emissionConfig);
+
+    const friendly = HumanFriendlySource.get(script, {
+      pretty: true,
+      contract: 'emissions', // It's not case-sensitive
+    });
+
+    const outputExpected = `ADD(
+  ZIPMAP_8(
+    SATURATING_DIFF(
+      UPDATE_BLOCKS_FOR_TIER_RANGE(
+        NEVER(),
+        (0, 8),
+        BLOCK_NUMBER()
+      ),
+      SELECT_LTE(
+        any,
+        max,
+        2,
+        REPORT(
+          ${tier},
+          CLAIMANT_ACCOUNT()
+        ),
+        REPORT(
+          THIS_ADDRESS(),
+          CLAIMANT_ACCOUNT()
+        ),
+        BLOCK_NUMBER()
+      )
+    ),
+    [
+      "00000000",
+      "00000000",
+      "00000000",
+      "00000000",
+      "000f4240",
+      "000f4240",
+      "000f4240",
+      "000f4240"
+    ],
+    DIV(
+      MUL(
+        MUL(^0, ^1),
+        1000000000000000000
+      ),
+      1000000
+    )
+  )
+)`;
+
+    expect(friendly).to.be.equals(outputExpected);
+  });
+
+  it('should  generate the friendly source output from SequentialEmissions', async () => {
+    const [arbitrary1] = await ethers.getSigners();
+
+    const tier = arbitrary1.address;
+    const blockTime = 10;
+    const period = 20;
+    const periodicRewards = {
+      tier1: 2,
+      tier2: 4,
+      tier3: 6,
+      tier4: 8,
+      tier5: 10,
+      tier6: 12,
+      tier7: 14,
+      tier8: 16,
+    };
+
+    const emissionConfig: EmissionsConfig = {
+      tierAddress: tier,
+      blockTime: blockTime,
+      period: period,
+      periodicRewards: periodicRewards,
+    };
+
+    const script = new SequentialEmissions(emissionConfig);
+
+    const friendly = HumanFriendlySource.get(script, {
+      pretty: true,
+      contract: 'emissions', // It's not case-sensitive
+    });
+
+    const outputExpected = `DIV(
+  MUL(
+    ADD(
+      ZIPMAP_8(
+        SATURATING_DIFF(
+          UPDATE_BLOCKS_FOR_TIER_RANGE(
+            NEVER(),
+            (0, 8),
+            BLOCK_NUMBER()
+          ),
+          REPORT(
+            ${tier},
+            CLAIMANT_ACCOUNT()
+          )
+        ),
+        SATURATING_DIFF(
+          REPORT(
+            THIS_ADDRESS(),
+            CLAIMANT_ACCOUNT()
+          ),
+          REPORT(
+            ${tier},
+            CLAIMANT_ACCOUNT()
+          )
+        ),
+        [
+          "00000000",
+          "00000000",
+          "00000000",
+          "00000000",
+          "001e8480",
+          "001e8480",
+          "001e8480",
+          "001e8480"
+        ],
+        [
+          "00000000",
+          "00000000",
+          "00000000",
+          "00000000",
+          "00000000",
+          "00000000",
+          "00000000",
+          "00000000"
+        ],
+        ADD(
+          EAGER_IF(
+            GREATER_THAN(
+              DIV(^0, 2),
+              0
+            ),
+            MUL(
+              ADD(
+                DIV(
+                  MUL(
+                    SATURATING_SUB(
+                      0,
+                      DIV(
+                        ^1,
+                        2
+                      )
+                    ),
+                    DIV(
+                      MUL(
+                        ADD(
+                          DIV(
+                            ^1,
+                            2
+                          ),
+                          SATURATING_SUB(
+                            0,
+                            1
+                          )
+                        ),
+                        10
+                      ),
+                      2
+                    )
+                  ),
+                  10
+                ),
+                MUL(
+                  SATURATING_SUB(
+                    SATURATING_SUB(
+                      DIV(
+                        ^0,
+                        2
+                      ),
+                      DIV(
+                        ^1,
+                        2
+                      )
+                    ),
+                    SATURATING_SUB(
+                      0,
+                      DIV(
+                        ^1,
+                        2
+                      )
+                    )
+                  ),
+                  SATURATING_SUB(
+                    0,
+                    1
+                  )
+                )
+              ),
+              ^3
+            ),
+            MUL(
+              DIV(
+                MUL(
+                  SATURATING_SUB(
+                    DIV(
+                      ^0,
+                      2
+                    ),
+                    DIV(
+                      ^1,
+                      2
+                    )
+                  ),
+                  DIV(
+                    MUL(
+                      ADD(
+                        SATURATING_SUB(
+                          DIV(
+                            ^0,
+                            2
+                          ),
+                          1
+                        ),
+                        DIV(
+                          ^1,
+                          2
+                        )
+                      ),
+                      10
+                    ),
+                    2
+                  )
+                ),
+                10
+              ),
+              ^3
+            )
+          ),
+          MUL(
+            ^2,
+            SATURATING_SUB(
+              DIV(^0, 2),
+              DIV(^1, 2)
+            )
+          )
+        )
+      )
+    ),
+    1000000000000000000
+  ),
+  1000000
+)`;
+
+    expect(friendly).to.be.equals(outputExpected);
   });
 });
