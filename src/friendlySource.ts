@@ -8,6 +8,10 @@ import { Sale } from './contracts/sale';
 
 import { selectLteLogic, selectLteMode } from './utils';
 
+/**
+ * Information related to the opcodes.
+ * It's called meta becuase contain info about how will work the op in the generator
+ */
 interface OpMeta {
   opcode: number;
   name: string;
@@ -20,11 +24,36 @@ interface OpInfo extends OpMeta {
 
 interface State {
   stackIndex: BigNumberish;
-  stack: { val: any; consumed: boolean }[];
+  stack: Stack[];
   sources: BytesLike[];
   constants: BigNumberish[];
 }
 
+/**
+ * A type to indentify the status of each value in the stack
+ */
+type Stack = {
+  /**
+   * Current value
+   */
+  val: any;
+  /**
+   * Flag to identify if a value was read and use it.
+   * This means that after mix with other value in stack will be deleted
+   */
+  consumed: boolean;
+  /**
+   * Flag to identify if the value was duplicate.
+   * A value that was duplicate will be considered as consumed, but still accessible in the stack.
+   * At the end, if the value was not mixed, will be discard to the final output
+   */
+  wasDup?: boolean;
+};
+
+
+/**
+ * Type identify the pair relate to the [opcode, operand]
+ */
 type Pair = [number, number];
 
 /**
@@ -352,6 +381,7 @@ export class HumanFriendlySource {
   private static opMeta: OpMeta[] = newOpMeta;
   private static _context: string | undefined;
   private static _pretty: boolean;
+  private static _isZipmap = false;
 
   public static get(
     _state: StateConfig,
@@ -500,6 +530,8 @@ export class HumanFriendlySource {
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
       } else if (op.input === 'DUP') {
+        state.stack[op.operand].consumed = true;
+        state.stack[op.operand].wasDup = true;
         const valueDup = {
           val: state.stack[op.operand].val,
           consumed: false,
@@ -587,17 +619,36 @@ export class HumanFriendlySource {
       } else if (op.input === 'takeFromStack') {
         this.applyOp(state, op);
       } else if (op.input === 'zipmap') {
+        this._isZipmap = true;
         this.zipmap(state, op.operand);
+        this._isZipmap = false;
       }
     }
 
-    return state.stack
-      .filter((item) => item.consumed === false && typeof item.val === 'string')
-      .map((item) => {
-        item.consumed = true;
-        return item.val;
-      })
-      .join(' ');
+    return (
+      state.stack
+        .filter((item) => item.consumed === false)
+        // .filter((item) => item.consumed === false && typeof item.val === 'string')
+        .map((item) => {
+          item.consumed = true;
+          return item.val;
+        })
+        .join(' ')
+    );
+    // if (this._isZipmap) {
+    //   return (
+    //     state.stack
+    //       .filter((item) => item.consumed === false)
+    //       // .filter((item) => item.consumed === false && typeof item.val === 'string')
+    //       .map((item) => {
+    //         item.consumed = true;
+    //         return item.val;
+    //       })
+    //       .join(' ')
+    //   );
+    // } else {
+    //   return state.stack[state.stack.length - 1].val;
+    // }
   };
 
   private static zipmap = (state: State, operand: number) => {
@@ -609,8 +660,10 @@ export class HumanFriendlySource {
     let tempString = `ZIPMAP_${amountValues}(\n`;
 
     let tempArr = [];
+    let leng = state.stack.length - 1;
 
-    for (let i = 0; i <= valLength; i++) {
+    for (let i = leng - valLength; i <= leng; i++) {
+      // for (let i = 0; i <= valLength; i++) {
       if (stepSize > 0) {
         const divided = this.divideArray(state.stack[i].val, stepSize);
         const _value =
@@ -630,7 +683,15 @@ export class HumanFriendlySource {
     tempString += tempArr.map((entry) => '    ' + entry).join(`,\n`);
     tempString += `\n)`;
 
-    state.stack[BigNumber.from(state.stackIndex).toNumber()] = {
+    state.stackIndex = BigNumber.from(state.stackIndex).sub(valLength);
+
+    // Minus 1 becuase the zipmap is not added yet
+    const baseIndex = BigNumber.from(state.stackIndex).toNumber() - 1;
+
+    // Cleaning the stack
+    state.stack = this.cleanStack(state.stack, baseIndex);
+
+    state.stack[baseIndex] = {
       val: tempString,
       consumed: false,
     };
@@ -817,8 +878,12 @@ export class HumanFriendlySource {
         // If it's not an Uint8Array, then it's an possible HexString or BigNumber comming from constants.
         // Mostly these cases should come from reports. Raise an issue on repo if you see any error.
         BigNumber.from(arr);
+
+        const _eachLength = (32 / 2 ** times) * 2;
+        const regex = new RegExp(`.{1,${_eachLength}}`, 'g');
         let value = paddedUInt256(BigNumber.from(arr));
-        return value.slice(2).match(/.{1,8}/g)!;
+
+        return value.slice(2).match(regex)!;
       } catch (e) {
         // If fail, we just return the value normally as string
         return arr.toString();
@@ -859,12 +924,18 @@ export class HumanFriendlySource {
   }
 
   private static cleanStack(
-    _stack: { val: any; consumed: boolean }[],
+    _stack: Stack[],
     length: number
   ): { val: any; consumed: boolean }[] {
+    let j = 0;
+    let k = 0;
     let _newStack: { val: any; consumed: boolean }[] = [];
-    for (let i = 0; i < length; i++) {
-      _newStack[i] = _stack[i];
+    while (j < length) {
+      if (!_stack[k].consumed || (_stack[k].consumed && _stack[k].wasDup)) {
+        _newStack[j] = _stack[k];
+        j++;
+      }
+      k++;
     }
     return _newStack;
   }
@@ -889,6 +960,7 @@ export class HumanFriendlySource {
       }
       i--;
     }
-    return _stackReturn === stackToRead ? -1 : _stackReturn + zipmapCounter - 1;
+    // return _stackReturn === stackToRead ? -1 : _stackReturn + zipmapCounter - 1;
+    return _stackReturn === stackToRead ? -1 : _stackReturn + zipmapCounter;
   }
 }

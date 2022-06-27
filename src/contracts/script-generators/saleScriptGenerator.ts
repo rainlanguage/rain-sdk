@@ -249,6 +249,7 @@ export class PriceCurve {
           this.sources[0],
           op(Sale.Opcodes.VAL, this.constants.length - 2),
           MAX_CAP_SOURCES(),
+          op(Sale.Opcodes.DUP, 0),
           op(Sale.Opcodes.VAL, this.constants.length - 1),
           op(Sale.Opcodes.EAGER_IF),
         ]);

@@ -13,7 +13,9 @@ import {
   ReserveTokenERC721,
   ReserveTokenERC1155,
 } from '../typechain';
-import { Interface } from 'ethers/lib/utils';
+import { BytesLike, Interface } from 'ethers/lib/utils';
+
+import { VM, CombineTier, EmissionsERC20 } from '../src';
 
 /**
  * Hardhat network chainID
@@ -333,4 +335,65 @@ export function getSigned8(_value: number): number {
     _value = _value - 0x100;
   }
   return _value;
+}
+
+function generate(
+  arr: number[] | Uint8Array | BytesLike,
+  context?: string
+): [string, number][] {
+  let arrVal: number[];
+  if (arr.constructor === Uint8Array) {
+    arrVal = Array.from(arr);
+  } else if (Array.isArray(arr)) {
+    arrVal = arr;
+  } else {
+    throw new Error('Not an array iterable object');
+  }
+
+  const values: [string, number][] = [];
+  for (let i = 0; i < arrVal.length; i += 2) {
+    const op = arrVal[i];
+    const operand = arrVal[i + 1];
+
+    if (op >= VM.Opcodes.length) {
+      if (context?.toLowerCase() === 'sale') {
+        let _val = 'invalid';
+        if (op === 46) {
+          _val = 'REMAINING_UNITS';
+        } else if (op === 47) {
+          _val = 'TOTAL_RESERVE_IN';
+        } else if (op === 48) {
+          _val = 'CURRENT_BUY_UNITS';
+        } else if (op === 49) {
+          _val = 'TOKEN_ADDRESS';
+        } else {
+          _val = 'RESERVE_ADDRESS';
+        }
+        values.push([_val, operand]);
+      } else if (context?.toLowerCase() === 'combinetier') {
+        values.push([CombineTier.Opcodes[op], operand]);
+      } else if (context?.toLowerCase() === 'emissions') {
+        values.push([EmissionsERC20.Opcodes[op], operand]);
+      } else {
+        throw new Error(`Unknow opcode: ${op}`);
+      }
+    } else {
+      values.push([VM.Opcodes[op], operand]);
+    }
+  }
+
+  return values;
+}
+
+/**
+ * Print in console the constants and sources opcodes from an script.
+ * @param script
+ */
+export function printOps(script: any, context?: string): void {
+  console.log('Constants: ');
+  console.log(script.constants);
+  for (let i = 0; i < script.sources.length; i++) {
+    console.log('Source index: ', i);
+    console.log(generate(script.sources[i], context));
+  }
 }
