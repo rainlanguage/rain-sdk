@@ -8,7 +8,6 @@ let
     { };
 
  generate-docs = pkgs.writeShellScriptBin "generate-docs" ''
-  yarn build
   yarn generate-docs
   # Remove issues with missing close tags and customize the output
   find ./docs/ -name "*.md" -exec sed -i -r -e 's/<br><br>/<br><\/br>/g; s/<i>|<\/i>/*/g' -e '1d' docs/index.md  {} +
@@ -22,6 +21,7 @@ let
  build-sdk = pkgs.writeShellScriptBin "build-sdk" ''
   copy-typechain
   yarn build
+  generate-docs
  '';
 
  test-sdk = pkgs.writeShellScriptBin "test-sdk" ''

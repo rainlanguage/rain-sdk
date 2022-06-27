@@ -93,10 +93,12 @@
 |  [Addresses](./types/addresses.md) | Type for all the addresses stored in the Book. |
 |  [CombineTierDeployArgs](./types/combinetierdeployargs.md) | The argument of the CombineTier. The StateConfig will be deployed as a pointer under VM State Pointer. |
 |  [CombineTierOpcodes](./types/combinetieropcodes.md) | Type for the opcodes availables in a CombineTier instance. |
+|  [Config](./types/config.md) | Specific the configuration of the generation method |
 |  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
 |  [EmissionsERC20Opcodes](./types/emissionserc20opcodes.md) | Type for the opcodes availables in a EmissionsERC20 instance. |
 |  [OpcodeFN](./types/opcodefn.md) | A type for functions to override the default opcodes functions with it. |
 |  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |
+|  [PrettifyConfig](./types/prettifyconfig.md) | Specific the configuration of the Prettify method. |
 |  [SaleOpcodes](./types/saleopcodes.md) | Type for the opcodes availables in a CombineTier instance. |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
 

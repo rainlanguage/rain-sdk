@@ -207,7 +207,7 @@ static toTimeSlicer(configs: StateConfig[], times: number[], inBlockNumber?: boo
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  configs | `StateConfig[]` | An array of StateConfigs that will be merged and executed at runtime in order by time slices |
-|  times | `number[]` | An array of numbers representing either BLOCK\_NUMBER or TIMESTAMP that time slices will be between each of the 2 items in the array |
+|  times | `number[]` | An array of numbers representing either BLOCK\_NUMBER or TIMESTAMP that time slices will be between each of the 2 items in the array its length should be number of configs - 1. |
 |  inBlockNumber | `boolean` | (optional) false by default which means the time slices will be based on TIMESTAMP, pass true to base it on BLOCK\_NUMBER |
 
 <b>Returns:</b>

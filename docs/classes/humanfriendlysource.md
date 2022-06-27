@@ -17,18 +17,19 @@ class HumanFriendlySource
 
 |  Method | Description |
 |  --- | --- |
-|  [get(\_state)](./humanfriendlysource.md#get-method-static-1) |  |
+|  [get(\_state, \_config)](./humanfriendlysource.md#get-method-static-1) |  |
+|  [prettify(\_text, \_config)](./humanfriendlysource.md#prettify-method-static-1) | Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis |
 
 ## Static Method Details
 
 <a id="get-method-static-1"></a>
 
-### get(\_state)
+### get(\_state, \_config)
 
 <b>Signature:</b>
 
 ```typescript
-static get(_state: StateConfig): string;
+static get(_state: StateConfig, _config?: Config): string;
 ```
 
 #### Parameters
@@ -36,8 +37,36 @@ static get(_state: StateConfig): string;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  \_state | [StateConfig](../interfaces/stateconfig.md) |  |
+|  \_config | [Config](../types/config.md) |  |
 
 <b>Returns:</b>
 
 `string`
+
+<a id="prettify-method-static-1"></a>
+
+### prettify(\_text, \_config)
+
+Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis
+
+If the string is already indentend, the method will wrongly generate the string
+
+<b>Signature:</b>
+
+```typescript
+static prettify(_text: string, _config?: PrettifyConfig): string;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  \_text | `string` | The output from the HumanFriendlySource |
+|  \_config | [PrettifyConfig](../types/prettifyconfig.md) | The configuration of the prettify method (experimental) |
+
+<b>Returns:</b>
+
+`string`
+
+The pretty output
 

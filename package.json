@@ -1,6 +1,6 @@
 {
-  "version": "1.2.7",
-  "license": "CAL",
+  "version": "1.2.8",
+  "license": "CAL-1.0",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "files": [

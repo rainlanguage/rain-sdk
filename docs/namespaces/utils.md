@@ -28,8 +28,11 @@
 |  [hexlify](./utils/variables/hexlify.md) | ethers hexlify |
 |  [hexZeroPad](./utils/variables/hexzeropad.md) | ethers hexZeroPad |
 |  [op](./utils/variables/op.md) | Converts an opcode and operand to bytes, and returns their concatenation. |
+|  [paddedUInt128](./utils/variables/paddeduint128.md) | Utility function to produce 128 bits size hexString |
+|  [paddedUInt160](./utils/variables/paddeduint160.md) | Utility function that transforms a BigNumberish to an ether address (40 char length hexString) |
 |  [paddedUInt256](./utils/variables/paddeduint256.md) | Utility function that transforms a BigNumber from the output of the ITier contract report |
 |  [paddedUInt32](./utils/variables/paddeduint32.md) | Utility function to produce 32 bits size hexString |
+|  [paddedUInt64](./utils/variables/paddeduint64.md) | Utility function to produce 64 bits size hexString |
 |  [parseUnits](./utils/variables/parseunits.md) | ethers parseUnits |
 |  [replaceAt](./utils/variables/replaceat.md) | Replace a value in a BytesLike. Set `replacement` in the `index` on the `original` BytesLike value |
 |  [zeroPad](./utils/variables/zeropad.md) | ethers zeroPad |

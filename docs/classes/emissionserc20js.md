@@ -20,7 +20,7 @@ class EmissionsERC20JS extends RainJS
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [\_OPCODE\_](./emissionserc20js.md#_OPCODE_-property) | [ApplyOpFn](../interfaces/applyopfn.md) | key/value pair of opcodes and their functions for all standard opcodes + EmissionsERC20 local opcodes<br></br>*Overrides [RainJS.\_OPCODE\_](./rainjs.md#_OPCODE_-property)* |
-|  [contract](./rainjs.md#contract-property) | `Contract` | An ethers Contract<br></br>*Inherited from [RainJS.contract](./rainjs.md#contract-property)* |
+|  [contract](./rainjs.md#contract-property) | `string` | An ethers Contract address<br></br>*Inherited from [RainJS.contract](./rainjs.md#contract-property)* |
 |  [lastState](./rainjs.md#lastState-property) | `BigNumber[]` | The result state of the executed Rainjs.<br></br>*Inherited from [RainJS.lastState](./rainjs.md#lastState-property)* |
 |  [provider](./rainjs.md#provider-property) | `Provider` | An ethers provider.<br></br>*Inherited from [RainJS.provider](./rainjs.md#provider-property)* |
 |  [signer](./rainjs.md#signer-property) | `Signer` | An ethers Signer.<br></br>*Inherited from [RainJS.signer](./rainjs.md#signer-property)* |
