@@ -206,7 +206,7 @@ export class LinearEmissions {
         op(EmissionsERC20.Opcodes.BLOCK_NUMBER),
         op(
           EmissionsERC20.Opcodes.SELECT_LTE, 
-          selectLte(selectLteLogic.any, selectLteMode.max, 2)
+          selectLte(selectLteLogic.every, selectLteMode.max, 2)
         ),
         op(EmissionsERC20.Opcodes.SATURATING_DIFF),
       ]);
