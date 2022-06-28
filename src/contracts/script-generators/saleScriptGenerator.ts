@@ -472,7 +472,7 @@ export class IncreasingPrice extends PriceCurve {
       constants: [
         parseUnits(startPrice.toString(), erc20decimals),
         parseUnits(endPrice.toString(), erc20decimals),
-        parseUnits(priceChange.toFixed(5).toString()),
+        parseUnits(priceChange.toFixed(5).toString(), erc20decimals),
         startTimestamp,
       ],
       sources: [IncreasingPrice.INC_PRICE_SOURCES()],
