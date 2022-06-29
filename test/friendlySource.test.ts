@@ -2481,7 +2481,7 @@ describe('Human Friendly Source Generator', () => {
         BLOCK_NUMBER()
       ),
       SELECT_LTE(
-        any,
+        every,
         max,
         2,
         REPORT(

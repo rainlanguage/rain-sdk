@@ -9,8 +9,19 @@ import { Sale } from './contracts/sale';
 import { selectLteLogic, selectLteMode } from './utils';
 
 /**
+ * Game assets opcodes
+ */
+enum GameAssetsOpcode {
+  TIER_REPORT_AT_BLOCK = 0 + AllStandardOps.length,
+  ACCOUNT,
+  CURRENT_UNITS,
+}
+
+/**
  * Information related to the opcodes.
- * It's called meta becuase contain info about how will work the op in the generator
+ *
+ * @remarks
+ * Contain information about how will work the op in the generator.
  */
 interface OpMeta {
   opcode: number;
@@ -18,10 +29,16 @@ interface OpMeta {
   input: string;
 }
 
+/**
+ * Interface for the opcodes information with the operand passed.
+ */
 interface OpInfo extends OpMeta {
   operand: number;
 }
 
+/**
+ * State that contain the information about the script.
+ */
 interface State {
   stackIndex: BigNumberish;
   stack: Stack[];
@@ -49,7 +66,6 @@ type Stack = {
    */
   wasDup?: boolean;
 };
-
 
 /**
  * Type identify the pair relate to the [opcode, operand]
@@ -366,6 +382,24 @@ const opEmissionsMeta: OpMeta[] = [
   },
 ];
 
+const opGameAssetsMeta: OpMeta[] = [
+  {
+    opcode: GameAssetsOpcode.TIER_REPORT_AT_BLOCK,
+    name: 'TIER_REPORT_AT_BLOCK',
+    input: 'takeFromStack',
+  },
+  {
+    opcode: GameAssetsOpcode.ACCOUNT,
+    name: 'ACCOUNT',
+    input: 'ACCOUNT',
+  },
+  {
+    opcode: GameAssetsOpcode.CURRENT_UNITS,
+    name: 'CURRENT_UNITS',
+    input: 'CURRENT_UNITS',
+  },
+];
+
 /**
  * @public
  * The generator of friendly human readable source.
@@ -483,6 +517,10 @@ export class HumanFriendlySource {
               (opmeta) => opmeta.opcode === pair[0]
             );
           } else if (_contract === 'emissions') {
+            opmeta = opEmissionsMeta.find(
+              (opmeta) => opmeta.opcode === pair[0]
+            );
+          } else if (_contract === 'gameassets') {
             opmeta = opEmissionsMeta.find(
               (opmeta) => opmeta.opcode === pair[0]
             );
@@ -616,6 +654,12 @@ export class HumanFriendlySource {
           consumed: false,
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'CURRENT_UNITS') {
+        state.stack[_stackIndex] = {
+          val: 'CURRENT_UNITS()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
       } else if (op.input === 'takeFromStack') {
         this.applyOp(state, op);
       } else if (op.input === 'zipmap') {
@@ -625,30 +669,13 @@ export class HumanFriendlySource {
       }
     }
 
-    return (
-      state.stack
-        .filter((item) => item.consumed === false)
-        // .filter((item) => item.consumed === false && typeof item.val === 'string')
-        .map((item) => {
-          item.consumed = true;
-          return item.val;
-        })
-        .join(' ')
-    );
-    // if (this._isZipmap) {
-    //   return (
-    //     state.stack
-    //       .filter((item) => item.consumed === false)
-    //       // .filter((item) => item.consumed === false && typeof item.val === 'string')
-    //       .map((item) => {
-    //         item.consumed = true;
-    //         return item.val;
-    //       })
-    //       .join(' ')
-    //   );
-    // } else {
-    //   return state.stack[state.stack.length - 1].val;
-    // }
+    return state.stack
+      .filter((item) => item.consumed === false)
+      .map((item) => {
+        item.consumed = true;
+        return item.val;
+      })
+      .join(' ');
   };
 
   private static zipmap = (state: State, operand: number) => {
@@ -663,7 +690,6 @@ export class HumanFriendlySource {
     let leng = state.stack.length - 1;
 
     for (let i = leng - valLength; i <= leng; i++) {
-      // for (let i = 0; i <= valLength; i++) {
       if (stepSize > 0) {
         const divided = this.divideArray(state.stack[i].val, stepSize);
         const _value =
@@ -727,14 +753,32 @@ export class HumanFriendlySource {
       op.opcode === AllStandardOps.SCALE18_DIV ||
       op.opcode === AllStandardOps.SCALE18_MUL
     ) {
-      // TODO: Check previous zipmap to fill the stack
-      baseIndex = _stackIndex - 2;
+      const _stackLength = this.identifyZipmap(state.stack, 2);
+
+      // At least one zipmap was found to fll all the required stack from MIN
+      if (_stackLength !== -1) {
+        baseIndex = _stackIndex - _stackLength;
+      }
+      // Since no zipmap was found, the stack could fill the the stack required
+      else {
+        baseIndex = _stackIndex - 2;
+      }
+
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val + '*10**18'];
       //
     } else if (op.opcode === AllStandardOps.EAGER_IF) {
-      // TODO: Check previous zipmap to fill the stack
-      baseIndex = _stackIndex - 3;
+      const _stackLength = this.identifyZipmap(state.stack, 3);
+
+      // At least one zipmap was found to fll all the required stack from MIN
+      if (_stackLength !== -1) {
+        baseIndex = _stackIndex - _stackLength;
+      }
+      // Since no zipmap was found, the stack could fill the the stack required
+      else {
+        baseIndex = _stackIndex - 3;
+      }
+
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
       //
@@ -744,9 +788,18 @@ export class HumanFriendlySource {
       op.opcode === AllStandardOps.IERC20_TOTAL_SUPPLY ||
       this.flagOp(op.opcode)
     ) {
-      // TODO: Check previous zipmap to fill the stack
+      const _stackLength = this.identifyZipmap(state.stack, 1);
+
+      // At least one zipmap was found to fll all the required stack from MIN
+      if (_stackLength !== -1) {
+        baseIndex = _stackIndex - _stackLength;
+      }
+      // Since no zipmap was found, the stack could fill the the stack required
+      else {
+        baseIndex = _stackIndex - 1;
+      }
+
       operandFlag = this.flagOp(op.opcode);
-      baseIndex = _stackIndex - 1;
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
       //
@@ -758,17 +811,37 @@ export class HumanFriendlySource {
       op.opcode === AllStandardOps.IERC721_OWNER_OF ||
       op.opcode === AllStandardOps.IERC721_BALANCE_OF ||
       op.opcode === AllStandardOps.IERC20_BALANCE_OF ||
-      op.opcode === AllStandardOps.REPORT
+      op.opcode === AllStandardOps.REPORT ||
+      (op.opcode === GameAssetsOpcode.TIER_REPORT_AT_BLOCK &&
+        op.name === 'TIER_REPORT_AT_BLOCK')
     ) {
-      // TODO: Check previous zipmap to fill the stack
-      baseIndex = _stackIndex - 2;
+      const _stackLength = this.identifyZipmap(state.stack, 2);
+
+      // At least one zipmap was found to fll all the required stack from MIN
+      if (_stackLength !== -1) {
+        baseIndex = _stackIndex - _stackLength;
+      }
+      // Since no zipmap was found, the stack could fill the the stack required
+      else {
+        baseIndex = _stackIndex - 2;
+      }
+
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
       //
     } else if (op.opcode === AllStandardOps.SELECT_LTE) {
-      // TODO: Check previous zipmap to fill the stack
+      const _stackLength = this.identifyZipmap(state.stack, 3);
+
+      // At least one zipmap was found to fll all the required stack from MIN
+      if (_stackLength !== -1) {
+        baseIndex = _stackIndex - _stackLength;
+      }
+      // Since no zipmap was found, the stack could fill the the stack required
+      else {
+        baseIndex = _stackIndex - 3;
+      }
+
       selectLteFlag = true;
-      baseIndex = _stackIndex - 3;
       cursor = baseIndex;
       tempArr = [];
     } else if (
@@ -817,7 +890,6 @@ export class HumanFriendlySource {
         tempArr.push(selectLteText);
         selectLteFlag = false;
         cursor -= 2;
-        // cursor = top - 3;
       } else if (operandFlag) {
         tempArr.push(this.getSigned8(op.operand));
         operandFlag = false;
@@ -875,8 +947,10 @@ export class HumanFriendlySource {
       return Array.from(arr.filter((_, i) => i % n === n - 1));
     } else {
       try {
-        // If it's not an Uint8Array, then it's an possible HexString or BigNumber comming from constants.
-        // Mostly these cases should come from reports. Raise an issue on repo if you see any error.
+        /**
+         * If it's not an Uint8Array, then it's an possible HexString or BigNumber comming from constants.
+         * Mostly these cases should come from reports. Raise an issue on repo if you see any error.
+         */
         BigNumber.from(arr);
 
         const _eachLength = (32 / 2 ** times) * 2;
@@ -899,9 +973,6 @@ export class HumanFriendlySource {
   }
 
   private static tierRangeFromOp(_op: number): [number, number] {
-    //   op_.val & 0x0f, //     00001111
-    //   op_.val & 0xf0, //     11110000
-
     const startTier_ = _op & 0x0f;
     const endTier_ = (_op >> 4) & 0x0f;
     return [startTier_, endTier_];
@@ -949,8 +1020,8 @@ export class HumanFriendlySource {
     }
     let zipmapCounter = 0;
     let _stackReturn = stackToRead;
-    //
     let i = _stack.length - 1;
+
     while (i >= 0 && _stack.length - i <= _stackReturn) {
       const _text: string = _stack[i].val.toString();
       if (_text.slice(0, 6) === 'ZIPMAP') {
@@ -960,7 +1031,6 @@ export class HumanFriendlySource {
       }
       i--;
     }
-    // return _stackReturn === stackToRead ? -1 : _stackReturn + zipmapCounter - 1;
     return _stackReturn === stackToRead ? -1 : _stackReturn + zipmapCounter;
   }
 }
