@@ -1,7 +1,9 @@
 
 # Class VM
 
-//TODO: Add doc
+Class related to hold the some of the common patterns around the Rain VM that are required to interact with it.
+
+The class is intented to contain general methods that can be used in a lot of scenarios and ways.
 
 <b>Signature:</b>
 

@@ -11,7 +11,21 @@ import { FactoryContract } from '../classes/factoryContract';
 
 /**
  * @public
- * //TODO: Add doc
+ * A class for calling methods on a GatedNFT.
+ *
+ * @remarks
+ * This class provides an easy way to interact with GatedNFT contracts.
+ *
+ * @example
+ * ```typescript
+ * import { GatedNFT } from 'rain-sdk';
+ *
+ * // To get a instance of an already deployed gatedNFT contract, pass the contract address and an ethers.js Signer
+ * const gated = new GatedNFT(address, signer);
+ *
+ * // Check if an address is child from the factory deployed in the current chain.
+ * await GatedNFT.isChild(signer, maybeChildAddress);
+ *```
  */
 export class GatedNFT extends FactoryContract {
   protected static readonly nameBookReference: string = 'gatedNFTFactory';

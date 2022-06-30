@@ -3,9 +3,7 @@
 
 The generator of friendly human readable source.
 
-Parse a State to a more human readable form, so feel free to use it and make more friendly anyone that want to read the script that is being used in the code.
-
-If you find an issue or you want to propose a better way to show a specific script or opcodes, please feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
+Parse an State/Script to a more human readable form, making easier to understand. This form allow to the users read exactly what the Script is made for, like the conditions, values used, etc. Also, anyone can learn to write their own scripts if use the Human Form to see the output for each combination that they made. \* If you find an issue or you want to propose a better way to show a specific script or opcodes, please feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
 
 <b>Signature:</b>
 
@@ -17,7 +15,7 @@ class HumanFriendlySource
 
 |  Method | Description |
 |  --- | --- |
-|  [get(\_state, \_config)](./humanfriendlysource.md#get-method-static-1) |  |
+|  [get(\_state, \_config)](./humanfriendlysource.md#get-method-static-1) | Obtain the friendly output from an script. |
 |  [prettify(\_text, \_config)](./humanfriendlysource.md#prettify-method-static-1) | Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis |
 
 ## Static Method Details
@@ -25,6 +23,8 @@ class HumanFriendlySource
 <a id="get-method-static-1"></a>
 
 ### get(\_state, \_config)
+
+Obtain the friendly output from an script.
 
 <b>Signature:</b>
 
@@ -36,12 +36,13 @@ static get(_state: StateConfig, _config?: Config): string;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  \_state | [StateConfig](../interfaces/stateconfig.md) |  |
-|  \_config | [Config](../types/config.md) |  |
+|  \_state | [StateConfig](../interfaces/stateconfig.md) | The state or script to generate the friendly version |
+|  \_config | [Config](../types/config.md) | The configuration that will run the generator. |
 
 <b>Returns:</b>
 
 `string`
+
 
 <a id="prettify-method-static-1"></a>
 

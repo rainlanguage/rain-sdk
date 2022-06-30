@@ -1,7 +1,7 @@
 
 # Class RainContract
 
-//TODO: Add doc
+Abstract class that contain all the general methods that are requirement for all the Rain contracts to be able to interact correctly.
 
 <b>Signature:</b>
 

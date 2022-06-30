@@ -405,9 +405,10 @@ const opGameAssetsMeta: OpMeta[] = [
  * The generator of friendly human readable source.
  *
  * @remarks
- * Parse a State to a more human readable form, so feel free to use it and make more friendly
- * anyone that want to read the script that is being used in the code.
- *
+ * Parse an State/Script to a more human readable form, making easier to understand. This form allow to the users read exactly
+ * what the Script is made for, like the conditions, values used, etc. Also, anyone can learn to write their own scripts
+ * if use the Human Form to see the output for each combination that they made.
+ *  *
  * If you find an issue or you want to propose a better way to show a specific script or opcodes, please
  * feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
  */
@@ -417,6 +418,12 @@ export class HumanFriendlySource {
   private static _pretty: boolean;
   private static _isZipmap = false;
 
+  /**
+   * Obtain the friendly output from an script.
+   * @param _state - The state or script to generate the friendly version @see StateConfig
+   * @param _config - The configuration that will run the generator. @see Config
+   * @returns
+   */
   public static get(
     _state: StateConfig,
     _config: Config = { contract: '', pretty: false }
