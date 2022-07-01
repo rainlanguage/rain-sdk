@@ -624,7 +624,7 @@ export class SaleDurationInTimestamp {
     const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
 
     let _minimumRaise: StateConfig = {
-      constants: [MinimumRaise],
+      constants: [MinimumRaise.sub(1)],
       sources: [
         concat([
           op(Sale.Opcodes.VAL, 0),
@@ -779,7 +779,7 @@ export class SaleDurationInBlocks {
     const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
 
     let _minimumRaise: StateConfig = {
-      constants: [MinimumRaise],
+      constants: [MinimumRaise.sub(1)],
       sources: [
         concat([
           op(Sale.Opcodes.VAL, 0),
