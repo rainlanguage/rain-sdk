@@ -408,7 +408,7 @@ const opGameAssetsMeta: OpMeta[] = [
  * Parse an State/Script to a more human readable form, making easier to understand. This form allow to the users read exactly
  * what the Script is made for, like the conditions, values used, etc. Also, anyone can learn to write their own scripts
  * if use the Human Form to see the output for each combination that they made.
- *  *
+ *
  * If you find an issue or you want to propose a better way to show a specific script or opcodes, please
  * feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
  */
