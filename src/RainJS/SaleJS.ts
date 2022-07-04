@@ -63,7 +63,7 @@ export class SaleJS extends RainJS {
     
     [SaleStorage.RemainingUnits] : 
       async(state: StateJS, operand: number, data?: any) => {
-        if (this.signer && this.contract != undefined) {
+        if (this.signer && this.contract !== undefined) {
           const salecontract_ = new Sale(this.contract, this.signer);
           const rTKNAddress_ = await salecontract_.token();
           const rTKNContract_ = new ERC20(
@@ -81,7 +81,7 @@ export class SaleJS extends RainJS {
 
     [SaleStorage.TotalReserveIn] : 
       async(state: StateJS, operand: number, data?: any) => {
-        if (this.signer && this.contract != undefined) {
+        if (this.signer && this.contract !== undefined) {
           const salecontract_ = new Sale(this.contract, this.signer);
           const reserveAddress_ = await salecontract_.reserve();
           const reserveContract_ = new ERC20(
@@ -99,7 +99,7 @@ export class SaleJS extends RainJS {
 
     [SaleStorage.TokenAddress] : 
       async(state: StateJS, operand: number, data?: any) => {
-        if (this.signer && this.contract != undefined) {
+        if (this.signer && this.contract !== undefined) {
           const salecontract_ = new Sale(this.contract, this.signer);
           state.stack.push(
             BigNumber.from(
@@ -112,7 +112,7 @@ export class SaleJS extends RainJS {
 
     [SaleStorage.ReserveAddress] : 
       async(state: StateJS, operand: number, data?: any) => {
-      if (this.signer && this.contract != undefined) {
+      if (this.signer && this.contract !== undefined) {
         const salecontract_ = new Sale(this.contract, this.signer);
         state.stack.push(
           BigNumber.from(
@@ -132,7 +132,7 @@ export class SaleJS extends RainJS {
   protected _CONTEXT_: ApplyOpFn = {
     [SaleContext.CurrentBuyUnits] : 
     async(state: StateJS, operand: number, data?: any) => {
-      if(data && data.context != undefined) {
+      if(data && data.context !== undefined) {
         state.stack.push(
           BigNumber.from(
             data.context[SaleContext.CurrentBuyUnits]

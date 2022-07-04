@@ -1,7 +1,7 @@
 
 # Function utils.callSize()
 
-Constructs the operand for RainVM's `call` AllStandardOps by packing 3 numbers into a single byte. All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 \* 32 bytes) on the stack.
+Constructs the operand for RainVM's `zipmap` opcode by packing 3 numbers into a single byte. All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 \* 32 bytes) on the stack.
 
 <b>Signature:</b>
 
@@ -20,6 +20,4 @@ function callSize(sourceIndex: number, loopSize: number, valSize: number): numbe
 <b>Returns:</b>
 
 `number`
-
-a byte size number
 

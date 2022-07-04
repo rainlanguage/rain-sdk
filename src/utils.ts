@@ -99,7 +99,10 @@ export const paddedUInt256 = (report: BigNumberish): string => {
   if (BigNumber.from(report).gt(ethers.constants.MaxUint256)) {
     throw new Error(`${report} exceeds max uint256`);
   }
-  return '0x' + hexlify(report, {allowMissingPrefix: true}).substring(2).padStart(64, '0');
+  return (
+    '0x' +
+    hexlify(report, { allowMissingPrefix: true }).substring(2).padStart(64, '0')
+  );
 };
 
 /**
@@ -110,10 +113,12 @@ export const paddedUInt256 = (report: BigNumberish): string => {
  * @returns a 8 char hexString (without 0x prefix)
  */
 export const paddedUInt32 = (number: BigNumberish): string => {
-  if (BigNumber.from(number).gt("0xffffffff")) {
+  if (BigNumber.from(number).gt('0xffffffff')) {
     throw new Error(`${number} exceeds max uint32`);
   }
-  return hexlify(number, {allowMissingPrefix: true}).substring(2).padStart(8, '0');
+  return hexlify(number, { allowMissingPrefix: true })
+    .substring(2)
+    .padStart(8, '0');
 };
 
 /**
@@ -141,15 +146,14 @@ export function tierRange(startTier: number, endTier: number): number {
 
 /**
  * @public
- * Constructs the operand for RainVM's `call` AllStandardOps by packing 3 numbers into a single byte.
+ * Constructs the operand for RainVM's `zipmap` opcode by packing 3 numbers into a single byte.
  * All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes)
- * on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 * 32 bytes) on the stack.
+ * on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements
+ * (4 * 32 bytes) on the stack.
  *
  * @param sourceIndex - index of function source in `immutableSourceConfig.sources`
  * @param loopSize - number of times to subdivide vals, reduces uint size but allows for more vals (range 0-7)
  * @param valSize - number of vals in outer stack (range 0-7)
- *
- * @returns a byte size number
  */
 export function callSize(
   sourceIndex: number,
@@ -221,11 +225,13 @@ export const replaceAt = (
  *
  * @returns a 16 character hexString (without 0x prefix)
  */
- export const paddedUInt64 = (number: BigNumberish): string => {
-  if (BigNumber.from(number).gt("0xffffffffffffffff")) {
+export const paddedUInt64 = (number: BigNumberish): string => {
+  if (BigNumber.from(number).gt('0xffffffffffffffff')) {
     throw new Error(`${number} exceeds max uint64`);
   }
-  return hexlify(number, {allowMissingPrefix: true}).substring(2).padStart(16, '0');
+  return hexlify(number, { allowMissingPrefix: true })
+    .substring(2)
+    .padStart(16, '0');
 };
 
 /**
@@ -235,11 +241,13 @@ export const replaceAt = (
  *
  * @returns a 32 character hexString (without 0x prefix)
  */
- export const paddedUInt128 = (number: BigNumberish): string => {
-  if (BigNumber.from(number).gt("0xffffffffffffffffffffffffffffffff")) {
+export const paddedUInt128 = (number: BigNumberish): string => {
+  if (BigNumber.from(number).gt('0xffffffffffffffffffffffffffffffff')) {
     throw new Error(`${number} exceeds max uint128`);
   }
-  return hexlify(number, {allowMissingPrefix: true}).substring(2).padStart(32, '0');
+  return hexlify(number, { allowMissingPrefix: true })
+    .substring(2)
+    .padStart(32, '0');
 };
 
 /**
@@ -249,9 +257,16 @@ export const replaceAt = (
  * @param report - value as bignumberish
  * @returns hexadecimal string as an ether address (40 char length hexString)
  */
- export const paddedUInt160 = (address: BigNumberish): string => {
-  if (BigNumber.from(address).gt("0xffffffffffffffffffffffffffffffffffffffff")) {
+export const paddedUInt160 = (address: BigNumberish): string => {
+  if (
+    BigNumber.from(address).gt('0xffffffffffffffffffffffffffffffffffffffff')
+  ) {
     throw new Error(`${address} exceeds max uint160`);
   }
-  return '0x' + hexlify(address, {allowMissingPrefix: true}).substring(2).padStart(40, '0');
+  return (
+    '0x' +
+    hexlify(address, { allowMissingPrefix: true })
+      .substring(2)
+      .padStart(40, '0')
+  );
 };

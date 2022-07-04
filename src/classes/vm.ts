@@ -349,7 +349,7 @@ export class VM {
     }
   ): StateConfig {
     const NumberOfSources =
-      options?.numberOfSources != undefined ? options.numberOfSources : 1;
+      options?.numberOfSources !== undefined ? options.numberOfSources : 1;
     let sourceModify1;
     let sourceModify2;
 
@@ -360,25 +360,25 @@ export class VM {
     for (let i = 0; i < config1.sources.length; i++) {
       let src = arrayify(config1.sources[i], { allowMissingPrefix: true });
       for (let j = 0; j < src.length; j++) {
-        if (src[j] == 4) {
+        if (src[j] === 4) {
           argCount += (src[j + 1] >> 5) + 1;
         }
         j++;
       }
     }
 
-    if (NumberOfSources == 0) {
+    if (NumberOfSources === 0) {
       for (let i = 0; i < config1.sources.length; i++) {
         sourceModify1 = arrayify(config1.sources[i], {
           allowMissingPrefix: true,
         });
         for (let j = 0; j < sourceModify1.length; j++) {
-          if (sourceModify1[j] == 0) {
+          if (sourceModify1[j] === 0) {
             if (sourceModify1[j + 1] >= config1.constants.length) {
               sourceModify1[j + 1] += config2.constants.length;
             }
           }
-          if (sourceModify1[j] == 4) {
+          if (sourceModify1[j] === 4) {
             sourceModify1[j + 1]++;
           }
           j++;
@@ -390,14 +390,14 @@ export class VM {
           allowMissingPrefix: true,
         });
         for (let j = 0; j < sourceModify2.length; j++) {
-          if (sourceModify2[j] == 0) {
+          if (sourceModify2[j] === 0) {
             if (sourceModify2[j + 1] < config2.constants.length) {
               sourceModify2[j + 1] += config1.constants.length;
             } else {
               sourceModify2[j + 1] += argCount + config1.constants.length;
             }
           }
-          if (sourceModify2[j] == 4) {
+          if (sourceModify2[j] === 4) {
             sourceModify2[j + 1] += config1.sources.length;
           }
           j++;
@@ -419,7 +419,7 @@ export class VM {
           allowMissingPrefix: true,
         });
         for (let j = 0; j < sourceModify1.length; j++) {
-          if (sourceModify1[j] == 0) {
+          if (sourceModify1[j] === 0) {
             if (sourceModify1[j + 1] >= config1.constants.length) {
               sourceModify1[j + 1] += config2.constants.length;
             }
@@ -433,14 +433,14 @@ export class VM {
           allowMissingPrefix: true,
         });
         for (let j = 0; j < sourceModify2.length; j++) {
-          if (sourceModify2[j] == 0) {
+          if (sourceModify2[j] === 0) {
             if (sourceModify2[j + 1] < config2.constants.length) {
               sourceModify2[j + 1] += config1.constants.length;
             } else {
               sourceModify2[j + 1] += config1.constants.length + argCount;
             }
           }
-          if (sourceModify2[j] == 4) {
+          if (sourceModify2[j] === 4) {
             const srcIndexIncrement = config1.sources.length - NumberOfSources;
             const srcIndex = sourceModify2[j + 1] & 7;
             sourceModify2[j + 1] =
@@ -453,7 +453,7 @@ export class VM {
         config2.sources[i] = sourceModify2;
       }
 
-      if (options?.position && options.position.length == NumberOfSources) {
+      if (options?.position && options.position.length === NumberOfSources) {
         for (let i = 0; i < NumberOfSources; i++) {
           const sourceModify = arrayify(config1.sources[Index + i], {
             allowMissingPrefix: true,
@@ -485,20 +485,20 @@ export class VM {
         let argModify;
         let opernadArr = [];
 
-        if (srcModify[j] == 4) {
+        if (srcModify[j] === 4) {
           argModify = arrayify(sources[srcModify[j + 1] & 7], {
             allowMissingPrefix: true,
           });
 
           for (let k = 0; k < argModify.length; k++) {
-            if (argModify[k] == 0 && argModify[k + 1] >= constants.length) {
+            if (argModify[k] === 0 && argModify[k + 1] >= constants.length) {
               opernadArr.push(argModify[k + 1]);
             }
             k++;
           }
           offsetReset = opernadArr.reduce((e, m) => (e < m ? e : m));
           for (let k = 0; k < argModify.length; k++) {
-            if (argModify[k] == 0 && argModify[k + 1] >= constants.length) {
+            if (argModify[k] === 0 && argModify[k + 1] >= constants.length) {
               argModify[k + 1] -= offsetReset;
               argModify[k + 1] += constants.length + offset;
             }
@@ -534,7 +534,7 @@ export class VM {
     });
 
     for (let i = 0; i < _stackOpcodeModify.length; i++) {
-      if (_stackOpcodeModify[i] == 1) {
+      if (_stackOpcodeModify[i] === 1) {
         _stackOpcodeModify[i + 1]++;
       }
       i++;
@@ -924,7 +924,7 @@ export class VM {
     times: number[],
     inBlockNumber: boolean = false
   ): StateConfig {
-    if (configs.length == times.length + 1) {
+    if (configs.length === times.length + 1) {
       let _result: StateConfig;
 
       const SLICER = (i: number): StateConfig => {
@@ -945,7 +945,7 @@ export class VM {
       _result = VM.combiner(SLICER(0), configs[0]);
 
       for (let i = 1; i < configs.length; i++) {
-        if (i + 1 == configs.length) {
+        if (i + 1 === configs.length) {
           _result = VM.combiner(_result, configs[i]);
         } else {
           _result = VM.combiner(_result, SLICER(i));
