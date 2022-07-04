@@ -113,7 +113,6 @@ export type OrderConfigStruct = {
   inputVaultId: BigNumberish;
   outputToken: string;
   outputVaultId: BigNumberish;
-  tracking: BigNumberish;
   vmStateConfig: StateConfigStruct;
 };
 
@@ -122,14 +121,12 @@ export type OrderConfigStructOutput = [
   BigNumber,
   string,
   BigNumber,
-  BigNumber,
   StateConfigStructOutput
 ] & {
   inputToken: string;
   inputVaultId: BigNumber;
   outputToken: string;
   outputVaultId: BigNumber;
-  tracking: BigNumber;
   vmStateConfig: StateConfigStructOutput;
 };
 
@@ -145,7 +142,7 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
 
 export interface OrderBookInterface extends utils.Interface {
   functions: {
-    "addOrder((address,uint256,address,uint256,uint256,(bytes[],uint256[])))": FunctionFragment;
+    "addOrder((address,uint256,address,uint256,(bytes[],uint256[])))": FunctionFragment;
     "clear((address,address,uint256,address,uint256,uint256,bytes),(address,address,uint256,address,uint256,uint256,bytes),(uint256,uint256))": FunctionFragment;
     "deposit((address,uint256,uint256))": FunctionFragment;
     "fnPtrs()": FunctionFragment;
