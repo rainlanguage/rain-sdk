@@ -1,7 +1,7 @@
-import { BigNumberish, BigNumber, BytesLike, ethers } from 'ethers';
+import { BigNumberish, BytesLike } from 'ethers';
 import { SaleContext, SaleStorage } from '../sale';
 import { StateConfig, VM } from '../../classes/vm';
-import { parseUnits, concat, op, arrayify } from '../../utils';
+import { parseUnits, concat, op } from '../../utils';
 
 /**
  * @public
@@ -171,14 +171,14 @@ export class FixedPrice extends PriceCurve {
    * Constructs a new raw FixedPrice sale type to be used in a Sale contract.
    *
    * @param price - The constant price of the rTKN.
-   * @param erc20decimals - (optional) Number of decimals of the reserve asset (default value 18).
+   * @param reserveTokenDecimals - (optional) Number of decimals of the reserve asset (default value 18).
    *
    * @returns a VM StateConfig
    *
    */
-  constructor(price: BigNumberish, erc20decimals: number = 18) {
+  constructor(price: number, reserveTokenDecimals: number = 18) {
     super({
-      constants: [parseUnits(BigNumber.from(price).toString(), erc20decimals)],
+      constants: [parseUnits(price.toString(), reserveTokenDecimals)],
       sources: [concat([FixedPrice.FIXED_PRICE_SOURCES()])],
     });
   }
@@ -210,7 +210,7 @@ export class vLBP extends PriceCurve {
    * @param endTimestamp - End timestamp of the sale.
    * @param minimumRaise - Used for virtualizing the seed amount and calculating the assets' weights.
    * @param initialSupply - Used for calculating the assets' weights.
-   * @param erc20decimals - (optional) Number of decimals of the reserve asset. (default value 18)
+   * @param reserveTokenDecimals - (optional) Number of decimals of the reserve asset. (default value 18)
    *
    * @returns a VM StateConfig
    *
@@ -221,7 +221,7 @@ export class vLBP extends PriceCurve {
     endTimestamp: number,
     minimumRaise: number,
     initialSupply: number,
-    erc20decimals: number = 18
+    reserveTokenDecimals: number = 18
   ) {
     let raiseDuration = endTimestamp - startTimestamp;
     let balanceReserve = minimumRaise * 5;
@@ -229,7 +229,7 @@ export class vLBP extends PriceCurve {
     let weightChange = (initWeight - 1) / raiseDuration;
     super({
       constants: [
-        parseUnits(balanceReserve.toString(), erc20decimals),
+        parseUnits(balanceReserve.toString(), reserveTokenDecimals),
         parseUnits(initWeight.toString()),
         parseUnits(weightChange.toFixed(5).toString()),
         startTimestamp,
@@ -279,7 +279,7 @@ export class IncreasingPrice extends PriceCurve {
    * @param endPrice - The ending price of the sale for rTKN.
    * @param startTimestamp - Start timestamp of the sale.
    * @param endTimestamp - End timestamp of the sale
-   * @param erc20decimals - (optional) Number of decimals of the reserve asset. (default value 18)
+   * @param reserveTokenDecimals - (optional) Number of decimals of the reserve asset. (default value 18)
    *
    * @returns a VM StateConfig
    *
@@ -289,15 +289,15 @@ export class IncreasingPrice extends PriceCurve {
     endPrice: number,
     startTimestamp: number,
     endTimestamp: number,
-    erc20decimals: number = 18
+    reserveTokenDecimals: number = 18
   ) {
     let raiseDuration = endTimestamp - startTimestamp;
     let priceChange = (endPrice - startPrice) / raiseDuration;
     super({
       constants: [
-        parseUnits(startPrice.toString(), erc20decimals),
-        parseUnits(endPrice.toString(), erc20decimals),
-        parseUnits(priceChange.toFixed(5).toString()),
+        parseUnits(startPrice.toString(), reserveTokenDecimals),
+        parseUnits(endPrice.toString(), reserveTokenDecimals),
+        parseUnits(priceChange.toFixed(5).toString(), reserveTokenDecimals),
         startTimestamp,
       ],
       sources: [concat([IncreasingPrice.INC_PRICE_SOURCES()])],
@@ -329,10 +329,8 @@ export class IncreasingPrice extends PriceCurve {
  *
  * @remarks - Like all the method calls, order of calling methods in this class is important in order to produce
  * the desired result, although calling in any order will produce a reliable result, that depends on what the
- * intention is. For example 'applyOwner' should be called at last in order to apply the ownership over the whole script.
- * The general methods calling order in this class is:
- *    1.applyExtarTime or afterMinimumRaise (one of which only)
- *    2.applyOwner
+ * intention is. Methods afterMinimumRaise and applyExtratime should not be used together as they are opposite of 
+ * eachother and will cancel eachother out.
  *
  * @example
  * ```typescript
@@ -389,11 +387,11 @@ export class SaleDurationInTimestamp {
   public applyExtraTime(
     extraTime: number,
     extraTimeAmount: number,
-    erc20decimals: number = 18
+    reserveTokenDecimals: number = 18
   ): SaleDurationInTimestamp {
     const ExtraTimeAmount = parseUnits(
       extraTimeAmount.toString(),
-      erc20decimals
+      reserveTokenDecimals
     );
     const ExtraTime = extraTime * 60 + this.endTimestamp;
 
@@ -422,52 +420,6 @@ export class SaleDurationInTimestamp {
   }
 
   /**
-   * Method to apply owner to the sale's canLive function.
-   * Sale's canLive functions are public and can be triggered by anyone when the criteria is met, but with using this method for sale's
-   * canLive StateConfig, it can be configured in a way that only a certain address can actually trigger the sale's start/end functions.
-   *
-   * @remarks - applyOwnership will apply the ownership over the StateConfig it is been called for, so the order of call is important to get
-   * the desired result.
-   *
-   * @param ownerAddress - The address that will be the owner, only this wallet address can start or end a raise if this method is applied.
-   *
-   * @returns this
-   *
-   */
-  public applyOwnership(ownerAddress: string): SaleDurationInTimestamp {
-    this.constants.push(ownerAddress, 0, ethers.constants.MaxUint256);
-
-    let src = arrayify(this.sources[0], { allowMissingPrefix: true });
-    src = src.slice(0, src.length - 2);
-
-    let _top = src.slice(0, 6);
-    _top = concat([
-      op(VM.Opcodes.CONSTANT, this.constants.length - 3),
-      op(VM.Opcodes.SENDER),
-      op(VM.Opcodes.EQUAL_TO),
-      _top,
-      op(VM.Opcodes.EVERY, 2),
-    ]);
-
-    let _bottom = src.slice(6);
-    _bottom = concat([
-      op(VM.Opcodes.CONSTANT, this.constants.length - 3),
-      op(VM.Opcodes.SENDER),
-      op(VM.Opcodes.EQUAL_TO),
-      op(VM.Opcodes.CONSTANT, this.constants.length - 2),
-      op(VM.Opcodes.CONSTANT, this.constants.length - 1),
-      op(VM.Opcodes.EAGER_IF),
-      _bottom,
-      op(VM.Opcodes.ANY, 2),
-      op(VM.Opcodes.EVERY, 2),
-    ]);
-
-    this.sources = [concat([_top, _bottom])];
-
-    return this;
-  }
-
-  /**
    * A method for the sale to be able to end once the sale hits minimumRaise i.e. the minimum amount
    * that needs to be raiseed so the raises status becomes "success" after raise ends.
    *
@@ -482,9 +434,9 @@ export class SaleDurationInTimestamp {
    */
   public afterMinimumRaise(
     minimumRaise: number,
-    erc20decimals: number = 18
+    reserveTokenDecimals: number = 18
   ): SaleDurationInTimestamp {
-    const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
+    const MinimumRaise = parseUnits(minimumRaise.toString(), reserveTokenDecimals);
 
     let _minimumRaise: StateConfig = {
       constants: [MinimumRaise],
@@ -519,10 +471,8 @@ export class SaleDurationInTimestamp {
  *
  * @remarks - Like all the method calls, order of calling methods in this class is important in order to produce
  * the desired result, although calling in any order will produce a reliable result, that depends on what the
- * intention is. For example 'applyOwner' should be called at last in order to apply the ownership over the whole script.
- * The general methods calling order in this class is:
- *    1.applyExtarTime or afterMinimumRaise (one of which only)
- *    2.applyOwner
+ * intention is. Methods afterMinimumRaise and applyExtratime should not be used together as they are opposite of 
+ * eachother and will cancel eachother out.
  *
  * @example
  * ```typescript
@@ -579,11 +529,11 @@ export class SaleDurationInBlocks {
   public applyExtraTime(
     extraTimeBlocks: number,
     extraTimeAmount: number,
-    erc20decimals: number = 18
+    reserveTokenDecimals: number = 18
   ): SaleDurationInBlocks {
     const ExtraTimeAmount = parseUnits(
       extraTimeAmount.toString(),
-      erc20decimals
+      reserveTokenDecimals
     );
     const ExtraTime = extraTimeBlocks + this.endBlockNumber;
 
@@ -612,52 +562,6 @@ export class SaleDurationInBlocks {
   }
 
   /**
-   * Method to apply owner to the sale's canLive function.
-   * Sale's canLive functions are public and can be triggered by anyone when the criteria is met, but with using this method for sale's
-   * canLive StateConfig, it can be configured in a way that only a certain address can actually trigger the sale's start/end functions.
-   *
-   * @remarks - applyOwnership will apply the ownership over the StateConfig it is been called for, so the order of call is important to get
-   * the desired result.
-   *
-   * @param ownerAddress - The address that will be the owner, only this wallet address can start or end a raise if this method is applied.
-   *
-   * @returns this
-   *
-   */
-  public applyOwnership(ownerAddress: string): SaleDurationInBlocks {
-    this.constants.push(ownerAddress, 0, ethers.constants.MaxUint256);
-
-    let src = arrayify(this.sources[0], { allowMissingPrefix: true });
-    src = src.slice(0, src.length - 2);
-
-    let _top = src.slice(0, 6);
-    _top = concat([
-      op(VM.Opcodes.CONSTANT, this.constants.length - 3),
-      op(VM.Opcodes.SENDER),
-      op(VM.Opcodes.EQUAL_TO),
-      _top,
-      op(VM.Opcodes.EVERY, 2),
-    ]);
-
-    let _bottom = src.slice(6);
-    _bottom = concat([
-      op(VM.Opcodes.CONSTANT, this.constants.length - 3),
-      op(VM.Opcodes.SENDER),
-      op(VM.Opcodes.EQUAL_TO),
-      op(VM.Opcodes.CONSTANT, this.constants.length - 2),
-      op(VM.Opcodes.CONSTANT, this.constants.length - 1),
-      op(VM.Opcodes.EAGER_IF),
-      _bottom,
-      op(VM.Opcodes.ANY, 2),
-      op(VM.Opcodes.EVERY, 2),
-    ]);
-
-    this.sources = [concat([_top, _bottom])];
-
-    return this;
-  }
-
-  /**
    * A method for the sale to be able to end once the sale hits minimumRaise i.e. the minimum amount
    * that needs to be raiseed so the raises status becomes "success" after raise ends.
    *
@@ -672,9 +576,9 @@ export class SaleDurationInBlocks {
    */
   public afterMinimumRaise(
     minimumRaise: number,
-    erc20decimals: number = 18
+    reserveTokenDecimals: number = 18
   ): SaleDurationInBlocks {
-    const MinimumRaise = parseUnits(minimumRaise.toString(), erc20decimals);
+    const MinimumRaise = parseUnits(minimumRaise.toString(), reserveTokenDecimals);
 
     let _minimumRaise: StateConfig = {
       constants: [MinimumRaise],
@@ -818,7 +722,9 @@ export class BuyCap {
 
         this.constants = maxCapConfig.constants;
         this.sources = maxCapConfig.sources;
-      } else {
+
+      } 
+      else {
         maxCapConfig = {
           constants: [parseUnits(options.maxWalletCap.toString()).add(1)],
           sources: [concat([op(VM.Opcodes.CONSTANT, 0), MAX_CAP_SOURCES()])],
@@ -852,18 +758,21 @@ export class BuyCap {
           { tierActivation: options.tierActivation }
         );
 
-        bothCapConfig = VM.combiner(bothCapConfig, {
-          constants: [1, parseUnits(options.minWalletCap.toString()).sub(1)],
-          sources: [
-            concat([
-              op(VM.Opcodes.CONSTANT, 0),
-              op(VM.Opcodes.ADD, 2),
-              MAX_CAP_SOURCES(),
-              MIN_CAP_SOURCES(1),
-              op(VM.Opcodes.EVERY, 2),
-            ]),
-          ],
-        });
+        bothCapConfig = VM.combiner(
+          bothCapConfig,
+          {
+            constants: [1, parseUnits(options.minWalletCap.toString()).sub(1)],
+            sources: [
+              concat([
+                op(VM.Opcodes.CONSTANT, 0),
+                op(VM.Opcodes.ADD, 2),
+                MAX_CAP_SOURCES(),
+                MIN_CAP_SOURCES(1),
+                op(VM.Opcodes.EVERY, 2),
+              ])
+            ]
+          }
+        );
 
         bothCapConfig = VM.combiner(bothCapConfig, this);
 
@@ -874,7 +783,9 @@ export class BuyCap {
 
         this.constants = bothCapConfig.constants;
         this.sources = bothCapConfig.sources;
-      } else {
+
+      } 
+      else {
         bothCapConfig = {
           constants: [
             parseUnits(options.maxWalletCap.toString()).add(1),
@@ -914,7 +825,7 @@ export class BuyCap {
  * const saleConfig = new SaleConfigBuilder(new FixedPrice, new CanLiveInTimestamp)
  * ```
  */
-export class SaleScriptFrom {
+export class SaleVmFrom {
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];

@@ -211,7 +211,7 @@ export class LinearEmissions {
         op(VM.Opcodes.BLOCK_NUMBER),
         op(
           VM.Opcodes.SELECT_LTE, 
-          selectLte(selectLteLogic.any, selectLteMode.max, 2)
+          selectLte(selectLteLogic.every, selectLteMode.max, 2)
         ),
         op(VM.Opcodes.SATURATING_DIFF),
       ]);

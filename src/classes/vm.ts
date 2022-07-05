@@ -529,19 +529,55 @@ export class VM {
     amountConfig: StateConfig,
     priceConfig: StateConfig
   ): StateConfig {
-    let _stackOpcodeModify = arrayify(priceConfig.sources[0], {
-      allowMissingPrefix: true,
-    });
 
-    for (let i = 0; i < _stackOpcodeModify.length; i++) {
-      if (_stackOpcodeModify[i] === 1) {
-        _stackOpcodeModify[i + 1]++;
+    for (let i = 0; i < priceConfig.sources.length; i++) {
+      let _stackOpcodeModify = arrayify(
+        priceConfig.sources[i],
+        {allowMissingPrefix: true}
+      );
+      for (let j = 0; j < _stackOpcodeModify.length; j++) {
+        if (_stackOpcodeModify[j] === 1) {
+          _stackOpcodeModify[j + 1]++;
+        }
+        j++;
       }
-      i++;
+      priceConfig.sources[i] = _stackOpcodeModify;
     }
-    priceConfig.sources[0] = _stackOpcodeModify;
-
     return VM.combiner(amountConfig, priceConfig);
+  }
+
+  /**
+   * A method to combine multiple StateConfigs together each on top of the other at the first item in final sources.
+   * 
+   * @param configs - An array of StateConfigs to combine together and its lengths should be more than 2
+   * (can use VM.pair() method for combining 2 configs - @see pair)
+   * 
+   * @returns a @see StateConfig
+   */
+  public static multi(configs: StateConfig[]) : StateConfig {
+
+    if (configs.length > 2) {
+    let _result: StateConfig = configs[0];
+
+    for (let i = 1; i < configs.length; i++) {
+      for (let j = 0; j < configs[i].sources.length; j++) {
+        let _stackOpcodeModify = arrayify(
+          configs[i].sources[j],
+          {allowMissingPrefix: true}
+        );
+        for (let k = 0; k < _stackOpcodeModify.length; k++) {
+          if (_stackOpcodeModify[k] === 1) {
+            _stackOpcodeModify[k + 1] = _stackOpcodeModify[k + 1] + i;
+          }
+          k++;
+        }
+        configs[i].sources[j] = _stackOpcodeModify;
+      }
+      _result = VM.combiner(_result, configs[i])
+    }
+    return _result;
+    }
+    else throw new Error("not a valid argument")
   }
 
   /**
@@ -561,7 +597,7 @@ export class VM {
    *
    * @returns a VM script. @see StateConfig
    */
-  public static toOwnerMaker(
+  public static makeOwnership(
     config: StateConfig,
     ownerAddress: string,
     options?: {
@@ -573,12 +609,16 @@ export class VM {
     let _result: StateConfig;
     const Index = options?.index ? options.index : 0;
 
-    const MAKE_OWNER = (i: any) =>
-      concat([
-        op(VM.Opcodes.CONSTANT, i),
-        op(VM.Opcodes.SENDER),
-        op(VM.Opcodes.EQUAL_TO),
-      ]);
+    const MAKE_OWNER = {
+      constants: [ownerAddress],
+      sources: [
+        concat([
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.SENDER),
+          op(VM.Opcodes.EQUAL_TO),
+        ])
+      ]
+    }
 
     if (options?.notOwnerVar && typeof options.notOwnerVar === 'object') {
       _result = this.combiner(config, options.notOwnerVar, {
@@ -605,10 +645,7 @@ export class VM {
     }
 
     _result = this.combiner(
-      {
-        constants: [ownerAddress],
-        sources: [MAKE_OWNER(0)],
-      },
+      MAKE_OWNER,
       _result,
       { index: Index }
     );

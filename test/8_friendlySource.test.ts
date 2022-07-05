@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-
 import {
   VM,
   HumanFriendlySource,
@@ -24,6 +23,7 @@ import {
   deployErc721,
   deployErc1155,
 } from './utils';
+
 
 const {
   bytify,
@@ -356,7 +356,7 @@ describe('Human Friendly Source Generator', () => {
 
     expect(friendly0).to.eq(`ZIPMAP(
     ["00000001", "00000000", "00000003", "00000000", "00000005", "00000000", "00000007", "00000008"],
-    ["FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF"],
+    ["ffffffff", "ffffffff", "ffffffff", "ffffffff", "ffffffff", "ffffffff", "ffffffff", "ffffffff"],
     EAGER_IF(ISZERO(^0), ^1, ^0)
 )`);
   });
@@ -1614,7 +1614,7 @@ describe('Human Friendly Source Generator', () => {
 
     // 2nd phase constants
     const ReserveBalance = parseUnits(
-      // Virtual reserve token balance
+      // Virtualizing reserve token balance as vLBP seed balance
       balanceReserve.toString(),
       reserveTokenDecimals
     );
@@ -1748,7 +1748,7 @@ describe('Human Friendly Source Generator', () => {
     expect(HumanFriendlySource.prettify(friendly)).to.be.equals(expectOutput);
   });
 
-  it('should generate the friendly source with the correct context if the contract where is provided', async () => {
+  it('should generate the friendly source with the correct context if the contract type is provided', async () => {
     const [arbitrary] = await ethers.getSigners();
     const ERC721Address = arbitrary.address;
     const fixedPrice = '20';
@@ -2163,14 +2163,14 @@ describe('Human Friendly Source Generator', () => {
     "00000008"
   ],
   [
-    "FFFFFFFF",
-    "FFFFFFFF",
-    "FFFFFFFF",
-    "FFFFFFFF",
-    "FFFFFFFF",
-    "FFFFFFFF",
-    "FFFFFFFF",
-    "FFFFFFFF"
+    "ffffffff",
+    "ffffffff",
+    "ffffffff",
+    "ffffffff",
+    "ffffffff",
+    "ffffffff",
+    "ffffffff",
+    "ffffffff"
   ],
   EAGER_IF(ISZERO(^0),^1,^0)
 )`;

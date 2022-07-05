@@ -32,19 +32,64 @@ export class CombineTierGenerator {
    * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
    */
   constructor(reporter: string | StateConfig) {
-    if (typeof reporter == 'string') {
-      this.constants = [reporter];
-      this.sources = [
+
+    let report_: StateConfig;
+
+    const singleReport_ = {
+      constants: [
+        paddedUInt256(
+          paddedUInt32('8') +
+          paddedUInt32('7') +
+          paddedUInt32('6') +
+          paddedUInt32('5') +
+          paddedUInt32('4') +
+          paddedUInt32('3') +
+          paddedUInt32('2') +
+          paddedUInt32('1')
+        ),
+        "0"
+      ],
+      sources: [
         concat([
-          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.THIS_ADDRESS),
           op(VM.Opcodes.CONTEXT, CombineTierContext.Account),
           op(VM.Opcodes.ITIERV2_REPORT),
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.ZIPMAP, callSize(1, 3, 1)),
+          op(VM.Opcodes.ADD, 8)
         ]),
-      ];
-    } else {
-      this.constants = reporter.constants;
-      this.sources = reporter.sources;
+        concat([
+          op(VM.Opcodes.CONTEXT, CombineTierContext.Tier),
+          op(VM.Opcodes.CONSTANT, 3),
+          op(VM.Opcodes.EQUAL_TO),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.EAGER_IF)
+        ])
+      ]
+    };
+
+    if (typeof reporter == 'string') {
+      report_ = {
+        constants: [reporter],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.CONTEXT, CombineTierContext.Account),
+            op(VM.Opcodes.ITIERV2_REPORT),
+          ])
+        ]
+      }
+    } 
+    else {
+      report_ = reporter;
     }
+
+    report_ = VM.combiner(report_, singleReport_, {numberOfSources: 0})
+
+    this.constants = report_.constants;
+    this.sources = report_.sources;
+
   }
 
   /**

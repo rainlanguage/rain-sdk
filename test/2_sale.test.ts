@@ -17,7 +17,7 @@ import {
   CombineTier,
   SaleDurationInTimestamp,
   SaleDurationInBlocks,
-  SaleScriptFrom,
+  SaleVmFrom,
   BuyCap,
 } from '../src';
 import { BigNumber } from 'ethers';
@@ -56,7 +56,7 @@ describe('SDK - Sale', () => {
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      vmStateConfig: new SaleScriptFrom(
+      vmStateConfig: new SaleVmFrom(
         new SaleDurationInBlocks(startBlock, startBlock + saleDuration),
         new BuyCap(),
         { sources, constants }
@@ -107,7 +107,7 @@ describe('SDK - Sale', () => {
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      vmStateConfig: new SaleScriptFrom(
+      vmStateConfig: new SaleVmFrom(
         new SaleDurationInBlocks(startBlock, endBlock),
         new BuyCap(),
         { sources, constants }
@@ -181,7 +181,7 @@ describe('SDK - Sale', () => {
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      vmStateConfig: new SaleScriptFrom(
+      vmStateConfig: new SaleVmFrom(
         new SaleDurationInTimestamp(startTimestamp, endTimestamp),
         new BuyCap(),
         { sources, constants }
@@ -255,7 +255,7 @@ describe('SDK - Sale', () => {
 
     // All configs calculated outside of deploy method
     const saleConfig = {
-      vmStateConfig: new SaleScriptFrom(
+      vmStateConfig: new SaleVmFrom(
         new SaleDurationInBlocks(startBlock, endBlock),
         new BuyCap(),
         { sources, constants }
