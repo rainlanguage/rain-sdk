@@ -999,4 +999,304 @@ export class VM {
       return _result;
     } else throw new Error('invalid number of times or configs arguments');
   }
+
+  /**
+   * Method to create a simple time based rule
+   * 
+   * @param timestamp - the timestamp to set the rule for
+   * @param type - type of the check, meaning current timestamp to be gt, gte, lt, lte than the "timestamp"
+   * 
+   * @returns A @see StateConfig
+   */
+  public static beforeAfterTime(
+    timestamp: number,
+    type: "gt" | "lt" | "gte" | "lte"
+  ): StateConfig {
+      let src = new Uint8Array();
+
+      if (type === "gte") {
+        timestamp = timestamp == 0 ? 0 : timestamp - 1;
+        src = op(VM.Opcodes.GREATER_THAN)
+      }
+      if (type === "lte") {
+        timestamp++;
+        src = op(VM.Opcodes.LESS_THAN)
+      }
+      if (type === "lt") {
+        src = op(VM.Opcodes.GREATER_THAN)
+      }
+      if (type === "gt") {
+        src = op(VM.Opcodes.LESS_THAN)
+      }
+
+      return {
+      constants: [timestamp],
+      sources: [
+        concat([
+          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.CONSTANT, 0),
+          src
+        ])
+      ]
+    };
+  }
+
+
+  /**
+   * Method to create a simple block number based rule
+   * 
+   * @param blockNumber - the block number to set the rule for
+   * @param type - type of the check, meaning current block number to be gt, gte, lt, lte than the "blockNumber"
+   * 
+   * @returns A @see StateConfig
+   */
+  public static beforeAfterBlock(
+    blockNumber: number,
+    type: "gt" | "lt" | "gte" | "lte"  
+    ): StateConfig {
+      let src = new Uint8Array();
+
+      if (type === "gte") {
+        blockNumber = blockNumber == 0 ? 0 : blockNumber - 1;
+        src = op(VM.Opcodes.GREATER_THAN)
+      }
+      if (type === "lte") {
+        blockNumber++;
+        src = op(VM.Opcodes.LESS_THAN)
+      }
+      if (type === "lt") {
+        src = op(VM.Opcodes.GREATER_THAN)
+      }
+      if (type === "gt") {
+        src = op(VM.Opcodes.LESS_THAN)
+      }
+
+      return {
+      constants: [blockNumber],
+      sources: [
+        concat([
+          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.CONSTANT, 0),
+          src
+        ])
+      ]
+    };
+  }
+
+  /**
+   * Method to multiply multiple scripts together
+   * 
+   * @param configs - an array of configs to multiply
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static mulTogether(configs: StateConfig[]): StateConfig { 
+    let result_ = VM.multi(configs)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.MUL, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to add multiple scripts together
+   * 
+   * @param configs - an array of configs to add 
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static addTogether(configs: StateConfig[]): StateConfig {
+    let result_ = VM.multi(configs)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.ADD, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to and multiple scripts together ie EVERY
+   * 
+   * @param configs - an array of configs to and
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static and(configs: StateConfig[]): StateConfig {
+    let result_ = VM.multi(configs)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EVERY, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to or multiple scripts together ie ANY
+   * 
+   * @param configs - an array of configs to or
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static or(configs: StateConfig[]): StateConfig {
+    let result_ = VM.multi(configs)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.ANY, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to create an if/else script
+   * 
+   * @param condition - the condition script ie the if check statement
+   * @param ifStatement - the script(statement) if the check passes
+   * @param elseStatement - the script(statement) if the check fails
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static ifelse(
+    condition: StateConfig,
+    ifStatement: StateConfig,
+    elseStatement: StateConfig
+  ): StateConfig {
+
+    let result_ = VM.multi([condition, ifStatement, elseStatement])
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EAGER_IF)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Methdo to create a simple signle value script, ie CONTANT
+   * 
+   * @param value - the value
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static constant(value: BigNumberish): StateConfig {
+    if (!(value instanceof BigNumber)) {
+      value = BigNumber.from(value);
+    } 
+
+    return {
+      constants: [value],
+      sources: [concat([op(VM.Opcodes.CONSTANT, 0)])]
+    };
+  }
+
+  /**
+   * Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not
+   * 
+   * @param config - the script to check
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static isZero(config: StateConfig): StateConfig {
+    config.sources[0] = concat([
+      config.sources[0],
+      op(VM.Opcodes.ISZERO)
+    ])
+
+    return config;
+  }
+
+  /**
+   * Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static isEqual(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static gt(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static lt(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script 
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static gte(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script
+   * 
+   * @returns a @see StateConfig
+   */
+  public static lte(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
 }
