@@ -1015,7 +1015,7 @@ export class VM {
       let src = new Uint8Array();
 
       if (type === "gte") {
-        timestamp = timestamp == 0 ? 0 : timestamp - 1;
+        timestamp = timestamp === 0 ? 0 : timestamp - 1;
         src = op(VM.Opcodes.GREATER_THAN)
       }
       if (type === "lte") {
@@ -1057,7 +1057,7 @@ export class VM {
       let src = new Uint8Array();
 
       if (type === "gte") {
-        blockNumber = blockNumber == 0 ? 0 : blockNumber - 1;
+        blockNumber = blockNumber === 0 ? 0 : blockNumber - 1;
         src = op(VM.Opcodes.GREATER_THAN)
       }
       if (type === "lte") {
