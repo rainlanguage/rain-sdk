@@ -177,15 +177,10 @@ export class FixedPrice extends PriceCurve {
    *
    */
   constructor(price: number, reserveTokenDecimals: number = 18) {
-    super({
-      constants: [parseUnits(price.toString(), reserveTokenDecimals)],
-      sources: [concat([FixedPrice.FIXED_PRICE_SOURCES()])],
-    });
+    super(
+      VM.constant(parseUnits((price).toString(), reserveTokenDecimals))
+    );
   }
-
-  // fixed price script
-  public static FIXED_PRICE_SOURCES = () =>
-    concat([op(VM.Opcodes.CONSTANT, 0)]);
 }
 
 /**
@@ -261,25 +256,25 @@ export class vLBP extends PriceCurve {
 }
 
 /**
- * @public - A sub-class of PriceCurve for creating an linear Increasing sale type.
+ * @public - A sub-class of PriceCurve for creating an linear Increasing or Decreasing sale type.
  *
  * @remarks - Price starts at 'startPrice' and goes to 'endPrice' over the span of the sale's duration.
  *
  * @example
  * ```typescript
- * //For generating a Increasing Price sale type pass in the required arguments to the constructor.
+ * //For generating a Increasing/Decreasing Price sale type pass in the required arguments to the constructor.
  * const saleType = new IncreasingPrice(startPrice, endPrice, startTimestamp, endTimestamp)
  * ```
  */
-export class IncreasingPrice extends PriceCurve {
+export class IncDecPrice extends PriceCurve {
   /**
-   * Constructs a new raw linear Increasing Price sale type to be used in a Sale contract.
+   * Constructs a new raw linear Increasing or Decreasing Price sale type to be used in a Sale contract.
    *
    * @param startPrice - The starting price of the sale for rTKN.
    * @param endPrice - The ending price of the sale for rTKN.
    * @param startTimestamp - Start timestamp of the sale.
    * @param endTimestamp - End timestamp of the sale
-   * @param reserveTokenDecimals - (optional) Number of decimals of the reserve asset. (default value 18)
+   * @param reserveTokenDecimals - (optional) decimals of the reserve asset. (default value 18)
    *
    * @returns a VM StateConfig
    *
@@ -291,8 +286,11 @@ export class IncreasingPrice extends PriceCurve {
     endTimestamp: number,
     reserveTokenDecimals: number = 18
   ) {
+    const isInc = endPrice >= startPrice ? true : false;
     let raiseDuration = endTimestamp - startTimestamp;
-    let priceChange = (endPrice - startPrice) / raiseDuration;
+    let priceChange = isInc
+      ? (endPrice - startPrice) / raiseDuration 
+      : (startPrice - endPrice) / raiseDuration;
     super({
       constants: [
         parseUnits(startPrice.toString(), reserveTokenDecimals),
@@ -300,12 +298,14 @@ export class IncreasingPrice extends PriceCurve {
         parseUnits(priceChange.toFixed(5).toString(), reserveTokenDecimals),
         startTimestamp,
       ],
-      sources: [concat([IncreasingPrice.INC_PRICE_SOURCES()])],
+      sources: [
+        concat([IncDecPrice.INC_DEC_PRICE_SOURCES(isInc)])
+      ],
     });
   }
 
-  // linear increasing price script
-  public static INC_PRICE_SOURCES = () =>
+  // linear increasing/decreasing price script
+  public static INC_DEC_PRICE_SOURCES = (isInc: boolean) =>
     concat([
       op(VM.Opcodes.BLOCK_TIMESTAMP),
       op(VM.Opcodes.CONSTANT, 3),
@@ -313,10 +313,11 @@ export class IncreasingPrice extends PriceCurve {
       op(VM.Opcodes.CONSTANT, 2),
       op(VM.Opcodes.MUL, 2),
       op(VM.Opcodes.CONSTANT, 0),
-      op(VM.Opcodes.ADD, 2),
+      isInc ? op(VM.Opcodes.ADD, 2) : op(VM.Opcodes.SATURATING_SUB, 2),
       op(VM.Opcodes.CONSTANT, 1),
       op(VM.Opcodes.MIN, 2),
-    ]);
+    ]
+  );
 }
 
 /**
@@ -338,7 +339,7 @@ export class IncreasingPrice extends PriceCurve {
  * const saleDuration = new SaleDuration(startTimestamp, endTimestamp)
  * ```
  */
-export class SaleDurationInTimestamp {
+export class BetweenTimestamps {
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -388,7 +389,7 @@ export class SaleDurationInTimestamp {
     extraTime: number,
     extraTimeAmount: number,
     reserveTokenDecimals: number = 18
-  ): SaleDurationInTimestamp {
+  ): this {
     const ExtraTimeAmount = parseUnits(
       extraTimeAmount.toString(),
       reserveTokenDecimals
@@ -435,7 +436,7 @@ export class SaleDurationInTimestamp {
   public afterMinimumRaise(
     minimumRaise: number,
     reserveTokenDecimals: number = 18
-  ): SaleDurationInTimestamp {
+  ): this {
     const MinimumRaise = parseUnits(minimumRaise.toString(), reserveTokenDecimals);
 
     let _minimumRaise: StateConfig = {
@@ -480,7 +481,7 @@ export class SaleDurationInTimestamp {
  * const saleDuration = new SaleDuration(startBlockNumber, endBlockNumber)
  * ```
  */
-export class SaleDurationInBlocks {
+export class BetweenBlocks {
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -530,7 +531,7 @@ export class SaleDurationInBlocks {
     extraTimeBlocks: number,
     extraTimeAmount: number,
     reserveTokenDecimals: number = 18
-  ): SaleDurationInBlocks {
+  ): this {
     const ExtraTimeAmount = parseUnits(
       extraTimeAmount.toString(),
       reserveTokenDecimals
@@ -577,7 +578,7 @@ export class SaleDurationInBlocks {
   public afterMinimumRaise(
     minimumRaise: number,
     reserveTokenDecimals: number = 18
-  ): SaleDurationInBlocks {
+  ): this {
     const MinimumRaise = parseUnits(minimumRaise.toString(), reserveTokenDecimals);
 
     let _minimumRaise: StateConfig = {
@@ -839,7 +840,7 @@ export class SaleVmFrom {
    */
   constructor(
     public readonly canLiveScript:
-      | SaleDurationInTimestamp
+      | BetweenTimestamps
       | SaleDurationInBlocks
       | StateConfig,
     public readonly buyCapScript: BuyCap | StateConfig,
