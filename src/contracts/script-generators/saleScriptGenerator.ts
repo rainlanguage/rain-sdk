@@ -841,7 +841,7 @@ export class SaleVmFrom {
   constructor(
     public readonly canLiveScript:
       | BetweenTimestamps
-      | SaleDurationInBlocks
+      | BetweenBlocks
       | StateConfig,
     public readonly buyCapScript: BuyCap | StateConfig,
     public readonly calculateBuyScript: PriceCurve | StateConfig
