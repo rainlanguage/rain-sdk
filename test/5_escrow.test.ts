@@ -19,7 +19,7 @@ import {
   RedeemableERC20ClaimEscrow,
   Sale,
   RedeemableERC20,
-  SaleDurationInBlocks,
+  BetweenBlocks,
   AddressBook,
   ERC20,
   SaleVmFrom,
@@ -66,12 +66,12 @@ const deploySale = async (
   // All configs calculated outside of deploy method
   const saleConfig = {
     vmStateConfig: new SaleVmFrom(
-      new SaleDurationInBlocks(startBlock, endBlock),
+      new BetweenBlocks(startBlock, endBlock),
       new BuyCap(),
       new FixedPrice(75, 6),
     ),
-    // canStartStateConfig: new SaleDurationInBlocks(startBlock),
-    // canEndStateConfig: new SaleDurationInBlocks(endBlock),
+    // canStartStateConfig: new BetweenBlocks(startBlock),
+    // canEndStateConfig: new BetweenBlocks(endBlock),
     // calculatePriceStateConfig: new FixedPrice('75', 6),
     recipient: recipient.address,
     reserve: saleReserve.address,
