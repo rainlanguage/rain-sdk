@@ -197,6 +197,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20Burnable__factory>;
     getContractFactory(
+      name: "ERC20Snapshot",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Snapshot__factory>;
+    getContractFactory(
       name: "IERC20Metadata",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20Metadata__factory>;
@@ -755,6 +759,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20Burnable>;
+    getContractAt(
+      name: "ERC20Snapshot",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Snapshot>;
     getContractAt(
       name: "IERC20Metadata",
       address: string,

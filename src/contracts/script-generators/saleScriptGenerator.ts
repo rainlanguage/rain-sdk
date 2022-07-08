@@ -349,9 +349,9 @@ export class FixedPrice extends PriceCurve {
    * @returns a VM StateConfig
    *
    */
-  constructor(price: BigNumberish, erc20decimals: number = 18) {
+  constructor(price: number, erc20decimals: number = 18) {
     super({
-      constants: [parseUnits(BigNumber.from(price).toString(), erc20decimals)],
+      constants: [parseUnits(price.toString(), erc20decimals)],
       sources: [FixedPrice.FIXED_PRICE_SOURCES()],
       stackLength: 1,
       argumentsLength: 0,

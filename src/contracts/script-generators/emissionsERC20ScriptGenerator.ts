@@ -302,7 +302,7 @@ export class SequentialEmissions {
       .mul(BN_ONE_REWARD)
       .sub(PERIODIC_REWARD_TIER3.add(PERIODIC_REWARD_TIER2).add(PERIODIC_REWARD_TIER1));
 
-    const PERIODIC_REWARD_TIER5 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER5 = BigNumber.from(config.periodicRewards.tier5)
       .mul(BN_ONE_REWARD)
       .sub(PERIODIC_REWARD_TIER4
         .add(PERIODIC_REWARD_TIER3)
@@ -310,7 +310,7 @@ export class SequentialEmissions {
         .add(PERIODIC_REWARD_TIER1)
       );
 
-    const PERIODIC_REWARD_TIER6 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER6 = BigNumber.from(config.periodicRewards.tier6)
       .mul(BN_ONE_REWARD)
       .sub(PERIODIC_REWARD_TIER5
         .add(PERIODIC_REWARD_TIER4)
@@ -319,7 +319,7 @@ export class SequentialEmissions {
         .add(PERIODIC_REWARD_TIER1)
       );
 
-    const PERIODIC_REWARD_TIER7 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER7 = BigNumber.from(config.periodicRewards.tier7)
       .mul(BN_ONE_REWARD)
       .sub(PERIODIC_REWARD_TIER6
         .add(PERIODIC_REWARD_TIER5)
@@ -329,7 +329,7 @@ export class SequentialEmissions {
         .add(PERIODIC_REWARD_TIER1)
       );
 
-    const PERIODIC_REWARD_TIER8 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER8 = BigNumber.from(config.periodicRewards.tier8)
       .mul(BN_ONE_REWARD)
       .sub(PERIODIC_REWARD_TIER7
         .add(PERIODIC_REWARD_TIER6)
