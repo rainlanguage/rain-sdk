@@ -1,5 +1,5 @@
 import { BigNumber, Contract, ethers, Signer } from "ethers";
-import { arrayify } from "ethers/lib/utils";
+import { arrayify } from "../utils";
 import { StateConfig, VM } from "../classes/vm";
 import { ERC1155 } from "../contracts/generics/erc1155";
 import { ERC20 } from "../contracts/generics/erc20";
@@ -102,10 +102,9 @@ export class RainJS {
   public provider?: Provider;
 
   /**
-   * An ethers Contract
+   * An ethers Contract address
    */
-  public contract?: Contract;
-
+  public contract?: string;
 
   /**
    * The constructor of RainJS which initiates the RainJS and also a StateJS for a RainVM script.
@@ -119,7 +118,7 @@ export class RainJS {
     options?: {
       signer?: Signer,
       provider?: Provider,
-      contract?: Contract,
+      contract?: string,
       applyOpFn?: ApplyOpFn,
     }
   ) {
@@ -135,7 +134,7 @@ export class RainJS {
     };
     for (let i = 0; i < state.sources.length; i++) {
       sources.push(
-        arrayify(state.sources[i])
+        arrayify(state.sources[i], {allowMissingPrefix: true})
       )
     };
 
@@ -383,13 +382,14 @@ export class RainJS {
             BigNumber.from(await this.signer.getAddress())
           )
         }
+        else throw new Error("undefined signer")
       },
 
     [RainJS.Opcodes.THIS_ADDRESS] : 
       async(state: StateJS, operand: number, data?: any) => {
         if(this.contract != undefined) {
           state.stack.push(
-            BigNumber.from(this.contract.address)
+            BigNumber.from(this.contract)
           )
         }
         else throw new Error("Undefined contract")
@@ -457,17 +457,16 @@ export class RainJS {
     [RainJS.Opcodes.SCALE_BY] : 
       (state: StateJS, operand: number, data?: any) => {
         const item_ = state.stack.pop();
-        const operandSign_ = (operand & 255) >> 7;
-        let _operand = operand & 127;
         if (item_ != undefined) {
-          if (operandSign_) {
+          if (operand > 127) {
+            operand = 256 - operand;
             state.stack.push(
-              item_.div((10 ** (_operand)).toString())
+              item_.div((10 ** (operand)).toString())
             );
           }
           else {
             state.stack.push(
-              item_.mul((10 ** (_operand)).toString())
+              item_.mul((10 ** (operand)).toString())
             );
           }
         }
@@ -492,6 +491,9 @@ export class RainJS {
           _item = state.stack.pop();
           if (_item != undefined) {
             _accumulator = _accumulator.add(_item);
+            if (_accumulator.gt(ethers.constants.MaxUint256)) {
+              throw new Error("max numeric range overflow")
+            }
           }
           else throw new Error("Undefined stack variables")
         }
@@ -566,6 +568,9 @@ export class RainJS {
           _item = state.stack.pop();
           if (_item != undefined) {
             _accumulator = _accumulator.mul(_item);
+            if (_accumulator.gt(ethers.constants.MaxUint256)) {
+              throw new Error("max numeric range overflow")
+            }
           }
           else throw new Error("Undefined stack variables")
         }
@@ -636,6 +641,9 @@ export class RainJS {
             _item = items_.shift();
             if (_item != undefined) {
               _accumulator = _accumulator.pow(_item);
+              if (_accumulator.gt(ethers.constants.MaxUint256)) {
+                throw new Error("max numeric range overflow")
+              }
             }
             else throw new Error("Undefined stack variables")
           }

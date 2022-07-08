@@ -13,7 +13,9 @@ import {
   ReserveTokenERC721,
   ReserveTokenERC1155,
 } from '../typechain';
-import { Interface } from 'ethers/lib/utils';
+import { BytesLike, Interface } from 'ethers/lib/utils';
+
+import { VM, CombineTier, EmissionsERC20 } from '../src';
 
 /**
  * Hardhat network chainID
@@ -64,6 +66,9 @@ export interface Addresses {
 
 export const sixZeros = '000000';
 export const eighteenZeros = '000000000000000000';
+export const max_uint256 = ethers.BigNumber.from(
+  '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
+);
 
 export const RESERVE_ONE = ethers.BigNumber.from('1' + sixZeros);
 export const ONE = ethers.BigNumber.from('1' + eighteenZeros);
@@ -255,3 +260,140 @@ export const getEventArgs = async (
     objectEvent.topics
   );
 };
+
+export function arg(valIndex: number): number {
+  let arg = 1;
+  arg <<= 7;
+  arg += valIndex;
+  return arg;
+}
+
+/**
+ * Constructs the operand for RainVM's `call` opcode by packing 3 numbers into a single byte. All parameters use zero-based counting i.e. an `fnSize` of 0 means to allocate one element (32 bytes) on the stack to define your functions, while an `fnSize` of 3 means to allocate all four elements (4 * 32 bytes) on the stack.
+ *
+ * @param sourceIndex - index of function source in `immutableSourceConfig.sources`
+ * @param loopSize - number of times to subdivide vals, reduces uint size but allows for more vals (range 0-7)
+ * @param valSize - number of vals in outer stack (range 0-7)
+ */
+export function callSize(
+  sourceIndex: number,
+  loopSize: number,
+  valSize: number
+): number {
+  // CallSize(
+  //   op_.val & 0x07,      // 00000111
+  //   op_.val >> 3 & 0x03, // 00011000
+  //   op_.val >> 5 & 0x07  // 11100000
+  // )
+
+  if (sourceIndex < 0 || sourceIndex > 7) {
+    throw new Error('Invalid fnSize');
+  } else if (loopSize < 0 || loopSize > 3) {
+    throw new Error('Invalid loopSize');
+  } else if (valSize < 0 || valSize > 7) {
+    throw new Error('Invalid valSize');
+  }
+  let callSize = valSize;
+  callSize <<= 2;
+  callSize += loopSize;
+  callSize <<= 3;
+  callSize += sourceIndex;
+  return callSize;
+}
+
+export async function createEmptyBlock(count?: number): Promise<void> {
+  const signers = await ethers.getSigners();
+  const tx = { to: signers[1].address };
+  if (typeof count !== 'undefined' && count > 0) {
+    for (let i = 0; i < count; i++) {
+      await signers[0].sendTransaction(tx);
+    }
+  } else {
+    await signers[0].sendTransaction(tx);
+  }
+}
+
+export function blockNumbersToReport(blockNos: number[]): BigNumber {
+  assert(blockNos.length === 8);
+
+  return ethers.BigNumber.from(
+    '0x' +
+      [...blockNos]
+        .reverse()
+        .map((i) => BigInt(i).toString(16).padStart(8, '0'))
+        .join('')
+  );
+}
+
+/**
+ * Convert a number or hexadecimal expression to his representation as signed 8-bit expression
+ * @param _value -  The value to convert
+ * @returns The signed expression
+ */
+export function getSigned8(_value: number): number {
+  if ((_value & 0x80) > 0) {
+    _value = _value - 0x100;
+  }
+  return _value;
+}
+
+function generate(
+  arr: number[] | Uint8Array | BytesLike,
+  context?: string
+): [string, number][] {
+  let arrVal: number[];
+  if (arr.constructor === Uint8Array) {
+    arrVal = Array.from(arr);
+  } else if (Array.isArray(arr)) {
+    arrVal = arr;
+  } else {
+    throw new Error('Not an array iterable object');
+  }
+
+  const values: [string, number][] = [];
+  for (let i = 0; i < arrVal.length; i += 2) {
+    const op = arrVal[i];
+    const operand = arrVal[i + 1];
+
+    if (op >= VM.Opcodes.length) {
+      if (context?.toLowerCase() === 'sale') {
+        let _val = 'invalid';
+        if (op === 46) {
+          _val = 'REMAINING_UNITS';
+        } else if (op === 47) {
+          _val = 'TOTAL_RESERVE_IN';
+        } else if (op === 48) {
+          _val = 'CURRENT_BUY_UNITS';
+        } else if (op === 49) {
+          _val = 'TOKEN_ADDRESS';
+        } else {
+          _val = 'RESERVE_ADDRESS';
+        }
+        values.push([_val, operand]);
+      } else if (context?.toLowerCase() === 'combinetier') {
+        values.push([CombineTier.Opcodes[op], operand]);
+      } else if (context?.toLowerCase() === 'emissions') {
+        values.push([EmissionsERC20.Opcodes[op], operand]);
+      } else {
+        throw new Error(`Unknow opcode: ${op}`);
+      }
+    } else {
+      values.push([VM.Opcodes[op], operand]);
+    }
+  }
+
+  return values;
+}
+
+/**
+ * Print in console the constants and sources opcodes from an script.
+ * @param script
+ */
+export function printOps(script: any, context?: string): void {
+  console.log('Constants: ');
+  console.log(script.constants);
+  for (let i = 0; i < script.sources.length; i++) {
+    console.log('Source index: ', i);
+    console.log(generate(script.sources[i], context));
+  }
+}

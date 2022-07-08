@@ -44,7 +44,6 @@ import {
  * await RedeemableERC20.isChild(signer, maybeChildAddress);
  *```
  */
-
 export class RedeemableERC20 extends FactoryContract {
   protected static readonly nameBookReference: string =
     'redeemableERC20Factory';

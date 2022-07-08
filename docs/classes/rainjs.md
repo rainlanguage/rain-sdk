@@ -20,7 +20,7 @@ class RainJS
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [\_OPCODE\_](./rainjs.md#_OPCODE_-property) | [ApplyOpFn](../interfaces/applyopfn.md) | key/value pair of opcodes and their functions for all standard opcodes |
-|  [contract](./rainjs.md#contract-property) | `Contract` | An ethers Contract |
+|  [contract](./rainjs.md#contract-property) | `string` | An ethers Contract address |
 |  [lastState](./rainjs.md#lastState-property) | `BigNumber[]` | The result state of the executed Rainjs. |
 |  [provider](./rainjs.md#provider-property) | `Provider` | An ethers provider. |
 |  [signer](./rainjs.md#signer-property) | `Signer` | An ethers Signer. |
@@ -63,12 +63,12 @@ protected readonly _OPCODE_: ApplyOpFn;
 
 ### contract
 
-An ethers Contract
+An ethers Contract address
 
 <b>Signature:</b>
 
 ```typescript
-contract?: Contract;
+contract?: string;
 ```
 
 <a id="lastState-property"></a>

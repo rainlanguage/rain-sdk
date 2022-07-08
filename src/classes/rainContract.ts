@@ -4,7 +4,8 @@ import type { Provider } from '../types';
 
 /**
  * @public
- * 	//TODO: Add doc
+ * Abstract class that contain all the general methods that are requirement for all the Rain contracts to
+ * be able to interact correctly.
  */
 export abstract class RainContract extends AddressBook {
   /**
@@ -116,17 +117,23 @@ export abstract class RainContract extends AddressBook {
   };
 }
 
-// TODO: Add doc to `ReadTxOverrides` so users can see all the fields that have CallOverrides from ethers
 /**
  * @public
- * More read about `ReadTxOverrides` that comes from CallOverrides of ethers
+ * Interface that show the entire values that can be overrides on trasanctions that are read only.
+ *
+ * @remarks
+ * This is extended from Ethers and is know as CallOverrides used in constant transacctions. See more in:
+ * https://docs.ethers.io/v5/api/contract/contract/#Contract--readonly
  */
 export interface ReadTxOverrides extends CallOverrides {}
 
-// TODO: Add doc to `TxOverrides` so users can see all the fields that have Overrides from ethers
 /**
  * @public
- * More read about `TxOverrides` that comes from Overrides of ethers
+ * Interface that show the entire values that can be overrides on trasanctions that are change state in chain (write transaction).
+ *
+ * @remarks
+ * This is extended from Ethers and is know as Overrides used in non-constant transacctions. See more in:
+ * https://docs.ethers.io/v5/api/contract/contract/#Contract--write
  */
 export interface TxOverrides extends Overrides {
   from?: string | Promise<string>;

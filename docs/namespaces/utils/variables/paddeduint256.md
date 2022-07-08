@@ -6,5 +6,5 @@ Utility function that transforms a BigNumber from the output of the ITier contra
 <b>Signature:</b>
 
 ```typescript
-paddedUInt256: (report: BigNumber) => string
+paddedUInt256: (report: BigNumberish) => string
 ```

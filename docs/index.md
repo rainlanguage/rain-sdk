@@ -19,13 +19,14 @@
 |  [ERC721BalanceTier](./classes/erc721balancetier.md) | A class for deploying and calling methods on a ERC721BalanceTier. The `ERC721BalanceTier` simply checks the current balance of an erc721 against tier values. As the current balance is always read from the erc721contract directly there is no historical block data. |
 |  [FactoryContract](./classes/factorycontract.md) | All contract factory should use this instead of directly Rain contract to take advantage of specific method to factories |
 |  [FixedPrice](./classes/fixedprice.md) | - A sub-class of PriceCurve for creating a Fixed Price sale type. The price is a constant value over the span of the sale. |
-|  [GatedNFT](./classes/gatednft.md) | //TODO: Add doc |
+|  [GatedNFT](./classes/gatednft.md) | A class for calling methods on a GatedNFT. |
+|  [HumanFriendlySource](./classes/humanfriendlysource.md) | The generator of friendly human readable source. |
 |  [IncreasingPrice](./classes/increasingprice.md) | - A sub-class of PriceCurve for creating an linear Increasing sale type. |
 |  [ITier](./classes/itier.md) | Class to interact with ITier contracts |
 |  [LinearEmissions](./classes/linearemissions.md) | A linear minting emissions over a period of time. holding more before claiming would result in a more reward. |
 |  [NoticeBoard](./classes/noticeboard.md) | A class for calling method on a NoticeBoard. |
 |  [PriceCurve](./classes/pricecurve.md) | - PriceCurve is an class that all the other sale types (sub-classes) will inherit from. |
-|  [RainContract](./classes/raincontract.md) | //TODO: Add doc |
+|  [RainContract](./classes/raincontract.md) | Abstract class that contain all the general methods that are requirement for all the Rain contracts to be able to interact correctly. |
 |  [RainJS](./classes/rainjs.md) | - The javascript version of the RainVM, basically does the same job RainVM does but off-chain. |
 |  [RedeemableERC20](./classes/redeemableerc20.md) | A class for calling methods on a RedeemableERC20. |
 |  [RedeemableERC20ClaimEscrow](./classes/redeemableerc20claimescrow.md) | A class for calling methods on a RedeemableERC20ClaimEscrow. |
@@ -38,7 +39,7 @@
 |  [Verify](./classes/verify.md) | A class for deploying and calling methods on a Verify. |
 |  [VerifyTier](./classes/verifytier.md) | A class for deploying and calling methods on a VerifyTier.<br></br>A contract that is `VerifyTier` expects to derive tiers from the time the account was approved by the underlying `Verify` contract. The approval block numbers defer to `State.since` returned from `Verify.state`<!-- -->. |
 |  [vLBP](./classes/vlbp.md) | - A sub-class of PriceCurve for creating an vLBP i.e virtual LBP sale type. |
-|  [VM](./classes/vm.md) | //TODO: Add doc |
+|  [VM](./classes/vm.md) | Class related to hold the some of the common patterns around the Rain VM that are required to interact with it. |
 
 ## Enumerations
 
@@ -65,7 +66,7 @@
 |  [GatedConfig](./interfaces/gatedconfig.md) | Configuration of the basic information that will be added to the ERC721 NFT |
 |  [GatedNFTDeployArguments](./interfaces/gatednftdeployarguments.md) |  |
 |  [NoticeStruct](./interfaces/noticestruct.md) |  |
-|  [ReadTxOverrides](./interfaces/readtxoverrides.md) | More read about `ReadTxOverrides` that comes from CallOverrides of ethers |
+|  [ReadTxOverrides](./interfaces/readtxoverrides.md) | Interface that show the entire values that can be overrides on trasanctions that are read only. |
 |  [Receipt](./interfaces/receipt.md) | The receipt that contain the information of the buy |
 |  [RedeemableERC20DeployArgs](./interfaces/redeemableerc20deployargs.md) | Everything required by the `RedeemableERC20` constructor. |
 |  [RoyaltyInfo](./interfaces/royaltyinfo.md) |  |
@@ -75,7 +76,7 @@
 |  [State](./interfaces/state.md) | Everything required to evaluate and track the state of a rain script. As this is a struct it will be in memory when passed to `RainVM` and so will be modified by reference internally. This is important for gas efficiency; the stack, arguments and stackIndex will likely be mutated by the running script. |
 |  [StateConfig](./interfaces/stateconfig.md) | Config required to build a new `State`<!-- -->. |
 |  [StateJS](./interfaces/statejs.md) | - An interface, StateJS is basically javascript version of 'State' struct in RainVM, although it doesn't need stackLength and argumentsLength to operate. It receives a regular RainVM in the constructor and initiates the stack for it and all opcodes do their operations to the stack. |
-|  [TxOverrides](./interfaces/txoverrides.md) | More read about `TxOverrides` that comes from Overrides of ethers |
+|  [TxOverrides](./interfaces/txoverrides.md) | Interface that show the entire values that can be overrides on trasanctions that are change state in chain (write transaction). |
 |  [VerifyDeployArgs](./interfaces/verifydeployargs.md) | Config to initialize a Verify contract with. |
 |  [VerifyState](./interfaces/verifystate.md) | Records the block a verify session reaches each status. If a status is not reached it is left as UNINITIALIZED, i.e. 0xFFFFFFFF. Most accounts will never be banned so most accounts will never reach every status, which is a good thing. |
 
@@ -92,10 +93,12 @@
 |  [Addresses](./types/addresses.md) | Type for all the addresses stored in the Book. |
 |  [CombineTierDeployArgs](./types/combinetierdeployargs.md) | The argument of the CombineTier. The StateConfig will be deployed as a pointer under VM State Pointer. |
 |  [CombineTierOpcodes](./types/combinetieropcodes.md) | Type for the opcodes availables in a CombineTier instance. |
+|  [Config](./types/config.md) | Specific the configuration of the generation method |
 |  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
 |  [EmissionsERC20Opcodes](./types/emissionserc20opcodes.md) | Type for the opcodes availables in a EmissionsERC20 instance. |
 |  [OpcodeFN](./types/opcodefn.md) | A type for functions to override the default opcodes functions with it. |
 |  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |
+|  [PrettifyConfig](./types/prettifyconfig.md) | Specific the configuration of the Prettify method. |
 |  [SaleOpcodes](./types/saleopcodes.md) | Type for the opcodes availables in a CombineTier instance. |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
 

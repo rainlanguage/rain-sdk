@@ -161,32 +161,12 @@ export class LinearEmissions {
       ]);
 
     // prettier-ignore
-    const PROGRESS = () =>
-      concat([
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.VAL, arg(0)),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, 2),
-        op(EmissionsERC20.Opcodes.DIV, 2),
-        op(EmissionsERC20.Opcodes.MIN, 2),
-      ]);
-
-    // prettier-ignore
-    const MULTIPLIER = () =>
-      concat([
-        PROGRESS(),
-        op(EmissionsERC20.Opcodes.VAL, 3),
-        op(EmissionsERC20.Opcodes.ADD, 2),
-      ]);
-
-    // prettier-ignore
     const FN = () =>
       concat([
         REWARD(),
-        MULTIPLIER(),
+        op(EmissionsERC20.Opcodes.VAL, 2),
         op(EmissionsERC20.Opcodes.MUL, 2),
-        op(EmissionsERC20.Opcodes.VAL, 4),
+        op(EmissionsERC20.Opcodes.VAL, 3),
         op(EmissionsERC20.Opcodes.DIV, 2),
       ]);
 
@@ -226,7 +206,7 @@ export class LinearEmissions {
         op(EmissionsERC20.Opcodes.BLOCK_NUMBER),
         op(
           EmissionsERC20.Opcodes.SELECT_LTE, 
-          selectLte(selectLteLogic.any, selectLteMode.max, 2)
+          selectLte(selectLteLogic.every, selectLteMode.max, 2)
         ),
         op(EmissionsERC20.Opcodes.SATURATING_DIFF),
       ]);
@@ -243,7 +223,6 @@ export class LinearEmissions {
     this.constants = [
       config.tierAddress,
       BASE_REWARD_PER_TIER,
-      BLOCKS_PER_PERIOD,
       BN_ONE,
       BN_ONE_REWARD,
     ];
