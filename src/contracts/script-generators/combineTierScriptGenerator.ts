@@ -234,7 +234,7 @@ export class CombineTierGenerator {
       constants: [
         _blocks,
         _shifter,
-        "100000000",
+        "0x100000000",
         "0",
         "0xffffffff"
       ],

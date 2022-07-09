@@ -11,7 +11,8 @@ import {
   paddedUInt32,
   paddedUInt256,
   selectLteLogic,
-  selectLteMode 
+  selectLteMode, 
+  parseUnits
 } from '../../utils';
 
 
@@ -541,6 +542,55 @@ export class SequentialEmissions {
 
     this.stackLength = ((this.sources[0].length + this.sources[1].length) / 2) + 25;
     this. argumentsLength = 4;
+  }
+
+}
+
+/**
+ * @public
+ * A class to creat a faucet for an ERC20 token. It can be claimed x number of tokens once
+ * every number of blocks passed which is defined by the faucet at the time of deployment.
+ */
+export class Faucet {
+
+  // StateConfig Properties of this class
+  public constants: BigNumberish[];
+  public sources: BytesLike[];
+  public stackLength: BigNumberish;
+  public argumentsLength: BigNumberish;
+
+
+  /**
+   * constructor of this class
+   * 
+   * @param blocks - number of blocks needs to pass before being able to do another claim
+   * @param units - number of token to get at each claim
+   */
+  constructor(blocks: number, units: number) {
+
+    this.constants = [
+      blocks,
+      parseUnits(units.toString(), 18),
+      "0x1" + paddedUInt32(0).repeat(7)
+    ];
+    this.sources = [
+      concat([
+        op(EmissionsERC20.Opcodes.VAL, 0),
+        op(EmissionsERC20.Opcodes.BLOCK_NUMBER),
+        op(EmissionsERC20.Opcodes.THIS_ADDRESS),
+        op(EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT),
+        op(EmissionsERC20.Opcodes.REPORT),
+        op(EmissionsERC20.Opcodes.VAL, 2),
+        op(EmissionsERC20.Opcodes.DIV, 2),
+        op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
+        op(EmissionsERC20.Opcodes.GREATER_THAN),
+        op(EmissionsERC20.Opcodes.ALWAYS),
+        op(EmissionsERC20.Opcodes.VAL, 1),
+        op(EmissionsERC20.Opcodes.EAGER_IF),
+      ])
+    ];
+    this.stackLength = 12;
+    this.argumentsLength = 0;
   }
 
 }
