@@ -404,7 +404,7 @@ export class vLBP extends PriceCurve {
       constants: [
         parseUnits(balanceReserve.toString(), erc20decimals),
         parseUnits(initWeight.toString()),
-        parseUnits(weightChange.toFixed(erc20decimals).toString()),
+        parseUnits(weightChange.toFixed(18).toString()),
         startTimestamp,
         parseUnits((1).toString()),
       ],
