@@ -12,6 +12,7 @@ import {
   paddedUInt256,
   selectLteLogic,
   selectLteMode,
+  parseUnits,
 } from '../../utils';
 
 /**
@@ -90,7 +91,7 @@ export class LinearEmissions {
         )
       );
 
-    const PERIODIC_REWARD_TIER5 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER5 = BigNumber.from(config.periodicRewards.tier5)
       .mul(BN_ONE_REWARD)
       .sub(
         PERIODIC_REWARD_TIER4.add(PERIODIC_REWARD_TIER3)
@@ -98,7 +99,7 @@ export class LinearEmissions {
           .add(PERIODIC_REWARD_TIER1)
       );
 
-    const PERIODIC_REWARD_TIER6 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER6 = BigNumber.from(config.periodicRewards.tier6)
       .mul(BN_ONE_REWARD)
       .sub(
         PERIODIC_REWARD_TIER5.add(PERIODIC_REWARD_TIER4)
@@ -107,7 +108,7 @@ export class LinearEmissions {
           .add(PERIODIC_REWARD_TIER1)
       );
 
-    const PERIODIC_REWARD_TIER7 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER7 = BigNumber.from(config.periodicRewards.tier7)
       .mul(BN_ONE_REWARD)
       .sub(
         PERIODIC_REWARD_TIER6.add(PERIODIC_REWARD_TIER5)
@@ -117,7 +118,7 @@ export class LinearEmissions {
           .add(PERIODIC_REWARD_TIER1)
       );
 
-    const PERIODIC_REWARD_TIER8 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER8 = BigNumber.from(config.periodicRewards.tier8)
       .mul(BN_ONE_REWARD)
       .sub(
         PERIODIC_REWARD_TIER7.add(PERIODIC_REWARD_TIER6)
@@ -584,5 +585,80 @@ export class SequentialEmissions {
         op(VM.Opcodes.ADD, 2),
       ]),
     ];
+  }
+}
+
+/**
+ * @public
+ * A class to creat a an ERC20 token with ability to be a faucet. owner can mint extar token if i=the token is not fixed supply.
+ * It can be claimed x number of tokens once every number of blocks passed which is defined by the faucet at the time of deployment.
+ */
+ export class CreateERC20 {
+
+  // StateConfig Properties of this class
+  public constants: BigNumberish[];
+  public sources: BytesLike[];
+
+  /**
+   * constructor of this class
+   * 
+   * @param ownerAddress - address of the owner of the token
+   * @param mintUnits - amount of tokens to be able to mint each time by calling the contract's "claim" function by the owner, pass zero to get fixed supply token
+   * @param faucet - argument to make a faucet for the token with ability to be minted x number of tokens each x number of blocks passed.
+   *    (param) - blocks - number of blocks needs to pass before being able to do another faucet claim - cannot be zero
+   *    (param) - units - number of token to be transfered by the fuacet each time it is triggered (at each claim)
+   */
+  constructor(
+    ownerAddress: string,
+    mintUnits: number,
+    faucet?: {
+      blocks: number,
+      units: number
+    }
+  ) {
+    if (faucet) {
+      this.constants = [
+        ownerAddress,
+        parseUnits(mintUnits.toString(), 18),
+        faucet.blocks ? faucet.blocks : 1,
+        parseUnits(faucet.units.toString(), 18),
+        "0x1" + paddedUInt32(0).repeat(7),
+        "0"
+      ];
+      this.sources = [
+        concat([
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.CONTEXT, 0),
+          op(VM.Opcodes.EQUAL_TO),
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.THIS_ADDRESS),
+          op(VM.Opcodes.CONTEXT, 0),
+          op(VM.Opcodes.ITIERV2_REPORT),
+          op(VM.Opcodes.CONSTANT, 4),
+          op(VM.Opcodes.DIV, 2),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.GREATER_THAN),
+          op(VM.Opcodes.CONSTANT, 5),
+          op(VM.Opcodes.CONSTANT, 3),
+          op(VM.Opcodes.EAGER_IF),
+          op(VM.Opcodes.EAGER_IF),
+        ])
+      ];
+    }
+    else {
+      this.constants = [ownerAddress, parseUnits(mintUnits.toString(), 18), "0"];
+      this.sources = [
+        concat([
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.CONTEXT, 0),
+          op(VM.Opcodes.EQUAL_TO),
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.EAGER_IF)
+        ])
+      ];
+    }
   }
 }

@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 import { OrderbookJS } from "./OrderbookJS";
 import { VM } from "../classes/vm";
 import { OrderbookSimulation } from "./vmSimulation";
-import { FixedPrice, IncreasingPrice } from "../contracts/script-generators/saleScriptGenerator";
+import { FixedPrice, IncDecPrice } from "../contracts/script-generators/saleScriptGenerator";
 import { parseUnits } from "../utils";
 import { 
   order,
@@ -220,7 +220,7 @@ let tokens: erc20s = {
 // some scripts for orders
 const scriptA = VM.pair(new FixedPrice(4), new FixedPrice(2));
 const scriptB = VM.pair(new FixedPrice(10), new FixedPrice(0.4));
-const scriptC = VM.pair(new FixedPrice(2), new IncreasingPrice(0.1, 8, 1, 900));
+const scriptC = VM.pair(new FixedPrice(2), new IncDecPrice(0.1, 8, 1, 900));
 
 // simulating some orders usinf the data above
 const order1 : order = {

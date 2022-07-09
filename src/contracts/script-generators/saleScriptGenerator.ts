@@ -226,11 +226,11 @@ export class vLBP extends PriceCurve {
       constants: [
         parseUnits(balanceReserve.toString(), reserveTokenDecimals),
         parseUnits(initWeight.toString()),
-        parseUnits(weightChange.toFixed(5).toString()),
+        parseUnits(weightChange.toFixed(17).toString()),
         startTimestamp,
         parseUnits((1).toString()),
       ],
-      sources: [concat([vLBP.vLBP_SOURCES()])],
+      sources: [vLBP.vLBP_SOURCES()],
     });
   }
 
@@ -295,7 +295,7 @@ export class IncDecPrice extends PriceCurve {
       constants: [
         parseUnits(startPrice.toString(), reserveTokenDecimals),
         parseUnits(endPrice.toString(), reserveTokenDecimals),
-        parseUnits(priceChange.toFixed(5).toString(), reserveTokenDecimals),
+        parseUnits(priceChange.toFixed(reserveTokenDecimals != 18 ? reserveTokenDecimals : 17).toString(), reserveTokenDecimals),
         startTimestamp,
       ],
       sources: [
