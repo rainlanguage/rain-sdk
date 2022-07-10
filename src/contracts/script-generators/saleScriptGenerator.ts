@@ -1,4 +1,4 @@
-import { BigNumberish, BytesLike } from 'ethers';
+import { BigNumber, BigNumberish, BytesLike } from 'ethers';
 import { SaleContext, SaleStorage } from '../sale';
 import { StateConfig, VM } from '../../classes/vm';
 import { parseUnits, concat, op } from '../../utils';
@@ -131,22 +131,30 @@ export class PriceCurve {
    *
    * @param tierAddress - The Tier contract address.
    * @param tierDiscount - An array of each tiers' discount ranging between 0 - 99.
-   * @param tierActivation - (optional) An array of number of blocks for each tier that will be the required period
-   * of time for that tiered address to hold the tier's in order to be eligible for that tier's discount.
-   *
+   * @param options - (optional) used for stake tier contracts
+   *    - (param) tierActivation - An array of number of timestamps for each tier that will be the required period
+   *      of time for that tiered address to hold the tier's in order to be eligible for that tier's discount.
+   *    - (param) tierContext - an array of 8 items represtenting stake contract thresholds
    * @returns this
    *
    */
   public applyTierDiscount(
     tierAddress: string,
     tierDiscount: number[],
-    tierActivation?: (number | string)[]
+    options?: {
+      tierActivation: (number | string)[],
+      tierContext: BigNumber[]
+    }
+
   ): PriceCurve {
     const _discountConfig = VM.toTierDiscounter(
       this,
       tierAddress,
       tierDiscount,
-      { tierActivation }
+      { 
+        tierActivation: options?.tierActivation, 
+        tierContext: options?.tierContext 
+      }
     );
 
     this.constants = _discountConfig.constants;
@@ -641,8 +649,9 @@ export class BuyCap {
    *    - (param) maxWalletCap - The number for max cap per wallet, addresses cannot buy more number of rTKNs than this amount.
    *    - (param) tierAddress - The Tier contract address for tiers' max cap per wallet multiplier.
    *    - (param) tierMultiplier - An array of each tiers' Multiplier value.
-   *    - (param) tierActivation - An array of number of blocks for each tier that will be the required period of time for that tiered
+   *    - (param) tierActivation - An array of number of timestamps for each tier that will be the required period of time for that tiered
    *       address to hold the tier's in order to be eligible for that tier's multiplier.
+   *    - (param) tierContext - an array of 8 items represtenting stake contract thresholds
    *
    * @returns this
    *
@@ -655,6 +664,7 @@ export class BuyCap {
       tierAddress?: string;
       tierMultiplier?: number[];
       tierActivation?: (number | string)[];
+      tierContext?: BigNumber[]
     }
   ): BuyCap {
     const MIN_CAP_SOURCES = (i: number) =>
@@ -703,7 +713,10 @@ export class BuyCap {
           },
           options.tierAddress,
           options.tierMultiplier,
-          { tierActivation: options.tierActivation }
+          { 
+            tierActivation: options.tierActivation,
+            tierContext: options.tierContext
+          }
         );
         maxCapConfig = VM.combiner(maxCapConfig, {
           constants: [1],
@@ -756,7 +769,10 @@ export class BuyCap {
           bothCapConfig,
           options.tierAddress,
           options.tierMultiplier,
-          { tierActivation: options.tierActivation }
+          { 
+            tierActivation: options.tierActivation,
+            tierContext: options.tierContext
+          }
         );
 
         bothCapConfig = VM.combiner(
