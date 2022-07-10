@@ -1445,7 +1445,7 @@ export class VM {
         op(VM.Opcodes.CONSTANT, 3),
       ]);
 
-    const _multiplierConfig: StateConfig = 
+    const _tierValuesConfig: StateConfig = 
       options?.tierActivation && options.tierActivation.length === 8 && options?.tierContext && options.tierContext.length === 8
       ? {
           constants: [
@@ -1498,6 +1498,6 @@ export class VM {
           ],
         };
 
-    return VM.combiner(config, _multiplierConfig, { index: Index });
+    return VM.combiner(config, _tierValuesConfig, { index: Index });
   }
 }
