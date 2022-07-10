@@ -1917,7 +1917,7 @@ describe('Human Friendly Source Generator', () => {
             BLOCK_TIMESTAMP(),
             ${startTimestamp}
           ),
-          166633330000000000000
+          166633333333333325750
         )
       ),
       1000000000000000000
@@ -1972,7 +1972,7 @@ describe('Human Friendly Source Generator', () => {
                 BLOCK_TIMESTAMP(),
                 ${startTimestamp}
               ),
-              166633330000000000000
+              166633333333333325750
             )
           ),
           1000000000000000000

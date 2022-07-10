@@ -11,7 +11,8 @@ import {
   paddedUInt32,
   paddedUInt256,
   selectLteLogic,
-  selectLteMode 
+  selectLteMode, 
+  parseUnits
 } from '../../utils';
 
 
@@ -543,4 +544,84 @@ export class SequentialEmissions {
     this. argumentsLength = 4;
   }
 
+}
+
+/**
+ * @public
+ * A class to creat a an ERC20 token with ability to be a faucet. owner can mint extar token if i=the token is not fixed supply.
+ * It can be claimed x number of tokens once every number of blocks passed which is defined by the faucet at the time of deployment.
+ */
+export class CreateERC20 {
+
+  // StateConfig Properties of this class
+  public constants: BigNumberish[];
+  public sources: BytesLike[];
+  public stackLength: BigNumberish;
+  public argumentsLength: BigNumberish;
+
+  /**
+   * constructor of this class
+   * 
+   * @param ownerAddress - address of the owner of the token
+   * @param mintUnits - amount of tokens to be able to mint each time by calling the contract's "claim" function by the owner, pass zero to get fixed supply token
+   * @param faucet - argument to make a faucet for the token with ability to be minted x number of tokens each x number of blocks passed.
+   *    (param) - blocks - number of blocks needs to pass before being able to do another faucet claim - cannot be zero
+   *    (param) - units - number of token to be transfered by the fuacet each time it is triggered (at each claim)
+   */
+  constructor(
+    ownerAddress: string,
+    mintUnits: number,
+    faucet?: {
+      blocks: number,
+      units: number
+    }
+  ) {
+    if (faucet) {
+      this.constants = [
+        ownerAddress,
+        parseUnits(mintUnits.toString(), 18),
+        faucet.blocks ? faucet.blocks : 1,
+        parseUnits(faucet.units.toString(), 18),
+        "0x1" + paddedUInt32(0).repeat(7)
+      ];
+      this.sources = [
+        concat([
+          op(EmissionsERC20.Opcodes.VAL, 0),
+          op(EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT),
+          op(EmissionsERC20.Opcodes.EQUAL_TO),
+          op(EmissionsERC20.Opcodes.VAL, 1),
+          op(EmissionsERC20.Opcodes.VAL, 2),
+          op(EmissionsERC20.Opcodes.BLOCK_NUMBER),
+          op(EmissionsERC20.Opcodes.THIS_ADDRESS),
+          op(EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT),
+          op(EmissionsERC20.Opcodes.REPORT),
+          op(EmissionsERC20.Opcodes.VAL, 4),
+          op(EmissionsERC20.Opcodes.DIV, 2),
+          op(EmissionsERC20.Opcodes.SATURATING_SUB, 2),
+          op(EmissionsERC20.Opcodes.GREATER_THAN),
+          op(EmissionsERC20.Opcodes.ALWAYS),
+          op(EmissionsERC20.Opcodes.VAL, 3),
+          op(EmissionsERC20.Opcodes.EAGER_IF),
+          op(EmissionsERC20.Opcodes.EAGER_IF),
+        ])
+      ];
+      this.stackLength = 20;
+      this.argumentsLength = 0;
+    }
+    else {
+      this.constants = [ownerAddress, parseUnits(mintUnits.toString(), 18)];
+      this.sources = [
+        concat([
+          op(EmissionsERC20.Opcodes.VAL, 0),
+          op(EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT),
+          op(EmissionsERC20.Opcodes.EQUAL_TO),
+          op(EmissionsERC20.Opcodes.VAL, 1),
+          op(EmissionsERC20.Opcodes.ALWAYS),
+          op(EmissionsERC20.Opcodes.EAGER_IF)
+        ])
+      ];
+      this.stackLength = 6;
+      this.argumentsLength = 0;
+    }
+  }
 }
