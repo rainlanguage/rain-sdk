@@ -9,6 +9,7 @@
 |  [CombineTier](./classes/combinetier.md) | Class for deploying and calling methods on a CombineTier contract, providin easy way to interact with deployed CombineTiers. |
 |  [CombineTierGenerator](./classes/combinetiergenerator.md) | The script generator for generating CombineTier scripts although it is worth mentioning that the usecases would not be only limited to CombineTier contract and can be used for any script. |
 |  [CombineTierJS](./classes/combinetierjs.md) | - The javascript version of CombineTierVM which inherits RainJS with local CombineTier opcodes. |
+|  [CreateERC20](./classes/createerc20.md) | A class to creat a an ERC20 token with ability to be a faucet. owner can mint extar token if i=the token is not fixed supply. It can be claimed x number of tokens once every number of blocks passed which is defined by the faucet at the time of deployment. |
 |  [EmissionsERC20](./classes/emissionserc20.md) | A class for calling methods on a EmissionsERC20. |
 |  [EmissionsERC20JS](./classes/emissionserc20js.md) | - The javascript version of EmissionsERC20JS which inherits RainJS with local EmissionsERC20JS opcodes. |
 |  [ERC1155](./classes/erc1155.md) | A generic ERC1155 interface to get connected to any ERC1155 address and make transactions. |
