@@ -65,7 +65,7 @@ const deploySale = async (
   const saleConfig = {
     canStartStateConfig: new SaleDurationInBlocks(startBlock),
     canEndStateConfig: new SaleDurationInBlocks(endBlock),
-    calculatePriceStateConfig: new FixedPrice('75', 6),
+    calculatePriceStateConfig: new FixedPrice(75, 6),
     recipient: recipient.address,
     reserve: saleReserve.address,
     cooldownDuration: 1,
