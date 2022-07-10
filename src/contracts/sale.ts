@@ -41,7 +41,7 @@ export enum SaleStorage {
    */
   ReserveAddress,
   /**
-   * length of Sale's valid storage opcodes
+   * length of Sale's valid storage opcodes - 4
    */
   length
 };
@@ -58,7 +58,7 @@ export enum SaleContext {
    */
   CurrentBuyUnits,
   /**
-   * length of Sale's valid context opcode
+   * length of Sale's valid context opcode - 1
    */
   length
 }

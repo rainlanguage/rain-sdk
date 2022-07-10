@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { ethers } from 'hardhat';
 import { BigNumber } from 'ethers';
-import { expectAsyncError, Tier, Time } from './utils';
+import { expectAsyncError, ONE, Tier, Time } from './utils';
 import { StateConfig, RainJS, OpcodeFN, ApplyOpFn, VM } from '../src';
 import {
   op,
@@ -45,11 +45,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from(111 + 111 + (1 + 2 + 3));
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The addition operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -135,7 +135,7 @@ describe('SDK - RainJS', () => {
     );
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
     zipmap operation failed:
     expected: ${expected}
@@ -169,11 +169,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from(block + (1 + 2 + 3));
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The addition operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -205,11 +205,11 @@ describe('SDK - RainJS', () => {
       await Time.advanceBlock(1);
 
       assert(
-        expected.eq(result),
+        expected.eq(result[0]),
         `
         The addition operation failed:
         expected ${expected}
-        got ${result}`
+        got ${result[0]}`
       );
     }
   });
@@ -242,11 +242,11 @@ describe('SDK - RainJS', () => {
       await Time.advanceBlock(1);
 
       assert(
-        expected.eq(result),
+        expected.eq(result[0]),
         `
         The subtraction operation failed:
         expected ${expected}
-        got ${result}`
+        got ${result[0]}`
       );
     }
   });
@@ -276,11 +276,11 @@ describe('SDK - RainJS', () => {
       await Time.advanceBlock(1);
 
       assert(
-        expected.eq(result),
+        expected.eq(result[0]),
         `
         The multiplication operation failed:
         expected ${expected}
-        got ${result}`
+        got ${result[0]}`
       );
     }
   });
@@ -311,11 +311,11 @@ describe('SDK - RainJS', () => {
       await Time.advanceBlock(1);
 
       assert(
-        expected.eq(result),
+        expected.eq(result[0]),
         `
         The division operation failed:
         expected ${expected}
-        got ${result}`
+        got ${result[0]}`
       );
     }
   });
@@ -342,11 +342,11 @@ describe('SDK - RainJS', () => {
     const expected = ethers.constants.MaxUint256;
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The saturating add operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -372,11 +372,11 @@ describe('SDK - RainJS', () => {
     const expected = ethers.constants.MaxUint256;
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The saturating mul operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -399,11 +399,11 @@ describe('SDK - RainJS', () => {
     const expected = ethers.constants.Zero;
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The saturating sub operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -426,11 +426,11 @@ describe('SDK - RainJS', () => {
     const expected = ethers.constants.Two;
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The mod operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -453,17 +453,17 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from('32');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The exponention operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
   it('should perform scale18_mul operation correctly', async () => {
     const script: StateConfig = {
-      constants: ['0x22', '0x44'],
+      constants: ['0x22', BigNumber.from('0x44').mul(ONE)],
       sources: [
         concat([
           op(VM.Opcodes.CONSTANT, 0),
@@ -479,11 +479,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from('0x22').mul('10000000000000').mul('0x44');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The scale18 mul operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -502,14 +502,14 @@ describe('SDK - RainJS', () => {
     const rainJs = new RainJS(script);
     const result = await rainJs.run();
 
-    const expected = BigNumber.from('0x22').mul('100000000').div('0x44');
+    const expected = BigNumber.from('0x22').mul('100000000').mul(ONE).div('0x44');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The scale18 div operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -527,11 +527,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from('22000000000000000001');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The scale18 operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -547,11 +547,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from('44371');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The scalen operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -569,11 +569,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from('443711838001274368');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The scale_by operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -598,11 +598,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from('10');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The min operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -628,11 +628,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from('60');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The max operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -658,11 +658,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from('30');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The eager_if operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -701,11 +701,11 @@ describe('SDK - RainJS', () => {
     const expected = BigNumber.from('30');
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -741,11 +741,11 @@ describe('SDK - RainJS', () => {
     );
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 
@@ -788,11 +788,11 @@ describe('SDK - RainJS', () => {
     );
 
     assert(
-      expected.eq(result),
+      expected.eq(result[0]),
       `
       The operation failed:
       expected ${expected}
-      got ${result}`
+      got ${result[0]}`
     );
   });
 

@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-
+import type { DepositEvent } from '../src/typechain/RedeemableERC20ClaimEscrow';
+import { RedeemableERC20ClaimEscrow__factory } from '../src/typechain/factories/RedeemableERC20ClaimEscrow__factory';
 import {
   ONE,
   Time,
@@ -13,21 +14,20 @@ import {
   SaleStatus,
   getEventArgs,
 } from './utils';
-
 import {
   FixedPrice,
   RedeemableERC20ClaimEscrow,
   Sale,
   RedeemableERC20,
-  SaleDurationInBlocks,
+  BetweenBlocks,
   AddressBook,
   ERC20,
-  SaleScriptFrom,
+  SaleVmFrom,
   BuyCap,
 } from '../src';
 
-import { RedeemableERC20ClaimEscrow__factory } from '../src/typechain/factories/RedeemableERC20ClaimEscrow__factory';
-import type { DepositEvent } from '../src/typechain/RedeemableERC20ClaimEscrow';
+
+
 const EscrowInterface = RedeemableERC20ClaimEscrow__factory.createInterface();
 
 /**
@@ -65,13 +65,13 @@ const deploySale = async (
 
   // All configs calculated outside of deploy method
   const saleConfig = {
-    vmStateConfig: new SaleScriptFrom(
-      new SaleDurationInBlocks(startBlock, endBlock),
+    vmStateConfig: new SaleVmFrom(
+      new BetweenBlocks(startBlock, endBlock),
       new BuyCap(),
-      new FixedPrice('75', 6),
+      new FixedPrice(75, 6),
     ),
-    // canStartStateConfig: new SaleDurationInBlocks(startBlock),
-    // canEndStateConfig: new SaleDurationInBlocks(endBlock),
+    // canStartStateConfig: new BetweenBlocks(startBlock),
+    // canEndStateConfig: new BetweenBlocks(endBlock),
     // calculatePriceStateConfig: new FixedPrice('75', 6),
     recipient: recipient.address,
     reserve: saleReserve.address,

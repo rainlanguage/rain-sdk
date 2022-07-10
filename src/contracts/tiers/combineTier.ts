@@ -33,7 +33,14 @@ export enum CombineTierContext {
    */
   Account,
   /**
-   * length of CombineTier's valid context opcodes
+   * 1 or the index of the context array in the combineTier
+   * contract used as the operand for CONTEXT opcode.
+   * operand for CONTEXT opcode to stack the tier that reportTimeForTier is being call for.
+   * The tier (between 1 to 8) used for tierTimeForTier and it has no use for "ITIERV2_REPORT" opcode
+   */
+  Tier,
+  /**
+   * length of CombineTier's valid context opcodes - 2
    */
   length,
 }
@@ -44,7 +51,7 @@ export enum CombineTierContext {
  */
 export enum CombineTierStorage {
   /**
-   * length of CombineTier's valid storage opcodes
+   * length of CombineTier's valid storage opcodes - 0
    */
   length,
 }

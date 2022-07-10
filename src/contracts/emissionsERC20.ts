@@ -29,7 +29,14 @@ export enum EmissionsERC20Context {
    */
   ClaimantAccount,
   /**
-   * length of EmissionsERC20's valid context opcodes
+   * 1 or the index of the context array in the emissioinsERC20
+   * contract used as the operand for CONTEXT opcode.
+   * operand for CONTEXT opcode to stack the tier that reportTimeForTier is being call for.
+   * The tier (between 1 to 8) used for tierTimeForTier and it has no use for "ITIERV2_REPORT" opcode
+   */
+  Tier,
+  /**
+   * length of EmissionsERC20's valid context opcodes - 2
    */
   length,
 }
@@ -40,7 +47,7 @@ export enum EmissionsERC20Context {
  */
 export enum EmissionsERC20Storage {
   /**
-   * length of EmissionsERC20's valid storage opcodes
+   * length of EmissionsERC20's valid storage opcodes - 0
    */
   length,
 }

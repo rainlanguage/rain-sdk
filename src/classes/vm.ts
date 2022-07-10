@@ -10,6 +10,7 @@ import {
   selectLteLogic,
   callSize,
   arrayify,
+  parseUnits,
 } from '../utils';
 
 /**
@@ -529,19 +530,55 @@ export class VM {
     amountConfig: StateConfig,
     priceConfig: StateConfig
   ): StateConfig {
-    let _stackOpcodeModify = arrayify(priceConfig.sources[0], {
-      allowMissingPrefix: true,
-    });
 
-    for (let i = 0; i < _stackOpcodeModify.length; i++) {
-      if (_stackOpcodeModify[i] === 1) {
-        _stackOpcodeModify[i + 1]++;
+    for (let i = 0; i < priceConfig.sources.length; i++) {
+      let _stackOpcodeModify = arrayify(
+        priceConfig.sources[i],
+        {allowMissingPrefix: true}
+      );
+      for (let j = 0; j < _stackOpcodeModify.length; j++) {
+        if (_stackOpcodeModify[j] === 1) {
+          _stackOpcodeModify[j + 1]++;
+        }
+        j++;
       }
-      i++;
+      priceConfig.sources[i] = _stackOpcodeModify;
     }
-    priceConfig.sources[0] = _stackOpcodeModify;
-
     return VM.combiner(amountConfig, priceConfig);
+  }
+
+  /**
+   * A method to combine multiple StateConfigs together each on top of the other at the first item in final sources.
+   * 
+   * @param configs - An array of StateConfigs to combine together and its lengths should be more than 2
+   * (can use VM.pair() method for combining 2 configs - @see pair)
+   * 
+   * @returns a @see StateConfig
+   */
+  public static multi(configs: StateConfig[]) : StateConfig {
+
+    if (configs.length > 2) {
+    let _result: StateConfig = configs[0];
+
+    for (let i = 1; i < configs.length; i++) {
+      for (let j = 0; j < configs[i].sources.length; j++) {
+        let _stackOpcodeModify = arrayify(
+          configs[i].sources[j],
+          {allowMissingPrefix: true}
+        );
+        for (let k = 0; k < _stackOpcodeModify.length; k++) {
+          if (_stackOpcodeModify[k] === 1) {
+            _stackOpcodeModify[k + 1] = _stackOpcodeModify[k + 1] + i;
+          }
+          k++;
+        }
+        configs[i].sources[j] = _stackOpcodeModify;
+      }
+      _result = VM.combiner(_result, configs[i])
+    }
+    return _result;
+    }
+    else throw new Error("not a valid argument")
   }
 
   /**
@@ -561,7 +598,7 @@ export class VM {
    *
    * @returns a VM script. @see StateConfig
    */
-  public static toOwnerMaker(
+  public static makeOwnership(
     config: StateConfig,
     ownerAddress: string,
     options?: {
@@ -573,12 +610,16 @@ export class VM {
     let _result: StateConfig;
     const Index = options?.index ? options.index : 0;
 
-    const MAKE_OWNER = (i: any) =>
-      concat([
-        op(VM.Opcodes.CONSTANT, i),
-        op(VM.Opcodes.SENDER),
-        op(VM.Opcodes.EQUAL_TO),
-      ]);
+    const MAKE_OWNER = {
+      constants: [ownerAddress],
+      sources: [
+        concat([
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.SENDER),
+          op(VM.Opcodes.EQUAL_TO),
+        ])
+      ]
+    }
 
     if (options?.notOwnerVar && typeof options.notOwnerVar === 'object') {
       _result = this.combiner(config, options.notOwnerVar, {
@@ -605,10 +646,7 @@ export class VM {
     }
 
     _result = this.combiner(
-      {
-        constants: [ownerAddress],
-        sources: [MAKE_OWNER(0)],
-      },
+      MAKE_OWNER,
       _result,
       { index: Index }
     );
@@ -621,15 +659,16 @@ export class VM {
   }
 
   /**
-   * Deducts percentage off of the result of a VM script based on the holding tier of a tier contract.
+   * Deducts percentage off of the result of a VM script based on a tier contract.
    *
    * @param config - the main VM script
    * @param tierAddress - the contract address of the tier contract.
    * @param tierDiscount - an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array.
    * @param options - used for additional configuraions:
    *    - (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0.
-   *    - (param) tierActivation An array of numbers, representing the amount of blocks each tier must hold in order to get the discount,
-   *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 blocks to get the discount.
+   *    - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the discount,
+   *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the discount.(used for stake tier contract)
+   *    - (param) tierContext an array of values mostly used for stake tier contracts.
    *
    * @returns a VM script @see StateConfig
    */
@@ -638,10 +677,12 @@ export class VM {
     tierAddress: string,
     tierDiscount: number[],
     options?: {
-      index?: number;
-      tierActivation?: (string | number)[];
+      index?: number,
+      tierActivation?: (string | number)[],
+      tierContext?: BigNumber[]
     }
   ): StateConfig {
+    let CONTEXT_ = concat([]);
     const Index = options?.index ? options.index : 0;
 
     const TierDiscount = paddedUInt256(
@@ -658,20 +699,31 @@ export class VM {
       )
     );
 
+    if (options?.tierActivation && options.tierActivation.length === 8 && options?.tierContext && options.tierContext.length === 8) {
+      CONTEXT_ = concat([
+        op(VM.Opcodes.CONSTANT, 5),
+        op(VM.Opcodes.CONSTANT, 6),
+        op(VM.Opcodes.CONSTANT, 7),
+        op(VM.Opcodes.CONSTANT, 8),
+        op(VM.Opcodes.CONSTANT, 9),
+        op(VM.Opcodes.CONSTANT, 10),
+        op(VM.Opcodes.CONSTANT, 11),
+        op(VM.Opcodes.CONSTANT, 12),
+      ])
+    }
+
+
     const TIER_BASED_DIS = () =>
       concat([
         op(VM.Opcodes.CONSTANT, 0),
         op(VM.Opcodes.CONSTANT, 3),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(0, 8)),
+        op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(0, 8)),
         op(VM.Opcodes.CONSTANT, 2),
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.SENDER),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.REPORT),
-        op(VM.Opcodes.BLOCK_NUMBER),
+        CONTEXT_,
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
+        op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(
           VM.Opcodes.SELECT_LTE,
           selectLte(selectLteLogic.every, selectLteMode.first, 2)
@@ -689,15 +741,12 @@ export class VM {
     const ACTIVATION_TIME = () =>
       concat([
         op(VM.Opcodes.CONSTANT, 0),
-        op(VM.Opcodes.BLOCK_NUMBER),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(0, 8)),
+        op(VM.Opcodes.BLOCK_TIMESTAMP),
+        op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(0, 8)),
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.SENDER),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.REPORT),
+        CONTEXT_,
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
         op(VM.Opcodes.SATURATING_DIFF),
         op(VM.Opcodes.CONSTANT, 4),
       ]);
@@ -709,13 +758,16 @@ export class VM {
       ]);
     const ACTIVATION_TIME_FN = () =>
       concat([
-        op(VM.Opcodes.CONSTANT, 6),
-        op(VM.Opcodes.CONSTANT, 7),
+        op(VM.Opcodes.CONSTANT, 14),
+        op(VM.Opcodes.CONSTANT, 15),
         op(VM.Opcodes.LESS_THAN),
         op(VM.Opcodes.CONSTANT, 3),
       ]);
 
-    const _discounterConfig: StateConfig = options?.tierActivation
+
+
+    const _discounterConfig: StateConfig = 
+      options?.tierActivation && options.tierActivation.length === 8 && options?.tierContext && options.tierContext.length === 8
       ? {
           constants: [
             ethers.constants.MaxUint256,
@@ -735,6 +787,7 @@ export class VM {
                   paddedUInt32(options.tierActivation[0])
               )
             ),
+            ...options.tierContext
           ],
           sources: [
             concat([
@@ -744,7 +797,7 @@ export class VM {
             ]),
             concat([
               ACTIVATION_TIME_FN(),
-              TIER_BASED_DIS_FN(5),
+              TIER_BASED_DIS_FN(13),
               op(VM.Opcodes.EAGER_IF),
             ]),
           ],
@@ -766,15 +819,16 @@ export class VM {
   }
 
   /**
-   * Multiply the result of a VM script based on the holding tier of a tier contract.
+   * Multiply the result of a VM script based on a tier contract.
    *
    * @param config - the main VM script
    * @param tierAddress - the contract address of the tier contract.
    * @param tierMultiplier - an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array.
    * @param options - used for additional configuraions:
    *    - (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0.
-   *    - (param) tierActivation An array of numbers, representing the amount of blocks each tier must hold in order to get the multiplier,
-   *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 blocks to get the multiplier.
+   *    - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the multiplier,
+   *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the multiplier.(used for stake tier contract)
+   *    - (param) tierContext an array of values mostly used for stake tier contracts.
    *
    * @returns a VM script @see StateConfig
    */
@@ -783,10 +837,12 @@ export class VM {
     tierAddress: string,
     tierMultiplier: number[],
     options?: {
-      index?: number;
-      tierActivation?: (string | number)[];
+      index?: number,
+      tierActivation?: (string | number)[],
+      tierContext?: BigNumber[]
     }
   ): StateConfig {
+    let CONTEXT_ = concat([]);
     const Index = options?.index ? options.index : 0;
 
     const TierMultiplier = paddedUInt256(
@@ -803,15 +859,27 @@ export class VM {
       )
     );
 
+    if (options?.tierActivation && options.tierActivation.length === 8 && options?.tierContext && options.tierContext.length === 8) {
+      CONTEXT_ = concat([
+        op(VM.Opcodes.CONSTANT, 6),
+        op(VM.Opcodes.CONSTANT, 7),
+        op(VM.Opcodes.CONSTANT, 8),
+        op(VM.Opcodes.CONSTANT, 9),
+        op(VM.Opcodes.CONSTANT, 10),
+        op(VM.Opcodes.CONSTANT, 11),
+        op(VM.Opcodes.CONSTANT, 12),
+        op(VM.Opcodes.CONSTANT, 13),
+      ])
+    }
+
     const TIER_BASED_MUL = () =>
       concat([
         op(VM.Opcodes.CONSTANT, 2),
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.SENDER),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.REPORT),
-        op(VM.Opcodes.BLOCK_NUMBER),
+        CONTEXT_,
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
+        op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(
           VM.Opcodes.SELECT_LTE,
           selectLte(selectLteLogic.every, selectLteMode.first, 2)
@@ -828,15 +896,12 @@ export class VM {
     const ACTIVATION_TIME = () =>
       concat([
         op(VM.Opcodes.CONSTANT, 0),
-        op(VM.Opcodes.BLOCK_NUMBER),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(0, 8)),
+        op(VM.Opcodes.BLOCK_TIMESTAMP),
+        op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(0, 8)),
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.SENDER),
-        // TODO: @rouzwelt
-        // @ts-ignore
-        op(VM.Opcodes.REPORT),
+        CONTEXT_,
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
         op(VM.Opcodes.SATURATING_DIFF),
         op(VM.Opcodes.CONSTANT, 5),
       ]);
@@ -851,13 +916,14 @@ export class VM {
       ]);
     const ACTIVATION_TIME_FN = () =>
       concat([
-        op(VM.Opcodes.CONSTANT, 7),
-        op(VM.Opcodes.CONSTANT, 8),
+        op(VM.Opcodes.CONSTANT, 15),
+        op(VM.Opcodes.CONSTANT, 16),
         op(VM.Opcodes.LESS_THAN),
         op(VM.Opcodes.CONSTANT, 3),
       ]);
 
-    const _multiplierConfig: StateConfig = options?.tierActivation
+    const _multiplierConfig: StateConfig = 
+      options?.tierActivation && options.tierActivation.length === 8 && options?.tierContext && options.tierContext.length === 8
       ? {
           constants: [
             ethers.constants.MaxUint256,
@@ -878,6 +944,7 @@ export class VM {
                   paddedUInt32(options.tierActivation[0])
               )
             ),
+            ...options.tierContext,
           ],
           sources: [
             concat([
@@ -887,7 +954,7 @@ export class VM {
             ]),
             concat([
               ACTIVATION_TIME_FN(),
-              TIER_BASED_MUL_FN(6),
+              TIER_BASED_MUL_FN(14),
               op(VM.Opcodes.EAGER_IF),
             ]),
           ],
@@ -961,5 +1028,476 @@ export class VM {
 
       return _result;
     } else throw new Error('invalid number of times or configs arguments');
+  }
+
+  /**
+   * Method to create a simple time based rule
+   * 
+   * @param timestamp - the timestamp to set the rule for
+   * @param type - type of the check, meaning current timestamp to be gt, gte, lt, lte than the "timestamp"
+   * 
+   * @returns A @see StateConfig
+   */
+  public static beforeAfterTime(
+    timestamp: number,
+    type: "gt" | "lt" | "gte" | "lte"
+  ): StateConfig {
+      let src = new Uint8Array();
+
+      if (type === "gte") {
+        timestamp = timestamp === 0 ? 0 : timestamp - 1;
+        src = op(VM.Opcodes.GREATER_THAN)
+      }
+      if (type === "lte") {
+        timestamp++;
+        src = op(VM.Opcodes.LESS_THAN)
+      }
+      if (type === "lt") {
+        src = op(VM.Opcodes.GREATER_THAN)
+      }
+      if (type === "gt") {
+        src = op(VM.Opcodes.LESS_THAN)
+      }
+
+      return {
+      constants: [timestamp],
+      sources: [
+        concat([
+          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.CONSTANT, 0),
+          src
+        ])
+      ]
+    };
+  }
+
+
+  /**
+   * Method to create a simple block number based rule
+   * 
+   * @param blockNumber - the block number to set the rule for
+   * @param type - type of the check, meaning current block number to be gt, gte, lt, lte than the "blockNumber"
+   * 
+   * @returns A @see StateConfig
+   */
+  public static beforeAfterBlock(
+    blockNumber: number,
+    type: "gt" | "lt" | "gte" | "lte"  
+    ): StateConfig {
+      let src = new Uint8Array();
+
+      if (type === "gte") {
+        blockNumber = blockNumber === 0 ? 0 : blockNumber - 1;
+        src = op(VM.Opcodes.GREATER_THAN)
+      }
+      if (type === "lte") {
+        blockNumber++;
+        src = op(VM.Opcodes.LESS_THAN)
+      }
+      if (type === "lt") {
+        src = op(VM.Opcodes.GREATER_THAN)
+      }
+      if (type === "gt") {
+        src = op(VM.Opcodes.LESS_THAN)
+      }
+
+      return {
+      constants: [blockNumber],
+      sources: [
+        concat([
+          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.CONSTANT, 0),
+          src
+        ])
+      ]
+    };
+  }
+
+  /**
+   * Method to multiply multiple scripts together
+   * 
+   * @param configs - an array of configs to multiply
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static mulTogether(configs: StateConfig[]): StateConfig { 
+    let result_ = VM.multi(configs)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.MUL, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to add multiple scripts together
+   * 
+   * @param configs - an array of configs to add 
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static addTogether(configs: StateConfig[]): StateConfig {
+    let result_ = VM.multi(configs)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.ADD, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to and multiple scripts together ie EVERY
+   * 
+   * @param configs - an array of configs to and
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static and(configs: StateConfig[]): StateConfig {
+    let result_ = VM.multi(configs)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EVERY, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to or multiple scripts together ie ANY
+   * 
+   * @param configs - an array of configs to or
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static or(configs: StateConfig[]): StateConfig {
+    let result_ = VM.multi(configs)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.ANY, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to create an if/else script
+   * 
+   * @param condition - the condition script ie the if check statement
+   * @param ifStatement - the script(statement) if the check passes
+   * @param elseStatement - the script(statement) if the check fails
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static ifelse(
+    condition: StateConfig,
+    ifStatement: StateConfig,
+    elseStatement: StateConfig
+  ): StateConfig {
+
+    let result_ = VM.multi([condition, ifStatement, elseStatement])
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EAGER_IF)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Methdo to create a simple signle value script, ie CONTANT
+   * 
+   * @param value - the value
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static constant(value: BigNumberish): StateConfig {
+    if (!(value instanceof BigNumber)) {
+      value = BigNumber.from(value);
+    } 
+
+    return {
+      constants: [value],
+      sources: [concat([op(VM.Opcodes.CONSTANT, 0)])]
+    };
+  }
+
+  /**
+   * Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not
+   * 
+   * @param config - the script to check
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static isZero(config: StateConfig): StateConfig {
+    config.sources[0] = concat([
+      config.sources[0],
+      op(VM.Opcodes.ISZERO)
+    ])
+
+    return config;
+  }
+
+  /**
+   * Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static isEqual(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static gt(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static lt(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script 
+   * 
+   * @returns a @see StateConfig 
+   */
+  public static gte(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not
+   * 
+   * @param config1 - first script
+   * @param config2 - second script
+   * 
+   * @returns a @see StateConfig
+   */
+  public static lte(config1: StateConfig, config2: StateConfig): StateConfig {
+    let result_ = VM.pair(config1, config2);
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EQUAL_TO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Produce different values from the result of a VM script based on a tier contract.
+   *
+   * @param config - the main VM script
+   * @param tierAddress - the contract address of the tier contract.
+   * @param tierValues - an array of 8 items - the value (6 decimals max) of each tier are the 8 items of the array.
+   * @param ascending - true if the tierValues are ascending and false if descending
+   * @param options - used for additional configuraions:
+   *    - (param) index to identify which sources item in config.sources the TierValues applies to, if not specified, it will be 0.
+   *    - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the different value,
+   *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the respective value. (used for stake tier contract)
+   *    - (param) tierContext an array of values mostly used for stake tier contracts.
+   *    - (param) finalDecimals produce the final values in this fixed decimals - 0 by deafult 
+   *
+   * @returns a VM script @see StateConfig
+   */
+   public static toTierValues(
+    config: StateConfig,
+    tierAddress: string,
+    tierValues: number[],
+    ascending: boolean,
+    options?: {
+      index?: number,
+      tierActivation?: (string | number)[],
+      tierContext?: BigNumber[],
+      finalDecimals?: number
+    }
+  ): StateConfig {
+    let CONTEXT_ = concat([]);
+    const Index = options?.index ? options.index : 0;
+    const Decimals = ("1").padEnd(
+      (options?.finalDecimals ? options.finalDecimals - 6 >= 0 ? options.finalDecimals - 6 : 6 - options.finalDecimals : 0),
+      "0"
+    );
+
+    const TierValues = paddedUInt256(
+      BigNumber.from(
+        '0x' +
+          paddedUInt32(parseUnits(tierValues[7].toString(), 6)) +
+          paddedUInt32(parseUnits(tierValues[6].toString(), 6)) +
+          paddedUInt32(parseUnits(tierValues[5].toString(), 6)) +
+          paddedUInt32(parseUnits(tierValues[4].toString(), 6)) +
+          paddedUInt32(parseUnits(tierValues[3].toString(), 6)) +
+          paddedUInt32(parseUnits(tierValues[2].toString(), 6)) +
+          paddedUInt32(parseUnits(tierValues[1].toString(), 6)) +
+          paddedUInt32(parseUnits(tierValues[0].toString(), 6))
+      )
+    );
+
+    if (options?.tierActivation && options.tierActivation.length === 8 && options?.tierContext && options.tierContext.length === 8) {
+      CONTEXT_ = concat([
+        op(VM.Opcodes.CONSTANT, 7),
+        op(VM.Opcodes.CONSTANT, 8),
+        op(VM.Opcodes.CONSTANT, 9),
+        op(VM.Opcodes.CONSTANT, 10),
+        op(VM.Opcodes.CONSTANT, 11),
+        op(VM.Opcodes.CONSTANT, 12),
+        op(VM.Opcodes.CONSTANT, 13),
+        op(VM.Opcodes.CONSTANT, 14),
+      ])
+    }
+
+    const TIER_BASED_VAL = () =>
+      concat([
+        op(VM.Opcodes.CONSTANT, 2),
+        op(VM.Opcodes.CONSTANT, 1),
+        op(VM.Opcodes.SENDER),
+        CONTEXT_,
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
+        op(VM.Opcodes.BLOCK_TIMESTAMP),
+        op(
+          VM.Opcodes.SELECT_LTE,
+          selectLte(selectLteLogic.every, selectLteMode.first, 2)
+        ),
+      ]);
+    const TIER_BASED_VAL_ZIPMAP = (valSize: number) =>
+      concat([
+        op(VM.Opcodes.ZIPMAP, callSize(1, 3, valSize)),
+        ascending ? op(VM.Opcodes.MAX, 8) : op(VM.Opcodes.MIN, 8),
+        op(VM.Opcodes.CONSTANT, 5),
+        options?.finalDecimals 
+          ? options?.finalDecimals - 6 >= 0 
+            ? op(VM.Opcodes.MUL, 2) 
+            : op(VM.Opcodes.DIV, 2) 
+          : op(VM.Opcodes.MUL, 2),
+        ascending ? op(VM.Opcodes.MAX, 2) : op(VM.Opcodes.MIN, 2),
+      ]);
+    const ACTIVATION_TIME = () =>
+      concat([
+        op(VM.Opcodes.CONSTANT, 0),
+        op(VM.Opcodes.BLOCK_TIMESTAMP),
+        op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(0, 8)),
+        op(VM.Opcodes.CONSTANT, 1),
+        op(VM.Opcodes.SENDER),
+        CONTEXT_,
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
+        op(VM.Opcodes.SATURATING_DIFF),
+        op(VM.Opcodes.CONSTANT, 6),
+      ]);
+    const TIER_BASED_VAL_FN = (i: number) =>
+      concat([
+        op(VM.Opcodes.CONSTANT, i),
+        op(VM.Opcodes.CONSTANT, 4),
+        op(VM.Opcodes.LESS_THAN),
+        op(VM.Opcodes.CONSTANT, i),
+        op(VM.Opcodes.CONSTANT, 3),
+        op(VM.Opcodes.EAGER_IF),
+      ]);
+    const ACTIVATION_TIME_FN = () =>
+      concat([
+        op(VM.Opcodes.CONSTANT, 16),
+        op(VM.Opcodes.CONSTANT, 17),
+        op(VM.Opcodes.LESS_THAN),
+        op(VM.Opcodes.CONSTANT, 3),
+      ]);
+
+    const _tierValuesConfig: StateConfig = 
+      options?.tierActivation && options.tierActivation.length === 8 && options?.tierContext && options.tierContext.length === 8
+      ? {
+          constants: [
+            ethers.constants.MaxUint256,
+            tierAddress,
+            TierValues,
+            ascending ? '0' : '0xffffffff',
+            '0xffffffff',
+            Decimals,
+            paddedUInt256(
+              BigNumber.from(
+                '0x' +
+                  paddedUInt32(options.tierActivation[7]) +
+                  paddedUInt32(options.tierActivation[6]) +
+                  paddedUInt32(options.tierActivation[5]) +
+                  paddedUInt32(options.tierActivation[4]) +
+                  paddedUInt32(options.tierActivation[3]) +
+                  paddedUInt32(options.tierActivation[2]) +
+                  paddedUInt32(options.tierActivation[1]) +
+                  paddedUInt32(options.tierActivation[0])
+              )
+            ),
+            ...options.tierContext,
+          ],
+          sources: [
+            concat([
+              TIER_BASED_VAL(),
+              ACTIVATION_TIME(),
+              TIER_BASED_VAL_ZIPMAP(2),
+            ]),
+            concat([
+              ACTIVATION_TIME_FN(),
+              TIER_BASED_VAL_FN(15),
+              op(VM.Opcodes.EAGER_IF),
+            ]),
+          ],
+        }
+      : {
+          constants: [
+            ethers.constants.MaxUint256,
+            tierAddress,
+            TierValues,
+            ascending ? '0' : '0xffffffff',
+            '0xffffffff',
+            Decimals
+          ],
+          sources: [
+            concat([TIER_BASED_VAL(), TIER_BASED_VAL_ZIPMAP(0)]),
+            TIER_BASED_VAL_FN(6),
+          ],
+        };
+
+    return VM.combiner(config, _tierValuesConfig, { index: Index });
   }
 }

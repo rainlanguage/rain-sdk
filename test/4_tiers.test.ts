@@ -1,8 +1,8 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
 import { expectAsyncError, chainId } from './utils';
-
 import { AddressBook, Verify, VerifyTier, CombineTier } from '../src';
+
 
 describe('SDK - VerifyTier', () => {
   it('should deploy an VerifyTier child', async () => {

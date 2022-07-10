@@ -6,8 +6,9 @@ import { ERC20 } from '../contracts/generics/erc20';
 import { ERC721 } from '../contracts/generics/erc721';
 import { ITierV2 } from '../contracts/tiers/iTierV2';
 import { Provider } from '../types';
-import { arrayify, paddedUInt160, paddedUInt256, paddedUInt32 } from '../utils';
 import { ERC20Snapshot__factory } from '../typechain';
+import { eighteenZeros } from './types';
+import { arrayify, paddedUInt160, paddedUInt256, paddedUInt32 } from '../utils';
 
 
 /**
@@ -227,10 +228,11 @@ export class RainJS {
    *
    * @returns - An array represting the final state of the RainJS stack.
    */
-  public async run(data?: any): Promise<BigNumber> {
-    await this.eval(data);
-    this.lastState.push(...this.state.stack.splice(-this.state.stack.length));
-    const result_ = this.lastState[this.lastState.length - 1];
+  public async run(data?: any, index?: number): Promise<BigNumber[]> {
+    this.lastState.splice(-this.lastState.length);
+    await this.eval(data, index);
+    const result_ = this.state.stack.splice(-this.state.stack.length);
+    this.lastState.push(...result_);
 
     return result_;
   }
@@ -571,10 +573,10 @@ export class RainJS {
       const item1_ = state.stack.pop();
       if (item1_ && item2_ !== undefined) {
         state.stack.push(
-          (operand <= 18
+          ((operand <= 18
             ? item1_.mul((10 ** (18 - operand)).toString())
             : item1_.div((10 ** (operand - 18)).toString())
-          ).div(item2_)
+          ).mul(eighteenZeros)).div(item2_)
         );
       } 
       else throw new Error('Undefined stack variables');
@@ -585,11 +587,12 @@ export class RainJS {
       const item1_ = state.stack.pop();
       if (item1_ && item2_ !== undefined) {
         state.stack.push(
-          item2_.mul(
+          (item2_.mul(
             operand <= 18
               ? item1_.mul((10 ** (18 - operand)).toString())
               : item1_.div((10 ** (operand - 18)).toString())
-          )
+            )
+          ).div(eighteenZeros)
         );
       } 
       else throw new Error('Undefined stack variables');
@@ -919,7 +922,7 @@ export class RainJS {
       const item2_ = state.stack.pop();
       const item1_ = state.stack.pop();
 
-      if (item1_ && item2_ && this.signer !== undefined && context_.length !== operand) {
+      if (item1_ && item2_ && this.signer !== undefined && context_.length === operand) {
         const account_ = paddedUInt160(item2_);
         const iTierV2Contract = new ITierV2(
           paddedUInt160(item1_),
@@ -943,7 +946,7 @@ export class RainJS {
         const item2_ = state.stack.pop();
         const item1_ = state.stack.pop();
 
-        if (item1_ && item2_  && this.signer !== undefined && context_.length !== operand) {
+        if (item1_ && item2_  && this.signer !== undefined && context_.length === operand) {
           const tier_ = item3_;
           const account_ = paddedUInt160(item2_);
           const iTierV2Contract = new ITierV2(

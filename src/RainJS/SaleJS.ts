@@ -3,6 +3,7 @@ import { StateConfig } from "../classes/vm";
 import { ApplyOpFn, RainJS, StateJS } from "./RainJS";
 import { ERC20 } from "../contracts/generics/erc20";
 import { Sale, SaleContext, SaleStorage } from "../contracts/sale";
+import { parseUnits } from "../utils";
 
 
 
@@ -134,8 +135,8 @@ export class SaleJS extends RainJS {
     async(state: StateJS, operand: number, data?: any) => {
       if(data && data.context !== undefined) {
         state.stack.push(
-          BigNumber.from(
-            data.context[SaleContext.CurrentBuyUnits]
+          parseUnits(
+            data.context[SaleContext.CurrentBuyUnits].toString()
           )
         )
       }
