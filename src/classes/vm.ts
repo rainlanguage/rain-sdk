@@ -878,7 +878,7 @@ export class VM {
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.SENDER),
         CONTEXT_,
-        op(VM.Opcodes.ITIERV2_REPORT),
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
         op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(
           VM.Opcodes.SELECT_LTE,
@@ -901,7 +901,7 @@ export class VM {
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.SENDER),
         CONTEXT_,
-        op(VM.Opcodes.ITIERV2_REPORT),
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
         op(VM.Opcodes.SATURATING_DIFF),
         op(VM.Opcodes.CONSTANT, 5),
       ]);
@@ -1397,7 +1397,7 @@ export class VM {
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.SENDER),
         CONTEXT_,
-        op(VM.Opcodes.ITIERV2_REPORT),
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
         op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(
           VM.Opcodes.SELECT_LTE,
@@ -1424,7 +1424,7 @@ export class VM {
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.SENDER),
         CONTEXT_,
-        op(VM.Opcodes.ITIERV2_REPORT),
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.length),
         op(VM.Opcodes.SATURATING_DIFF),
         op(VM.Opcodes.CONSTANT, 6),
       ]);
