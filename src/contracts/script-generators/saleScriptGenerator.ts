@@ -191,6 +191,7 @@ export class PriceCurve {
       ]);
 
     if (mode == WalletCapMode.min && options?.minWalletCap !== undefined) {
+      options.minWalletCap = options.minWalletCap === 0 ? 1 : options.minWalletCap;
       this.constants.push(
         parseUnits(options.minWalletCap.toString()).sub(1),
         ethers.constants.MaxUint256
@@ -259,9 +260,10 @@ export class PriceCurve {
       }
     } else if (
       mode == WalletCapMode.both &&
-      options?.minWalletCap &&
+      options?.minWalletCap !== undefined &&
       options?.maxWalletCap !== undefined
     ) {
+      options.minWalletCap = options.minWalletCap === 0 ? 1 : options.minWalletCap;
       if (
         options.tierMultiplierMode &&
         options.tierAddress &&
@@ -801,3 +803,5 @@ export class SaleDurationInBlocks {
     return this
   }
 }
+const x = new FixedPrice(10).applyWalletCap(1, {minWalletCap: 0, maxWalletCap: 0})
+console.log(x)
