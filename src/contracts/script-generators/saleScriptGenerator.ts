@@ -803,5 +803,3 @@ export class SaleDurationInBlocks {
     return this
   }
 }
-const x = new FixedPrice(10).applyWalletCap(1, {minWalletCap: 0, maxWalletCap: 0})
-console.log(x)
