@@ -190,7 +190,7 @@ export class PriceCurve {
         op(Sale.Opcodes.GREATER_THAN),
       ]);
 
-    if (mode == WalletCapMode.min && options?.minWalletCap) {
+    if (mode == WalletCapMode.min && options?.minWalletCap !== undefined) {
       this.constants.push(
         parseUnits(options.minWalletCap.toString()).sub(1),
         ethers.constants.MaxUint256
@@ -205,7 +205,7 @@ export class PriceCurve {
       this.stackLength = Number(this.stackLength) + 15;
 
       return this;
-    } else if (mode == WalletCapMode.max && options?.maxWalletCap) {
+    } else if (mode == WalletCapMode.max && options?.maxWalletCap !== undefined) {
       if (
         options.tierMultiplierMode &&
         options.tierAddress &&
@@ -260,7 +260,7 @@ export class PriceCurve {
     } else if (
       mode == WalletCapMode.both &&
       options?.minWalletCap &&
-      options?.maxWalletCap
+      options?.maxWalletCap !== undefined
     ) {
       if (
         options.tierMultiplierMode &&

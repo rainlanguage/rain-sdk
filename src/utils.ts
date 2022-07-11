@@ -89,10 +89,10 @@ export const bytify = (
 
 /**
  * @public
- * Utility function that transforms a BigNumberish from the output of the ITierV2 contract report
+ * Utility function that transforms a BigNumber from the output of the ITier contract report
  *
- * @param report - report as bignumberish from the ITierV2 contract
- * @returns hexadecimal string of the report already padded (64 char hexString)
+ * @param report - report as bignumber from the ITier contract
+ * @returns hexadecimal string of the report already padded
  */
  export const paddedUInt256 = (report: BigNumberish): string => {
   if (BigNumber.from(report).gt(ethers.constants.MaxUint256)) {
@@ -106,7 +106,7 @@ export const bytify = (
  *
  * @param number - the value to convert into a 32bit size hexString
  *
- * @returns a 8 char hexString (without 0x prefix)
+ * @returns a 8 character hexString
  */
 export const paddedUInt32 = (number: BigNumberish): string => {
   if (BigNumber.from(number).gt('0xffffffff')) {
