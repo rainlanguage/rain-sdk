@@ -89,16 +89,16 @@ export const bytify = (
 
 /**
  * @public
- * Utility function that transforms a BigNumber from the output of the ITier contract report
+ * Utility function that transforms a BigNumberish from the output of the ITierV2 contract report
  *
- * @param report - report as bignumber from the ITier contract
- * @returns hexadecimal string of the report already padded
+ * @param report - report as bignumberish from the ITierV2 contract
+ * @returns hexadecimal string of the report already padded (64 char hexString)
  */
-export const paddedUInt256 = (report: BigNumberish): string => {
+ export const paddedUInt256 = (report: BigNumberish): string => {
   if (BigNumber.from(report).gt(ethers.constants.MaxUint256)) {
     throw new Error(`${report} exceeds max uint256`);
   }
-  return '0x' + hexlify(report, {allowMissingPrefix: true}).substring(2).padStart(64, '0');
+  return "0x" + BigNumber.from(report).toHexString().substring(2).padStart(64, "0");
 };
 
 /**
@@ -106,13 +106,13 @@ export const paddedUInt256 = (report: BigNumberish): string => {
  *
  * @param number - the value to convert into a 32bit size hexString
  *
- * @returns a 8 character hexString
+ * @returns a 8 char hexString (without 0x prefix)
  */
 export const paddedUInt32 = (number: BigNumberish): string => {
-  if (BigNumber.from(number).gt("0xffffffff")) {
+  if (BigNumber.from(number).gt('0xffffffff')) {
     throw new Error(`${number} exceeds max uint32`);
   }
-  return hexlify(number, {allowMissingPrefix: true}).substring(2).padStart(8, '0');
+  return BigNumber.from(number).toHexString().substring(2).padStart(8, "0");
 };
 
 /**
@@ -249,10 +249,10 @@ export function skip(places: number, conditional = false): number {
  * @returns a 16 character hexString (without 0x prefix)
  */
  export const paddedUInt64 = (number: BigNumberish): string => {
-  if (BigNumber.from(number).gt("0xffffffffffffffff")) {
+  if (BigNumber.from(number).gt('0xffffffffffffffff')) {
     throw new Error(`${number} exceeds max uint64`);
   }
-  return hexlify(number, {allowMissingPrefix: true}).substring(2).padStart(16, '0');
+  return BigNumber.from(number).toHexString().substring(2).padStart(16, "0");
 };
 
 /**
@@ -262,11 +262,11 @@ export function skip(places: number, conditional = false): number {
  *
  * @returns a 32 character hexString (without 0x prefix)
  */
- export const paddedUInt128 = (number: BigNumberish): string => {
-  if (BigNumber.from(number).gt("0xffffffffffffffffffffffffffffffff")) {
+export const paddedUInt128 = (number: BigNumberish): string => {
+  if (BigNumber.from(number).gt('0xffffffffffffffffffffffffffffffff')) {
     throw new Error(`${number} exceeds max uint128`);
   }
-  return hexlify(number, {allowMissingPrefix: true}).substring(2).padStart(32, '0');
+  return BigNumber.from(number).toHexString().substring(2).padStart(32, "0");
 };
 
 /**
@@ -276,9 +276,11 @@ export function skip(places: number, conditional = false): number {
  * @param report - value as bignumberish
  * @returns hexadecimal string as an ether address (40 char length hexString)
  */
- export const paddedUInt160 = (address: BigNumberish): string => {
-  if (BigNumber.from(address).gt("0xffffffffffffffffffffffffffffffffffffffff")) {
+export const paddedUInt160 = (address: BigNumberish): string => {
+  if (
+    BigNumber.from(address).gt('0xffffffffffffffffffffffffffffffffffffffff')
+  ) {
     throw new Error(`${address} exceeds max uint160`);
   }
-  return '0x' + hexlify(address, {allowMissingPrefix: true}).substring(2).padStart(40, '0');
+  return "0x" + BigNumber.from(address).toHexString().substring(2).padStart(40, "0");
 };
