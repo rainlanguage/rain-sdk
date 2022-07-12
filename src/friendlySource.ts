@@ -1,5 +1,12 @@
 import { BytesLike, BigNumberish, BigNumber } from 'ethers';
 import { AllStandardOps, StateConfig } from './classes/vm';
+import { CombineTierStorage } from './contracts/tiers/combineTier';
+import {
+  EmissionsERC20Context,
+  EmissionsERC20Storage,
+} from './contracts/emissionsERC20';
+import { OrderbookContext, OrderbookStorage } from './contracts/orderBook';
+import { SaleContext, SaleStorage } from './contracts/sale';
 import {
   arrayify,
   paddedUInt256,
@@ -100,12 +107,12 @@ const newOpMeta: OpMeta[] = [
   {
     opcode: AllStandardOps.CONTEXT,
     name: 'CONTEXT',
-    input: 'CONTEXT', // TODO
+    input: 'CONTEXT',
   },
   {
     opcode: AllStandardOps.STORAGE,
     name: 'STORAGE',
-    input: 'takeFromStack',
+    input: 'STORAGE',
   },
   {
     opcode: AllStandardOps.ZIPMAP,
@@ -432,30 +439,6 @@ export class HumanFriendlySource {
     const ops = this.pairs(state.sources[sourceIndex]).map((pair) => {
       let opmeta = this.opMeta.find((opmeta) => opmeta.opcode === pair[0]);
       if (typeof opmeta === 'undefined') {
-        // Search with local opcodes if context provided
-        if (this._context) {
-          const _contract = this._context;
-          if (_contract === 'sale') {
-            opmeta = opSaleMeta.find((opmeta) => opmeta.opcode === pair[0]);
-          } else if (_contract === 'combinetier') {
-            opmeta = opCombineTierMeta.find(
-              (opmeta) => opmeta.opcode === pair[0]
-            );
-          } else if (_contract === 'emissions') {
-            opmeta = opEmissionsMeta.find(
-              (opmeta) => opmeta.opcode === pair[0]
-            );
-          } else if (_contract === 'gameassets') {
-            opmeta = opEmissionsMeta.find(
-              (opmeta) => opmeta.opcode === pair[0]
-            );
-          } else {
-            throw Error(
-              `Unknown opcode: ${pair[0]} using context ${_contract}`
-            );
-          }
-        }
-
         // still undefined
         if (typeof opmeta === 'undefined') {
           throw Error(`Unknown opcode: ${pair[0]}`);
@@ -473,6 +456,12 @@ export class HumanFriendlySource {
       op = ops[i];
       i++;
 
+      console.log('==================');
+      console.log('op: ', op);
+      console.log('_stackIndex: ', _stackIndex);
+      console.log('state.stack: ', state.stack);
+      console.log('==================');
+
       if (op.input === 'constantIndex') {
         if (op.operand < 128) {
           state.stack[_stackIndex] = {
@@ -488,7 +477,7 @@ export class HumanFriendlySource {
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
       } else if (op.input === 'blockNumber') {
         state.stack[_stackIndex] = {
-          val: 'BLOCK_NUMBER()',
+          val: 'CURRENT_BLOCK',
           consumed: false,
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
@@ -515,7 +504,7 @@ export class HumanFriendlySource {
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
       } else if (op.input === 'blockTimestamp') {
         state.stack[_stackIndex] = {
-          val: 'BLOCK_TIMESTAMP()',
+          val: 'CURRENT_TIMESTAMP',
           consumed: false,
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
@@ -582,6 +571,56 @@ export class HumanFriendlySource {
       } else if (op.input === 'CURRENT_UNITS') {
         state.stack[_stackIndex] = {
           val: 'CURRENT_UNITS()',
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } else if (op.input === 'CONTEXT') {
+        //
+        let context = `CONTEXT Argument ${op.operand} passed to contract function at call`;
+        let valid = true;
+        if (this._context === 'sale') {
+          valid = isValidContext(op.operand, SaleContext.length);
+          context = SaleContext[op.operand];
+        }
+        //
+        else if (this._context === 'emissions') {
+          valid = isValidContext(op.operand, EmissionsERC20Context.length);
+          context = EmissionsERC20Context[op.operand];
+        }
+        //
+        else if (this._context === 'orderbook') {
+          valid = isValidContext(op.operand, OrderbookContext.length);
+          context = OrderbookContext[op.operand];
+        }
+
+        if (valid) {
+          state.stack[_stackIndex] = {
+            val: context,
+            consumed: false,
+          };
+          state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+        } else {
+          throw new Error(
+            `Wrong context value '${op.operand}' given for the context '${this._context}'`
+          );
+        }
+      } else if (op.input === 'STORAGE') {
+        //
+        let storage = '';
+        if (this._context === 'sale') {
+          storage = SaleStorage[op.operand];
+        } else if (this._context === 'emissions') {
+          storage = EmissionsERC20Storage[op.operand];
+        } else if (this._context === 'orderbook') {
+          storage = OrderbookStorage[op.operand];
+        } else if (this._context === 'combinetier') {
+          storage = CombineTierStorage[op.operand];
+        } else {
+          throw new Error('Not contract/context provided to get the STORAGE');
+        }
+
+        state.stack[_stackIndex] = {
+          val: storage,
           consumed: false,
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
@@ -734,7 +773,7 @@ export class HumanFriendlySource {
       op.opcode === AllStandardOps.IERC721_OWNER_OF ||
       op.opcode === AllStandardOps.IERC721_BALANCE_OF ||
       op.opcode === AllStandardOps.IERC20_BALANCE_OF ||
-      op.opcode === AllStandardOps.REPORT
+      op.opcode === AllStandardOps.ITIERV2_REPORT
     ) {
       const _stackLength = this.identifyZipmap(state.stack, 2);
 
@@ -954,4 +993,14 @@ export class HumanFriendlySource {
     }
     return _stackReturn === stackToRead ? -1 : _stackReturn + zipmapCounter;
   }
+}
+
+/**
+ * Check the operand agains the length of the EnumContext to see if it's valid
+ * @param _operand - Operand to check
+ * @param _length - The length in the enum Context
+ */
+function isValidContext(_operand: number, _length: number): boolean {
+  if (_operand >= 0 && _operand < _length) return true;
+  return false;
 }

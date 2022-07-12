@@ -75,7 +75,7 @@ before('Initializing and deploying contracts to hardhat network', async () => {
   const OrderBookFactory = await ethers.getContractFactory('OrderBook');
 
   // ⚠️ Deployments to hardhat test network ⚠️
-  const aaaaaaaaaaaaaaaaaaaaaa = await vmStateBuilderFactory.deploy();
+  const vmStateBuilder = await vmStateBuilderFactory.deploy();
   const RedeemableERC20Factory = await RedeemableERC20FactoryFactory.deploy();
   const VerifyFactory = await VerifyFactoryFactory.deploy();
   const VerifyTierFactory = await VerifyTierFactoryFactory.deploy();

@@ -213,7 +213,7 @@ export enum OrderbookContext {
  * @public
  * Enum for operand of the Orderbook's STORAGE opcode
  */
-export enum OrderbookStroage {
+export enum OrderbookStorage {
   /**
    * length of Orederbook's valid storage opcodes
    */
