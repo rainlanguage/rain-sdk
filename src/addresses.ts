@@ -135,6 +135,48 @@ const addressBook = [
   },
   {
     /**
+     * Fantom mainnet chain
+     */
+    chainId: 250,
+    addresses: {
+      alwaysTier: '0x552E9bDA51Ca6f669277dB900FC2b05fAf7A79B5',
+      combineTierFactory: '0x16D33236D7Af17ca55E60EcE64e9F6CeD32Ba416',
+      erc20BalanceTierFactory: '0xc50aAf61BAE0b5c69DAf59aED1Fe8dC793C44595',
+      erc20TransferTierFactory: '0xFB7Cd2084f0C745193DF635413dFbc1a682bD494',
+      erc721BalanceTierFactory: '0xa018eAB945De7e8073d1995284b78FC0cfE45B76',
+      emissionsERC20Factory: '0xa76F06F09346141977cF652A1EDFD09D779AA22a',
+      gatedNFTFactory: '0xbA9Ce92a65e172ADd70A71B6E280D9941fb9185C',
+      noticeBoard: '0x34A0946CEAD3417E629B2679D05C0A24d49a1eB4',
+      redeemableERC20ClaimEscrow: '0xcF75a4bc22AD40D6DA6f57b5174D39D28bC85a96',
+      redeemableERC20Factory: '0xdcE20fE4E286912ec457536Ae0b3Df5fDE21a40A',
+      saleFactory: '0x333F9355Bc47A22f64ac5C5F3d7cC5408544851f',
+      verifyFactory: '0xc1E7CA4D153Ac0919f34198c1d029ed3391b9f29',
+      verifyTierFactory: '0x3F9276cE9DDCaaB2b558DeFEA6DE1a8ee321536b',
+    },
+  },
+  {
+    /**
+     * Fantom testnet chain
+     */
+    chainId: 4002,
+    addresses: {
+      alwaysTier: '0x01c289870AC24F51A95CBe70Cf79F43C9B6181F0',
+      combineTierFactory: '0x1F19450C9a42bb831D0cD09666b6cd1094102b70',
+      erc20BalanceTierFactory: '0x0109BDCFe01d46057f33658dcaE8193C7F9e631e',
+      erc20TransferTierFactory: '0x29e25ED6363D93C350205424B468A9E403D65707',
+      erc721BalanceTierFactory: '0x7433Be51094D9e21129a11AF1baC4F7adE4ad5ab',
+      emissionsERC20Factory: '0xf66c32C3E6f4c592CF7BA42146552A9523739310',
+      gatedNFTFactory: '0x2f3387650B50853Ff41A91410b4cBDAB257bf4d7',
+      noticeBoard: '0xbeF822DE1fD0688BbDC569f2e13aAAf178104e12',
+      redeemableERC20ClaimEscrow: '0xA53aF19D81c12E17f4fB35Efd102745d2b2FEDE8',
+      redeemableERC20Factory: '0x31515Bdd855C0f105E7A0D0DD6A66bf8AEFB1f7D',
+      saleFactory: '0x2381523Dac2D060F73A117a14BF6077A7C1688A9',
+      verifyFactory: '0x87f5Ff1BaCb125A7d3151B673484069A47e4BF55',
+      verifyTierFactory: '0xaC1f7973258b17C6fE0EDECe44Dcac1B7B610D98',
+    },
+  },
+  {
+    /**
      * Hardhat chain
      */
     chainId: 31337,
@@ -152,6 +194,48 @@ const addressBook = [
       noticeBoard: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
       emissionsERC20Factory: '0x610178dA211FEF7D417bC0e6FeD39F05609AD788',
       saleFactory: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+    },
+  },
+  {
+    /**
+     * Arbitrum mainnet chain
+     */
+    chainId: 42161,
+    addresses: {
+      alwaysTier: '0x552E9bDA51Ca6f669277dB900FC2b05fAf7A79B5',
+      combineTierFactory: '0x16D33236D7Af17ca55E60EcE64e9F6CeD32Ba416',
+      erc20BalanceTierFactory: '0xc50aAf61BAE0b5c69DAf59aED1Fe8dC793C44595',
+      erc20TransferTierFactory: '0xFB7Cd2084f0C745193DF635413dFbc1a682bD494',
+      erc721BalanceTierFactory: '0xa018eAB945De7e8073d1995284b78FC0cfE45B76',
+      emissionsERC20Factory: '0xa76F06F09346141977cF652A1EDFD09D779AA22a',
+      gatedNFTFactory: '0xbA9Ce92a65e172ADd70A71B6E280D9941fb9185C',
+      noticeBoard: '0x34A0946CEAD3417E629B2679D05C0A24d49a1eB4',
+      redeemableERC20ClaimEscrow: '0xcF75a4bc22AD40D6DA6f57b5174D39D28bC85a96',
+      redeemableERC20Factory: '0xdcE20fE4E286912ec457536Ae0b3Df5fDE21a40A',
+      saleFactory: '0x333F9355Bc47A22f64ac5C5F3d7cC5408544851f',
+      verifyFactory: '0xc1E7CA4D153Ac0919f34198c1d029ed3391b9f29',
+      verifyTierFactory: '0x3F9276cE9DDCaaB2b558DeFEA6DE1a8ee321536b',
+    },
+  },
+  {
+    /**
+     * Celo mainnet chain
+     */
+    chainId: 42220,
+    addresses: {
+      alwaysTier: '0x552E9bDA51Ca6f669277dB900FC2b05fAf7A79B5',
+      combineTierFactory: '0x16D33236D7Af17ca55E60EcE64e9F6CeD32Ba416',
+      erc20BalanceTierFactory: '0xc50aAf61BAE0b5c69DAf59aED1Fe8dC793C44595',
+      erc20TransferTierFactory: '0xFB7Cd2084f0C745193DF635413dFbc1a682bD494',
+      erc721BalanceTierFactory: '0xa018eAB945De7e8073d1995284b78FC0cfE45B76',
+      emissionsERC20Factory: '0xa76F06F09346141977cF652A1EDFD09D779AA22a',
+      gatedNFTFactory: '0xbA9Ce92a65e172ADd70A71B6E280D9941fb9185C',
+      noticeBoard: '0x34A0946CEAD3417E629B2679D05C0A24d49a1eB4',
+      redeemableERC20ClaimEscrow: '0xcF75a4bc22AD40D6DA6f57b5174D39D28bC85a96',
+      redeemableERC20Factory: '0xdcE20fE4E286912ec457536Ae0b3Df5fDE21a40A',
+      saleFactory: '0x333F9355Bc47A22f64ac5C5F3d7cC5408544851f',
+      verifyFactory: '0xc1E7CA4D153Ac0919f34198c1d029ed3391b9f29',
+      verifyTierFactory: '0x3F9276cE9DDCaaB2b558DeFEA6DE1a8ee321536b',
     },
   },
   {
@@ -177,6 +261,48 @@ const addressBook = [
   },
   {
     /**
+     * Avalanche chain
+     */
+    chainId: 43114,
+    addresses: {
+      alwaysTier: '0x552E9bDA51Ca6f669277dB900FC2b05fAf7A79B5',
+      combineTierFactory: '0x16D33236D7Af17ca55E60EcE64e9F6CeD32Ba416',
+      erc20BalanceTierFactory: '0xc50aAf61BAE0b5c69DAf59aED1Fe8dC793C44595',
+      erc20TransferTierFactory: '0xFB7Cd2084f0C745193DF635413dFbc1a682bD494',
+      erc721BalanceTierFactory: '0xa018eAB945De7e8073d1995284b78FC0cfE45B76',
+      emissionsERC20Factory: '0xa76F06F09346141977cF652A1EDFD09D779AA22a',
+      gatedNFTFactory: '0xbA9Ce92a65e172ADd70A71B6E280D9941fb9185C',
+      noticeBoard: '0x34A0946CEAD3417E629B2679D05C0A24d49a1eB4',
+      redeemableERC20ClaimEscrow: '0xcF75a4bc22AD40D6DA6f57b5174D39D28bC85a96',
+      redeemableERC20Factory: '0xdcE20fE4E286912ec457536Ae0b3Df5fDE21a40A',
+      saleFactory: '0x333F9355Bc47A22f64ac5C5F3d7cC5408544851f',
+      verifyFactory: '0xc1E7CA4D153Ac0919f34198c1d029ed3391b9f29',
+      verifyTierFactory: '0x3F9276cE9DDCaaB2b558DeFEA6DE1a8ee321536b',
+    },
+  },
+  {
+    /**
+     * Celo alfajores chain - Celo testnet
+     */
+    chainId: 44787,
+    addresses: {
+      alwaysTier: '0x61904ed7643c7Bc12aaBfc6B29B830Be93231d8b',
+      combineTierFactory: '0xa76F06F09346141977cF652A1EDFD09D779AA22a',
+      erc20BalanceTierFactory: '0xcF75a4bc22AD40D6DA6f57b5174D39D28bC85a96',
+      erc20TransferTierFactory: '0x34A0946CEAD3417E629B2679D05C0A24d49a1eB4',
+      erc721BalanceTierFactory: '0xA54f23A7B650Ea510fCA651EAfc39BFA5a04010D',
+      emissionsERC20Factory: '0x31aa5951100e11b8A34Bc9D98a44De152Dc5d3a2',
+      gatedNFTFactory: '0x00DDE5505E0075C4bF7536d3d2014895D9cbE546',
+      noticeBoard: '0x586Fa008Ae3C1228B9E42452DfE04c99D7E97C35',
+      redeemableERC20ClaimEscrow: '0x25ACA096cbEF597Aa3B99CDD747805e58d1aea81',
+      redeemableERC20Factory: '0xa018eAB945De7e8073d1995284b78FC0cfE45B76',
+      saleFactory: '0xE09f5c0bA8A3C59f3c7aFFB458058881413878a2',
+      verifyFactory: '0x333F9355Bc47A22f64ac5C5F3d7cC5408544851f',
+      verifyTierFactory: '0xbA9Ce92a65e172ADd70A71B6E280D9941fb9185C',
+    },
+  },
+  {
+    /**
      * Mumbai chain
      */
     chainId: 80001,
@@ -194,6 +320,69 @@ const addressBook = [
       saleFactory: '0xE152e59e644e49AE5D73Df70658084DFc8b5CBb6',
       verifyFactory: '0x6e55b00ecfc718d202e57709a747fe3fc7f6e61e',
       verifyTierFactory: '0x2aAA6104B099B2d1DF1D984F67da042555506B71',
+    },
+  },
+  {
+    /**
+     * Arbitrum rinkeby chain - Arbitrum testnet
+     */
+    chainId: 421611,
+    addresses: {
+      alwaysTier: '0x552E9bDA51Ca6f669277dB900FC2b05fAf7A79B5',
+      combineTierFactory: '0x16D33236D7Af17ca55E60EcE64e9F6CeD32Ba416',
+      erc20BalanceTierFactory: '0xc50aAf61BAE0b5c69DAf59aED1Fe8dC793C44595',
+      erc20TransferTierFactory: '0xFB7Cd2084f0C745193DF635413dFbc1a682bD494',
+      erc721BalanceTierFactory: '0xa018eAB945De7e8073d1995284b78FC0cfE45B76',
+      emissionsERC20Factory: '0xa76F06F09346141977cF652A1EDFD09D779AA22a',
+      gatedNFTFactory: '0xbA9Ce92a65e172ADd70A71B6E280D9941fb9185C',
+      noticeBoard: '0x34A0946CEAD3417E629B2679D05C0A24d49a1eB4',
+      redeemableERC20ClaimEscrow: '0xcF75a4bc22AD40D6DA6f57b5174D39D28bC85a96',
+      redeemableERC20Factory: '0xdcE20fE4E286912ec457536Ae0b3Df5fDE21a40A',
+      saleFactory: '0x333F9355Bc47A22f64ac5C5F3d7cC5408544851f',
+      verifyFactory: '0xc1E7CA4D153Ac0919f34198c1d029ed3391b9f29',
+      verifyTierFactory: '0x3F9276cE9DDCaaB2b558DeFEA6DE1a8ee321536b',
+    },
+  },
+  {
+    /**
+     * Aurora mainnet chain
+     */
+    chainId: 1313161554,
+    addresses: {
+      alwaysTier: '0x552E9bDA51Ca6f669277dB900FC2b05fAf7A79B5',
+      combineTierFactory: '0x16D33236D7Af17ca55E60EcE64e9F6CeD32Ba416',
+      erc20BalanceTierFactory: '0xc50aAf61BAE0b5c69DAf59aED1Fe8dC793C44595',
+      erc20TransferTierFactory: '0xFB7Cd2084f0C745193DF635413dFbc1a682bD494',
+      erc721BalanceTierFactory: '0xa018eAB945De7e8073d1995284b78FC0cfE45B76',
+      emissionsERC20Factory: '0xa76F06F09346141977cF652A1EDFD09D779AA22a',
+      gatedNFTFactory: '0xbA9Ce92a65e172ADd70A71B6E280D9941fb9185C',
+      noticeBoard: '0x34A0946CEAD3417E629B2679D05C0A24d49a1eB4',
+      redeemableERC20ClaimEscrow: '0xcF75a4bc22AD40D6DA6f57b5174D39D28bC85a96',
+      redeemableERC20Factory: '0xdcE20fE4E286912ec457536Ae0b3Df5fDE21a40A',
+      saleFactory: '0x333F9355Bc47A22f64ac5C5F3d7cC5408544851f',
+      verifyFactory: '0xc1E7CA4D153Ac0919f34198c1d029ed3391b9f29',
+      verifyTierFactory: '0x3F9276cE9DDCaaB2b558DeFEA6DE1a8ee321536b',
+    },
+  },
+  {
+    /**
+     * Aurora testnet chain
+     */
+    chainId: 1313161555,
+    addresses: {
+      alwaysTier: '0xd51AAeCC45bfAeC2e5bc50d5d647D2B7FF48f807',
+      combineTierFactory: '0x1E4432F8d3f16A41c79640a93dF221dEAa022f50',
+      erc20BalanceTierFactory: '0xbBEB09Fe86536d66C43f76BFdc30e8802Fb7e6C5',
+      erc20TransferTierFactory: '0xd1db393d3dEdE96ECF48CFED9De5f5ebE2df7d6F',
+      erc721BalanceTierFactory: '0xd385De5A3f0e56fC44F9726BF27ff9aD5a11B4dF',
+      emissionsERC20Factory: '0x40A5EB6E16C8a61d9992a9d46FA51F1840460Fa8',
+      gatedNFTFactory: '0xeA4faDB2edcC7e362C7dbCdC1A83e44E1009661A',
+      noticeBoard: '0x1298E8154BF05D8701bD0d3F9504B69C46d7f4A1',
+      redeemableERC20ClaimEscrow: '0xBFC5Ae6E8A111C630Bef9B76BE5a4D0c82cB2ef4',
+      redeemableERC20Factory: '0xa6703bAC5A591fa7f59B1aF76060D4c34c7DaAaB',
+      saleFactory: '0x7364cBbd1248573fcd7caD73a978BD7E436Effe5',
+      verifyFactory: '0x125102a6Fa1f8E83Cc5329F03f179E165eF623d5',
+      verifyTierFactory: '0xCB265d72a2669F1fA587327Ddb809dc5A4a6E45a',
     },
   },
 ];
@@ -220,19 +409,62 @@ const subgraphBook: SubgraphBook = {
    */
   137: 'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-polygon-e590ce',
   /**
+   * Fantom mainnet chain
+   */
+  250: 'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-fantom-e590ce',
+  /**
+   * Fantom testnet chain
+   */
+  4002: 'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-fantom-testnet-e590ce',
+  /**
    * Hardhat chain
    */
   31337: 'https://api.url-test',
+  /**
+   * Arbitrum mainnet chain
+   */
+  42161:
+    'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-arbitrum-e590ce',
+  /**
+   * Celo mainnet chain
+   */
+  42220:
+    'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-celo-mainnet-e590ce',
   /**
    * Fuji chain - Avalanche Testnet
    */
   43113:
     'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-fuji-e590ce',
   /**
+   * Avalanche chain
+   */
+  43114:
+    'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-avalanche-e590ce',
+  /**
+   * Celo alfajores testnet chain
+   */
+  44787:
+    'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-celo-alfajores-e590ce',
+  /**
    * Mumbai chain
    */
   80001:
     'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-mumbai-e590ce',
+  /**
+   * Arbitrum rinkeby testnet chain
+   */
+  421611:
+    'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-arbitrum-rinkeby-e590ce',
+  /**
+   * Aurora mainnet chain
+   */
+  1313161554:
+    'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-aurora-e590ce',
+  /**
+   * Aurora testnet chain
+   */
+  1313161555:
+    'https://api.thegraph.com/subgraphs/name/nanezx/rain-protocol-aurora-testnet-e590ce',
 };
 
 /**
