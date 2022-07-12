@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-
 import { Verify } from '../src';
 import { Time } from './utils';
+
 
 describe('Verify', () => {
   it('should deploy a Verify child', async () => {

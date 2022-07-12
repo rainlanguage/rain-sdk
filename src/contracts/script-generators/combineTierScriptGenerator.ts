@@ -22,6 +22,7 @@ import {
  * @example new CombineTier(a tierAddress or a StateConfig)
  */
 export class CombineTierGenerator {
+
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -32,19 +33,64 @@ export class CombineTierGenerator {
    * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
    */
   constructor(reporter: string | StateConfig) {
-    if (typeof reporter == 'string') {
-      this.constants = [reporter];
-      this.sources = [
+
+    let report_: StateConfig;
+
+    const singleReport_ = {
+      constants: [
+        paddedUInt256(
+          paddedUInt32('8') +
+          paddedUInt32('7') +
+          paddedUInt32('6') +
+          paddedUInt32('5') +
+          paddedUInt32('4') +
+          paddedUInt32('3') +
+          paddedUInt32('2') +
+          paddedUInt32('1')
+        ),
+        "0"
+      ],
+      sources: [
         concat([
-          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.THIS_ADDRESS),
           op(VM.Opcodes.CONTEXT, CombineTierContext.Account),
           op(VM.Opcodes.ITIERV2_REPORT),
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.ZIPMAP, callSize(1, 3, 1)),
+          op(VM.Opcodes.ADD, 8)
         ]),
-      ];
-    } else {
-      this.constants = reporter.constants;
-      this.sources = reporter.sources;
+        concat([
+          op(VM.Opcodes.CONTEXT, CombineTierContext.Tier),
+          op(VM.Opcodes.CONSTANT, 3),
+          op(VM.Opcodes.EQUAL_TO),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.EAGER_IF)
+        ])
+      ]
+    };
+
+    if (typeof reporter == 'string') {
+      report_ = {
+        constants: [reporter],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.CONTEXT, CombineTierContext.Account),
+            op(VM.Opcodes.ITIERV2_REPORT),
+          ])
+        ]
+      }
+    } 
+    else {
+      report_ = reporter;
     }
+
+    report_ = VM.combiner(report_, singleReport_, {numberOfSources: 0})
+
+    this.constants = report_.constants;
+    this.sources = report_.sources;
+
   }
 
   /**
@@ -523,4 +569,211 @@ export class ERC20BalanceTier extends CombineTierGenerator {
     ];
     super({constants, sources});
   }
+}
+
+/**
+ * @public
+ * class to create a the vmStateConfig for CombineTier as BalanceTier.
+ * this will perform similar to ERC1155BalancTier witha certain toke ID
+ * 
+ */
+ export class ERC1155BalanceTier extends CombineTierGenerator {
+
+  /**
+   * Constructor for ERC1155BalanceTier vmStateConfig
+   * 
+   * @param tierValues - an array of 8 values for each tier values
+   * @param tokenId - ID of the token
+   * @param tokenAddress - the ERC1155 token address
+   */
+  constructor (
+    public readonly tierValues: (number | string)[],
+    public readonly tokenId: BigNumber,
+    public readonly tokenAddress: string,
+  ) {
+    const constants = [
+      paddedUInt256(
+        paddedUInt32(tierValues[7].toString()) +
+        paddedUInt32(tierValues[6].toString()) +
+        paddedUInt32(tierValues[5].toString()) +
+        paddedUInt32(tierValues[4].toString()) +
+        paddedUInt32(tierValues[3].toString()) +
+        paddedUInt32(tierValues[2].toString()) +
+        paddedUInt32(tierValues[1].toString()) +
+        paddedUInt32(tierValues[0].toString())
+      ),
+      tokenAddress,
+      tokenId,
+      paddedUInt256(
+        paddedUInt32('7') +
+        paddedUInt32('6') +
+        paddedUInt32('5') +
+        paddedUInt32('4') +
+        paddedUInt32('3') +
+        paddedUInt32('2') +
+        paddedUInt32('1') +
+        paddedUInt32('0')
+      ),
+      "0xffffffff",
+      "0",
+      "100000000"
+    ];
+     const sources = [
+      concat([
+        op(VM.Opcodes.CONSTANT, 0),
+        op(VM.Opcodes.CONSTANT, 3),
+        op(VM.Opcodes.ZIPMAP, callSize(1, 3, 1)),
+        op(VM.Opcodes.ADD, 8),
+      ]),
+      concat([
+        op(VM.Opcodes.CONSTANT, 1),
+        op(VM.Opcodes.CONTEXT, 0),
+        op(VM.Opcodes.CONSTANT, 2),
+        op(VM.Opcodes.IERC1155_BALANCE_OF),
+        op(VM.Opcodes.CONSTANT, 7),
+        op(VM.Opcodes.LESS_THAN),
+        op(VM.Opcodes.CONSTANT, 4),
+        op(VM.Opcodes.CONSTANT, 3),
+        op(VM.Opcodes.EAGER_IF),
+        op(VM.Opcodes.CONSTANT, 6),
+        op(VM.Opcodes.CONSTANT, 8),
+        op(VM.Opcodes.EXP, 2),
+        op(VM.Opcodes.MUL, 2),
+      ])
+    ];
+    super({constants, sources});
+  }
+}
+
+/**
+ * A class to generate the StateConfig out of EVM assets' opcodes
+ */
+export class AssetOp extends CombineTierGenerator {
+
+  /**
+   * Constructor of this class
+   * 
+   * @param type - the type of the asset script
+   * @param address - an array of address(es) of the asset(s) contract(s), only IERC20-Balance-of-Batch uses more than 1 address
+   * @param id - an array of id(s) of either tokenId(s) or snapshotId(s) , only IERC20-Balance-of-Batch uses more than 1 id
+   */
+  constructor(
+    type: 
+      "erc20-balance-of" |
+      "erc20-total-supply" |
+      "snapshot-balance-of" |
+      "snapshot-total-supply" |
+      "erc721-balance-of" |
+      "erc721-owner-of" |
+      "erc1155-balance-of" |
+      "erc1155-balance-of-batch",
+    address: string[],
+    id?: BigNumber[]
+  ) {
+    let script: StateConfig;
+
+    if (type === "erc20-balance-of" && address[0]) {
+      script = {
+        constants: [address[0]],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.SENDER),
+            op(VM.Opcodes.IERC20_BALANCE_OF),
+          ])
+        ]
+      }
+    }
+    else if (type === "erc20-total-supply" && address[0]) {
+      script = {
+        constants: [address[0]],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.IERC20_TOTAL_SUPPLY)
+          ])
+        ]
+      }
+    }
+    else if (type === "snapshot-balance-of" && address[0] && id?.length) {
+      script = {
+        constants: [address[0], id[0]],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.SENDER),
+            op(VM.Opcodes.CONSTANT, 1),
+            op(VM.Opcodes.IERC20_SNAPSHOT_BALANCE_OF_AT)
+          ])
+        ]
+      }
+    }
+    else if (type === "snapshot-total-supply" && address[0] && id?.length) {
+      script = {
+        constants: [address[0], id[0]],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.CONSTANT, 1),
+            op(VM.Opcodes.IERC20_SNAPSHOT_TOTAL_SUPPLY_AT)
+          ])
+        ]
+      }
+    }
+    else if (type === "erc721-balance-of" && address[0]) {
+      script = {
+        constants: [address[0]],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.SENDER),
+            op(VM.Opcodes.IERC721_BALANCE_OF)
+          ])
+        ]
+      }
+    }
+    else if (type === "erc721-owner-of" && address[0] && id?.length) {
+      script = {
+        constants: [address[0], id[0]],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.CONSTANT, 1),
+            op(VM.Opcodes.IERC721_OWNER_OF)
+          ])
+        ]
+      }
+    }
+    else if (type === "erc1155-balance-of" && address[0] && id?.length) {
+      script = {
+        constants: [address[0], id[0]],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.SENDER),
+            op(VM.Opcodes.CONSTANT, 1),
+            op(VM.Opcodes.IERC1155_BALANCE_OF)
+          ])
+        ]
+      }
+    }
+    else if (type === "erc1155-balance-of-batch" && address.length == id?.length) {
+      let i = 0;
+      let sources: Uint8Array[] = [];
+      for (i; i < address.length; i++) {
+        sources.push(op(VM.Opcodes.CONSTANT, i))
+      };
+      sources.push(op(VM.Opcodes.SENDER));
+      for (i; i < address.length * 2; i++) {
+        sources.push(op(VM.Opcodes.CONSTANT, i))
+      };
+      script = {
+        constants: [...address, ...id],
+        sources
+      }
+    }
+    else throw new Error("not valid arguments for constructor")
+    super(script)
+  }
+
 }

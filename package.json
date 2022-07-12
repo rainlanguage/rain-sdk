@@ -16,7 +16,7 @@
     "build": "tsdx build",
     "nix-build": "nix-shell --run yarn build",
     "test": "npx hardhat test",
-    "lint": "tsdx lint src",
+    "lint": "npx eslint \"src/**\"",
     "prepare": "tsdx build",
     "size": "size-limit",
     "analyze": "size-limit --why",
