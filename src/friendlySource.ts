@@ -417,9 +417,13 @@ export class HumanFriendlySource {
             space.repeat(counter * n) +
             _text.slice(i);
           i = i + counter * n + 1;
+          if (counter === 0 && (_text[i + 1] || _text[i + 1])) {
+            _text = _text.slice(0, i + 1) + '\n\n' + _text.slice(i + 1);
+          }
         } else {
           skip--;
         }
+
       }
     }
     return _text;
@@ -455,12 +459,6 @@ export class HumanFriendlySource {
       const _stackIndex = BigNumber.from(state.stackIndex).toNumber();
       op = ops[i];
       i++;
-
-      console.log('==================');
-      console.log('op: ', op);
-      console.log('_stackIndex: ', _stackIndex);
-      console.log('state.stack: ', state.stack);
-      console.log('==================');
 
       if (op.input === 'constantIndex') {
         if (op.operand < 128) {

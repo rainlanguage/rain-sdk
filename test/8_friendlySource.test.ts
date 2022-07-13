@@ -24,7 +24,6 @@ import {
   deployErc1155,
 } from './utils';
 
-
 const {
   bytify,
   op,
@@ -36,12 +35,12 @@ const {
 } = utils;
 
 const Opcode = AllStandardOps;
-const a = true ? 1: 2;
+const a = true ? 1 : 2;
 if (a == 2) {
   //
 }
 
-describe.only('Human Friendly Source Generator', () => {
+describe('Human Friendly Source Generator', () => {
   it('should generate the human friendly from an exponentiation op source', async () => {
     const constants = [5, 2];
 
@@ -1586,7 +1585,7 @@ describe.only('Human Friendly Source Generator', () => {
     );
   });
 
-  it.only('multi-phase sale with a fixed price NFT-gated first phase, and dutch auction second phase open to the public', async () => {
+  it('multi-phase sale with a fixed price NFT-gated first phase, and dutch auction second phase open to the public', async () => {
     const [arbitrary] = await ethers.getSigners();
     const ERC721Address = arbitrary.address;
     const fixedPrice = '20';
@@ -1679,81 +1678,66 @@ describe.only('Human Friendly Source Generator', () => {
       ],
     };
 
+    // @ts-ignore
     const friendly = HumanFriendlySource.get(saleConfig, {
       contract: 'sale',
       pretty: true,
     });
 
-    console.log(friendly);
+    // prettier-ignore
+    const expectOutput =
+`EAGER_IF(
+  LESS_THAN(
+    CURRENT_TIMESTAMP,
+    ${splitTimestamp}
+  ),
+  EAGER_IF(
+    ISZERO(
+      IERC721_BALANCE_OF(
+        ${ERC721Address},
+        SENDER()
+      )
+    ),
+    0,
+    CurrentBuyUnits
+  ),
+  CurrentBuyUnits
+)
 
-    //     // prettier-ignore
-    //     const expectOutput =
-    // `EAGER_IF(
-    //   EAGER_IF(
-    //     LESS_THAN(
-    //       CURRENT_TIMESTAMP,
-    //       ${splitTimestamp}
-    //     ),
-    //     EAGER_IF(
-    //       ISZERO(
-    //         IERC721_BALANCE_OF(
-    //           ${ERC721Address},
-    //           SENDER
-    //         )
-    //       ),
-    //       0,
-    //       CONTEXT[0]
-    //     ),
-    //     CONTEXT[0]
-    //   ),
-    //   LESS_THAN(
-    //     CURRENT_TIMESTAMP,
-    //     ${splitTimestamp}
-    //   ),
-    //   DIV(
-    //     MUL(
-    //       ADD(
-    //         STORAGE(
-    //           ${FixedPrice}
-    //         ),
-    //         ${ReserveBalance}
-    //       ),
-    //       MAX(
-    //         SATURATING_SUB(
-    //           ${InitWeight},
-    //           MUL(
-    //             SATURATING_SUB(
-    //               CURRENT_TIMESTAMP,
-    //               ${splitTimestamp}
-    //             ),
-    //             ${WeightChange}
-    //           )
-    //         ),
-    //         ${one}
-    //       )
-    //     ),
-    //     STORAGE(
-    //       MAX(
-    //         SATURATING_SUB(
-    //           ${InitWeight},
-    //           MUL(
-    //             SATURATING_SUB(
-    //               CURRENT_TIMESTAMP,
-    //               ${splitTimestamp}
-    //             ),
-    //             ${WeightChange}
-    //           )
-    //         ),
-    //         ${one}
-    //       )
-    //     )
-    //   )
-    // )`;
+EAGER_IF(
+  LESS_THAN(
+    CURRENT_TIMESTAMP,
+    ${splitTimestamp}
+  ),
+  ${FixedPrice},
+  DIV(
+    MUL(
+      ADD(
+        TotalReserveIn,
+        ${ReserveBalance}
+      ),
+      MAX(
+        SATURATING_SUB(
+          ${InitWeight},
+          MUL(
+            SATURATING_SUB(
+              CURRENT_TIMESTAMP,
+              ${splitTimestamp}
+            ),
+            ${WeightChange}
+          )
+        ),
+        ${one}
+      )
+    ),
+    RemainingUnits
+  )
+)`;
 
-    //     expect(HumanFriendlySource.prettify(friendly)).to.be.equals(expectOutput);
+    expect(friendly).to.be.equals(expectOutput);
   });
 
-  it('should generate the friendly source with the correct context if the contract type is provided', async () => {
+  it('should throw an error if the script use STORAGE op and does not provide the contact/context', async () => {
     const [arbitrary] = await ethers.getSigners();
     const ERC721Address = arbitrary.address;
     const fixedPrice = '20';
@@ -1846,257 +1830,11 @@ describe.only('Human Friendly Source Generator', () => {
       ],
     };
 
-    const friendlyUgly = HumanFriendlySource.get(saleConfig, {
-      contract: 'SALE',
-    });
-
-    const expectedOutputUgly = `EAGER_IF(EAGER_IF(LESS_THAN(CURRENT_TIMESTAMP, ${splitTimestamp}), EAGER_IF(ISZERO(IERC721_BALANCE_OF(${ERC721Address}, SENDER)), 0, CurrentBuyUnits), CurrentBuyUnits), LESS_THAN(CURRENT_TIMESTAMP, ${splitTimestamp}), DIV(MUL(ADD(STORAGE(${FixedPrice}), ${ReserveBalance}), MAX(SATURATING_SUB(${InitWeight}, MUL(SATURATING_SUB(CURRENT_TIMESTAMP, ${splitTimestamp}), ${WeightChange})), ${one})), STORAGE(MAX(SATURATING_SUB(${InitWeight}, MUL(SATURATING_SUB(CURRENT_TIMESTAMP, ${splitTimestamp}), ${WeightChange})), ${one}))))`;
-
-    expect(friendlyUgly).to.be.equals(expectedOutputUgly);
-
-    // prettier-ignore
-    const expectOutputPretty =
-`EAGER_IF(
-  EAGER_IF(
-    LESS_THAN(
-      CURRENT_TIMESTAMP,
-      ${splitTimestamp}
-    ),
-    EAGER_IF(
-      ISZERO(
-        IERC721_BALANCE_OF(
-          ${ERC721Address},
-          SENDER
-        )
-      ),
-      0,
-      CurrentBuyUnits
-    ),
-    CurrentBuyUnits
-  ),
-  LESS_THAN(
-    CURRENT_TIMESTAMP,
-    ${splitTimestamp}
-  ),
-  DIV(
-    MUL(
-      ADD(
-        STORAGE(
-          ${FixedPrice}
-        ),
-        ${ReserveBalance}
-      ),
-      MAX(
-        SATURATING_SUB(
-          ${InitWeight},
-          MUL(
-            SATURATING_SUB(
-              CURRENT_TIMESTAMP,
-              ${splitTimestamp}
-            ),
-            ${WeightChange}
-          )
-        ),
-        ${one}
-      )
-    ),
-    STORAGE(
-      MAX(
-        SATURATING_SUB(
-          ${InitWeight},
-          MUL(
-            SATURATING_SUB(
-              CURRENT_TIMESTAMP,
-              ${splitTimestamp}
-            ),
-            ${WeightChange}
-          )
-        ),
-        ${one}
-      )
-    )
-  )
-)`;
-
-    const friendlyPretty = HumanFriendlySource.get(saleConfig, {
-      contract: 'SALE',
-      pretty: true,
-    });
-
-    expect(friendlyPretty).to.be.equals(expectOutputPretty);
-  });
-
-  it('should generate the friendly source with the correct context and already prettified if the config is set', async () => {
-    const [arbitrary] = await ethers.getSigners();
-    const ERC721Address = arbitrary.address;
-    const fixedPrice = '20';
-    const reserveTokenDecimals = 18;
-    const minimumRaise = ethers.BigNumber.from('150000').mul(RESERVE_ONE);
-    const initialSupply = ethers.BigNumber.from('2000').mul(ONE);
-
-    const splitTimestamp = await Time.currentTime();
-    const endTimestamp = Time.duration
-      .minutes(60)
-      .add(splitTimestamp)
-      .toNumber();
-    const dutchAuctionstartPrice = 50;
-
-    //1st phase constants
-    const FixedPrice = parseUnits(fixedPrice.toString(), reserveTokenDecimals); //fixed price of 1st phase
-
-    // initial calculations for dutch auction 2nd phase
-    let dutchAuctionDuration = endTimestamp - splitTimestamp;
-    let balanceReserve = minimumRaise.mul(5);
-    let initWeight = initialSupply
-      .mul(dutchAuctionstartPrice)
-      .div(balanceReserve);
-    let weightChange = initWeight.sub(1).div(dutchAuctionDuration);
-
-    // 2nd phase constants
-    const ReserveBalance = parseUnits(
-      // Virtual reserve token balance
-      balanceReserve.toString(),
-      reserveTokenDecimals
-    );
-
-    const InitWeight = parseUnits(initWeight.toString()); // initial weight
-
-    const WeightChange = parseUnits(
-      weightChange.toNumber().toFixed(5).toString()
-    ); // weight change per timestamp
-
-    const one = parseUnits((1).toString()); // minimum possible weight
-
-    const saleConfig: StateConfig = {
-      constants: [
-        splitTimestamp, // timestamp that splits the phases
-        ERC721Address,
-        FixedPrice,
-        0,
-        ReserveBalance,
-        InitWeight,
-        WeightChange,
-        one,
-      ],
-
-      sources: [
-        concat([
-          // Amount script
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANT, 0),
-          op(VM.Opcodes.LESS_THAN),
-          op(VM.Opcodes.CONSTANT, 1),
-          op(VM.Opcodes.SENDER),
-          op(VM.Opcodes.IERC721_BALANCE_OF),
-          op(VM.Opcodes.ISZERO),
-          op(VM.Opcodes.CONSTANT, 3),
-          op(VM.Opcodes.CONTEXT, SaleContext.CurrentBuyUnits), // ie 0 as operand
-          op(VM.Opcodes.EAGER_IF),
-          op(VM.Opcodes.CONTEXT, SaleContext.CurrentBuyUnits),
-          op(VM.Opcodes.EAGER_IF),
-          // Price script
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANT, 0),
-          op(VM.Opcodes.LESS_THAN),
-          op(VM.Opcodes.CONSTANT, 2),
-          op(VM.Opcodes.STORAGE, SaleStorage.TotalReserveIn), // ie 1 as operand
-          op(VM.Opcodes.CONSTANT, 4),
-          op(VM.Opcodes.ADD, 2),
-          op(VM.Opcodes.CONSTANT, 5),
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANT, 0),
-          op(VM.Opcodes.SATURATING_SUB, 2),
-          op(VM.Opcodes.CONSTANT, 6),
-          op(VM.Opcodes.MUL, 2),
-          op(VM.Opcodes.SATURATING_SUB, 2),
-          op(VM.Opcodes.CONSTANT, 7),
-          op(VM.Opcodes.MAX, 2),
-          op(VM.Opcodes.MUL, 2),
-          op(VM.Opcodes.STORAGE, SaleStorage.RemainingUnits), // ie 0 as operand
-          op(VM.Opcodes.DIV, 2),
-          op(VM.Opcodes.EAGER_IF),
-        ]),
-      ],
-    };
-
-    const friendlyUgly = HumanFriendlySource.get(saleConfig, {
-      contract: 'SALE',
-    });
-
-    const expectedOutputUgly = `EAGER_IF(EAGER_IF(LESS_THAN(CURRENT_TIMESTAMP, ${splitTimestamp}), EAGER_IF(ISZERO(IERC721_BALANCE_OF(${ERC721Address}, SENDER)), 0, CurrentBuyUnits), CurrentBuyUnits), LESS_THAN(CURRENT_TIMESTAMP, ${splitTimestamp}), DIV(MUL(ADD(STORAGE(${FixedPrice}), ${ReserveBalance}), MAX(SATURATING_SUB(${InitWeight}, MUL(SATURATING_SUB(CURRENT_TIMESTAMP, ${splitTimestamp}), ${WeightChange})), ${one})), STORAGE(MAX(SATURATING_SUB(${InitWeight}, MUL(SATURATING_SUB(CURRENT_TIMESTAMP, ${splitTimestamp}), ${WeightChange})), ${one}))))`;
-
-    expect(friendlyUgly).to.be.equals(expectedOutputUgly);
-
-    // prettier-ignore
-    const expectOutputPretty =
-`EAGER_IF(
-  EAGER_IF(
-    LESS_THAN(
-      CURRENT_TIMESTAMP,
-      ${splitTimestamp}
-    ),
-    EAGER_IF(
-      ISZERO(
-        IERC721_BALANCE_OF(
-          ${ERC721Address},
-          SENDER
-        )
-      ),
-      0,
-      CurrentBuyUnits
-    ),
-    CurrentBuyUnits
-  ),
-  LESS_THAN(
-    CURRENT_TIMESTAMP,
-    ${splitTimestamp}
-  ),
-  DIV(
-    MUL(
-      ADD(
-        STORAGE(
-          ${FixedPrice}
-        ),
-        ${ReserveBalance}
-      ),
-      MAX(
-        SATURATING_SUB(
-          ${InitWeight},
-          MUL(
-            SATURATING_SUB(
-              CURRENT_TIMESTAMP,
-              ${splitTimestamp}
-            ),
-            ${WeightChange}
-          )
-        ),
-        ${one}
-      )
-    ),
-    STORAGE(
-      MAX(
-        SATURATING_SUB(
-          ${InitWeight},
-          MUL(
-            SATURATING_SUB(
-              CURRENT_TIMESTAMP,
-              ${splitTimestamp}
-            ),
-            ${WeightChange}
-          )
-        ),
-        ${one}
-      )
-    )
-  )
-)`;
-
-    const friendlyPretty = HumanFriendlySource.get(saleConfig, {
-      contract: 'SALE',
-      pretty: true,
-    });
-
-    expect(friendlyPretty).to.be.equals(expectOutputPretty);
+    expect(() => {
+      HumanFriendlySource.get(saleConfig, {
+        pretty: true,
+      });
+    }).to.throw('Not contract/context provided to get the STORAGE');
   });
 
   it('brackets prettify', async () => {
@@ -2156,7 +1894,7 @@ describe.only('Human Friendly Source Generator', () => {
       pretty: true,
     });
 
-    const expectedOutput = `ZIPMAP(
+    const expectedOutput = `ZIPMAP_8(
   [
     "00000001",
     "00000000",
@@ -2177,7 +1915,7 @@ describe.only('Human Friendly Source Generator', () => {
     "ffffffff",
     "ffffffff"
   ],
-  EAGER_IF(ISZERO(^0),^1,^0)
+  EAGER_IF(ISZERO(^0), ^1, ^0)
 )`;
 
     expect(friendlyPretty).to.be.equals(expectedOutput);
