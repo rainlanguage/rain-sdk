@@ -6,7 +6,6 @@ import { BigNumber, ethers, Signer } from 'ethers';
 import { ERC1155 } from '../contracts/generics/erc1155';
 import { ERC20 } from '../contracts/generics/erc20';
 import { ERC721 } from '../contracts/generics/erc721';
-import { ERC20Snapshot__factory } from '../typechain';
 import { arrayify, paddedUInt160, paddedUInt256, paddedUInt32 } from '../utils';
 
 
