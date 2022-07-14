@@ -1,7 +1,6 @@
+import { Tier } from '../../classes/iTierV2';
 import { StateConfig, VM } from '../../classes/vm';
 import { BigNumberish, BigNumber, BytesLike, ethers } from 'ethers';
-import { CombineTierContext } from '../tiers/combineTier';
-import { Tier } from '../../classes/tierContract';
 import {
   concat,
   op,
@@ -31,8 +30,39 @@ export class CombineTierGenerator {
    * Constructor for this class
    *
    * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
+   * @param optioins - (optional) used for additional configuration of the script
+   *    - (param) accountOrSender - (optional) Used to determine if this script is being used for combinetier contract 
+   * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
+   *    - (param) hasReportForSingleTier - (optional) Used to determine if this script needs to have a second
+   *        script used for getting the ITIERV2_TIME_FOR_TIER for a combineTier contract reportTimeForTier, default is false
+   *    - (param) tierContext - (optional) an array of 8 values used as Stake thresholds or in general as REPORT opcodes context
    */
-  constructor(reporter: string | StateConfig) {
+  constructor(
+    reporter: string | StateConfig,
+    options?: {
+      accountOrSender?: boolean,
+      hasReportForSingleTier?: boolean, 
+      tierContext?: BigNumber[]
+    }
+  ) {
+    const CONTEXT_ = options?.tierContext && typeof reporter === "string"
+    ? {
+        constants: options.tierContext,
+        sources: concat([
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.CONSTANT, 3),
+          op(VM.Opcodes.CONSTANT, 4),
+          op(VM.Opcodes.CONSTANT, 5),
+          op(VM.Opcodes.CONSTANT, 6),
+          op(VM.Opcodes.CONSTANT, 7),
+          op(VM.Opcodes.CONSTANT, 8),
+        ])
+    }
+    : {
+        constants: [],
+        sources: concat([])
+    }
 
     let report_: StateConfig;
 
@@ -53,14 +83,14 @@ export class CombineTierGenerator {
       sources: [
         concat([
           op(VM.Opcodes.THIS_ADDRESS),
-          op(VM.Opcodes.CONTEXT, CombineTierContext.Account),
+          options?.accountOrSender ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER, 0),
           op(VM.Opcodes.ITIERV2_REPORT),
           op(VM.Opcodes.CONSTANT, 0),
           op(VM.Opcodes.ZIPMAP, callSize(1, 3, 1)),
           op(VM.Opcodes.ADD, 8)
         ]),
         concat([
-          op(VM.Opcodes.CONTEXT, CombineTierContext.Tier),
+          op(VM.Opcodes.CONTEXT, 1),
           op(VM.Opcodes.CONSTANT, 3),
           op(VM.Opcodes.EQUAL_TO),
           op(VM.Opcodes.CONSTANT, 2),
@@ -76,8 +106,9 @@ export class CombineTierGenerator {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.CONTEXT, CombineTierContext.Account),
-            op(VM.Opcodes.ITIERV2_REPORT),
+            options?.accountOrSender ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER, 0),
+            CONTEXT_.sources,
+            op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
           ])
         ]
       }
@@ -86,7 +117,7 @@ export class CombineTierGenerator {
       report_ = reporter;
     }
 
-    report_ = VM.combiner(report_, singleReport_, {numberOfSources: 0})
+    report_ = options?.hasReportForSingleTier ? VM.combiner(report_, singleReport_, {numberOfSources: 0}) : report_;
 
     this.constants = report_.constants;
     this.sources = report_.sources;
@@ -99,6 +130,8 @@ export class CombineTierGenerator {
    * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
    * @param logic - selectLte logic
    * @param mode - selectLte mode
+   * @param accountOrSender - (optional) Used to determine if this script is being used for combinetier contract 
+   * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    * @param number - (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK_TIMESTAMP
    *
    * @returns this
@@ -107,12 +140,10 @@ export class CombineTierGenerator {
     reporter: string | StateConfig,
     logic: selectLteLogic,
     mode: selectLteMode,
+    accountOrSender?: boolean,
     number?: number
   ): CombineTierGenerator {
-    const _buttom: StateConfig =
-      typeof reporter == 'string'
-        ? new CombineTierGenerator(reporter)
-        : reporter;
+    const _buttom = new CombineTierGenerator(reporter, {accountOrSender})
 
     const _combiner: StateConfig = {
       constants: number ? [number] : [],
@@ -172,14 +203,13 @@ export class CombineTierGenerator {
    * Saturating difference between 2 reports
    *
    * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
+   * @param accountOrSender - (optional) Used to determine if this script is being used for combinetier contract 
+   * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    *
    * @returns this
    */
-  public differenceFrom(reporter: string | StateConfig): this {
-    const _buttom: StateConfig =
-      typeof reporter == 'string'
-        ? new CombineTierGenerator(reporter)
-        : reporter;
+  public differenceFrom(reporter: string | StateConfig, accountOrSender?: boolean): this {
+    const _buttom = new CombineTierGenerator(reporter, {accountOrSender})
 
     const _differ: StateConfig = {
       constants: [],
@@ -196,47 +226,16 @@ export class CombineTierGenerator {
   }
 
   /**
-   * Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier.
+   * Creats a holding time ALWAYS/NEVER tier script for a Combinetier contract out of a Stake contract.
    *
-   * @param reporter - either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of StateConfig desired)
-   * @param numberOfBlocks - A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report.
-   *
+   * @param duration - A number or an array of numbers represting the duration in timestamp a given 
+   * tier must be held to get ALWAYS report or else it gets NEVER report.
+   * 
    * @returns this
    */
   public isTierHeldFor(
-    reporter: string | StateConfig,
-    numberOfBlocks: number | number[],
-    thresholds?: (number | string)[],
-    tokenDecimals: number = 18
+    duration: number | number[]
   ): CombineTierGenerator {
-    let stakeContext: StateConfig = {
-      constants: [],
-      sources: []
-    };
-    if (thresholds && thresholds.length > 0) {
-      for (let i = 0; i < thresholds.length; i++) {
-        stakeContext.constants.push(
-          parseUnits(thresholds[i].toString(), tokenDecimals)
-        );
-        stakeContext.sources.push(
-          concat([
-            op(VM.Opcodes.CONSTANT, i)
-          ])
-        );
-      }
-      stakeContext.sources = [
-        concat([
-          ...stakeContext.sources
-        ])
-      ];
-    }
-
-    const _report: StateConfig =
-      typeof reporter == 'string'
-        ? stakeContext.constants.length > 0 
-          ? VM.combiner(new CombineTierGenerator(reporter), stakeContext, {position: [2]}) 
-          : new CombineTierGenerator(reporter)
-        : reporter;
 
     const _shifter = paddedUInt256(
           paddedUInt32('7') +
@@ -253,44 +252,44 @@ export class CombineTierGenerator {
       BigNumber.from(
         '0x' +
           paddedUInt32(
-            typeof numberOfBlocks == 'number'
-              ? numberOfBlocks
-              : numberOfBlocks[7]
+            typeof duration == 'number'
+              ? duration
+              : duration[7]
           ) +
           paddedUInt32(
-            typeof numberOfBlocks == 'number'
-              ? numberOfBlocks
-              : numberOfBlocks[6]
+            typeof duration == 'number'
+              ? duration
+              : duration[6]
           ) +
           paddedUInt32(
-            typeof numberOfBlocks == 'number'
-              ? numberOfBlocks
-              : numberOfBlocks[5]
+            typeof duration == 'number'
+              ? duration
+              : duration[5]
           ) +
           paddedUInt32(
-            typeof numberOfBlocks == 'number'
-              ? numberOfBlocks
-              : numberOfBlocks[4]
+            typeof duration == 'number'
+              ? duration
+              : duration[4]
           ) +
           paddedUInt32(
-            typeof numberOfBlocks == 'number'
-              ? numberOfBlocks
-              : numberOfBlocks[3]
+            typeof duration == 'number'
+              ? duration
+              : duration[3]
           ) +
           paddedUInt32(
-            typeof numberOfBlocks == 'number'
-              ? numberOfBlocks
-              : numberOfBlocks[2]
+            typeof duration == 'number'
+              ? duration
+              : duration[2]
           ) +
           paddedUInt32(
-            typeof numberOfBlocks == 'number'
-              ? numberOfBlocks
-              : numberOfBlocks[1]
+            typeof duration == 'number'
+              ? duration
+              : duration[1]
           ) +
           paddedUInt32(
-            typeof numberOfBlocks == 'number'
-              ? numberOfBlocks
-              : numberOfBlocks[0]
+            typeof duration == 'number'
+              ? duration
+              : duration[0]
           )
       )
     );
@@ -321,7 +320,7 @@ export class CombineTierGenerator {
       ],
     };
 
-    _result = VM.combiner(_report, _result);
+    _result = VM.combiner(this, _result);
 
     this.constants = _result.constants;
     this.sources = _result.sources;
@@ -338,9 +337,18 @@ export class BuildReport extends CombineTierGenerator {
    * Contructor of this class
    *
    * @param number - (optional) A number or an array of numbers represting the report at each tier,
-   * if not passed, BLOCK_TIMESTAMP will be used to creat the report of each tier
+   * if not passed, BLOCK_TIMESTAMP will be used to creat the report of each tier which would result in 
+   * a dynamic report when the script is executed by combineTier contract report function
+   * @param accountOrSender - (optional) Used to determine if this script is being used for combinetier contract 
+   * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
+   * @param hasReportForSingleTier - (optional) Used to determine if this script needs to be combined with another
+   *  script used for getting the ITIERV2_TIME_FOR_TIER, default is false
    */
-  constructor(number?: number | number[]) {
+  constructor(
+    number?: number | number[],
+    accountOrSender?: boolean,
+    hasReportForSingleTier?: boolean,
+    ) {
     let _result: StateConfig;
 
     if (number != undefined) {
@@ -425,7 +433,7 @@ export class BuildReport extends CombineTierGenerator {
         ],
       };
     }
-    super(_result);
+    super(_result, {hasReportForSingleTier, accountOrSender});
   }
 };
 
@@ -497,7 +505,7 @@ export class ERC20BalanceTier extends CombineTierGenerator {
         op(VM.Opcodes.MUL, 2),
       ])
     ];
-    super({constants, sources});
+    super({constants, sources}, {hasReportForSingleTier: true, accountOrSender: true});
   }
 };
 
@@ -517,7 +525,7 @@ export class ERC20BalanceTier extends CombineTierGenerator {
    */
   constructor (
     public readonly tierValues: (number | string)[],
-    public readonly tokenAddress: string,
+    public readonly tokenAddress: string
   ) {
     const constants = [
       paddedUInt256(
@@ -567,7 +575,7 @@ export class ERC20BalanceTier extends CombineTierGenerator {
         op(VM.Opcodes.MUL, 2),
       ])
     ];
-    super({constants, sources});
+    super({constants, sources}, {hasReportForSingleTier: true, accountOrSender: true});
   }
 }
 
@@ -641,139 +649,6 @@ export class ERC20BalanceTier extends CombineTierGenerator {
         op(VM.Opcodes.MUL, 2),
       ])
     ];
-    super({constants, sources});
+    super({constants, sources}, {hasReportForSingleTier: true, accountOrSender: true});
   }
-}
-
-/**
- * A class to generate the StateConfig out of EVM assets' opcodes
- */
-export class AssetOp extends CombineTierGenerator {
-
-  /**
-   * Constructor of this class
-   * 
-   * @param type - the type of the asset script
-   * @param address - an array of address(es) of the asset(s) contract(s), only IERC20-Balance-of-Batch uses more than 1 address
-   * @param id - an array of id(s) of either tokenId(s) or snapshotId(s) , only IERC20-Balance-of-Batch uses more than 1 id
-   */
-  constructor(
-    type: 
-      "erc20-balance-of" |
-      "erc20-total-supply" |
-      "snapshot-balance-of" |
-      "snapshot-total-supply" |
-      "erc721-balance-of" |
-      "erc721-owner-of" |
-      "erc1155-balance-of" |
-      "erc1155-balance-of-batch",
-    address: string[],
-    id?: BigNumber[]
-  ) {
-    let script: StateConfig;
-
-    if (type === "erc20-balance-of" && address[0]) {
-      script = {
-        constants: [address[0]],
-        sources: [
-          concat([
-            op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.SENDER),
-            op(VM.Opcodes.IERC20_BALANCE_OF),
-          ])
-        ]
-      }
-    }
-    else if (type === "erc20-total-supply" && address[0]) {
-      script = {
-        constants: [address[0]],
-        sources: [
-          concat([
-            op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.IERC20_TOTAL_SUPPLY)
-          ])
-        ]
-      }
-    }
-    else if (type === "snapshot-balance-of" && address[0] && id?.length) {
-      script = {
-        constants: [address[0], id[0]],
-        sources: [
-          concat([
-            op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.SENDER),
-            op(VM.Opcodes.CONSTANT, 1),
-            op(VM.Opcodes.IERC20_SNAPSHOT_BALANCE_OF_AT)
-          ])
-        ]
-      }
-    }
-    else if (type === "snapshot-total-supply" && address[0] && id?.length) {
-      script = {
-        constants: [address[0], id[0]],
-        sources: [
-          concat([
-            op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.CONSTANT, 1),
-            op(VM.Opcodes.IERC20_SNAPSHOT_TOTAL_SUPPLY_AT)
-          ])
-        ]
-      }
-    }
-    else if (type === "erc721-balance-of" && address[0]) {
-      script = {
-        constants: [address[0]],
-        sources: [
-          concat([
-            op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.SENDER),
-            op(VM.Opcodes.IERC721_BALANCE_OF)
-          ])
-        ]
-      }
-    }
-    else if (type === "erc721-owner-of" && address[0] && id?.length) {
-      script = {
-        constants: [address[0], id[0]],
-        sources: [
-          concat([
-            op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.CONSTANT, 1),
-            op(VM.Opcodes.IERC721_OWNER_OF)
-          ])
-        ]
-      }
-    }
-    else if (type === "erc1155-balance-of" && address[0] && id?.length) {
-      script = {
-        constants: [address[0], id[0]],
-        sources: [
-          concat([
-            op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.SENDER),
-            op(VM.Opcodes.CONSTANT, 1),
-            op(VM.Opcodes.IERC1155_BALANCE_OF)
-          ])
-        ]
-      }
-    }
-    else if (type === "erc1155-balance-of-batch" && address.length == id?.length) {
-      let i = 0;
-      let sources: Uint8Array[] = [];
-      for (i; i < address.length; i++) {
-        sources.push(op(VM.Opcodes.CONSTANT, i))
-      };
-      sources.push(op(VM.Opcodes.SENDER));
-      for (i; i < address.length * 2; i++) {
-        sources.push(op(VM.Opcodes.CONSTANT, i))
-      };
-      script = {
-        constants: [...address, ...id],
-        sources
-      }
-    }
-    else throw new Error("not valid arguments for constructor")
-    super(script)
-  }
-
 }

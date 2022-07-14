@@ -1,15 +1,16 @@
-import { ERC20Burnable__factory } from '../../typechain';
+import { ERC20Burnable__factory, ERC20Snapshot__factory } from '../../typechain';
 import { BigNumberish, BigNumber, Signer, ContractTransaction } from 'ethers';
-import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
+import { TxOverrides, ReadTxOverrides, RainContract } from '../../classes/rainContract';
 
 /**
  * @public
- *
  * A generic ERC20 interface to get connected to any ERC20 address and make transactions.
  *
  * @remarks
  * The interface only have and provide generic and common methods calls. Remember that any specific
  * method implemented in the contract will NOT be available in this interface.
+ * Can get connected to ERC20Snapshot as well.
+ * 
  */
 export class ERC20 {
   public readonly signer: Signer;
@@ -20,19 +21,29 @@ export class ERC20 {
    *
    * @param address - The address of the ERC20 contract
    * @param signer - An ethers.js Signer
+   * @param isSnapshot - (optional) True if the token is ERC20Snapshot
    * @returns A new ERC20 instance
-   *
    */
-  constructor(address: string, signer: Signer) {
+  constructor(address: string, signer: Signer, isSnapshot?: boolean) {
+    let _erc20;
     this.address = address;
     this.signer = signer;
-    const _erc20 = ERC20Burnable__factory.connect(address, signer);
+    RainContract.checkAddress(address);
+
+    if (isSnapshot) {
+      _erc20 = ERC20Snapshot__factory.connect(address, signer);
+      this.balanceOfAt = _erc20.balanceOfAt;
+      this.totalSupplyAt = _erc20.totalSupplyAt;
+    }
+    else {
+      _erc20 = ERC20Burnable__factory.connect(address, signer);
+      this.burn = _erc20.burn;
+      this.burnFrom = _erc20.burnFrom;
+    }
 
     this.allowance = _erc20.allowance;
     this.approve = _erc20.approve;
     this.balanceOf = _erc20.balanceOf;
-    this.burn = _erc20.burn;
-    this.burnFrom = _erc20.burnFrom;
     this.decimals = _erc20.decimals;
     this.decreaseAllowance = _erc20.decreaseAllowance;
     this.increaseAllowance = _erc20.increaseAllowance;
@@ -76,7 +87,7 @@ export class ERC20 {
   };
 
   /**
-   * Connect the current instance to a new signer
+   * Connect the current instance of the ERC20 to a new signer
    *
    * @param signer - The new signer which will be connected
    * @returns The instance with a new signer
@@ -114,8 +125,7 @@ export class ERC20 {
   ) => Promise<BigNumber>;
 
   /**
-   * Sets `amount` as the allowance of `spender` over the caller's tokens.
-   *
+   * Approve spend limit `amount` as the allowance for a `spender` over this tokens.
    *
    * @param spender - The addess that will get approved
    * @param amount - The amount that `spender` is allowed to spend
@@ -132,40 +142,12 @@ export class ERC20 {
    *
    * @param account - Account address to get the balance
    * @param overrides - @see ReadTxOverrides
-   * @returns Amount of tokens that the owner have
+   * @returns Amount of tokens that the owner has
    */
   public readonly balanceOf: (
     account: string,
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
-
-  /**
-   * Destroys `amount` tokens from the caller.
-   *
-   * @param amount -  Amount of tokens to burn
-   * @param overrides - @see TxOverrides
-   */
-  public readonly burn: (
-    amount: BigNumberish,
-    overrides?: TxOverrides
-  ) => Promise<ContractTransaction>;
-
-  /**
-   * Destroys `amount` tokens from `account`, deducting from the caller's
-   * allowance.
-   * Requirements:
-   *
-   * - the caller must have allowance for `accounts`'s tokens of at least
-   * `amount`.
-   *
-   * @param account - Account address to get the balance
-   * @param amount -  Amount of tokens to burn
-   */
-  public readonly burnFrom: (
-    account: string,
-    amount: BigNumberish,
-    overrides?: TxOverrides
-  ) => Promise<ContractTransaction>;
 
   /**
    * Returns the number of decimals used to get its user representation.
@@ -176,7 +158,7 @@ export class ERC20 {
   public readonly decimals: (overrides?: ReadTxOverrides) => Promise<number>;
 
   /**
-   * Atomically decreases the allowance granted to `spender` by the caller.
+   * Automatically decreases the allowance granted to `spender` for this token.
    *
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
@@ -192,7 +174,7 @@ export class ERC20 {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Atomically increases the allowance granted to `spender` by the caller.
+   * Automically increases the allowance granted to `spender` for this token.
    *
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
@@ -211,7 +193,7 @@ export class ERC20 {
    *  Returns the name of the token.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The name of the Redeemable
+   * @returns The name of this token
    */
   public readonly name: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -219,7 +201,7 @@ export class ERC20 {
    * Returns the symbol of the token, usually a shorter version of the name.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The symbol of the Emissions contract
+   * @returns The symbol of this token
    */
   public readonly symbol: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -227,14 +209,14 @@ export class ERC20 {
    * Returns the amount of tokens in existence.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The total supply that have the Emissions
+   * @returns The current total supply of this token
    */
   public readonly totalSupply: (
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
   /**
-   * Moves `amount` tokens from the caller's account to `to`.
+   * Moves `amount` of tokens from the caller's account to `to`.
    *
    * Requirements:
    *
@@ -252,7 +234,7 @@ export class ERC20 {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is
+   * Moves `amount` of tokens from `from` to `to` using the allowance mechanism. `amount` is
    * then deducted from the caller's allowance.
    *
    * NOTE: Does not update the allowance if the current allowance is the maximum `uint256`.
@@ -274,4 +256,55 @@ export class ERC20 {
     amount: BigNumberish,
     overrides?: TxOverrides
   ) => Promise<ContractTransaction>;
+
+  /**
+   * Destroys `amount` tokens from the caller.
+   *
+   * @param amount -  Amount of tokens to burn
+   * @param overrides - @see TxOverrides
+   */
+  public readonly burn?: (
+    amount: BigNumberish,
+    overrides?: TxOverrides
+  ) => Promise<ContractTransaction>;
+
+  /**
+   * Destroys `amount` tokens from `account`, deducting from the caller's
+   * allowance.
+   * Requirements:
+   *
+   * - the caller must have allowance for `accounts`'s tokens of at least
+   * `amount`.
+   *
+   * @param account - Account address to get the balance
+   * @param amount -  Amount of tokens to burn
+   */
+  public readonly burnFrom?: (
+    account: string,
+    amount: BigNumberish,
+    overrides?: TxOverrides
+  ) => Promise<ContractTransaction>;
+
+  /**
+   * Get the totalSupply at the snapshotId
+   *
+   * @param snapshotId -  snapshotId of tokens to get the totalSupply at
+   * @param overrides - @see TxOverrides
+   */
+  public readonly totalSupplyAt?: (
+    snapshotId: BigNumberish,
+    overrides?: TxOverrides
+  ) => Promise<BigNumber>;
+
+  /**
+   * Get the balanceOf the account at the snapshotId
+   *
+   * @param account - Account address to get the balance of at
+   * @param snapshotId -  snapshotId 
+   */
+  public readonly balanceOfAt?: (
+    account: string,
+    snapshotId: BigNumberish,
+    overrides?: TxOverrides
+  ) => Promise<BigNumber>;
 }

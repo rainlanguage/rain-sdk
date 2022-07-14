@@ -1,5 +1,12 @@
-import { TierContract } from '../classes/tierContract';
+import { ITierV2 } from '../classes/iTierV2';
 import { StateConfig, StorageOpcodesRange } from '../classes/vm';
+import {
+  Signer,
+  BigNumber,
+  BytesLike,
+  BigNumberish,
+  ContractTransaction,
+} from 'ethers';
 import {
   EmissionsERC20__factory,
   EmissionsERC20Factory__factory,
@@ -9,13 +16,7 @@ import {
   TxOverrides,
   ReadTxOverrides,
 } from '../classes/rainContract';
-import {
-  Signer,
-  BigNumber,
-  BytesLike,
-  BigNumberish,
-  ContractTransaction,
-} from 'ethers';
+
 
 /**
  * @public
@@ -28,13 +29,6 @@ export enum EmissionsERC20Context {
    * operand for CONTEXT opcode to stack the claimant account that report is being call for.
    */
   ClaimantAccount,
-  /**
-   * 1 or the index of the context array in the emissioinsERC20
-   * contract used as the operand for CONTEXT opcode.
-   * operand for CONTEXT opcode to stack the tier that reportTimeForTier is being call for.
-   * The tier (between 1 to 8) used for tierTimeForTier and it has no use for "ITIERV2_REPORT" opcode
-   */
-  Tier,
   /**
    * length of EmissionsERC20's valid context opcodes - 2
    */
@@ -71,7 +65,7 @@ export enum EmissionsERC20Storage {
  *```
  */
 
-export class EmissionsERC20 extends TierContract {
+export class EmissionsERC20 extends ITierV2 {
   protected static readonly nameBookReference: string = 'emissionsERC20Factory';
 
   /**
@@ -87,7 +81,7 @@ export class EmissionsERC20 extends TierContract {
 
     super(address, signer);
     const _emission = EmissionsERC20__factory.connect(address, signer);
-
+    
     this.allowDelegatedClaims = _emission.allowDelegatedClaims;
     this.allowance = _emission.allowance;
     this.approve = _emission.approve;
@@ -131,6 +125,13 @@ export class EmissionsERC20 extends TierContract {
     return new EmissionsERC20(address, signer);
   };
 
+  /**
+   * @public
+   * Conncect to this EmissionsERC20 contract with another signer
+   * 
+   * @param signer - the signer to get connected to the EmissionsERC20 instance
+   * @returns the EmissionsERC20 instance with the new signer
+   */
   public readonly connect = (signer: Signer): EmissionsERC20 => {
     return new EmissionsERC20(this.address, signer);
   };
@@ -147,18 +148,6 @@ export class EmissionsERC20 extends TierContract {
     maybeChild: string
   ): Promise<boolean> => {
     return await this._isChild(signer, maybeChild);
-  };
-
-  /**
-   * It is NOT implemented in Emissions. Always will throw an error
-   */
-  public readonly setTier = async (
-    account: string,
-    endTier: BigNumberish,
-    data: BytesLike,
-    overrides?: TxOverrides
-  ) => {
-    throw new Error('SET TIER: NOT IMPLEMENTED');
   };
 
   /**
@@ -198,8 +187,7 @@ export class EmissionsERC20 extends TierContract {
   ) => Promise<BigNumber>;
 
   /**
-   * Sets `amount` as the allowance of `spender` over the caller's tokens.
-   *
+   * Approve spend limit `amount` as the allowance for a `spender` over this tokens.
    *
    * @param spender - The addess that will get approved
    * @param amount - The amount that `spender` is allowed to spend
@@ -216,7 +204,7 @@ export class EmissionsERC20 extends TierContract {
    *
    * @param account - Account address to get the balance
    * @param overrides - @see ReadTxOverrides
-   * @returns Amount of tokens that the owner have
+   * @returns Amount of tokens that the owner has
    */
   public readonly balanceOf: (
     account: string,
@@ -263,7 +251,7 @@ export class EmissionsERC20 extends TierContract {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Returns the number of decimals used to get its user representation.
+   * Returns the number of decimals used to get its user representation. (It is always 18 for this contract type)
    *
    * @param overrides - @see ReadTxOverrides
    * @returns The decimals of the Emissions contract
@@ -271,7 +259,7 @@ export class EmissionsERC20 extends TierContract {
   public readonly decimals: (overrides?: ReadTxOverrides) => Promise<number>;
 
   /**
-   * Atomically decreases the allowance granted to `spender` by the caller.
+   * Automatically decreases the allowance granted to `spender` for this token.
    *
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
@@ -287,7 +275,7 @@ export class EmissionsERC20 extends TierContract {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Atomically increases the allowance granted to `spender` by the caller.
+   * Automically increases the allowance granted to `spender` for this token.
    *
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
@@ -306,7 +294,7 @@ export class EmissionsERC20 extends TierContract {
    *  Returns the name of the token.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The name of the Emissions contract
+   * @returns The name of this EmissionsERC20 token
    */
   public readonly name: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -314,7 +302,7 @@ export class EmissionsERC20 extends TierContract {
    * Returns the symbol of the token, usually a shorter version of the name.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The symbol of the Emissions contract
+   * @returns The symbol of this EmissionsERC20 token
    */
   public readonly symbol: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -322,14 +310,14 @@ export class EmissionsERC20 extends TierContract {
    * Returns the amount of tokens in existence.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The total supply that have the Emissions
+   * @returns The current total supply of this token
    */
   public readonly totalSupply: (
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
   /**
-   * Moves `amount` tokens from the caller's account to `to`.
+   * Moves `amount` of tokens from the caller's account to `to`.
    *
    * Requirements:
    *
@@ -347,7 +335,7 @@ export class EmissionsERC20 extends TierContract {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is
+   * Moves `amount` of tokens from `from` to `to` using the allowance mechanism. `amount` is
    * then deducted from the caller's allowance.
    *
    * NOTE: Does not update the allowance if the current allowance is the maximum `uint256`.
@@ -373,7 +361,7 @@ export class EmissionsERC20 extends TierContract {
   /**
    * Pointers to opcode functions, necessary for being able to read the packedBytes
    *
-   * @param override - @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns the opcode functions pointers
    */
   public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
@@ -381,7 +369,7 @@ export class EmissionsERC20 extends TierContract {
   /**
    * Returns the pointer and length for emissionERC20's storage opcodes
    *
-   * @param override - @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns a StorageOpcodesRange
    */
   public readonly storageOpcodesRange: (

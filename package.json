@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.1-beta",
   "license": "CAL",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -49,7 +49,7 @@
     }
   ],
   "devDependencies": {
-    "@beehiveinnovation/rain-protocol": "git+https://github.com/beehive-innovation/rain-protocol.git#5a35b097475d37fd5f44446922a32025708c1f8c",
+    "@beehiveinnovation/rain-protocol": "git+https://github.com/beehive-innovation/rain-protocol.git#f184482cca57c72db22ba97649d5f84a1b7ad291",
     "@microsoft/api-extractor": "^7.22.2",
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.1",

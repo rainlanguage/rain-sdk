@@ -1,4 +1,4 @@
-import { BigNumberish, BytesLike } from 'ethers';
+import { BigNumber, BigNumberish, BytesLike } from 'ethers';
 import { SaleContext, SaleStorage } from '../sale';
 import { StateConfig, VM } from '../../classes/vm';
 import { parseUnits, concat, op } from '../../utils';
@@ -131,22 +131,30 @@ export class PriceCurve {
    *
    * @param tierAddress - The Tier contract address.
    * @param tierDiscount - An array of each tiers' discount ranging between 0 - 99.
-   * @param tierActivation - (optional) An array of number of blocks for each tier that will be the required period
-   * of time for that tiered address to hold the tier's in order to be eligible for that tier's discount.
-   *
+   * @param options - (optional) used for stake tier contracts
+   *    - (param) tierActivation - An array of number of timestamps for each tier that will be the required period
+   *      of time for that tiered address to hold the tier's in order to be eligible for that tier's discount.
+   *    - (param) tierContext - an array of 8 items represtenting stake contract thresholds
    * @returns this
    *
    */
   public applyTierDiscount(
     tierAddress: string,
     tierDiscount: number[],
-    tierActivation?: (number | string)[]
+    options?: {
+      tierActivation?: (number | string)[],
+      tierContext?: BigNumber[]
+    }
+
   ): PriceCurve {
-    const _discountConfig = VM.toTierDiscounter(
+    const _discountConfig = VM.setDiscountForTiers(
       this,
       tierAddress,
       tierDiscount,
-      { tierActivation }
+      { 
+        tierActivation: options?.tierActivation, 
+        tierContext: options?.tierContext 
+      }
     );
 
     this.constants = _discountConfig.constants;
@@ -226,11 +234,11 @@ export class vLBP extends PriceCurve {
       constants: [
         parseUnits(balanceReserve.toString(), reserveTokenDecimals),
         parseUnits(initWeight.toString()),
-        parseUnits(weightChange.toFixed(5).toString()),
+        parseUnits(weightChange.toFixed(17).toString()),
         startTimestamp,
         parseUnits((1).toString()),
       ],
-      sources: [concat([vLBP.vLBP_SOURCES()])],
+      sources: [vLBP.vLBP_SOURCES()],
     });
   }
 
@@ -295,7 +303,7 @@ export class IncDecPrice extends PriceCurve {
       constants: [
         parseUnits(startPrice.toString(), reserveTokenDecimals),
         parseUnits(endPrice.toString(), reserveTokenDecimals),
-        parseUnits(priceChange.toFixed(5).toString(), reserveTokenDecimals),
+        parseUnits(priceChange.toFixed(reserveTokenDecimals != 18 ? reserveTokenDecimals : 17).toString(), reserveTokenDecimals),
         startTimestamp,
       ],
       sources: [
@@ -607,7 +615,7 @@ export class BetweenBlocks {
  * or cap that can be bought.
  *
  */
-export class BuyCap {
+export class BuyAmount {
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -615,7 +623,7 @@ export class BuyCap {
   /**
    * Constructor for this class
    *
-   * @param buyCapConfig - (optional) a custom StateConfig as the BuyCap (amount) script
+   * @param buyCapConfig - (optional) a custom StateConfig as the BuyAmount (amount) script
    * if not passed the current buy units (CONTEXT, 0) will be used as the amount in
    * amount/price script pair for the sale.
    */
@@ -641,8 +649,9 @@ export class BuyCap {
    *    - (param) maxWalletCap - The number for max cap per wallet, addresses cannot buy more number of rTKNs than this amount.
    *    - (param) tierAddress - The Tier contract address for tiers' max cap per wallet multiplier.
    *    - (param) tierMultiplier - An array of each tiers' Multiplier value.
-   *    - (param) tierActivation - An array of number of blocks for each tier that will be the required period of time for that tiered
+   *    - (param) tierActivation - An array of number of timestamps for each tier that will be the required period of time for that tiered
    *       address to hold the tier's in order to be eligible for that tier's multiplier.
+   *    - (param) tierContext - an array of 8 items represtenting stake contract thresholds
    *
    * @returns this
    *
@@ -655,8 +664,9 @@ export class BuyCap {
       tierAddress?: string;
       tierMultiplier?: number[];
       tierActivation?: (number | string)[];
+      tierContext?: BigNumber[]
     }
-  ): BuyCap {
+  ): BuyAmount {
     const MIN_CAP_SOURCES = (i: number) =>
       concat([
         op(VM.Opcodes.CONSTANT, i),
@@ -677,7 +687,8 @@ export class BuyCap {
         op(VM.Opcodes.GREATER_THAN),
       ]);
 
-    if (mode == BuyCapMode.min && options?.minWalletCap) {
+    if (mode == BuyCapMode.min && options?.minWalletCap !== undefined) {
+      options.minWalletCap = options.minWalletCap === 0 ? 1 : options.minWalletCap;
       let minCapConfig: StateConfig = {
         constants: [parseUnits(options.minWalletCap.toString()).sub(1)],
         sources: [MIN_CAP_SOURCES(0)],
@@ -692,18 +703,21 @@ export class BuyCap {
       this.constants = minCapConfig.constants;
       this.sources = minCapConfig.sources;
     }
-    if (mode == BuyCapMode.max && options?.maxWalletCap) {
+    if (mode == BuyCapMode.max && options?.maxWalletCap !== undefined) {
       let maxCapConfig: StateConfig;
 
       if (options.tierMultiplier && options.tierAddress) {
-        maxCapConfig = VM.toTierMultiplier(
+        maxCapConfig = VM.setMultiplierForTiers(
           {
             constants: [parseUnits(options.maxWalletCap.toString())],
             sources: [concat([op(VM.Opcodes.CONSTANT, 0)])],
           },
           options.tierAddress,
           options.tierMultiplier,
-          { tierActivation: options.tierActivation }
+          { 
+            tierActivation: options.tierActivation,
+            tierContext: options.tierContext
+          }
         );
         maxCapConfig = VM.combiner(maxCapConfig, {
           constants: [1],
@@ -743,8 +757,9 @@ export class BuyCap {
     if (
       mode == BuyCapMode.both &&
       options?.minWalletCap &&
-      options?.maxWalletCap
+      options?.maxWalletCap !== undefined
     ) {
+      options.minWalletCap = options.minWalletCap === 0 ? 1 : options.minWalletCap;
       let bothCapConfig: StateConfig;
 
       if (options.tierMultiplier && options.tierAddress) {
@@ -752,11 +767,14 @@ export class BuyCap {
           constants: [parseUnits(options.maxWalletCap.toString())],
           sources: [concat([op(VM.Opcodes.CONSTANT, 0)])],
         };
-        bothCapConfig = VM.toTierMultiplier(
+        bothCapConfig = VM.setMultiplierForTiers(
           bothCapConfig,
           options.tierAddress,
           options.tierMultiplier,
-          { tierActivation: options.tierActivation }
+          { 
+            tierActivation: options.tierActivation,
+            tierContext: options.tierContext
+          }
         );
 
         bothCapConfig = VM.combiner(
@@ -843,7 +861,7 @@ export class SaleVmFrom {
       | BetweenTimestamps
       | BetweenBlocks
       | StateConfig,
-    public readonly buyCapScript: BuyCap | StateConfig,
+    public readonly buyCapScript: BuyAmount | StateConfig,
     public readonly calculateBuyScript: PriceCurve | StateConfig
   ) {
     let _saleConfig = VM.pair(buyCapScript, calculateBuyScript);

@@ -1,13 +1,11 @@
-import { BigNumber, ethers, Signer } from 'ethers';
-import { Tier } from '../classes/tierContract';
+import { ITierV2 } from '../classes/iTierV2';
+import { eighteenZeros } from './types';
+import { Tier } from '../classes/iTierV2';
 import { StateConfig, VM } from '../classes/vm';
+import { BigNumber, ethers, Signer } from 'ethers';
 import { ERC1155 } from '../contracts/generics/erc1155';
 import { ERC20 } from '../contracts/generics/erc20';
 import { ERC721 } from '../contracts/generics/erc721';
-import { ITierV2 } from '../contracts/tiers/iTierV2';
-import { Provider } from '../types';
-import { ERC20Snapshot__factory } from '../typechain';
-import { eighteenZeros } from './types';
 import { arrayify, paddedUInt160, paddedUInt256, paddedUInt32 } from '../utils';
 
 
@@ -84,26 +82,24 @@ export class RainJS {
   public signer?: Signer;
 
   /**
-   * An ethers provider.
-   */
-  public provider?: Provider;
-
-  /**
-   * An ethers Contract
+   * The contract address of the instance of this class used for THIS_ADDRESS opcode
    */
   public contract?: string;
-
-  /**
-   * Object that contains the CONTEXT opcode functions (i.e. local opcodes)
-   * the required value need to be passed to "run" method as the context array in "data" object.
-   * the reason is the CONTEXT opcode is contextual and is passed the VM at runtime.
-   */
-  protected _CONTEXT_?: ApplyOpFn;
 
   /**
    * Object that contains the STORAGE opcode functions (i.e. local opcodes)
    */
   protected _STORAGE_?: ApplyOpFn;
+
+  /**
+   * Length of the valid context argument accessible by eval
+   */
+  protected readonly ContextLength: number = 0;
+
+  /**
+   * Range of available storage variables accessible by eval
+   */
+  protected readonly StorageRange: number = 0;
 
   /**
    * The constructor of RainJS which initiates the RainJS and also a StateJS for a RainVM script.
@@ -116,11 +112,11 @@ export class RainJS {
     state: StateConfig,
     options?: {
       signer?: Signer;
-      provider?: Provider;
       contract?: string;
       applyOpFn?: ApplyOpFn;
-      storageOpFn?: ApplyOpFn; // for overriding the CombineTierJS's STORAGE opcode function
-      contextOpFn?: ApplyOpFn; // for overriding the CombineTierJS's CONTEXT opcode function
+      contextLength?: number;
+      storageRange?: number;
+      storageOpFn?: ApplyOpFn; // for providing STORAGE opcode functions
     }
   ) {
     const stack: BigNumber[] = [];
@@ -144,12 +140,18 @@ export class RainJS {
     this.applyOpFn = options?.applyOpFn;
     this.signer = options?.signer;
     this.contract = options?.contract;
-    this.provider = options?.provider ?? options?.signer?.provider;
+    
+    // assigning the StorageRange and ContextLength
+    if (options?.contextLength) {
+      this.ContextLength = options.contextLength;
+    }
+    if (options?.storageRange) {
+      this.StorageRange = options.storageRange;
+    }
 
-    // assigning custom functions to the STORAGE/CONTEXT functions
+    // assigning custom functions to the STORAGE functions
     // custom functions should be passed at the time construction
     this._STORAGE_ = options?.storageOpFn;
-    this._CONTEXT_ = options?.contextOpFn;
   }
 
   /**
@@ -269,10 +271,22 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
-      if (this._CONTEXT_) {
-        await this._CONTEXT_[operand](state, operand, data);
+      if (this.ContextLength) {
+        if (this.ContextLength > 0 && operand < this.ContextLength) {
+          if (data?.context && data.context[operand] !== undefined) {
+            state.stack.push(
+              BigNumber.from(data.context[operand])
+            );
+          } else throw new Error('Undefined context');
+        }
+        else throw new Error("out-of-bounds context")
+      }
+      else if (data?.context && data.context[operand] !== undefined) {
+        state.stack.push(
+          BigNumber.from(data.context[operand])
+        );
       } 
-      else throw new Error('no or out of bounds contexxt opcode');
+      else throw new Error('Undefined context');
     },
 
     [VM.Opcodes.STORAGE]: async (
@@ -280,10 +294,16 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
-      if (this._STORAGE_) {
-        await this._STORAGE_[operand](state, operand, data);
-      } 
-      else throw new Error('no or out-of-bound storage opcode');
+      if (this.StorageRange > 0 && operand < this.StorageRange) {
+        if (this._STORAGE_) {
+          if (this._STORAGE_[operand]) {
+            await this._STORAGE_[operand](state, operand, data);
+          }
+          else throw new Error('no or out-of-bound storage opcode')
+        } 
+        else {};
+      }
+      else {};
     },
 
     [VM.Opcodes.ZIPMAP]: async (
@@ -401,8 +421,8 @@ export class RainJS {
         const snapshotId_ = item3_;
         const account_ = paddedUInt160(item2_);
         const erc20Address_ = paddedUInt160(item1_);
-        const erc20Snapshot_ = ERC20Snapshot__factory.connect(erc20Address_, this.signer);
-        state.stack.push(await erc20Snapshot_.balanceOfAt(account_, snapshotId_));
+        const erc20Snapshot_ = new ERC20(erc20Address_, this.signer, true);
+        state.stack.push(await erc20Snapshot_.balanceOfAt!(account_, snapshotId_));
       } 
       else throw new Error('Undefined stack variables');
     },
@@ -417,8 +437,8 @@ export class RainJS {
       if (item1_ && item2_ && this.signer !== undefined) {
         const snapshotId_ = item2_;
         const erc20Address_ = paddedUInt160(item1_);
-        const erc20Snapshot_ = ERC20Snapshot__factory.connect(erc20Address_, this.signer);
-        state.stack.push(await erc20Snapshot_.totalSupplyAt(snapshotId_));
+        const erc20Snapshot_ = new ERC20(erc20Address_, this.signer, true);
+        state.stack.push(await erc20Snapshot_.totalSupplyAt!(snapshotId_));
       } 
       else throw new Error('Undefined stack variables');
     },
@@ -512,10 +532,14 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
-      if (this.provider !== undefined) {
-        state.stack.push(BigNumber.from(await this.provider.getBlockNumber()));
+      if (this.signer !== undefined) {
+        const _provider = this.signer.provider;
+        if (_provider !== undefined) {
+          state.stack.push(BigNumber.from(await _provider.getBlockNumber()));
+        }
+        else throw new Error("undefined Provider")
       } 
-      else throw new Error('Undefined Provider');
+      else throw new Error('Undefined Signer');
     },
 
     [VM.Opcodes.SENDER]: async (
@@ -545,15 +569,19 @@ export class RainJS {
       operand: number,
       data?: any
     ) => {
-      if (this.provider !== undefined) {
-        state.stack.push(
-          BigNumber.from(
-            (await this.provider.getBlock(await this.provider.getBlockNumber()))
-              .timestamp
-          )
-        );
+      if (this.signer !== undefined) {
+        const _provider = this.signer.provider;
+        if (_provider !== undefined) {
+          state.stack.push(
+            BigNumber.from(
+              (await _provider.getBlock(await _provider.getBlockNumber()))
+                .timestamp
+            )
+          );
+        }
+        else throw new Error("Undefined provider")
       } 
-      else throw new Error('Undefined Provider');
+      else throw new Error('Undefined Signer');
     },
 
     [VM.Opcodes.SCALE18]: (state: StateJS, operand: number, data?: any) => {

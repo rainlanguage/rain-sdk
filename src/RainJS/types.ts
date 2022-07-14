@@ -1,7 +1,6 @@
 import { BigNumber} from 'ethers';
 import { isHexString } from 'ethers/lib/utils';
 import { StateConfig} from '../classes/vm';
-import { paddedUInt160 } from '../utils';
 
 
 // 18 decimals or i.e "DECIMALS" - used for fixed point match
@@ -142,27 +141,17 @@ export interface clearedCounterPartyFunds {
  * 
  * @returns boolean
  */
-export function isAddress(address: string) : boolean {
-  return (
-    isHexString(address) || 
-    // eslint-disable-next-line no-new-wrappers
-    typeof new Number(address) === "number" ||
-    BigNumber.from(address)._isBigNumber
-  )
-}
-
-/**
- * function to convert address's strings to to a standard 40 char length hex string format for simulation types
- * 
- * @remark should be used for all the string type properties of the simulatioin's types
- * 
- * @param address - address string to convert
- * 
- * @returns new string in standard hex string format
- */
-export function toAddress(address: string) : string {
-  if (isAddress(address)) {
-    return paddedUInt160(BigNumber.from(address))
+export function isValidString(address: string) : boolean {
+  if (isHexString(address) || !isNaN(Number(address))) {
+    return true
   }
-  else throw new Error("not a valid address")
+  else {
+    try {
+      BigInt(address)
+      return true
+    }
+    catch(err) {
+      return false
+    }
+  }
 }

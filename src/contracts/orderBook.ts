@@ -1,3 +1,4 @@
+import { OrderBook__factory } from '../typechain';
 import { Signer, BigNumberish, BytesLike, ContractTransaction } from 'ethers';
 import {
   RainContract,
@@ -9,7 +10,6 @@ import {
   StorageOpcodesRange,
   AllStandardOps,
 } from '../classes/vm';
-import { OrderBook__factory } from '../typechain';
 
 /**
  * @public
@@ -22,7 +22,7 @@ export type OrderBookOpcodes = typeof AllStandardOps & {
 
 /**
  * @public
- * A class for calling method on a OrderBook.
+ * A class for calling method on a Rain OrderBook contract.
  *
  * @remarks
  * This class provides an easy way to interact with the OrderBook contract.
@@ -31,6 +31,8 @@ export type OrderBookOpcodes = typeof AllStandardOps & {
  * ```typescript
  * import { OrderBook } from 'rain-sdk'
  *
+ * const orderBook = await Orderbook.get(signer);
+ * or
  * const orderBook = new OrderBook(address, signer);
  *
  * const addOrderArg = {
@@ -45,7 +47,6 @@ export type OrderBookOpcodes = typeof AllStandardOps & {
  * const tx = await orderBook.addOrder(addOrderArg);
  * ```
  */
-
 export class OrderBook extends RainContract {
   protected static readonly nameBookReference: string = 'orderBook';
 
@@ -55,9 +56,10 @@ export class OrderBook extends RainContract {
    * @param address - The address of the OrderBook contract
    * @param signer - An ethers.js Signer
    * @returns A new OrderBook instance
-   *
    */
   constructor(address: string, signer: Signer) {
+    OrderBook.checkAddress(address);
+
     super(address, signer);
     const _orderBook = OrderBook__factory.connect(address, signer);
 
@@ -74,7 +76,7 @@ export class OrderBook extends RainContract {
    * All the opcodes avaialbles in the OrderBook contract.
    *
    * @remarks
-   * This expose all the standard opcodes along with the specific opcodes of the OrderBook.
+   * This expose all the standard opcodes along with the specific local OrderBook opcodes.
    */
   public static Opcodes: OrderBookOpcodes = {
     ...AllStandardOps,
@@ -86,7 +88,7 @@ export class OrderBook extends RainContract {
    * Get the OrderBook instance
    *
    * The function ask to the provider inside of the ethers signer what is the chain
-   * identifier to get the address in this chain.
+   * identifier to get the address of the Orderbook Contract in this chain and connect to it.
    *
    * @param signer - ethers signer connected to the instance
    * @returns A OrderBook instance
@@ -98,15 +100,80 @@ export class OrderBook extends RainContract {
     );
   };
 
+  /**
+   * Connect to this Orderbook instance with a new signer
+   *
+   * @param signer - The new signer which will be connected
+   * @returns The Orderbook Contract instance with a new signer 
+   */
   public readonly connect = (signer: Signer): OrderBook => {
     return new OrderBook(this.address, signer);
   };
 
+  /**
+   * @public
+   * Adds an order config for signer (as the owner) into the Orderbook
+   * 
+   * @param orderConfig_ - @see OrderConfig The order with signer as owner to be added to this Orderbook contract 
+   * @param overrides - @see TxOverrides
+   */
   public readonly addOrder: (
     orderConfig_: OrderConfig,
     overrides?: TxOverrides
   ) => Promise<ContractTransaction>;
 
+  /**
+   * @public
+   * Removes an order from the Orderbook completely.
+   * 
+   * @param order_ - @see Order The order to be removed from this Orderbook contract
+   * @param overrides - @see TxOverrides
+   */
+  public readonly removeOrder: (
+    order_: Order,
+    overrides?: TxOverrides
+  ) => Promise<ContractTransaction>;
+
+  /**
+   * @public
+   * Allows the sender to deposit any tokens into their own vaults.
+   * The deposit will be 'config_.amount' of the 'config_.token' into 'config_.vaultId'
+   * 
+   * @param config_ - @see DepositConfig All config required to deposit. Consists of 'amount', 'token' address and 'vaultId'
+   * @param overrides - @see TxOverrides 
+   */
+  public readonly deposit: (
+    config_: DepositConfig,
+    overrides?: TxOverrides
+  ) => Promise<ContractTransaction>;
+
+  /**
+   * @public
+   * Allows the sender to withdraw any tokens from their own vaults. Notably if the amount is less than the current vault 
+   * balance then the vault will be cleared to 0 rather than the withdraw transaction reverting.
+   * The withdraw will be 'config_.amount' of the 'config_.token' from 'config_.vaultId'
+   * 
+   * @param config_ - @see WithdrawConfig All config required to withdraw. Consists of 'amount', 'token' address and 'vaultId'.
+   * @param overrides - @see TxOverrides
+   */
+  public readonly withdraw: (
+    config_: WithdrawConfig,
+    overrides?: TxOverrides
+  ) => Promise<ContractTransaction>;
+
+  /**
+   * @public
+   * Clears 2 matching order against each other, a_ inputToken must match to b_ outputToken and 
+   * a_ outputToken must match to b_ inputToken. Order a_ clears into Order b_ and vice versa.
+   * The difference of the clearing amounts will go into the bounty's vaults and if any of them are negative
+   * then the transaction will revert
+   * 
+   * @param a_ - @see Order The first order
+   * @param b_ - @see Order The second order
+   * @param bountyConfig_ - @see BountyConfig The corresponding vault IDs of the bounty
+   * @param overrides - @see TxOverrides
+   * @returns
+   */
   public readonly clear: (
     a_: Order,
     b_: Order,
@@ -114,30 +181,36 @@ export class OrderBook extends RainContract {
     overrides?: TxOverrides
   ) => Promise<ContractTransaction>;
 
-  public readonly deposit: (
-    config_: DepositConfig,
-    overrides?: TxOverrides
-  ) => Promise<ContractTransaction>;
-
-  public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
-
-  public readonly removeOrder: (
-    order_: Order,
-    overrides?: TxOverrides
-  ) => Promise<ContractTransaction>;
-
+  /**
+   * Returns the pointer and length for sale's storage opcodes
+   * 
+   * @param overrides - @see ReadTxOverrides
+   * @returns a StorageOpcodesRange
+   */
   public readonly storageOpcodesRange: (
     overrides?: ReadTxOverrides
   ) => Promise<StorageOpcodesRange>;
 
-  public readonly withdraw: (
-    config_: WithdrawConfig,
-    overrides?: TxOverrides
-  ) => Promise<ContractTransaction>;
+  /**
+   * Pointers to opcode functions, necessary for being able to read the packedBytes
+   *
+   * @param overrides - @see ReadTxOverrides
+   * @returns the opcode functions pointers
+   */
+  public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
+
 }
 
 /**
  * @public
+ * A type for an order configuration without any specific owner
+ *
+ * 'inputToken' address - the desired token to be recieved if order clears
+ * 'inputVaultId' corresponding inputToken vault
+ * 'outputToken' address - the token to be paid if order clears
+ * 'outputVaultId' corresponding outputToken vault
+ * 'tracking' the tracking state of the order
+ * 'vmState' the @see StateConfig that determines the Amount and Price of the order
  */
 export type OrderConfig = {
   inputToken: string;
@@ -150,7 +223,16 @@ export type OrderConfig = {
 
 /**
  * @public
- * Order
+ * Type for an order containing all that is required in an order.
+ * An Order is an @see OrderConfig with an owner
+ * 
+ * 'owner' of this order
+ * 'inputToken' address - the desired token to be recieved if order clears
+ * 'inputVaultId' corresponding inputToken vault
+ * 'outputToken' address - the token to be paid if order clears
+ * 'outputVaultId' corresponding outputToken vault
+ * 'tracking' the tracking state of the order
+ * 'vmState' the @see StateConfig that determines the Amount and Price of the order
  */
 export type Order = {
   owner: string;
@@ -164,14 +246,11 @@ export type Order = {
 
 /**
  * @public
- */
-export type BountyConfig = {
-  aVaultId: BigNumberish;
-  bVaultId: BigNumberish;
-};
-
-/**
- * @public
+ * Type for depositing some token amount into a vault used in @see deposit
+ * 
+ * 'token' which is the token address to be deposited
+ * 'vaultId' of the signer that token is being deposited
+ * 'amount' of token to be deposited into the vault
  */
 export type DepositConfig = {
   token: string;
@@ -181,11 +260,36 @@ export type DepositConfig = {
 
 /**
  * @public
+ * Type for withdrawing some token amount from a vault used in @see withdraw
+ * 
+ * 'token' which is the token address to be withdrawn
+ * 'vaultId' of the signer that token is being withdrawn
+ * 'amount' of token to be withdrawn from the vault
  */
 export type WithdrawConfig = {
   token: string;
   vaultId: BigNumberish;
   amount: BigNumberish;
+};
+
+/**
+ * @public
+ * Type for bounty vaultIds used when in @see clear when clearing 2 orders that will collect the bounties into its vaults
+ */
+export type BountyConfig = {
+  aVaultId: BigNumberish;
+  bVaultId: BigNumberish;
+};
+
+/**
+ * @public
+ * Type for changes in state of an orderbook vaults after an successful clear
+ */
+export type ClearStateChange = {
+  aOutput: BigNumberish;
+  bOutput: BigNumberish;
+  aInput: BigNumberish;
+  bInput: BigNumberish;
 };
 
 /**
@@ -213,7 +317,7 @@ export enum OrderbookContext {
  * @public
  * Enum for operand of the Orderbook's STORAGE opcode
  */
-export enum OrderbookStroage {
+export enum OrderbookStorage {
   /**
    * length of Orederbook's valid storage opcodes
    */

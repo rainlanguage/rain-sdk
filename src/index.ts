@@ -4,7 +4,7 @@ export { utils };
 
 export * from './classes/factoryContract';
 export * from './classes/rainContract';
-export * from './classes/tierContract';
+export * from './classes/iTierV2';
 export * from './classes/vm';
 
 export * from './addresses';
@@ -14,6 +14,8 @@ export * from './contracts/redeemableERC20';
 export * from './contracts/redeemableERC20ClaimEscrow';
 export * from './contracts/sale';
 export * from './contracts/verify';
+export * from './contracts/stake';
+export * from './contracts/orderBook';
 
 export * from './contracts/script-generators/saleScriptGenerator';
 export * from './contracts/script-generators/combineTierScriptGenerator';
@@ -24,15 +26,11 @@ export * from './RainJS/CombineTierJS';
 export * from './RainJS/EmissionsERC20JS';
 export * from './RainJS/SaleJS';
 
-export * from './contracts/tiers/iTierV2';
 export * from './contracts/tiers/combineTier';
 export * from './contracts/tiers/verifyTier';
 
 export * from './contracts/generics/erc20';
 export * from './contracts/generics/erc721';
 export * from './contracts/generics/erc1155';
-
-export * from './contracts/stake';
-export * from './contracts/orderBook';
 
 export * from './friendlySource';

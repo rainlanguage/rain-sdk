@@ -1,7 +1,7 @@
 import { SaleJS } from "./SaleJS";
 import { BigNumber, ethers } from "ethers";
 import { OrderbookJS } from "./OrderbookJS";
-import { Tier } from "../classes/tierContract";
+import { Tier } from "../classes/iTierV2";
 import { StateConfig, VM } from "../classes/vm";
 import { SaleStorage } from "../contracts/sale";
 import { CombineTierJS } from "./CombineTierJS";
@@ -25,8 +25,7 @@ import {
   clearedFunds,
   bountyConfig,
   erc20,eighteenZeros,
-  clearedCounterPartyFunds,
-  toAddress
+  clearedCounterPartyFunds
 } from "./types";
 
 
@@ -82,13 +81,13 @@ export class vmSimulation {
    * A property for producing timestamp for the class which will be used in BLOCK_TIMESTAMP opcode
    * but BLOCK_TIMESTAMP opcode can also be passed at runtime
    */
-  public timestamp?: () => number;
+  public timestamp?: number;
 
   /**
    * A property for producing block number for the class which will be used in BLOCK_NUMBER opcode
    * but BLOCK_NUMBER opcode can also be passed at runtime
    */
-  public blockNumber?: () => number;
+  public blockNumber?: number;
 
   /**
    * Opcodes functions body for simulation that use the class properties/types. @see ApplyOpFn and @see OpcodeFN
@@ -100,7 +99,7 @@ export class vmSimulation {
         state.stack.push(BigNumber.from(data.blockNumber))
       }
       else if (this.blockNumber !== undefined) {
-        state.stack.push(BigNumber.from(this.blockNumber()))
+        state.stack.push(BigNumber.from(this.blockNumber))
       }
       else throw new Error("undefined block number")
     },
@@ -110,7 +109,7 @@ export class vmSimulation {
         state.stack.push(BigNumber.from(data.timestamp))
       }
       if (this.timestamp !== undefined) {
-        state.stack.push(BigNumber.from(this.timestamp()))
+        state.stack.push(BigNumber.from(this.timestamp))
       }
       else throw new Error("undefined block timestamp")      
     },
@@ -359,7 +358,7 @@ export class vmSimulation {
    * @param senderAddress - a string number/hex string 
    */
   public setSender(senderAddress: string) {
-    this.sender = toAddress(senderAddress);
+    this.sender = paddedUInt160(senderAddress);
   }
 
   /**
@@ -368,7 +367,7 @@ export class vmSimulation {
    * @param contractAddress - a string number/hex string
    */
   public setContractAddress(contractAddress: string) {
-    this.address = toAddress(contractAddress);
+    this.address = paddedUInt160(contractAddress);
   }
 
   /**
@@ -502,10 +501,10 @@ export class SaleSimulation extends vmSimulation {
     ) {
       super();
       this.token = token;
-      this.address = toAddress(address);
+      this.address = paddedUInt160(address);
       this.reserve = reserve;
-      this.tokenAddress = toAddress(tokenAddress);
-      this.reserveAddress = toAddress(reserveAddress);
+      this.tokenAddress = paddedUInt160(tokenAddress);
+      this.reserveAddress = paddedUInt160(reserveAddress);
 
       if (this.erc20s[this.tokenAddress] === undefined) {
         this.erc20s[this.tokenAddress] = this.token;
@@ -750,8 +749,8 @@ export class EmissionSmiulation extends vmSimulation {
     initialSupply: BigNumber = ethers.constants.Zero,
   ) {
     super();
-    this.address = toAddress(address);
-    this.sender = toAddress(sender);
+    this.address = paddedUInt160(address);
+    this.sender = paddedUInt160(sender);
     this.report = reports;
     this.balanceOf = balances;
     this.totalSupply = initialSupply;
@@ -791,7 +790,7 @@ export class EmissionSmiulation extends vmSimulation {
     blockNumber?: number
   ) : Promise<BigNumber> {
     const entrypoint = 0;
-    const _claimantAccount = toAddress(claimantAccount)
+    const _claimantAccount = paddedUInt160(claimantAccount)
 
     if (this.script !== undefined) {
       if (this.report[_claimantAccount] === undefined) {
@@ -825,7 +824,7 @@ export class EmissionSmiulation extends vmSimulation {
     blockNumber?: number
   ) : Promise<BigNumber> {
     const entrypoint = 0;
-    const _claimantAccount = toAddress(claimantAccount)
+    const _claimantAccount = paddedUInt160(claimantAccount)
 
     if (this.script !== undefined) {
       if (this.report[_claimantAccount] === undefined) {
@@ -844,7 +843,7 @@ export class EmissionSmiulation extends vmSimulation {
         this.script,
         {applyOpFn: this.OpFns}
       );
-      let newReport = BigNumber.from(paddedUInt256(paddedUInt32(this.timestamp ? this.timestamp()! : timestamp!).repeat(8)))
+      let newReport = BigNumber.from(paddedUInt256(paddedUInt32(this.timestamp ? this.timestamp : timestamp!).repeat(8)))
       let mintUnits = await simulation.run(
         {context: [_claimantAccount], timestamp, blockNumber},
         entrypoint
@@ -916,7 +915,7 @@ export class CombinetierSimulation extends vmSimulation {
     blockNumber?: number
   ): Promise<string> {
     const entrypoint = 0;
-    const _account = toAddress(account)
+    const _account = paddedUInt160(account)
 
     if (this.script !== undefined) { 
       let simulation = new CombineTierJS(
@@ -986,8 +985,8 @@ export class OrderbookSimulation extends vmSimulation {
    */
   constructor(address: string, sender: string, vaults?: vaults, orders?: orders) {
     super();
-    this.address = toAddress(address);
-    this.sender = toAddress(sender);
+    this.address = paddedUInt160(address);
+    this.sender = paddedUInt160(sender);
     if (vaults !== undefined) {
       this.vaults = vaults;
     }
@@ -1110,7 +1109,7 @@ export class OrderbookSimulation extends vmSimulation {
     units: number,
     tokenDecimals: number = 18
   ): void {
-    const _sender = toAddress(sender);
+    const _sender = paddedUInt160(sender);
     const units_ = parseUnits(
       units.toString(),
       tokenDecimals
@@ -1175,7 +1174,7 @@ export class OrderbookSimulation extends vmSimulation {
     units: number,
     tokenDecimals: number = 18
   ): void {
-    const _sender = toAddress(sender);
+    const _sender = paddedUInt160(sender);
 
     if (this.vaults[_sender][tokenAddress].vaultId[vaultId] === undefined) {
       throw new Error("this vault doesnt not exist")

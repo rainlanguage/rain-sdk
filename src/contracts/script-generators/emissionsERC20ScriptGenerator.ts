@@ -1,7 +1,7 @@
-import { ethers, BigNumberish, BigNumber, BytesLike } from 'ethers';
-import { EmissionsERC20Context } from '../emissionsERC20';
-import { Tier } from '../../classes/tierContract';
 import { VM } from '../../classes/vm';
+import { Tier } from '../../classes/iTierV2';
+import { EmissionsERC20Context } from '../emissionsERC20';
+import { ethers, BigNumberish, BigNumber, BytesLike } from 'ethers';
 import {
   concat,
   op,
@@ -12,6 +12,7 @@ import {
   paddedUInt256,
   selectLteLogic,
   selectLteMode,
+  parseUnits,
 } from '../../utils';
 
 /**
@@ -43,6 +44,7 @@ export type EmissionsConfig = {
     tier8: number;
   };
   numberOfIncrements?: number;
+  tierContext?: BigNumber[];
 };
 
 /**
@@ -62,6 +64,25 @@ export class LinearEmissions {
   constructor(config: EmissionsConfig) {
     const eighteenZeros = '000000000000000000';
     const sixZeros = '000000';
+
+    const CONTEXT_ = config.tierContext && config.tierContext.length === 8
+    ? {
+        constants: config.tierContext,
+        sources: concat([
+          op(VM.Opcodes.CONSTANT, 5),
+          op(VM.Opcodes.CONSTANT, 6),
+          op(VM.Opcodes.CONSTANT, 7),
+          op(VM.Opcodes.CONSTANT, 8),
+          op(VM.Opcodes.CONSTANT, 9),
+          op(VM.Opcodes.CONSTANT, 10),
+          op(VM.Opcodes.CONSTANT, 11),
+          op(VM.Opcodes.CONSTANT, 12),
+        ])
+    }
+    : {
+        constants: [],
+        sources: concat([])
+    }
 
     const BN_ONE = BigNumber.from('1' + eighteenZeros);
 
@@ -90,7 +111,7 @@ export class LinearEmissions {
         )
       );
 
-    const PERIODIC_REWARD_TIER5 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER5 = BigNumber.from(config.periodicRewards.tier5)
       .mul(BN_ONE_REWARD)
       .sub(
         PERIODIC_REWARD_TIER4.add(PERIODIC_REWARD_TIER3)
@@ -98,7 +119,7 @@ export class LinearEmissions {
           .add(PERIODIC_REWARD_TIER1)
       );
 
-    const PERIODIC_REWARD_TIER6 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER6 = BigNumber.from(config.periodicRewards.tier6)
       .mul(BN_ONE_REWARD)
       .sub(
         PERIODIC_REWARD_TIER5.add(PERIODIC_REWARD_TIER4)
@@ -107,7 +128,7 @@ export class LinearEmissions {
           .add(PERIODIC_REWARD_TIER1)
       );
 
-    const PERIODIC_REWARD_TIER7 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER7 = BigNumber.from(config.periodicRewards.tier7)
       .mul(BN_ONE_REWARD)
       .sub(
         PERIODIC_REWARD_TIER6.add(PERIODIC_REWARD_TIER5)
@@ -117,7 +138,7 @@ export class LinearEmissions {
           .add(PERIODIC_REWARD_TIER1)
       );
 
-    const PERIODIC_REWARD_TIER8 = BigNumber.from(config.periodicRewards.tier4)
+    const PERIODIC_REWARD_TIER8 = BigNumber.from(config.periodicRewards.tier8)
       .mul(BN_ONE_REWARD)
       .sub(
         PERIODIC_REWARD_TIER7.add(PERIODIC_REWARD_TIER6)
@@ -154,8 +175,8 @@ export class LinearEmissions {
     // prettier-ignore
     const REWARD = () =>
       concat([
-        op(VM.Opcodes.CONSTANT, 5),
-        op(VM.Opcodes.CONSTANT, 6),
+        op(VM.Opcodes.CONSTANT, 5 + CONTEXT_.constants.length),
+        op(VM.Opcodes.CONSTANT, 6 + CONTEXT_.constants.length),
         op(VM.Opcodes.MUL, 2),
       ]);
 
@@ -173,7 +194,7 @@ export class LinearEmissions {
     const CURRENT_BLOCK_AS_REPORT = () =>
       concat([
         op(VM.Opcodes.CONSTANT, 0),
-        op(VM.Opcodes.BLOCK_NUMBER),
+        op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(
           VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
           tierRange(Tier.ZERO, Tier.EIGHT)
@@ -199,7 +220,8 @@ export class LinearEmissions {
           VM.Opcodes.CONTEXT,
           EmissionsERC20Context.ClaimantAccount
         ),
-        op(VM.Opcodes.ITIERV2_REPORT),
+        CONTEXT_.sources,
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
       ]);
 
     // prettier-ignore
@@ -208,7 +230,7 @@ export class LinearEmissions {
         CURRENT_BLOCK_AS_REPORT(),
         TIER_REPORT(),
         LAST_CLAIM_REPORT(),
-        op(VM.Opcodes.BLOCK_NUMBER),
+        op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(
           VM.Opcodes.SELECT_LTE, 
           selectLte(selectLteLogic.every, selectLteMode.max, 2)
@@ -231,6 +253,7 @@ export class LinearEmissions {
       BASE_REWARD_PER_TIER,
       BN_ONE,
       BN_ONE_REWARD,
+      ...CONTEXT_.constants
     ];
     this.sources = [SOURCE(), FN()];
   }
@@ -254,6 +277,25 @@ export class SequentialEmissions {
   constructor(config: EmissionsConfig) {
     const eighteenZeros = '000000000000000000';
     const sixZeros = '000000';
+
+    const CONTEXT_ = config.tierContext && config.tierContext.length === 8
+    ? {
+        constants: config.tierContext,
+        sources: concat([
+          op(VM.Opcodes.CONSTANT, 11),
+          op(VM.Opcodes.CONSTANT, 12),
+          op(VM.Opcodes.CONSTANT, 13),
+          op(VM.Opcodes.CONSTANT, 14),
+          op(VM.Opcodes.CONSTANT, 15),
+          op(VM.Opcodes.CONSTANT, 16),
+          op(VM.Opcodes.CONSTANT, 17),
+          op(VM.Opcodes.CONSTANT, 18),
+        ])
+    }
+    : {
+        constants: [],
+        sources: concat([])
+    }
 
     const BN_ONE = BigNumber.from('1' + eighteenZeros);
 
@@ -471,26 +513,29 @@ export class SequentialEmissions {
       1,
       '10',
       2,
+      ...CONTEXT_.constants
     ];
 
     this.sources = [
       concat([
         op(VM.Opcodes.CONSTANT, 0),
-        op(VM.Opcodes.BLOCK_NUMBER),
+        op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(
           VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE,
           tierRange(Tier.ZERO, Tier.EIGHT)
         ),
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.CONTEXT, EmissionsERC20Context.ClaimantAccount),
-        op(VM.Opcodes.ITIERV2_REPORT),
+        CONTEXT_.sources,
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
         op(VM.Opcodes.SATURATING_DIFF),
         op(VM.Opcodes.THIS_ADDRESS),
         op(VM.Opcodes.CONTEXT, EmissionsERC20Context.ClaimantAccount),
         op(VM.Opcodes.ITIERV2_REPORT),
         op(VM.Opcodes.CONSTANT, 1),
         op(VM.Opcodes.CONTEXT, EmissionsERC20Context.ClaimantAccount),
-        op(VM.Opcodes.ITIERV2_REPORT),
+        CONTEXT_.sources,
+        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
         op(VM.Opcodes.SATURATING_DIFF),
         op(VM.Opcodes.CONSTANT, 2),
         op(VM.Opcodes.CONSTANT, 3),
@@ -502,17 +547,17 @@ export class SequentialEmissions {
         op(VM.Opcodes.DIV, 2),
       ]),
       concat([
-        op(VM.Opcodes.CONSTANT, 11),
+        op(VM.Opcodes.CONSTANT, 11 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.CONSTANT, 7),
         op(VM.Opcodes.GREATER_THAN),
         op(VM.Opcodes.CONSTANT, 7),
-        op(VM.Opcodes.CONSTANT, 12),
+        op(VM.Opcodes.CONSTANT, 12 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.SATURATING_SUB, 2),
-        op(VM.Opcodes.CONSTANT, 12),
+        op(VM.Opcodes.CONSTANT, 12 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.CONSTANT, 7),
@@ -526,15 +571,15 @@ export class SequentialEmissions {
         op(VM.Opcodes.MUL, 2),
         op(VM.Opcodes.CONSTANT, 9),
         op(VM.Opcodes.DIV, 2),
-        op(VM.Opcodes.CONSTANT, 11),
+        op(VM.Opcodes.CONSTANT, 11 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
-        op(VM.Opcodes.CONSTANT, 12),
+        op(VM.Opcodes.CONSTANT, 12 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.SATURATING_SUB, 2),
         op(VM.Opcodes.CONSTANT, 7),
-        op(VM.Opcodes.CONSTANT, 12),
+        op(VM.Opcodes.CONSTANT, 12 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.SATURATING_SUB, 2),
@@ -544,21 +589,21 @@ export class SequentialEmissions {
         op(VM.Opcodes.SATURATING_SUB, 2),
         op(VM.Opcodes.MUL, 2),
         op(VM.Opcodes.ADD, 2),
-        op(VM.Opcodes.CONSTANT, 13),
+        op(VM.Opcodes.CONSTANT, 13 + CONTEXT_.constants.length),
         op(VM.Opcodes.MUL, 2),
-        op(VM.Opcodes.CONSTANT, 11),
+        op(VM.Opcodes.CONSTANT, 11 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
-        op(VM.Opcodes.CONSTANT, 12),
+        op(VM.Opcodes.CONSTANT, 12 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.SATURATING_SUB, 2),
-        op(VM.Opcodes.CONSTANT, 11),
+        op(VM.Opcodes.CONSTANT, 11 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.CONSTANT, 8),
         op(VM.Opcodes.SATURATING_SUB, 2),
-        op(VM.Opcodes.CONSTANT, 12),
+        op(VM.Opcodes.CONSTANT, 12 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.ADD, 2),
@@ -569,14 +614,14 @@ export class SequentialEmissions {
         op(VM.Opcodes.MUL, 2),
         op(VM.Opcodes.CONSTANT, 9),
         op(VM.Opcodes.DIV, 2),
-        op(VM.Opcodes.CONSTANT, 13),
+        op(VM.Opcodes.CONSTANT, 13 + CONTEXT_.constants.length),
         op(VM.Opcodes.MUL, 2),
         op(VM.Opcodes.EAGER_IF),
-        op(VM.Opcodes.CONSTANT, 14),
-        op(VM.Opcodes.CONSTANT, 11),
+        op(VM.Opcodes.CONSTANT, 14 + CONTEXT_.constants.length),
+        op(VM.Opcodes.CONSTANT, 11 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
-        op(VM.Opcodes.CONSTANT, 12),
+        op(VM.Opcodes.CONSTANT, 12 + CONTEXT_.constants.length),
         op(VM.Opcodes.CONSTANT, 4),
         op(VM.Opcodes.DIV, 2),
         op(VM.Opcodes.SATURATING_SUB, 2),
@@ -584,5 +629,80 @@ export class SequentialEmissions {
         op(VM.Opcodes.ADD, 2),
       ]),
     ];
+  }
+}
+
+/**
+ * @public
+ * A class to creat a an ERC20 token with ability to be a faucet. owner can mint extar token if i=the token is not fixed supply.
+ * It can be claimed x number of tokens once every number of blocks passed which is defined by the faucet at the time of deployment.
+ */
+ export class CreateERC20 {
+
+  // StateConfig Properties of this class
+  public constants: BigNumberish[];
+  public sources: BytesLike[];
+
+  /**
+   * constructor of this class
+   * 
+   * @param ownerAddress - address of the owner of the token
+   * @param mintUnits - amount of tokens to be able to mint each time by calling the contract's "claim" function by the owner, pass zero to get fixed supply token
+   * @param faucet - argument to make a faucet for the token with ability to be minted x number of tokens each x number of blocks passed.
+   *    (param) - blocks - number of blocks needs to pass before being able to do another faucet claim - cannot be zero
+   *    (param) - units - number of token to be transfered by the fuacet each time it is triggered (at each claim)
+   */
+  constructor(
+    ownerAddress: string,
+    mintUnits: number,
+    faucet?: {
+      blocks: number,
+      units: number
+    }
+  ) {
+    if (faucet) {
+      this.constants = [
+        ownerAddress,
+        parseUnits(mintUnits.toString(), 18),
+        faucet.blocks ? faucet.blocks : 1,
+        parseUnits(faucet.units.toString(), 18),
+        "0x1" + paddedUInt32(0).repeat(7),
+        "0"
+      ];
+      this.sources = [
+        concat([
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.CONTEXT, EmissionsERC20Context.ClaimantAccount),
+          op(VM.Opcodes.EQUAL_TO),
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.THIS_ADDRESS),
+          op(VM.Opcodes.CONTEXT, EmissionsERC20Context.ClaimantAccount),
+          op(VM.Opcodes.ITIERV2_REPORT),
+          op(VM.Opcodes.CONSTANT, 4),
+          op(VM.Opcodes.DIV, 2),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.GREATER_THAN),
+          op(VM.Opcodes.CONSTANT, 5),
+          op(VM.Opcodes.CONSTANT, 3),
+          op(VM.Opcodes.EAGER_IF),
+          op(VM.Opcodes.EAGER_IF),
+        ])
+      ];
+    }
+    else {
+      this.constants = [ownerAddress, parseUnits(mintUnits.toString(), 18), "0"];
+      this.sources = [
+        concat([
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.CONTEXT, EmissionsERC20Context.ClaimantAccount),
+          op(VM.Opcodes.EQUAL_TO),
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.EAGER_IF)
+        ])
+      ];
+    }
   }
 }

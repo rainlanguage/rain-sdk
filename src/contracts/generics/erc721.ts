@@ -1,4 +1,5 @@
 import { ERC721Burnable__factory } from '../../typechain';
+import { TxOverrides, ReadTxOverrides, RainContract } from '../../classes/rainContract';
 import {
   BigNumberish,
   BigNumber,
@@ -6,7 +7,7 @@ import {
   Signer,
   ContractTransaction,
 } from 'ethers';
-import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
+
 
 /**
  * @public
@@ -30,6 +31,7 @@ export class ERC721 {
    *
    */
   constructor(address: string, signer: Signer) {
+    RainContract.checkAddress(address);
     this.address = address;
     this.signer = signer;
     const _erc721 = ERC721Burnable__factory.connect(address, signer);
@@ -78,7 +80,7 @@ export class ERC721 {
   };
 
   /**
-   * Connect the current instance to a new signer
+   * Connect the current instance of ERC721 to a new signer
    *
    * @param signer - The new signer which will be connected
    * @returns The instance with a new signer

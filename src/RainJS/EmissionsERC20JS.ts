@@ -1,10 +1,7 @@
-import { BigNumber, Signer } from "ethers";
+import { Signer } from "ethers";
 import { StateConfig } from "../classes/vm";
-import { ApplyOpFn, RainJS, StateJS } from "./RainJS";
-import { 
-  EmissionsERC20Context,
-  EmissionsERC20Storage,
-} from '../contracts/emissionsERC20';
+import { ApplyOpFn, RainJS } from "./RainJS";
+import { EmissionsERC20Context, EmissionsERC20Storage } from "../contracts/emissionsERC20";
 
 /**
  * @public - The javascript version of EmissionsERC20JS which inherits RainJS with local EmissionsERC20JS opcodes.
@@ -12,6 +9,17 @@ import {
  *
  */
 export class EmissionsERC20JS extends RainJS {
+
+  /**
+   * EmissionsERC20JS valid storage range
+   */
+  protected readonly StorageRange = EmissionsERC20Storage.length;
+
+  /**
+   * EmissionsERC20JS valid context length
+   */
+  protected readonly ContextLength = EmissionsERC20Context.length;
+
   /**
    * Constructor of SaleJS to create a instance of this class with EmissionsERC20's local opcodes.
    * @see RainJS
@@ -27,8 +35,8 @@ export class EmissionsERC20JS extends RainJS {
       signer?: Signer,
       contract?: string,
       applyOpFn?: ApplyOpFn,
+      storageRange?: number;
       storageOpFn?: ApplyOpFn, // for overriding the EmissionsERC20's STORAGE opcode function
-      contextOpFn?: ApplyOpFn // for overriding the EmissionsERC20's CONTEXT opcode function
     }
   ) {
     super(
@@ -36,42 +44,16 @@ export class EmissionsERC20JS extends RainJS {
       {
         signer: options?.signer,
         contract: options?.contract,
-        applyOpFn: options?.applyOpFn,
+        applyOpFn: options?.applyOpFn
       }
     );
 
     // assigning custom functions to the STORAGE/CONTEXT functions
     // custom functions should be passed at the time construction
-    for (let i = 0; i < EmissionsERC20Storage.length; i++) {
-      if (options?.storageOpFn && options.storageOpFn[i]) {
-        this._STORAGE_[i] = options.storageOpFn[i];
-      }
-    }
-    for (let i = 0; i < EmissionsERC20Context.length; i++) {
-      if (options?.contextOpFn && options.contextOpFn[i]) {
-        this._CONTEXT_[i] = options.contextOpFn[i];
-      }
+    if (options?.storageOpFn) {
+      this._STORAGE_ = options.storageOpFn;
     }
   }
-
-  /**
-   * key/value pair of CONTEXT opcodes of the CombineTier JSVM
-   * the required value need to be passed to "run" method as the context array in "data" object.
-   * the reason is the CONTEXT opcode is contextual and is passed the VM at runtime.
-   */
-  protected _CONTEXT_: ApplyOpFn = {
-    [EmissionsERC20Context.ClaimantAccount]: async (
-      state: StateJS,
-      operand: number,
-      data?: any
-    ) => {
-      if (data && data.context !== undefined) {
-        state.stack.push(
-          BigNumber.from(data.context[EmissionsERC20Context.ClaimantAccount])
-        );
-      } else throw new Error('Undefined buy units');
-    },
-  };
 
   /**
    * key/value pair of STORAGE opcodes of the EmissionsERC20 JSVM (empty with no functions)

@@ -1,9 +1,9 @@
 import { BigNumber } from "ethers";
-import { OrderbookJS } from "./OrderbookJS";
 import { VM } from "../classes/vm";
+import { OrderbookJS } from "./OrderbookJS";
 import { OrderbookSimulation } from "./vmSimulation";
-import { FixedPrice, IncreasingPrice } from "../contracts/script-generators/saleScriptGenerator";
-import { parseUnits } from "../utils";
+import { FixedPrice, IncDecPrice } from "../../src";
+import { paddedUInt160, paddedUInt256, parseUnits } from "../utils";
 import { 
   order,
   erc20s,
@@ -173,16 +173,19 @@ var timer = function(name: string) {
 };
 
 //simulating some addresses
-let sender1 = "0x11111";
-let sender2 = "0x22222";
-let sender3 = "0x33333";
-let sender4 = "0x44444";
-let sender6 = "0x66666";
-let orderbook = "0x55555";
+let sender1 = paddedUInt160("0x11111");
+let sender2 = paddedUInt160("0x22222");
+let sender3 = paddedUInt160("0x33333");
+let sender4 = paddedUInt160("0x44444");
+let sender6 = paddedUInt160("0x66666");
+let orderbook = paddedUInt160("0x55555");
 
+const token1 = paddedUInt160("0x1")
+const token2 = paddedUInt160("0x2")
+const token3 = paddedUInt160("0x3")
 //simulating some erc20 tokens
 let tokens: erc20s = {
-  "0x1": {
+  [token1]: {
     totalSupply: parseUnits((1000).toString()),
     decimals: 18,
     balanceOf: {
@@ -193,7 +196,7 @@ let tokens: erc20s = {
       [orderbook]: parseUnits((0).toString()),
     }
   },
-  "0x2": {
+  [token2]: {
     totalSupply: parseUnits((2000).toString()),
     decimals: 18,
     balanceOf: {
@@ -204,7 +207,7 @@ let tokens: erc20s = {
       [orderbook]: parseUnits((0).toString()),
     }
   },
-  "0x3": {
+  [token3]: {
     totalSupply: parseUnits((500).toString()),
     decimals: 18,
     balanceOf: {
@@ -220,63 +223,79 @@ let tokens: erc20s = {
 // some scripts for orders
 const scriptA = VM.pair(new FixedPrice(4), new FixedPrice(2));
 const scriptB = VM.pair(new FixedPrice(10), new FixedPrice(0.4));
-const scriptC = VM.pair(new FixedPrice(2), new IncreasingPrice(0.1, 8, 1, 900));
+const scriptC = VM.pair(new FixedPrice(2), new IncDecPrice(0.1, 8, 1, 900));
 
 // simulating some orders usinf the data above
+const orderHash1 = paddedUInt256("0x1abc")
+const vaultId101 = paddedUInt256("0x0101")
+const vaultId201 = paddedUInt256("0x0201")
+
+const orderHash2 = paddedUInt256("0x2abc")
+const vaultId202 = paddedUInt256("0x0202")
+const vaultId302 = paddedUInt256("0x0302")
+
+const orderHash3 = paddedUInt256("0x3abc")
+const vaultId203 = paddedUInt256("0x0203")
+const vaultId103 = paddedUInt256("0x0103")
+
+const orderHash4 = paddedUInt256("0x4abc")
+const vaultId304 = paddedUInt256("0x0304")
+const vaultId204 = paddedUInt256("0x0204")
+
 const order1 : order = {
-  orderHash: "0x1abc",
+  orderHash: orderHash1,
   owner: sender1,
-  inputToken: "0x1",
-  outputToken: "0x2",
-  inputVaultId: "0x101",
-  outputVaultId: "0x201",
+  inputToken: token1,
+  outputToken: token2,
+  inputVaultId: vaultId101,
+  outputVaultId: vaultId201,
   vmConfig: scriptA
 };
 const order2 : order = {
-  orderHash: "0x2abc",
+  orderHash: orderHash2,
   owner: sender2,
-  inputToken: "0x2",
-  outputToken: "0x3",
-  inputVaultId: "0x202",
-  outputVaultId: "0x302",
+  inputToken: token2,
+  outputToken: token3,
+  inputVaultId: vaultId202,
+  outputVaultId: vaultId302,
   vmConfig: scriptC
 };
 const order3 : order = {
-  orderHash: "0x3abc",
+  orderHash: orderHash3,
   owner: sender3,
-  inputToken: "0x2",
-  outputToken: "0x1",
-  inputVaultId: "0x203",
-  outputVaultId: "0x103",
+  inputToken: token2,
+  outputToken: token1,
+  inputVaultId: vaultId203,
+  outputVaultId: vaultId103,
   vmConfig: scriptB
 };
 const order4 : order = {
-  orderHash: "0x4abc",
+  orderHash: orderHash4,
   owner: sender4,
-  inputToken: "0x3",
-  outputToken: "0x2",
-  inputVaultId: "0x304",
-  outputVaultId: "0x204",
+  inputToken: token3,
+  outputToken: token2,
+  inputVaultId: vaultId304,
+  outputVaultId: vaultId204,
   vmConfig: scriptB
 };
 
 // bounty config for performing the matchmaking
 const bountyConfig1: bountyConfig = {
-  aVaultId: "0x88",
-  bVaultId: "0x99"
+  aVaultId: paddedUInt256("0x88"),
+  bVaultId: paddedUInt256("0x99")
 }
 
 // simulating an orderbook cycle
 async function bot() {
   try{
     const matchmaker = new MatchMaker(orderbook, sender6);
-    matchmaker.timestamp = () => 1;
+    matchmaker.timestamp = 1;
 
     matchmaker.addAssets(tokens);
     matchmaker.setSender(sender6);
 
     console.log("checking sender1 balance of token 0x2:")
-    console.log("sender1 token0x2 balance before adding order and depositing:  " + matchmaker.erc20s["0x2"].balanceOf[sender1].div(eighteenZeros).toNumber());
+    console.log("sender1 token0x2 balance before adding order and depositing:  " + matchmaker.erc20s[token2].balanceOf[sender1].div(eighteenZeros).toNumber());
 
     console.log("---------------------------------------")
     console.log("adding orders")
@@ -287,29 +306,29 @@ async function bot() {
 
     console.log("---------------------------------------")
     console.log("checking output valut balances of sener1 and sender3")
-    console.log("sender1 outputValt balance before depositing:  " + matchmaker.vaults[sender1]["0x2"].vaultId["0x201"].div("100000000000000").toNumber()/10000)
-    console.log("sender3 outputValt balance before depositing:  " + matchmaker.vaults[sender3]["0x1"].vaultId["0x103"].div("100000000000000").toNumber()/10000)
-    console.log("sender2 outputValt balance before depositing:  " + matchmaker.vaults[sender2]["0x3"].vaultId["0x302"].div("100000000000000").toNumber()/10000)
-    console.log("sender4 outputValt balance before depositing:  " + matchmaker.vaults[sender4]["0x2"].vaultId["0x204"].div("100000000000000").toNumber()/10000)
+    console.log("sender1 outputValt balance before depositing:  " + matchmaker.vaults[sender1][token2].vaultId[vaultId201].div("100000000000000").toNumber()/10000)
+    console.log("sender3 outputValt balance before depositing:  " + matchmaker.vaults[sender3][token1].vaultId[vaultId103].div("100000000000000").toNumber()/10000)
+    console.log("sender2 outputValt balance before depositing:  " + matchmaker.vaults[sender2][token3].vaultId[vaultId302].div("100000000000000").toNumber()/10000)
+    console.log("sender4 outputValt balance before depositing:  " + matchmaker.vaults[sender4][token2].vaultId[vaultId204].div("100000000000000").toNumber()/10000)
     
     console.log("---------------------------------------")
     console.log("depositing 30 tokens for order1 and 40 tokens for order3")
-    matchmaker.deposit(sender1, "0x2", "0x201", 30);
-    matchmaker.deposit(sender3, "0x1", "0x103", 40);
-    matchmaker.deposit(sender2, "0x3", "0x302", 70);
-    matchmaker.deposit(sender4, "0x2", "0x204", 60);
+    matchmaker.deposit(sender1, token2, vaultId201, 30);
+    matchmaker.deposit(sender3, token1, vaultId103, 40);
+    matchmaker.deposit(sender2, token3, vaultId302, 70);
+    matchmaker.deposit(sender4, token2, vaultId204, 60);
 
     console.log("---------------------------------------")
     console.log("checking the balances of sender1 and sender3 output vaults")
 
-    console.log("sender1 outputValt balance after depositing:  " + matchmaker.vaults[sender1]["0x2"].vaultId["0x201"].div("100000000000000").toNumber()/10000)
-    console.log("sender3 outputValt balance after depositing:  " + matchmaker.vaults[sender3]["0x1"].vaultId["0x103"].div("100000000000000").toNumber()/10000)
-    console.log("sender2 outputValt balance after depositing:  " + matchmaker.vaults[sender2]["0x3"].vaultId["0x302"].div("100000000000000").toNumber()/10000)
-    console.log("sender4 outputValt balance after depositing:  " + matchmaker.vaults[sender4]["0x2"].vaultId["0x204"].div("100000000000000").toNumber()/10000)
+    console.log("sender1 outputValt balance after depositing:  " + matchmaker.vaults[sender1][token2].vaultId[vaultId201].div("100000000000000").toNumber()/10000)
+    console.log("sender3 outputValt balance after depositing:  " + matchmaker.vaults[sender3][token1].vaultId[vaultId103].div("100000000000000").toNumber()/10000)
+    console.log("sender2 outputValt balance after depositing:  " + matchmaker.vaults[sender2][token3].vaultId[vaultId302].div("100000000000000").toNumber()/10000)
+    console.log("sender4 outputValt balance after depositing:  " + matchmaker.vaults[sender4][token2].vaultId[vaultId204].div("100000000000000").toNumber()/10000)
 
     console.log("---------------------------------------")
     console.log("checking sender1 balance of token 0x2")
-    console.log("sender1 token0x2 balance after dpositing:   " + matchmaker.erc20s["0x2"].balanceOf[sender1].div(eighteenZeros).toNumber())
+    console.log("sender1 token0x2 balance after dpositing:   " + matchmaker.erc20s[token2].balanceOf[sender1].div(eighteenZeros).toNumber())
 
     console.log("---------------------------------------")
     console.log("performing the match")
@@ -320,30 +339,30 @@ async function bot() {
 
     console.log("---------------------------------------")
     console.log("checking output balances of sender1's and sender3's output vaults")
-    console.log("sender1 outputValt balance after matching:  " + matchmaker.vaults[sender1]["0x2"].vaultId["0x201"].div("100000000000000").toNumber()/10000)
-    console.log("sender3 outputValt balance after matching:  " + matchmaker.vaults[sender3]["0x1"].vaultId["0x103"].div("100000000000000").toNumber()/10000)
-    console.log("sender2 outputValt balance after matching:  " + matchmaker.vaults[sender2]["0x3"].vaultId["0x302"].div("100000000000000").toNumber()/10000)
-    console.log("sender4 outputValt balance after matching:  " + matchmaker.vaults[sender4]["0x2"].vaultId["0x204"].div("100000000000000").toNumber()/10000)
+    console.log("sender1 outputValt balance after matching:  " + matchmaker.vaults[sender1][token2].vaultId[vaultId201].div("100000000000000").toNumber()/10000)
+    console.log("sender3 outputValt balance after matching:  " + matchmaker.vaults[sender3][token1].vaultId[vaultId103].div("100000000000000").toNumber()/10000)
+    console.log("sender2 outputValt balance after matching:  " + matchmaker.vaults[sender2][token3].vaultId[vaultId302].div("100000000000000").toNumber()/10000)
+    console.log("sender4 outputValt balance after matching:  " + matchmaker.vaults[sender4][token2].vaultId[vaultId204].div("100000000000000").toNumber()/10000)
 
     console.log("---------------------------------------")
     console.log("checking input balances of sender1's and sender3's output vaults")
-    console.log("sender1 inputValt balance after matching:  " + matchmaker.vaults[sender1]["0x1"].vaultId["0x101"].div("100000000000000").toNumber()/10000)
-    console.log("sender3 inputValt balance after matching:  " + matchmaker.vaults[sender3]["0x2"].vaultId["0x203"].div("100000000000000").toNumber()/10000)
-    console.log("sender2 inputValt balance after matching:  " + matchmaker.vaults[sender2]["0x2"].vaultId["0x202"].div("100000000000000").toNumber()/10000)
-    console.log("sender4 inputValt balance after matching:  " + matchmaker.vaults[sender4]["0x3"].vaultId["0x304"].div("100000000000000").toNumber()/10000)
+    console.log("sender1 inputValt balance after matching:  " + matchmaker.vaults[sender1][token1].vaultId[vaultId101].div("100000000000000").toNumber()/10000)
+    console.log("sender3 inputValt balance after matching:  " + matchmaker.vaults[sender3][token2].vaultId[vaultId203].div("100000000000000").toNumber()/10000)
+    console.log("sender2 inputValt balance after matching:  " + matchmaker.vaults[sender2][token2].vaultId[vaultId202].div("100000000000000").toNumber()/10000)
+    console.log("sender4 inputValt balance after matching:  " + matchmaker.vaults[sender4][token3].vaultId[vaultId304].div("100000000000000").toNumber()/10000)
 
     console.log("---------------------------------------")
     console.log("checking total bounty balance")
-    console.log("total bounties collected of token0x2:  " + Object.values(matchmaker.vaults[sender6]["0x2"].vaultId).reduce((e, m) => e.add(m))
+    console.log("total bounties collected of token0x2:  " + Object.values(matchmaker.vaults[sender6][token2].vaultId).reduce((e, m) => e.add(m))
     .div("100000000000000").toNumber()/10000)
-    console.log("total bounties collected of token0x1:  " + Object.values(matchmaker.vaults[sender6]["0x1"].vaultId).reduce((e, m) => e.add(m))
+    console.log("total bounties collected of token0x1:  " + Object.values(matchmaker.vaults[sender6][token1].vaultId).reduce((e, m) => e.add(m))
     .div("100000000000000").toNumber()/10000)
-    console.log("total bounties collected of token0x3:  " + Object.values(matchmaker.vaults[sender6]["0x3"].vaultId).reduce((e, m) => e.add(m))
+    console.log("total bounties collected of token0x3:  " + Object.values(matchmaker.vaults[sender6][token3].vaultId).reduce((e, m) => e.add(m))
     .div("100000000000000").toNumber()/10000)
-    // console.log("bounty aOutput of token0x2 Vault0x88 balance:  " + matchmaker.vaults[sender6]["0x2"].vaultId["0x88"].div("10000000000000000").toNumber()/100)
-    // console.log("bounty bOutput of token0x1 Vault0x99 balance:  " + matchmaker.vaults[sender6]["0x1"].vaultId["0x99"].div("10000000000000000").toNumber()/100)
-    // console.log("bounty aOutput of token0x1 Vault0x88 balance:  " + matchmaker.vaults[sender6]["0x1"].vaultId["0x88"].div("10000000000000000").toNumber()/100)
-    // console.log("bounty bOutput of token0x2 Vault0x99 balance:  " + matchmaker.vaults[sender6]["0x2"].vaultId["0x99"].div("10000000000000000").toNumber()/100)
+    // console.log("bounty aOutput of token0x2 Vault0x88 balance:  " + matchmaker.vaults[sender6][token2].vaultId[paddedUInt256("0x88")].div("10000000000000000").toNumber()/100)
+    // console.log("bounty bOutput of token0x1 Vault0x99 balance:  " + matchmaker.vaults[sender6][token1].vaultId[paddedUInt256("0x99")].div("10000000000000000").toNumber()/100)
+    // console.log("bounty aOutput of token0x1 Vault0x88 balance:  " + matchmaker.vaults[sender6][token1].vaultId[paddedUInt256("0x88")].div("10000000000000000").toNumber()/100)
+    // console.log("bounty bOutput of token0x2 Vault0x99 balance:  " + matchmaker.vaults[sender6][token2].vaultId[paddedUInt256("0x99")].div("10000000000000000").toNumber()/100)
 
     // second matchmaking round
     // increasing the timestamp for second matchmaking
