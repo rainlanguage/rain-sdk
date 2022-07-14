@@ -6,7 +6,6 @@ import { BigNumber, ethers, Signer } from 'ethers';
 import { ERC1155 } from '../contracts/generics/erc1155';
 import { ERC20 } from '../contracts/generics/erc20';
 import { ERC721 } from '../contracts/generics/erc721';
-import { ERC20Snapshot__factory } from '../typechain';
 import { arrayify, paddedUInt160, paddedUInt256, paddedUInt32 } from '../utils';
 
 
@@ -422,8 +421,8 @@ export class RainJS {
         const snapshotId_ = item3_;
         const account_ = paddedUInt160(item2_);
         const erc20Address_ = paddedUInt160(item1_);
-        const erc20Snapshot_ = ERC20Snapshot__factory.connect(erc20Address_, this.signer);
-        state.stack.push(await erc20Snapshot_.balanceOfAt(account_, snapshotId_));
+        const erc20Snapshot_ = new ERC20(erc20Address_, this.signer, true);
+        state.stack.push(await erc20Snapshot_.balanceOfAt!(account_, snapshotId_));
       } 
       else throw new Error('Undefined stack variables');
     },
@@ -438,8 +437,8 @@ export class RainJS {
       if (item1_ && item2_ && this.signer !== undefined) {
         const snapshotId_ = item2_;
         const erc20Address_ = paddedUInt160(item1_);
-        const erc20Snapshot_ = ERC20Snapshot__factory.connect(erc20Address_, this.signer);
-        state.stack.push(await erc20Snapshot_.totalSupplyAt(snapshotId_));
+        const erc20Snapshot_ = new ERC20(erc20Address_, this.signer, true);
+        state.stack.push(await erc20Snapshot_.totalSupplyAt!(snapshotId_));
       } 
       else throw new Error('Undefined stack variables');
     },
