@@ -1,7 +1,7 @@
 import { SaleJS } from "./SaleJS";
 import { BigNumber, ethers } from "ethers";
 import { OrderbookJS } from "./OrderbookJS";
-import { Tier } from "../classes/tierContract";
+import { Tier } from "../classes/iTierV2";
 import { StateConfig, VM } from "../classes/vm";
 import { SaleStorage } from "../contracts/sale";
 import { CombineTierJS } from "./CombineTierJS";

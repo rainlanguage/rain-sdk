@@ -1,4 +1,4 @@
-import { Tier } from './tierContract';
+import { Tier } from './iTierV2';
 import { BytesLike, BigNumberish, utils, BigNumber, ethers } from 'ethers';
 import {
   paddedUInt256,

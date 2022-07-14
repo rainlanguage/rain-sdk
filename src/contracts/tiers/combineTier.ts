@@ -1,8 +1,9 @@
-import { Signer, BigNumberish } from 'ethers';
-import { TierContract } from '../../classes/tierContract';
-import { ReadTxOverrides, TxOverrides } from '../../classes/rainContract';
+import { Signer, BigNumberish, BigNumber } from 'ethers';
+import { ITierV2 } from '../../classes/iTierV2';
+import { RainContract, ReadTxOverrides, TxOverrides } from '../../classes/rainContract';
 import { StateConfig, StorageOpcodesRange } from '../../classes/vm';
 import { CombineTierFactory__factory, CombineTier__factory } from '../../typechain';
+import { ERC1155BalanceTier, ERC20BalanceTier, ERC721BalanceTier } from '../script-generators/combineTierScriptGenerator';
 
 /**
  * @public
@@ -82,7 +83,7 @@ export enum CombineTierStorage {
  * const alwaysTier = await CombineTier.getAlwaysTier(signer);
  * ```
  */
-export class CombineTier extends TierContract {
+export class CombineTier extends ITierV2 {
   protected static readonly nameBookReference: string = 'combineTierFactory';
 
   /**
@@ -96,7 +97,7 @@ export class CombineTier extends TierContract {
     CombineTier.checkAddress(address);
 
     const _combineTier = CombineTier__factory.connect(address, signer);
-    super(address, signer, _combineTier);
+    super(address, signer);
 
     this.fnPtrs = _combineTier.fnPtrs;
     this.storageOpcodesRange = _combineTier.storageOpcodesRange;
@@ -197,4 +198,54 @@ export class CombineTier extends TierContract {
   public readonly storageOpcodesRange: (
     overrides?: ReadTxOverrides
   ) => Promise<StorageOpcodesRange>;
+
+  /**
+   * @public
+   * Method to deploy similar to Rain v1 BalanceTier contracts using CombineTier and CombineTier script generator for either of
+   * ERC20, ERC721, or ERC1155 tokens
+   *
+   * @remarks
+   * A BalanceTier checks a wallet address balance of the token and reports the results as an ALWAYS/NEVER tier.
+   *
+   * @example
+   * ```typescript
+   * Deploy a new BalanceTier contract using CombineTier class and script generators
+   * const newBalanceTier = CombineTier.deployBalanceTier(address, type, levels, signer)
+   * ```
+   * @param address - The token Address
+   * @param type - The type of the BalanceTier, either erc20, erc721, or erc1155
+   * @param levels - An array of 8 items represnting the 8 tier levels
+   * @param signer - An ethers Signer
+   * @param erc20Decimals - (optional) Decimals of the erc20 token if the type of this BalanceTier is ERC20, default is 18
+   * @param tokenId - (optional) the tokenId used if the type of the BalanceTier is ERC1155
+   * @returns A new combineTier instance
+   */
+  public static deployBalanceTier = async(    
+    address: string,
+    type: "erc20" | "erc721" | "erc1155",
+    levels: (number | string)[],
+    signer: Signer,
+    erc20Decimals: number = 18,
+    tokenId?: BigNumber
+  ) => {
+    let _balanceTierConfig!: StateConfig;
+
+    RainContract.checkAddress(address);
+
+    if (type === "erc20") {
+      _balanceTierConfig = new ERC20BalanceTier(levels, address, erc20Decimals)
+    }
+    if (type === "erc721") {
+      _balanceTierConfig = new ERC721BalanceTier(levels, address)
+    }
+    if ( type === "erc1155" && tokenId) {
+      _balanceTierConfig = new ERC1155BalanceTier(levels, tokenId, address)
+    }
+    const deplyArg: CombineTierDeployArgs = {
+      combinedTiersLength: 0,
+      sourceConfig: _balanceTierConfig
+    }
+    return await CombineTier.deploy(signer, deplyArg)
+  }
+
 }

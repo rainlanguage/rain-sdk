@@ -1,7 +1,7 @@
 import { Signer } from 'ethers';
-import { TierContract } from '../../classes/tierContract';
+import { ITierV2 } from '../../classes/iTierV2';
 import { TxOverrides } from '../../classes/rainContract';
-import { VerifyTierFactory__factory, VerifyTier__factory } from '../../typechain';
+import { VerifyTierFactory__factory } from '../../typechain';
 
 /**
  * @public
@@ -29,7 +29,7 @@ import { VerifyTierFactory__factory, VerifyTier__factory } from '../../typechain
  * ```
  *
  */
-export class VerifyTier extends TierContract {
+export class VerifyTier extends ITierV2 {
   protected static readonly nameBookReference: string = 'verifyTierFactory';
 
   /**
@@ -42,8 +42,7 @@ export class VerifyTier extends TierContract {
   constructor(address: string, signer: Signer) {
     VerifyTier.checkAddress(address);
     
-    const _verifyTier = VerifyTier__factory.connect(address, signer);
-    super(address, signer, _verifyTier);
+    super(address, signer);
   }
 
   /**
