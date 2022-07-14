@@ -3,8 +3,6 @@ import { StateConfig } from "../classes/vm";
 import { ApplyOpFn, RainJS, StateJS } from "./RainJS";
 import { ERC20 } from "../contracts/generics/erc20";
 import { Sale, SaleContext, SaleStorage } from "../contracts/sale";
-import { parseUnits } from "../utils";
-
 
 
 /**
@@ -14,6 +12,15 @@ import { parseUnits } from "../utils";
  */
 export class SaleJS extends RainJS {
 
+  /**
+   * SaleJS valid storage range
+   */
+  protected readonly StorageRange = SaleStorage.length;
+
+  /**
+   * SaleJS valid context length
+   */
+  protected readonly ContextLength = SaleContext.length;
 
   /**
    * Constructor of SaleJS to create a instance of this class with Sale's local opcodes.
@@ -31,7 +38,6 @@ export class SaleJS extends RainJS {
       contract?: string,
       applyOpFn?: ApplyOpFn,
       storageOpFn?: ApplyOpFn, // for overriding the SaleJS's STORAGE opcode function
-      contextOpFn?: ApplyOpFn // for overriding the SaleJS's CONTEXT opcode function
     }
   ) {
     super(
@@ -45,16 +51,9 @@ export class SaleJS extends RainJS {
 
     // assigning custom functions to the STORAGE/CONTEXT functions
     // custom functions should be passed at the time construction
-    for (let i = 0; i < SaleStorage.length; i++) {
-      if (options?.storageOpFn && options.storageOpFn[i]) {
-        this._STORAGE_[i] = options.storageOpFn[i];
-      }
-    };
-    for (let i = 0; i < SaleContext.length; i++) {
-      if (options?.contextOpFn && options.contextOpFn[i]) {
-        this._CONTEXT_[i] = options.contextOpFn[i];
-      }
-    };
+    if (options?.storageOpFn) {
+      this._STORAGE_ = options.storageOpFn;
+    }
   };
 
   /**
@@ -124,24 +123,5 @@ export class SaleJS extends RainJS {
       else throw new Error("Undefined Signer or Sale Contract")
     },
   };
-  
-  /**
-   * key/value pair of CONTEXT opcodes of the sale JSVM
-   * the required value need to be passed to "run" method as the context array in "data" object.
-   * the reason is the CONTEXT opcode is contextual and is passed the VM at runtime.
-   */
-  protected _CONTEXT_: ApplyOpFn = {
-    [SaleContext.CurrentBuyUnits] : 
-    async(state: StateJS, operand: number, data?: any) => {
-      if(data && data.context !== undefined) {
-        state.stack.push(
-          parseUnits(
-            data.context[SaleContext.CurrentBuyUnits].toString()
-          )
-        )
-      }
-      else throw new Error("Undefined buy units")
-    },
-  }
 
 }

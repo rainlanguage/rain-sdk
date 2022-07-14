@@ -1,11 +1,8 @@
-import { Signer, BytesLike, BigNumberish } from 'ethers';
+import { Signer, BigNumberish } from 'ethers';
 import { TierContract } from '../../classes/tierContract';
 import { ReadTxOverrides, TxOverrides } from '../../classes/rainContract';
 import { StateConfig, StorageOpcodesRange } from '../../classes/vm';
-import {
-  CombineTierFactory__factory,
-  CombineTier__factory,
-} from '../../typechain';
+import { CombineTierFactory__factory, CombineTier__factory } from '../../typechain';
 
 /**
  * @public
@@ -38,11 +35,7 @@ export enum CombineTierContext {
    * operand for CONTEXT opcode to stack the tier that reportTimeForTier is being call for.
    * The tier (between 1 to 8) used for tierTimeForTier and it has no use for "ITIERV2_REPORT" opcode
    */
-  Tier,
-  /**
-   * length of CombineTier's valid context opcodes - 2
-   */
-  length,
+  Tier
 }
 
 /**
@@ -102,8 +95,8 @@ export class CombineTier extends TierContract {
   constructor(address: string, signer: Signer) {
     CombineTier.checkAddress(address);
 
-    super(address, signer);
     const _combineTier = CombineTier__factory.connect(address, signer);
+    super(address, signer, _combineTier);
 
     this.fnPtrs = _combineTier.fnPtrs;
     this.storageOpcodesRange = _combineTier.storageOpcodesRange;
@@ -176,26 +169,21 @@ export class CombineTier extends TierContract {
     return new CombineTier(address, signer);
   };
 
+  /**
+   * @public
+   * Conncect to this CombineTier contract with another signer
+   * 
+   * @param signer - the signer to get connected to the CombineTier instance
+   * @returns the CombineTier instance with the new signer
+   */
   public readonly connect = (signer: Signer): CombineTier => {
     return new CombineTier(this.address, signer);
   };
 
   /**
-   * It is NOT implemented in CombineTiers. Always will throw an error
-   */
-  public readonly setTier = async (
-    account: string,
-    endTier: BigNumberish,
-    data: BytesLike,
-    overrides?: TxOverrides
-  ): Promise<never> => {
-    throw new Error('SET TIER: NOT IMPLEMENTED');
-  };
-
-  /**
    * Pointers to opcode functions, necessary for being able to read the packedBytes
    *
-   * @param override - @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns the opcode functions pointers
    */
   public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
@@ -203,7 +191,7 @@ export class CombineTier extends TierContract {
   /**
    * Returns the pointer and length for combineTier's storage opcodes
    *
-   * @param override - @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns a StorageOpcodesRange
    */
   public readonly storageOpcodesRange: (

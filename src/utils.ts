@@ -1,5 +1,5 @@
-import { BigNumber, BigNumberish, ethers, utils } from 'ethers';
 import type { BytesLike } from 'ethers';
+import { BigNumber, BigNumberish, ethers, utils } from 'ethers';
 
 export const {
   /**
@@ -99,10 +99,7 @@ export const paddedUInt256 = (report: BigNumberish): string => {
   if (BigNumber.from(report).gt(ethers.constants.MaxUint256)) {
     throw new Error(`${report} exceeds max uint256`);
   }
-  return (
-    '0x' +
-    hexlify(report, { allowMissingPrefix: true }).substring(2).padStart(64, '0')
-  );
+  return "0x" + BigNumber.from(report).toHexString().substring(2).padStart(64, "0");
 };
 
 /**
@@ -116,9 +113,7 @@ export const paddedUInt32 = (number: BigNumberish): string => {
   if (BigNumber.from(number).gt('0xffffffff')) {
     throw new Error(`${number} exceeds max uint32`);
   }
-  return hexlify(number, { allowMissingPrefix: true })
-    .substring(2)
-    .padStart(8, '0');
+  return BigNumber.from(number).toHexString().substring(2).padStart(8, "0");
 };
 
 /**
@@ -229,9 +224,7 @@ export const paddedUInt64 = (number: BigNumberish): string => {
   if (BigNumber.from(number).gt('0xffffffffffffffff')) {
     throw new Error(`${number} exceeds max uint64`);
   }
-  return hexlify(number, { allowMissingPrefix: true })
-    .substring(2)
-    .padStart(16, '0');
+  return BigNumber.from(number).toHexString().substring(2).padStart(16, "0");
 };
 
 /**
@@ -245,9 +238,7 @@ export const paddedUInt128 = (number: BigNumberish): string => {
   if (BigNumber.from(number).gt('0xffffffffffffffffffffffffffffffff')) {
     throw new Error(`${number} exceeds max uint128`);
   }
-  return hexlify(number, { allowMissingPrefix: true })
-    .substring(2)
-    .padStart(32, '0');
+  return BigNumber.from(number).toHexString().substring(2).padStart(32, "0");
 };
 
 /**
@@ -263,10 +254,5 @@ export const paddedUInt160 = (address: BigNumberish): string => {
   ) {
     throw new Error(`${address} exceeds max uint160`);
   }
-  return (
-    '0x' +
-    hexlify(address, { allowMissingPrefix: true })
-      .substring(2)
-      .padStart(40, '0')
-  );
+  return "0x" + BigNumber.from(address).toHexString().substring(2).padStart(40, "0");
 };

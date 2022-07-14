@@ -1,14 +1,10 @@
-import { BigNumberish, BigNumber, Signer, ContractTransaction } from 'ethers';
-import { StateConfig, StorageOpcodesRange } from '../classes/vm';
-import { FactoryContract } from '../classes/factoryContract';
-import { RedeemableERC20 } from './redeemableERC20';
 import { ERC20 } from './generics/erc20';
+import { RedeemableERC20 } from './redeemableERC20';
+import { FactoryContract } from '../classes/factoryContract';
+import { StateConfig, StorageOpcodesRange } from '../classes/vm';
 import { Sale__factory, SaleFactory__factory } from '../typechain';
-import {
-  ERC20Config,
-  TxOverrides,
-  ReadTxOverrides,
-} from '../classes/rainContract';
+import { BigNumberish, BigNumber, Signer, ContractTransaction } from 'ethers';
+import { ERC20Config, TxOverrides, ReadTxOverrides } from '../classes/rainContract';
 
 
 /**
@@ -148,6 +144,13 @@ export class Sale extends FactoryContract {
     return new Sale(address, signer);
   };
 
+  /**
+   * @public
+   * Conncect to this Sale contract with another signer
+   * 
+   * @param signer - the signer to get connected to the Sale instance
+   * @returns the Sale instance with the new signer
+   */
   public readonly connect = (signer: Signer): Sale => {
     return new Sale(this.address, signer);
   };
@@ -333,7 +336,7 @@ export class Sale extends FactoryContract {
   /**
    * Pointers to opcode functions, necessary for being able to read the packedBytes
    * 
-   * @param override - @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns the opcode functions pointers
    */
   public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
@@ -341,7 +344,7 @@ export class Sale extends FactoryContract {
   /**
    * Returns the pointer and length for sale's storage opcodes
    * 
-   * @param override - @see ReadTxOverrides
+   * @param overrides - @see ReadTxOverrides
    * @returns a StorageOpcodesRange
    */
   public readonly storageOpcodesRange: (

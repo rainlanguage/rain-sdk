@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
+import { RedeemableERC20ClaimEscrow__factory } from '../typechain';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import type { DepositEvent } from '../src/typechain/RedeemableERC20ClaimEscrow';
-import { RedeemableERC20ClaimEscrow__factory } from '../src/typechain/factories/RedeemableERC20ClaimEscrow__factory';
 import {
   ONE,
   Time,
@@ -23,7 +23,7 @@ import {
   AddressBook,
   ERC20,
   SaleVmFrom,
-  BuyCap,
+  BuyAmount,
 } from '../src';
 
 
@@ -67,7 +67,7 @@ const deploySale = async (
   const saleConfig = {
     vmStateConfig: new SaleVmFrom(
       new BetweenBlocks(startBlock, endBlock),
-      new BuyCap(),
+      new BuyAmount(),
       new FixedPrice(75, 6),
     ),
     // canStartStateConfig: new BetweenBlocks(startBlock),
@@ -102,7 +102,7 @@ const deploySale = async (
   return { sale, redeemableERC20 };
 };
 
-describe('ClaimEscrow', () => {
+describe('SDK - ClaimEscrow', () => {
   it('should fail when a not formatted address is provided as Sale or Token', async () => {
     const [signer] = await ethers.getSigners();
 

@@ -1,15 +1,7 @@
-import { Signer, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
-import {
-  ERC20Config,
-  TxOverrides,
-  ReadTxOverrides,
-} from '../classes/rainContract';
 import { FactoryContract } from '../classes/factoryContract';
-
-import {
-  RedeemableERC20__factory,
-  RedeemableERC20Factory__factory,
-} from '../typechain';
+import { Signer, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
+import { ERC20Config, TxOverrides, ReadTxOverrides } from '../classes/rainContract';
+import { RedeemableERC20__factory, RedeemableERC20Factory__factory } from '../typechain';
 
 /**
  * @public
@@ -115,6 +107,13 @@ export class RedeemableERC20 extends FactoryContract {
     return new RedeemableERC20(address, signer);
   };
 
+  /**
+   * @public
+   * Conncect to this RedeemableErc20 contract with another signer
+   * 
+   * @param signer - the signer to get connected to the RedeemableErc20 instance
+   * @returns the RedeemableErc20 instance with the new signer
+   */
   public readonly connect = (signer: Signer): RedeemableERC20 => {
     return new RedeemableERC20(this.address, signer);
   };
@@ -152,8 +151,7 @@ export class RedeemableERC20 extends FactoryContract {
   ) => Promise<BigNumber>;
 
   /**
-   * Sets `amount` as the allowance of `spender` over the caller's tokens.
-   *
+   * Approve spend limit `amount` as the allowance for a `spender` over this tokens.
    *
    * @param spender - The addess that will get approved
    * @param amount - The amount that `spender` is allowed to spend
@@ -170,7 +168,7 @@ export class RedeemableERC20 extends FactoryContract {
    *
    * @param account - Account address to get the balance
    * @param overrides - @see ReadTxOverrides
-   * @returns Amount of tokens that the owner have
+   * @returns Amount of tokens that the owner has
    */
   public readonly balanceOf: (
     account: string,
@@ -221,7 +219,7 @@ export class RedeemableERC20 extends FactoryContract {
   ) => Promise<BigNumber>;
 
   /**
-   * Returns the number of decimals used to get its user representation.
+   * Returns the number of decimals used to get its user representation. (It is always 18 for this contract type)
    *
    * @param overrides - @see ReadTxOverrides
    * @returns The decimals of the Redeemable contract
@@ -229,7 +227,7 @@ export class RedeemableERC20 extends FactoryContract {
   public readonly decimals: (overrides?: ReadTxOverrides) => Promise<number>;
 
   /**
-   * Atomically decreases the allowance granted to `spender` by the caller.
+   * Automatically decreases the allowance granted to `spender` for this token.
    *
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
@@ -302,7 +300,7 @@ export class RedeemableERC20 extends FactoryContract {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Atomically increases the allowance granted to `spender` by the caller.
+   * Automically increases the allowance granted to `spender` for this token.
    *
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
@@ -436,7 +434,7 @@ export class RedeemableERC20 extends FactoryContract {
    * Returns the symbol of the token, usually a shorter version of the name.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The symbol of the Emissions contract
+   * @returns The symbol of this RedeemableERC20 token
    */
   public readonly symbol: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -469,14 +467,14 @@ export class RedeemableERC20 extends FactoryContract {
    * Returns the amount of tokens in existence.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The total supply that have the Emissions
+   * @returns The current total supply of this token
    */
   public readonly totalSupply: (
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
   /**
-   * Moves `amount` tokens from the caller's account to `to`.
+   * Moves `amount` of tokens from the caller's account to `to`.
    *
    * Requirements:
    *
@@ -494,7 +492,7 @@ export class RedeemableERC20 extends FactoryContract {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is
+   * Moves `amount` of tokens from `from` to `to` using the allowance mechanism. `amount` is
    * then deducted from the caller's allowance.
    *
    * NOTE: Does not update the allowance if the current allowance is the maximum `uint256`.

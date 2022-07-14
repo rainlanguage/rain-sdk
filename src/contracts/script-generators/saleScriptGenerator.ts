@@ -142,12 +142,12 @@ export class PriceCurve {
     tierAddress: string,
     tierDiscount: number[],
     options?: {
-      tierActivation: (number | string)[],
-      tierContext: BigNumber[]
+      tierActivation?: (number | string)[],
+      tierContext?: BigNumber[]
     }
 
   ): PriceCurve {
-    const _discountConfig = VM.toTierDiscounter(
+    const _discountConfig = VM.setDiscountForTiers(
       this,
       tierAddress,
       tierDiscount,
@@ -615,7 +615,7 @@ export class BetweenBlocks {
  * or cap that can be bought.
  *
  */
-export class BuyCap {
+export class BuyAmount {
   // StateConfig Properties of this class
   public constants: BigNumberish[];
   public sources: BytesLike[];
@@ -623,7 +623,7 @@ export class BuyCap {
   /**
    * Constructor for this class
    *
-   * @param buyCapConfig - (optional) a custom StateConfig as the BuyCap (amount) script
+   * @param buyCapConfig - (optional) a custom StateConfig as the BuyAmount (amount) script
    * if not passed the current buy units (CONTEXT, 0) will be used as the amount in
    * amount/price script pair for the sale.
    */
@@ -666,7 +666,7 @@ export class BuyCap {
       tierActivation?: (number | string)[];
       tierContext?: BigNumber[]
     }
-  ): BuyCap {
+  ): BuyAmount {
     const MIN_CAP_SOURCES = (i: number) =>
       concat([
         op(VM.Opcodes.CONSTANT, i),
@@ -687,7 +687,8 @@ export class BuyCap {
         op(VM.Opcodes.GREATER_THAN),
       ]);
 
-    if (mode == BuyCapMode.min && options?.minWalletCap) {
+    if (mode == BuyCapMode.min && options?.minWalletCap !== undefined) {
+      options.minWalletCap = options.minWalletCap === 0 ? 1 : options.minWalletCap;
       let minCapConfig: StateConfig = {
         constants: [parseUnits(options.minWalletCap.toString()).sub(1)],
         sources: [MIN_CAP_SOURCES(0)],
@@ -702,11 +703,11 @@ export class BuyCap {
       this.constants = minCapConfig.constants;
       this.sources = minCapConfig.sources;
     }
-    if (mode == BuyCapMode.max && options?.maxWalletCap) {
+    if (mode == BuyCapMode.max && options?.maxWalletCap !== undefined) {
       let maxCapConfig: StateConfig;
 
       if (options.tierMultiplier && options.tierAddress) {
-        maxCapConfig = VM.toTierMultiplier(
+        maxCapConfig = VM.setMultiplierForTiers(
           {
             constants: [parseUnits(options.maxWalletCap.toString())],
             sources: [concat([op(VM.Opcodes.CONSTANT, 0)])],
@@ -756,8 +757,9 @@ export class BuyCap {
     if (
       mode == BuyCapMode.both &&
       options?.minWalletCap &&
-      options?.maxWalletCap
+      options?.maxWalletCap !== undefined
     ) {
+      options.minWalletCap = options.minWalletCap === 0 ? 1 : options.minWalletCap;
       let bothCapConfig: StateConfig;
 
       if (options.tierMultiplier && options.tierAddress) {
@@ -765,7 +767,7 @@ export class BuyCap {
           constants: [parseUnits(options.maxWalletCap.toString())],
           sources: [concat([op(VM.Opcodes.CONSTANT, 0)])],
         };
-        bothCapConfig = VM.toTierMultiplier(
+        bothCapConfig = VM.setMultiplierForTiers(
           bothCapConfig,
           options.tierAddress,
           options.tierMultiplier,
@@ -859,7 +861,7 @@ export class SaleVmFrom {
       | BetweenTimestamps
       | BetweenBlocks
       | StateConfig,
-    public readonly buyCapScript: BuyCap | StateConfig,
+    public readonly buyCapScript: BuyAmount | StateConfig,
     public readonly calculateBuyScript: PriceCurve | StateConfig
   ) {
     let _saleConfig = VM.pair(buyCapScript, calculateBuyScript);

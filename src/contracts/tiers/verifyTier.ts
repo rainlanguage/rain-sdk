@@ -1,7 +1,7 @@
-import { Signer, BytesLike, BigNumberish } from 'ethers';
+import { Signer } from 'ethers';
 import { TierContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
-import { VerifyTierFactory__factory } from '../../typechain';
+import { VerifyTierFactory__factory, VerifyTier__factory } from '../../typechain';
 
 /**
  * @public
@@ -31,17 +31,19 @@ import { VerifyTierFactory__factory } from '../../typechain';
  */
 export class VerifyTier extends TierContract {
   protected static readonly nameBookReference: string = 'verifyTierFactory';
+
   /**
    * Constructs a new VerifyTier from a known address.
    *
    * @param address - The address of the VerifyTier contract
    * @param signer - An ethers.js Signer
    * @returns A new VerifyTier instance
-   *
    */
   constructor(address: string, signer: Signer) {
     VerifyTier.checkAddress(address);
-    super(address, signer);
+    
+    const _verifyTier = VerifyTier__factory.connect(address, signer);
+    super(address, signer, _verifyTier);
   }
 
   /**
@@ -72,6 +74,13 @@ export class VerifyTier extends TierContract {
     return new VerifyTier(address, signer);
   };
 
+  /**
+   * @public
+   * Conncect to this VerifyTier contract with another signer
+   * 
+   * @param signer - the signer to get connected to the VerifyTier instance
+   * @returns the VerifyTier instance with the new signer
+   */
   public readonly connect = (signer: Signer): VerifyTier => {
     return new VerifyTier(this.address, signer);
   };
@@ -88,17 +97,5 @@ export class VerifyTier extends TierContract {
     maybeChild: string
   ): Promise<boolean> => {
     return await this._isChild(signer, maybeChild);
-  };
-
-  /**
-   * It is NOT implemented in VerifyTiers. Always will throw an error
-   */
-  public readonly setTier = async (
-    account: string,
-    endTier: BigNumberish,
-    data: BytesLike,
-    overrides?: TxOverrides
-  ): Promise<never> => {
-    throw new Error('SET TIER: NOT IMPLEMENTED');
   };
 }

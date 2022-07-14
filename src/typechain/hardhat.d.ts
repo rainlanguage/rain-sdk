@@ -113,6 +113,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
     getContractFactory(
+      name: "IERC20Permit",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Permit__factory>;
+    getContractFactory(
       name: "ERC20Burnable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20Burnable__factory>;
@@ -172,6 +176,10 @@ declare module "hardhat/types/runtime" {
       name: "Cooldown",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Cooldown__factory>;
+    getContractFactory(
+      name: "SeedDance",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SeedDance__factory>;
     getContractFactory(
       name: "ERC20Redeem",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -273,6 +281,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.PhasedTest__factory>;
     getContractFactory(
+      name: "RandomTest",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.RandomTest__factory>;
+    getContractFactory(
       name: "ReadWriteTier",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ReadWriteTier__factory>;
@@ -321,6 +333,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.VerifyCallbackTest__factory>;
     getContractFactory(
+      name: "LibCommitmentTest",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LibCommitmentTest__factory>;
+    getContractFactory(
+      name: "LibSeedTest",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LibSeedTest__factory>;
+    getContractFactory(
       name: "RedeemableERC20ClaimEscrowWrapper",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RedeemableERC20ClaimEscrowWrapper__factory>;
@@ -328,6 +348,10 @@ declare module "hardhat/types/runtime" {
       name: "SaleEscrowWrapper",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SaleEscrowWrapper__factory>;
+    getContractFactory(
+      name: "SeedDanceTest",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.SeedDanceTest__factory>;
     getContractFactory(
       name: "TierReportTest",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -511,6 +535,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20>;
     getContractAt(
+      name: "IERC20Permit",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Permit>;
+    getContractAt(
       name: "ERC20Burnable",
       address: string,
       signer?: ethers.Signer
@@ -585,6 +614,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Cooldown>;
+    getContractAt(
+      name: "SeedDance",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SeedDance>;
     getContractAt(
       name: "ERC20Redeem",
       address: string,
@@ -711,6 +745,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.PhasedTest>;
     getContractAt(
+      name: "RandomTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RandomTest>;
+    getContractAt(
       name: "ReadWriteTier",
       address: string,
       signer?: ethers.Signer
@@ -771,6 +810,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.VerifyCallbackTest>;
     getContractAt(
+      name: "LibCommitmentTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LibCommitmentTest>;
+    getContractAt(
+      name: "LibSeedTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LibSeedTest>;
+    getContractAt(
       name: "RedeemableERC20ClaimEscrowWrapper",
       address: string,
       signer?: ethers.Signer
@@ -780,6 +829,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.SaleEscrowWrapper>;
+    getContractAt(
+      name: "SeedDanceTest",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.SeedDanceTest>;
     getContractAt(
       name: "TierReportTest",
       address: string,
