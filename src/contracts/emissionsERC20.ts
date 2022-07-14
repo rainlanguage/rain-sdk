@@ -1,4 +1,4 @@
-import { TierContract } from '../classes/tierContract';
+import { ITierV2 } from '../classes/iTierV2';
 import { StateConfig, StorageOpcodesRange } from '../classes/vm';
 import {
   Signer,
@@ -65,7 +65,7 @@ export enum EmissionsERC20Storage {
  *```
  */
 
-export class EmissionsERC20 extends TierContract {
+export class EmissionsERC20 extends ITierV2 {
   protected static readonly nameBookReference: string = 'emissionsERC20Factory';
 
   /**
@@ -79,9 +79,9 @@ export class EmissionsERC20 extends TierContract {
   constructor(address: string, signer: Signer) {
     EmissionsERC20.checkAddress(address);
 
+    super(address, signer);
     const _emission = EmissionsERC20__factory.connect(address, signer);
-    super(address, signer, _emission);
-
+    
     this.allowDelegatedClaims = _emission.allowDelegatedClaims;
     this.allowance = _emission.allowance;
     this.approve = _emission.approve;

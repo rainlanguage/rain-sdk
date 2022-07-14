@@ -1,5 +1,5 @@
+import { Tier } from '../../classes/iTierV2';
 import { StateConfig, VM } from '../../classes/vm';
-import { Tier } from '../../classes/tierContract';
 import { BigNumberish, BigNumber, BytesLike, ethers } from 'ethers';
 import {
   concat,

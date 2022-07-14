@@ -1,5 +1,5 @@
 import { VM } from '../../classes/vm';
-import { Tier } from '../../classes/tierContract';
+import { Tier } from '../../classes/iTierV2';
 import { EmissionsERC20Context } from '../emissionsERC20';
 import { ethers, BigNumberish, BigNumber, BytesLike } from 'ethers';
 import {

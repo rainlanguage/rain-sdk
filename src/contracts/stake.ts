@@ -1,4 +1,4 @@
-import { TierContract } from '../classes/tierContract';
+import { ITierV2 } from '../classes/iTierV2';
 import { Stake__factory, StakeFactory__factory } from '../typechain';
 import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
 import {
@@ -27,7 +27,7 @@ import {
  * await Stake.isChild(signer, maybeChildAddress);
  *```
  */
-export class Stake extends TierContract {
+export class Stake extends ITierV2 {
   protected static readonly nameBookReference: string = 'stakeFactory';
 
   /**
@@ -40,8 +40,8 @@ export class Stake extends TierContract {
   constructor(address: string, signer: Signer) {
     Stake.checkAddress(address);
 
+    super(address, signer);
     const _stake = Stake__factory.connect(address, signer);
-    super(address, signer, _stake);
     
     this.allowance = _stake.allowance;
     this.approve = _stake.approve;

@@ -2,13 +2,7 @@ import { paddedUInt256 } from '../utils';
 import { ReadTxOverrides } from './rainContract';
 import { FactoryContract } from './factoryContract';
 import { BigNumber, BigNumberish, Signer } from 'ethers';
-import { 
-  Stake,
-  ITierV2,
-  VerifyTier,
-  CombineTier,
-  EmissionsERC20
-} from '../typechain';
+import { ITierV2__factory } from '../typechain';
 
 /**
  * @public
@@ -56,24 +50,58 @@ export enum Tier {
 
 /**
  * @public
- * Combine the static methods that are present in factories with the ITier instance methods.
- * Should be use to the TierFactories.
+ * Class to interact with any Rain Tier contract i.e ITierV2 contracts
+ *
+ * @remarks
+ * Generic class to interact with any ITierV2 contract in chain with the basic methods and functions.
+ * `ITierV2` is a simple interface that contracts can implement to provide membership lists for other contracts.
+ * And all other Rain Tier contract inherit form it.
+ * This class can be used to interact with any contract that implement the ITierV2 interface in their code, but
+ * does not know if the contract has implemented the code.
+ * 
+ * @example
+ * ```typescript
+ * import { ITierV2 } from "rain-sdk";
+ * 
+ * // to instantiate a new ethers.js ITierV2 contract from this class pass the contract address and signer
+ * const newTier = new ITierV2(tierAddress, signer);
+ * 
+ * // to connect to an existing ITierV2 instance with a new signer
+ * newTier.connect(signer);
+ * ```
  */
-export abstract class TierContract extends FactoryContract {
+export class ITierV2 extends FactoryContract {
 
-  constructor(
-    address: string,
-    signer: Signer,
-    tierContract: VerifyTier | CombineTier | ITierV2 | Stake | EmissionsERC20
-  ) {
+  /**
+   * Constructor of ITierV2 class to instantiate any Rain Tier contract from a known address
+   * 
+   * @param address - Address of the Rain tier contract
+   * @param signer - The signer to get connected to the instance
+   * @returns A new instance of ITierV2 contract from the address with Signer
+   */
+   constructor(address: string, signer: Signer) {
+    ITierV2.checkAddress(address);
+
     super(address, signer);
-
-    this.report = tierContract.report;
-    this.reportTimeForTier = tierContract.reportTimeForTier;
+    const _iTierV2 = ITierV2__factory.connect(address, signer);
+    
+    this.report = _iTierV2.report;
+    this.reportTimeForTier = _iTierV2.reportTimeForTier;
   }
 
   /** {@inheritDoc Tier} */
   public readonly levels = Tier;
+
+  /**
+   * @public
+   * Conncect to this ITierV2 contract with another signer
+   * 
+   * @param signer - the signer to get connected to the ITierV2 instance
+   * @returns the ITierV2 instance with the new signer
+   */
+  public readonly connect = (signer: Signer): ITierV2 => {
+    return new ITierV2(this.address, signer);
+  };
 
   /**
    * @public

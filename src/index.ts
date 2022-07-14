@@ -4,7 +4,7 @@ export { utils };
 
 export * from './classes/factoryContract';
 export * from './classes/rainContract';
-export * from './classes/tierContract';
+export * from './classes/iTierV2';
 export * from './classes/vm';
 
 export * from './addresses';
@@ -26,7 +26,6 @@ export * from './RainJS/CombineTierJS';
 export * from './RainJS/EmissionsERC20JS';
 export * from './RainJS/SaleJS';
 
-export * from './contracts/tiers/iTierV2';
 export * from './contracts/tiers/combineTier';
 export * from './contracts/tiers/verifyTier';
 
