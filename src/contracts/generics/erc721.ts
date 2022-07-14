@@ -1,5 +1,5 @@
 import { ERC721Burnable__factory } from '../../typechain';
-import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
+import { TxOverrides, ReadTxOverrides, RainContract } from '../../classes/rainContract';
 import {
   BigNumberish,
   BigNumber,
@@ -31,6 +31,7 @@ export class ERC721 {
    *
    */
   constructor(address: string, signer: Signer) {
+    RainContract.checkAddress(address);
     this.address = address;
     this.signer = signer;
     const _erc721 = ERC721Burnable__factory.connect(address, signer);
