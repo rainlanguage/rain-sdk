@@ -23,10 +23,8 @@ import {
   RedeemableERC20ClaimEscrow,
   ERC20,
   ERC721,
-  ERC1155,
-  utils,
+  ERC1155
 } from '../src';
-const { op } = utils;
 
 
 /**
@@ -105,21 +103,13 @@ before('Initializing and deploying contracts to hardhat network', async () => {
   );
 
   // Deploying AlwaysTier
-  const ctxAccount = op(VM.Opcodes.CONTEXT, 0);
-
-  // prettier-ignore
-  const sourceReportTimeForTierDefault = VM.createVMSources([
-      op(VM.Opcodes.THIS_ADDRESS),
-      ctxAccount,
-    op(VM.Opcodes.ITIERV2_REPORT),
-  ])[0];
-
   const alwaysArg = {
     combinedTiersLength: 0,
-    sourceConfig: {
-      sources: [op(VM.Opcodes.CONSTANT, 0), sourceReportTimeForTierDefault],
-      constants: [0],
-    },
+    sourceConfig: VM.combiner(
+      VM.constant(0), 
+      VM.constant(0),
+      { numberOfSources: 0 }
+    )
   };
 
   const tx = await CombineTierFactory.createChildTyped(alwaysArg);

@@ -1,5 +1,7 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
+import { BigNumber } from 'ethers';
+import { ReserveTokenTest } from '../typechain';
 import {
   deployErc20,
   ONE,
@@ -8,9 +10,6 @@ import {
   Time,
   SaleStatus,
 } from './utils';
-
-import { ReserveTokenTest } from '../typechain';
-
 import {
   VM,
   Sale,
@@ -18,9 +17,9 @@ import {
   BetweenTimestamps,
   BetweenBlocks,
   SaleVmFrom,
-  BuyCap,
+  BuyAmount,
 } from '../src';
-import { BigNumber } from 'ethers';
+
 
 describe('SDK - Sale', () => {
   let reserve: ReserveTokenTest, tier: CombineTier;
@@ -50,15 +49,13 @@ describe('SDK - Sale', () => {
 
     const staticPrice = ethers.BigNumber.from('75').mul(RESERVE_ONE);
     const constants = [staticPrice];
-    // TODO: @rouzwelt
-    // @ts-ignore
     const sources = VM.createVMSources([[VM.Opcodes.CONSTANT, 0]]);
 
     // All configs calculated outside of deploy method
     const saleConfig = {
       vmStateConfig: new SaleVmFrom(
         new BetweenBlocks(startBlock, startBlock + saleDuration),
-        new BuyCap(),
+        new BuyAmount(),
         { sources, constants }
       ),
       recipient: recipient.address,
@@ -109,7 +106,7 @@ describe('SDK - Sale', () => {
     const saleConfig = {
       vmStateConfig: new SaleVmFrom(
         new BetweenBlocks(startBlock, endBlock),
-        new BuyCap(),
+        new BuyAmount(),
         { sources, constants }
       ),
       recipient: recipient.address,
@@ -183,7 +180,7 @@ describe('SDK - Sale', () => {
     const saleConfig = {
       vmStateConfig: new SaleVmFrom(
         new BetweenTimestamps(startTimestamp, endTimestamp),
-        new BuyCap(),
+        new BuyAmount(),
         { sources, constants }
       ),
       recipient: recipient.address,
@@ -257,7 +254,7 @@ describe('SDK - Sale', () => {
     const saleConfig = {
       vmStateConfig: new SaleVmFrom(
         new BetweenBlocks(startBlock, endBlock),
-        new BuyCap(),
+        new BuyAmount(),
         { sources, constants }
       ),
       recipient: recipient.address,

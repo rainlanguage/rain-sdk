@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
-import { expectAsyncError, chainId } from './utils';
+import { chainId } from './utils';
 import { AddressBook, Verify, VerifyTier, CombineTier } from '../src';
 
 
@@ -18,21 +18,21 @@ describe('SDK - VerifyTier', () => {
     expect(await VerifyTier.isChild(signer, tier.address)).to.be.true;
   });
 
-  it('should throw an error if try to call setTier from SDK', async () => {
-    const [deployer] = await ethers.getSigners();
+  // it('should throw an error if try to call setTier from SDK', async () => {
+  //   const [deployer] = await ethers.getSigners();
 
-    const verify = await Verify.deploy(deployer, {
-      admin: deployer.address,
-      callback: ethers.constants.AddressZero,
-    });
+  //   const verify = await Verify.deploy(deployer, {
+  //     admin: deployer.address,
+  //     callback: ethers.constants.AddressZero,
+  //   });
 
-    const tier = await VerifyTier.deploy(deployer, verify.address);
+  //   const tier = await VerifyTier.deploy(deployer, verify.address);
 
-    await expectAsyncError(
-      tier.setTier('', 2, []),
-      'SET TIER: NOT IMPLEMENTED'
-    );
-  });
+  //   await expectAsyncError(
+  //     tier.setTier('', 2, []),
+  //     'SET TIER: NOT IMPLEMENTED'
+  //   );
+  // });
 
   it('should get correct tier after been approved', async () => {
     const [deployer, admin, user] = await ethers.getSigners();

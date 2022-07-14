@@ -40,7 +40,7 @@ if (a == 2) {
   //
 }
 
-describe('Human Friendly Source Generator', () => {
+describe('SDK - Human Friendly Source Generator', () => {
   it('should generate the human friendly from an exponentiation op source', async () => {
     const constants = [5, 2];
 

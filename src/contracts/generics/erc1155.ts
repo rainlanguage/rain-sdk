@@ -1,4 +1,5 @@
 import { ERC1155Burnable__factory } from '../../typechain';
+import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
 import {
   BigNumberish,
   BigNumber,
@@ -6,7 +7,7 @@ import {
   Signer,
   ContractTransaction,
 } from 'ethers';
-import { TxOverrides, ReadTxOverrides } from '../../classes/rainContract';
+
 
 /**
  * @public
@@ -70,7 +71,7 @@ export class ERC1155 {
   };
 
   /**
-   * Connect the current instance to a new signer
+   * Connect the current instance of ERC1155 to a new signer
    *
    * @param signer - The new signer which will be connected
    * @returns The instance with a new signer

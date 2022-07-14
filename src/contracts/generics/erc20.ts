@@ -76,7 +76,7 @@ export class ERC20 {
   };
 
   /**
-   * Connect the current instance to a new signer
+   * Connect the current instance of the ERC20 to a new signer
    *
    * @param signer - The new signer which will be connected
    * @returns The instance with a new signer
@@ -114,8 +114,7 @@ export class ERC20 {
   ) => Promise<BigNumber>;
 
   /**
-   * Sets `amount` as the allowance of `spender` over the caller's tokens.
-   *
+   * Approve spend limit `amount` as the allowance for a `spender` over this tokens.
    *
    * @param spender - The addess that will get approved
    * @param amount - The amount that `spender` is allowed to spend
@@ -132,7 +131,7 @@ export class ERC20 {
    *
    * @param account - Account address to get the balance
    * @param overrides - @see ReadTxOverrides
-   * @returns Amount of tokens that the owner have
+   * @returns Amount of tokens that the owner has
    */
   public readonly balanceOf: (
     account: string,
@@ -176,7 +175,7 @@ export class ERC20 {
   public readonly decimals: (overrides?: ReadTxOverrides) => Promise<number>;
 
   /**
-   * Atomically decreases the allowance granted to `spender` by the caller.
+   * Automatically decreases the allowance granted to `spender` for this token.
    *
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
@@ -192,7 +191,7 @@ export class ERC20 {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Atomically increases the allowance granted to `spender` by the caller.
+   * Automically increases the allowance granted to `spender` for this token.
    *
    * This is an alternative to `approve()` that can be used as a mitigation for
    * problems described in https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729.
@@ -211,7 +210,7 @@ export class ERC20 {
    *  Returns the name of the token.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The name of the Redeemable
+   * @returns The name of this token
    */
   public readonly name: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -219,7 +218,7 @@ export class ERC20 {
    * Returns the symbol of the token, usually a shorter version of the name.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The symbol of the Emissions contract
+   * @returns The symbol of this token
    */
   public readonly symbol: (overrides?: ReadTxOverrides) => Promise<string>;
 
@@ -227,14 +226,14 @@ export class ERC20 {
    * Returns the amount of tokens in existence.
    *
    * @param overrides - @see ReadTxOverrides
-   * @returns The total supply that have the Emissions
+   * @returns The current total supply of this token
    */
   public readonly totalSupply: (
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
   /**
-   * Moves `amount` tokens from the caller's account to `to`.
+   * Moves `amount` of tokens from the caller's account to `to`.
    *
    * Requirements:
    *
@@ -252,7 +251,7 @@ export class ERC20 {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is
+   * Moves `amount` of tokens from `from` to `to` using the allowance mechanism. `amount` is
    * then deducted from the caller's allowance.
    *
    * NOTE: Does not update the allowance if the current allowance is the maximum `uint256`.

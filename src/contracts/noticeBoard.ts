@@ -68,6 +68,13 @@ export class NoticeBoard extends RainContract {
     );
   };
 
+  /**
+   * @public
+   * Conncect to this Noticeboard contract with another signer
+   * 
+   * @param signer - the signer to get connected to the noticeboard instance
+   * @returns the Noticeboard instance with the new signer
+   */
   public readonly connect = (signer: Signer): NoticeBoard => {
     return new NoticeBoard(this.address, signer);
   };

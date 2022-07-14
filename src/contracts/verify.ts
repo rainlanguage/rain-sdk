@@ -1,3 +1,6 @@
+import { Verify__factory, VerifyFactory__factory } from '../typechain';
+import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
+import { FactoryContract } from '../classes/factoryContract';
 import {
   Signer,
   BytesLike,
@@ -6,9 +9,6 @@ import {
   ContractTransaction,
   constants,
 } from 'ethers';
-import { Verify__factory, VerifyFactory__factory } from '../typechain';
-import { TxOverrides, ReadTxOverrides } from '../classes/rainContract';
-import { FactoryContract } from '../classes/factoryContract';
 
 /**
  * @public
@@ -145,6 +145,13 @@ export class Verify extends FactoryContract {
     return new Verify(address, signer);
   };
 
+  /**
+   * @public
+   * Conncect to this Verify contract with another signer
+   * 
+   * @param signer - the signer to get connected to the Verify instance
+   * @returns the Verify instance with the new signer
+   */
   public readonly connect = (signer: Signer): Verify => {
     return new Verify(this.address, signer);
   };

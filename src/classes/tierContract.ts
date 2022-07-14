@@ -1,8 +1,14 @@
-import { Signer, BigNumber, BigNumberish } from 'ethers';
+import { paddedUInt256 } from '../utils';
 import { ReadTxOverrides } from './rainContract';
 import { FactoryContract } from './factoryContract';
-import { ITierV2__factory } from '../typechain';
-import { paddedUInt256 } from '../utils';
+import { BigNumber, BigNumberish, Signer } from 'ethers';
+import { 
+  Stake,
+  ITierV2,
+  VerifyTier,
+  CombineTier,
+  EmissionsERC20
+} from '../typechain';
 
 /**
  * @public
@@ -54,26 +60,32 @@ export enum Tier {
  * Should be use to the TierFactories.
  */
 export abstract class TierContract extends FactoryContract {
-  constructor(address: string, signer: Signer) {
+
+  constructor(
+    address: string,
+    signer: Signer,
+    tierContract: VerifyTier | CombineTier | ITierV2 | Stake | EmissionsERC20
+  ) {
     super(address, signer);
-    const tier = ITierV2__factory.connect(address, signer);
-    this.report = tier.report;
-    this.reportTimeForTier = tier.reportTimeForTier;
+
+    this.report = tierContract.report;
+    this.reportTimeForTier = tierContract.reportTimeForTier;
   }
 
   /** {@inheritDoc Tier} */
   public readonly levels = Tier;
 
   /**
+   * @public
    * A tier report is a `uint256` that contains each of the block numbers each tier has been
    * held continously since as a `uint32`.
    *
    * @remarks
-   * There are 9 possible tier, starting with tier 0
-   * for `0` offset or "never held any tier" then working up through 8x 4 byte offsets to the
-   * full 256 bits.
+   * There are 9 possible tier, starting with tier 0 for `0` offset or "never held any tier" 
+   * and then working up through 8x 4 byte offsets to the full 256 bits.
    *
    * @param account - Account to get the report for.
+   * @param context - A contextual argument depending on the implementing tier contract, array of values passed to the method at runtime
    * @param overrides - @see ReadTxOverrides
    * @returns The report blocks encoded as a uint256.
    */
@@ -83,6 +95,23 @@ export abstract class TierContract extends FactoryContract {
     overrides?: ReadTxOverrides
   ) => Promise<BigNumber>;
 
+  /**
+   * @public
+   * Same as report but only returns the time for a single tier. Often the implementing contract 
+   * can calculate a single tier more efficiently than all 8 tiers. If the consumer only needs one 
+   * or a few tiers it MAY be much cheaper to request only those tiers individually.
+   * 
+   * @remarks
+   * The return value 
+   * is a `uint256` for gas efficiency but the values will be bounded by `type(uint32).max` as no single 
+   * tier can report a value higher than this.
+   *
+   * @param account - Account to get the report for
+   * @param tier - Tier to get the single report for
+   * @param context - A contextual argument depending on the implementing tier contract, array of values passed to the method at runtime
+   * @param overrides - @see ReadTxOverrides 
+   * @returns A single tier report of max uint32 size encoded as uint256 
+   */
   public readonly reportTimeForTier: (
     account: string,
     tier: BigNumberish,

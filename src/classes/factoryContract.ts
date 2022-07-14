@@ -1,6 +1,6 @@
-import { ContractReceipt, Contract, Signer, utils } from 'ethers';
 import { Factory__factory } from '../typechain';
 import { RainContract } from './rainContract';
+import { ContractReceipt, Contract, Signer, utils } from 'ethers';
 
 /**
  * @public

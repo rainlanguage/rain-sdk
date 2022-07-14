@@ -4,7 +4,7 @@ import { Verify } from '../src';
 import { Time } from './utils';
 
 
-describe('Verify', () => {
+describe('SDK - Verify', () => {
   it('should deploy a Verify child', async () => {
     const [signer] = await ethers.getSigners();
     const verify = await Verify.deploy(signer, {
