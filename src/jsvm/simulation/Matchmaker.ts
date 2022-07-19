@@ -1,15 +1,15 @@
 import { BigNumber } from "ethers";
-import { VM } from "../classes/vm";
-import { OrderbookJS } from "./OrderbookJS";
-import { OrderbookSimulation } from "./vmSimulation";
-import { FixedPrice, IncDecPrice } from "../../src";
-import { paddedUInt160, paddedUInt256, parseUnits } from "../utils";
+import { VM } from "../../classes/vm";
+import { OrderbookJSVM } from "./../OrderbookJSVM";
+import { OrderbookSimulation } from "./OrderbookSimulation";
+import { paddedUInt160, paddedUInt256, parseUnits } from "../../utils";
+import { FixedPrice, IncDecPrice } from "./../../contracts/script-generators/saleScriptGenerator";
 import { 
   order,
   erc20s,
   eighteenZeros,
   bountyConfig
-} from "./types";
+} from "../types";
 
 
 /**
@@ -84,7 +84,7 @@ export class MatchMaker extends OrderbookSimulation {
    */
   public async orderEval(order: order, timestamp?: number, blockNumber?: number) {
     this.script = order.vmConfig;
-    const jsvm = new OrderbookJS(this.script, {applyOpFn: this.OpFns});
+    const jsvm = new OrderbookJSVM(this.script, {applyOpFn: this.OpFns});
     const result1 = await jsvm.run({context: [order.orderHash], timestamp, blockNumber});
 
     const out1 = result1[0];

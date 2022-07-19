@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { ethers } from 'hardhat';
 import { BigNumber } from 'ethers';
 import { expectAsyncError, ONE, Tier, Time } from './utils';
-import { StateConfig, RainJS, OpcodeFN, ApplyOpFn, VM } from '../src';
+import { StateConfig, RainJSVM, OpFn, FnPtrs, VM } from '../src';
 import {
   op,
   paddedUInt32,
@@ -15,12 +15,12 @@ import {
 } from '../src/utils';
 
 
-describe('SDK - RainJS', () => {
+describe('SDK - RainJSVM', () => {
   it('should perform correctly with custom opcode function', async () => {
-    const customBlockNumber: OpcodeFN = (state, operand, data) => {
+    const customBlockNumber: OpFn = (state, operand, data) => {
       state.stack.push(BigNumber.from(data.blockNumber));
     };
-    const applyOpFn: ApplyOpFn = {};
+    const applyOpFn: FnPtrs = {};
     applyOpFn[VM.Opcodes.BLOCK_NUMBER] = customBlockNumber;
 
     const script: StateConfig = {
@@ -38,7 +38,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script, { applyOpFn });
+    const rainJs = new RainJSVM(script, { applyOpFn });
 
     const result = await rainJs.run({ blockNumber: 111 });
 
@@ -126,7 +126,7 @@ describe('SDK - RainJS', () => {
       stackLength: 3,
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
 
     const result = await rainJs.run();
 
@@ -162,7 +162,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script, { signer });
+    const rainJs = new RainJSVM(script, { signer });
 
     const result = await rainJs.run();
     const block = await Time.currentBlock();
@@ -194,7 +194,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script, { signer });
+    const rainJs = new RainJSVM(script, { signer });
 
     for (let i = 0; i < 100; i++) {
       const result = await rainJs.run();
@@ -231,7 +231,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script, { signer });
+    const rainJs = new RainJSVM(script, { signer });
 
     for (let i = 0; i < 100; i++) {
       const result = await rainJs.run();
@@ -265,7 +265,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script, { signer });
+    const rainJs = new RainJSVM(script, { signer });
 
     for (let i = 0; i < 100; i++) {
       const result = await rainJs.run();
@@ -300,7 +300,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script, { signer });
+    const rainJs = new RainJSVM(script, { signer });
 
     for (let i = 0; i < 100; i++) {
       const result = await rainJs.run();
@@ -335,7 +335,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
 
     const result = await rainJs.run();
 
@@ -365,7 +365,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
 
     const result = await rainJs.run();
 
@@ -392,7 +392,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
 
     const result = await rainJs.run();
 
@@ -419,7 +419,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
 
     const result = await rainJs.run();
 
@@ -446,7 +446,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
 
     const result = await rainJs.run();
 
@@ -473,7 +473,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
     const result = await rainJs.run();
 
     const expected = BigNumber.from('0x22').mul('10000000000000').mul('0x44');
@@ -499,7 +499,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
     const result = await rainJs.run();
 
     const expected = BigNumber.from('0x22').mul('100000000').mul(ONE).div('0x44');
@@ -521,7 +521,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
     const result = await rainJs.run();
 
     const expected = BigNumber.from('22000000000000000001');
@@ -541,7 +541,7 @@ describe('SDK - RainJS', () => {
       sources: [concat([op(VM.Opcodes.CONSTANT, 0), op(VM.Opcodes.SCALEN, 3)])],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
     const result = await rainJs.run();
 
     const expected = BigNumber.from('44371');
@@ -563,7 +563,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
     const result = await rainJs.run();
 
     const expected = BigNumber.from('443711838001274368');
@@ -592,7 +592,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
     const result = await rainJs.run();
 
     const expected = BigNumber.from('10');
@@ -622,7 +622,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
     const result = await rainJs.run();
 
     const expected = BigNumber.from('60');
@@ -652,7 +652,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
     const result = await rainJs.run();
 
     const expected = BigNumber.from('30');
@@ -695,7 +695,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script);
+    const rainJs = new RainJSVM(script);
     const result = await rainJs.run();
 
     const expected = BigNumber.from('30');
@@ -733,7 +733,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script, { signer });
+    const rainJs = new RainJSVM(script, { signer });
     const result = await rainJs.run();
 
     const expected = BigNumber.from(
@@ -777,7 +777,7 @@ describe('SDK - RainJS', () => {
       ],
     };
 
-    const rainJs = new RainJS(script, { signer });
+    const rainJs = new RainJSVM(script, { signer });
     const result = await rainJs.run();
 
     const expected = BigNumber.from(
@@ -809,7 +809,7 @@ describe('SDK - RainJS', () => {
         ]),
       ],
     };
-    const rainJs = new RainJS(script, { signer });
+    const rainJs = new RainJSVM(script, { signer });
 
     await expectAsyncError(rainJs.run(), 'max numeric range overflow');
   });

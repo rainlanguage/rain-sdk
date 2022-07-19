@@ -1,18 +1,18 @@
 import { BytesLike, BigNumberish, BigNumber } from 'ethers';
-import { AllStandardOps, StateConfig } from './classes/vm';
-import { CombineTierStorage } from './contracts/tiers/combineTier';
+import { AllStandardOps, StateConfig } from '../classes/vm';
+import { CombineTierStorage } from '../contracts/tiers/combineTier';
 import {
   EmissionsERC20Context,
   EmissionsERC20Storage,
-} from './contracts/emissionsERC20';
-import { OrderbookContext, OrderbookStorage } from './contracts/orderBook';
-import { SaleContext, SaleStorage } from './contracts/sale';
+} from '../contracts/emissionsERC20';
+import { OrderbookContext, OrderbookStorage } from '../contracts/orderBook';
+import { SaleContext, SaleStorage } from '../contracts/sale';
 import {
   arrayify,
   paddedUInt256,
   selectLteLogic,
   selectLteMode,
-} from './utils';
+} from '../utils';
 
 interface OpMeta {
   opcode: number;
@@ -338,7 +338,7 @@ const newOpMeta: OpMeta[] = [
  * If you find an issue or you want to propose a better way to show a specific script or opcodes, please
  * feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
  */
-export class HumanFriendlySource {
+export class HumanFriendlyRead {
   private static opMeta: OpMeta[] = newOpMeta;
   private static _context: string | undefined;
   private static _pretty: boolean;

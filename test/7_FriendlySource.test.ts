@@ -2,19 +2,19 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import {
   VM,
-  HumanFriendlySource,
   utils,
   AllStandardOps,
   StateConfig,
   SaleStorage,
   SaleContext,
+  HumanFriendlyRead,
 } from '../src';
+import { arrToReport } from '../src/utils';
 import {
   getSigned8,
   eighteenZeros,
   sixZeros,
   max_uint256,
-  timestampToReport,
   Time,
   RESERVE_ONE,
   ONE,
@@ -59,7 +59,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.eq(`EXP(${constants[0]}, ${constants[1]})`);
   });
@@ -82,7 +82,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.eql(`MUL(${constants[0]}, ${constants[1]})`);
   });
@@ -105,7 +105,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.equal(`SUB(${constants[0]}, ${constants[1]})`);
   });
@@ -128,7 +128,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.equal(`ADD(${constants[0]}, ${constants[1]})`);
   });
@@ -151,7 +151,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.equal(`SCALE_BY(${value1}, ${getSigned8(n)})`);
   });
@@ -174,7 +174,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.equal(`SCALE_BY(${value1}, ${getSigned8(n)})`);
   });
@@ -197,7 +197,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.equal(`SCALEN(${value1}, ${getSigned8(n)})`);
   });
@@ -220,7 +220,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.equal(`SCALEN(${value1}, ${getSigned8(n)})`);
   });
@@ -245,7 +245,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.equal(`SCALE18_DIV(${value1}*10**18, ${value2})`);
   });
@@ -270,7 +270,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.equal(`SCALE18_MUL(${value1}*10**18, ${value2})`);
   });
@@ -292,7 +292,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.be.equal(`SCALE18(${value})`);
   });
@@ -351,7 +351,7 @@ describe('SDK - Human Friendly Source Generator', () => {
     };
     // 0x/00000001.00000000.00000003.00000000.00000005.00000000.00000007.00000008
 
-    const friendly0 = HumanFriendlySource.get(state);
+    const friendly0 = HumanFriendlyRead.get(state);
 
     expect(friendly0).to.eq(`ZIPMAP_8(
     ["00000001", "00000000", "00000003", "00000000", "00000005", "00000000", "00000007", "00000008"],
@@ -381,7 +381,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state0);
+    const friendly0 = HumanFriendlyRead.get(state0);
     expect(friendly0).to.be.equals(`ANY(1, 2, 3)`);
 
     // prettier-ignore
@@ -396,7 +396,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly1 = HumanFriendlySource.get(state1);
+    const friendly1 = HumanFriendlyRead.get(state1);
     expect(friendly1).to.be.equals(`ANY(0, 0)`);
 
     // prettier-ignore
@@ -412,7 +412,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly2 = HumanFriendlySource.get(state2);
+    const friendly2 = HumanFriendlyRead.get(state2);
     expect(friendly2).to.be.equals(`ANY(0, 0, 3)`);
   });
 
@@ -437,7 +437,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state0);
+    const friendly0 = HumanFriendlyRead.get(state0);
     expect(friendly0).to.be.equals(`EVERY(1, 2, 3)`);
 
     // prettier-ignore
@@ -453,7 +453,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly1 = HumanFriendlySource.get(state1);
+    const friendly1 = HumanFriendlyRead.get(state1);
     expect(friendly1).to.be.equals(`EVERY(0, 1, 2)`);
 
     // prettier-ignore
@@ -468,7 +468,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly2 = HumanFriendlySource.get(state2);
+    const friendly2 = HumanFriendlyRead.get(state2);
     expect(friendly2).to.be.equals(`EVERY(0, 3)`);
   });
 
@@ -494,7 +494,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state0);
+    const friendly0 = HumanFriendlyRead.get(state0);
     expect(friendly0).to.be.equals(`EAGER_IF(1, 2, 3)`);
 
     // prettier-ignore
@@ -511,7 +511,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly1 = HumanFriendlySource.get(state1);
+    const friendly1 = HumanFriendlyRead.get(state1);
     expect(friendly1).to.be.equals(`EAGER_IF(2, 2, 3)`);
 
     // prettier-ignore
@@ -528,7 +528,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly2 = HumanFriendlySource.get(state2);
+    const friendly2 = HumanFriendlyRead.get(state2);
     expect(friendly2).to.be.equals(`EAGER_IF(0, 2, 3)`);
   });
 
@@ -547,7 +547,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly0 = HumanFriendlySource.get(state0);
+    const friendly0 = HumanFriendlyRead.get(state0);
     expect(friendly0).to.be.equals(`GREATER_THAN(2, 1)`);
 
     // prettier-ignore
@@ -562,7 +562,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       constants,
     };
 
-    const friendly1 = HumanFriendlySource.get(state1);
+    const friendly1 = HumanFriendlyRead.get(state1);
     expect(friendly1).to.be.equals(`GREATER_THAN(1, 2)`);
   });
 
@@ -580,7 +580,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source0,
       constants,
     };
-    const friendly0 = HumanFriendlySource.get(state0);
+    const friendly0 = HumanFriendlyRead.get(state0);
     expect(friendly0).to.be.equals(`LESS_THAN(2, 1)`);
 
     // prettier-ignore
@@ -594,7 +594,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source1,
       constants,
     };
-    const friendly1 = HumanFriendlySource.get(state1);
+    const friendly1 = HumanFriendlyRead.get(state1);
     expect(friendly1).to.be.equals(`LESS_THAN(1, 2)`);
   });
 
@@ -612,7 +612,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source0,
       constants,
     };
-    const friendly0 = HumanFriendlySource.get(state0);
+    const friendly0 = HumanFriendlyRead.get(state0);
     expect(friendly0).to.be.equals(`EQUAL_TO(2, 2)`);
 
     // prettier-ignore
@@ -626,7 +626,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source1,
       constants,
     };
-    const friendly1 = HumanFriendlySource.get(state1);
+    const friendly1 = HumanFriendlyRead.get(state1);
     expect(friendly1).to.be.equals(`EQUAL_TO(1, 2)`);
   });
 
@@ -643,7 +643,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source0,
       constants,
     };
-    const friendly0 = HumanFriendlySource.get(state0);
+    const friendly0 = HumanFriendlyRead.get(state0);
     expect(friendly0).to.be.equals(`ISZERO(0)`);
 
     // prettier-ignore
@@ -656,7 +656,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source1,
       constants,
     };
-    const friendly1 = HumanFriendlySource.get(state1);
+    const friendly1 = HumanFriendlyRead.get(state1);
     expect(friendly1).to.be.equals(`ISZERO(1)`);
   });
 
@@ -672,7 +672,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source0,
       constants,
     };
-    const friendly0 = HumanFriendlySource.get(state0);
+    const friendly0 = HumanFriendlyRead.get(state0);
 
     expect(friendly0).to.eq('CURRENT_BLOCK');
 
@@ -685,7 +685,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source1,
       constants,
     };
-    const friendly1 = HumanFriendlySource.get(state1);
+    const friendly1 = HumanFriendlyRead.get(state1);
 
     expect(friendly1).to.eq('CURRENT_TIMESTAMP');
   });
@@ -709,7 +709,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('MOD(7, 4, 2)');
   });
@@ -732,7 +732,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('EXP(2, 4, 3)');
   });
@@ -756,7 +756,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('MAX(22, 11, 33)');
   });
@@ -780,7 +780,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('MIN(22, 11, 33)');
   });
@@ -797,7 +797,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('CURRENT_BLOCK');
   });
@@ -867,7 +867,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq(`ZIPMAP_8(
     [1, 2, 3, 4, 5, 6, 7, 8],
@@ -914,7 +914,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq(`ZIPMAP_2(
     [5, 3],
@@ -1025,7 +1025,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq(`ZIPMAP_1(
     10,
@@ -1090,7 +1090,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq(`ZIPMAP_1(
     1,
@@ -1140,7 +1140,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq(`ZIPMAP_1(
     3,
@@ -1185,7 +1185,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq(`ZIPMAP_1(
     1,
@@ -1225,7 +1225,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq(
       'MUL(CURRENT_BLOCK, DIV(6, 3), ADD(3, 4, SUB(2, 1)))'
@@ -1256,7 +1256,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('DIV(MUL(ADD(2, 2, 2), 3), 2, 3)');
   });
@@ -1281,7 +1281,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('MOD(13, 2, 3)');
   });
@@ -1306,7 +1306,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('DIV(12, 2, 3)');
   });
@@ -1331,7 +1331,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('MUL(3, 4, 5)');
   });
@@ -1356,7 +1356,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('SUB(10, 2, 3)');
   });
@@ -1381,7 +1381,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.eq('ADD(1, 2, 3)');
   });
@@ -1389,9 +1389,9 @@ describe('SDK - Human Friendly Source Generator', () => {
   it('should use saturating sub for diff where only some tiers would underflow', async () => {
     const constants0 = [
       //         0x01000000020000000300000004000000050000000600000007
-      timestampToReport([0, 1, 2, 3, 4, 5, 6, 7].reverse()),
+      arrToReport([0, 1, 2, 3, 4, 5, 6, 7]),
       // 0x0200000000000000040000000000000006000000000000000800000000
-      timestampToReport([2, 0, 4, 0, 6, 0, 8, 0].reverse()),
+      arrToReport([2, 0, 4, 0, 6, 0, 8, 0]),
     ];
 
     const vReport0 = op(Opcode.CONSTANT, 0);
@@ -1408,7 +1408,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources: source0,
       constants: constants0,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.be.equal(
       `SATURATING_DIFF(${constants0[0]}, ${constants0[1]})`
@@ -1447,7 +1447,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.be.equal(
       `IERC1155_BALANCE_OF_BATCH(${tokenERC1155.address}, ${signer1.address}, ${signer2.address}, ${tokenId}, ${tokenId})`
@@ -1477,7 +1477,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.be.equal(
       `IERC1155_BALANCE_OF(${tokenERC1155.address}, ${signer1.address}, ${tokenId})`
@@ -1503,7 +1503,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.be.equal(
       `IERC721_OWNER_OF(${tokenERC721.address}, ${nftId})`
@@ -1529,7 +1529,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.be.equal(
       `IERC721_BALANCE_OF(${tokenERC721.address}, ${signer1.address})`
@@ -1554,7 +1554,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.be.equal(`IERC20_TOTAL_SUPPLY(${tokenERC20.address})`);
   });
@@ -1578,7 +1578,7 @@ describe('SDK - Human Friendly Source Generator', () => {
       sources,
       constants,
     };
-    const friendly = HumanFriendlySource.get(state);
+    const friendly = HumanFriendlyRead.get(state);
 
     expect(friendly).to.be.equal(
       `IERC20_BALANCE_OF(${tokenERC20.address}, ${signer1.address})`
@@ -1679,7 +1679,7 @@ describe('SDK - Human Friendly Source Generator', () => {
     };
 
     // @ts-ignore
-    const friendly = HumanFriendlySource.get(saleConfig, {
+    const friendly = HumanFriendlyRead.get(saleConfig, {
       contract: 'sale',
       pretty: true,
     });
@@ -1831,7 +1831,7 @@ EAGER_IF(
     };
 
     expect(() => {
-      HumanFriendlySource.get(saleConfig, {
+      HumanFriendlyRead.get(saleConfig, {
         pretty: true,
       });
     }).to.throw('Not contract/context provided to get the STORAGE');
@@ -1890,7 +1890,7 @@ EAGER_IF(
       constants,
     };
 
-    const friendlyPretty = HumanFriendlySource.get(state, {
+    const friendlyPretty = HumanFriendlyRead.get(state, {
       pretty: true,
     });
 
