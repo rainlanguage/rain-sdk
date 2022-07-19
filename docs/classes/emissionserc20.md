@@ -8,7 +8,7 @@ This class provides an easy way to deploy and interact with EmissionsERC20's.
 <b>Signature:</b>
 
 ```typescript
-class EmissionsERC20 extends TierContract 
+class EmissionsERC20 extends ITierV2 
 ```
 
 ## Example
@@ -43,26 +43,25 @@ await EmissionsERC20.isChild(signer, newEmission.address);
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
 |  [allowance](./emissionserc20.md#allowance-property) | `(owner: string, spender: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom()`<!-- -->. This is zero by default.<br></br>This value changes when `approve()` or `transferFrom()` are called. |
 |  [allowDelegatedClaims](./emissionserc20.md#allowDelegatedClaims-property) | `(overrides?: ReadTxOverrides) => Promise<boolean>` | Whether the claimant must be the caller of `claim`<!-- -->. If `false` then accounts other than claimant can claim. This may or may not be desirable depending on the emissions schedule. For example, a linear schedule will produce the same end result for the claimant regardless of who calls `claim` or when but an exponential schedule is more profitable if the claimant waits longer between claims. In the non-linear case delegated claims would be inappropriate as third party accounts could grief claimants by claiming "early", thus forcing opportunity cost on claimants who would have preferred to wait. |
-|  [approve](./emissionserc20.md#approve-property) | `(spender: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Sets `amount` as the allowance of `spender` over the caller's tokens. |
+|  [approve](./emissionserc20.md#approve-property) | `(spender: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Approve spend limit `amount` as the allowance for a `spender` over this tokens. |
 |  [balanceOf](./emissionserc20.md#balanceOf-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens owned by `account`<!-- -->. |
 |  [calculateClaim](./emissionserc20.md#calculateClaim-property) | `(claimant: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Calculates the claim without processing it. Read only method that may be useful downstream both onchain and offchain if a claimant wants to check the claim amount before deciding whether to process it. As this is read only there are no checks against delegated claims. It is possible to return a value from `calculateClaim` and to not be able to process the claim with `claim` if `msg.sender` is not the `claimant`<!-- -->. |
 |  [claim](./emissionserc20.md#claim-property) | `(claimant: string, data: BytesLike, overrides?: TxOverrides) => Promise<ContractTransaction>` | Processes the claim for `claimant_`<!-- -->. - Enforces `allowDelegatedClaims` if it is `true` so that `msg.sender` must also be `claimant_`<!-- -->. - Takes the return from `calculateClaim` and mints for `claimant_`<!-- -->. - Records the current block as the claim-tier for this contract. - emits a `Claim` event as per `IClaim`<!-- -->. |
-|  [connect](./emissionserc20.md#connect-property) | `(signer: Signer) => EmissionsERC20` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
-|  [decimals](./emissionserc20.md#decimals-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the number of decimals used to get its user representation. |
-|  [decreaseAllowance](./emissionserc20.md#decreaseAllowance-property) | `(spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically decreases the allowance granted to `spender` by the caller.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
+|  [connect](./emissionserc20.md#connect-property) | `(signer: Signer) => EmissionsERC20` | Conncect to this EmissionsERC20 contract with another signer<br></br>*Overrides [ITierV2.connect](./itierv2.md#connect-property)* |
+|  [decimals](./emissionserc20.md#decimals-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the number of decimals used to get its user representation. (It is always 18 for this contract type) |
+|  [decreaseAllowance](./emissionserc20.md#decreaseAllowance-property) | `(spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Automatically decreases the allowance granted to `spender` for this token.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
 |  [fnPtrs](./emissionserc20.md#fnPtrs-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
-|  [increaseAllowance](./emissionserc20.md#increaseAllowance-property) | `(spender: string, addedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically increases the allowance granted to `spender` by the caller.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
-|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
+|  [increaseAllowance](./emissionserc20.md#increaseAllowance-property) | `(spender: string, addedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Automically increases the allowance granted to `spender` for this token.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
+|  [levels](./itierv2.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [ITierV2.levels](./itierv2.md#levels-property)* |
 |  [name](./emissionserc20.md#name-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the name of the token. |
-|  [report](./tiercontract.md#report-property) | `(account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
-|  [reportTimeForTier](./tiercontract.md#reportTimeForTier-property) | `(account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | *Inherited from [TierContract.reportTimeForTier](./tiercontract.md#reportTimeForTier-property)* |
-|  [setTier](./emissionserc20.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>` | It is NOT implemented in Emissions. Always will throw an error |
+|  [report](./itierv2.md#report-property) | `(account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [ITierV2.report](./itierv2.md#report-property)* |
+|  [reportTimeForTier](./itierv2.md#reportTimeForTier-property) | `(account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | Same as report but only returns the time for a single tier. Often the implementing contract can calculate a single tier more efficiently than all 8 tiers. If the consumer only needs one or a few tiers it MAY be much cheaper to request only those tiers individually.<br></br>*Inherited from [ITierV2.reportTimeForTier](./itierv2.md#reportTimeForTier-property)* |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [storageOpcodesRange](./emissionserc20.md#storageOpcodesRange-property) | `(overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>` | Returns the pointer and length for emissionERC20's storage opcodes |
 |  [symbol](./emissionserc20.md#symbol-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the symbol of the token, usually a shorter version of the name. |
 |  [totalSupply](./emissionserc20.md#totalSupply-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens in existence. |
-|  [transfer](./emissionserc20.md#transfer-property) | `(to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from the caller's account to `to`<!-- -->.<br></br>Requirements:<br></br>- `to` cannot be the zero address. - the caller must have a balance of at least `amount`<!-- -->. |
-|  [transferFrom](./emissionserc20.md#transferFrom-property) | `(from: string, to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.<br></br>NOTE: Does not update the allowance if the current allowance is the maximum `uint256`<!-- -->.<br></br>Requirements:<br></br>- `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`<!-- -->. - the caller must have allowance for `from`<!-- -->'s tokens of at least `amount`<!-- -->. |
+|  [transfer](./emissionserc20.md#transfer-property) | `(to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` of tokens from the caller's account to `to`<!-- -->.<br></br>Requirements:<br></br>- `to` cannot be the zero address. - the caller must have a balance of at least `amount`<!-- -->. |
+|  [transferFrom](./emissionserc20.md#transferFrom-property) | `(from: string, to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` of tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.<br></br>NOTE: Does not update the allowance if the current allowance is the maximum `uint256`<!-- -->.<br></br>Requirements:<br></br>- `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`<!-- -->. - the caller must have allowance for `from`<!-- -->'s tokens of at least `amount`<!-- -->. |
 
 ## Static Methods
 
@@ -77,7 +76,7 @@ await EmissionsERC20.isChild(signer, newEmission.address);
 |  Method | Description |
 |  --- | --- |
 |  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br>*Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)* |
-|  [currentTier(account, timestamp)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br>*Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)* |
+|  [currentTier(account, timestamp)](./itierv2.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br>*Inherited from [ITierV2.currentTier()](./itierv2.md#currentTier-method-1)* |
 
 ## Static Property Details
 
@@ -153,7 +152,7 @@ readonly allowDelegatedClaims: (overrides?: ReadTxOverrides) => Promise<boolean>
 
 ### approve
 
-Sets `amount` as the allowance of `spender` over the caller's tokens.
+Approve spend limit `amount` as the allowance for a `spender` over this tokens.
 
 <b>Signature:</b>
 
@@ -201,9 +200,9 @@ readonly claim: (claimant: string, data: BytesLike, overrides?: TxOverrides) => 
 
 ### connect
 
-Connect the current contract instance to a new ethers signer.
+Conncect to this EmissionsERC20 contract with another signer
 
-*Overrides [RainContract.connect](./raincontract.md#connect-property)*
+*Overrides [ITierV2.connect](./itierv2.md#connect-property)*
 
 <b>Signature:</b>
 
@@ -215,7 +214,7 @@ readonly connect: (signer: Signer) => EmissionsERC20;
 
 ### decimals
 
-Returns the number of decimals used to get its user representation.
+Returns the number of decimals used to get its user representation. (It is always 18 for this contract type)
 
 <b>Signature:</b>
 
@@ -227,7 +226,7 @@ readonly decimals: (overrides?: ReadTxOverrides) => Promise<number>;
 
 ### decreaseAllowance
 
-Atomically decreases the allowance granted to `spender` by the caller.
+Automatically decreases the allowance granted to `spender` for this token.
 
 This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729.
 
@@ -253,7 +252,7 @@ readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
 
 ### increaseAllowance
 
-Atomically increases the allowance granted to `spender` by the caller.
+Automically increases the allowance granted to `spender` for this token.
 
 This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729.
 
@@ -273,18 +272,6 @@ Returns the name of the token.
 
 ```typescript
 readonly name: (overrides?: ReadTxOverrides) => Promise<string>;
-```
-
-<a id="setTier-property"></a>
-
-### setTier
-
-It is NOT implemented in Emissions. Always will throw an error
-
-<b>Signature:</b>
-
-```typescript
-readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>;
 ```
 
 <a id="storageOpcodesRange-property"></a>
@@ -327,7 +314,7 @@ readonly totalSupply: (overrides?: ReadTxOverrides) => Promise<BigNumber>;
 
 ### transfer
 
-Moves `amount` tokens from the caller's account to `to`<!-- -->.
+Moves `amount` of tokens from the caller's account to `to`<!-- -->.
 
 Requirements:
 
@@ -343,7 +330,7 @@ readonly transfer: (to: string, amount: BigNumberish, overrides?: TxOverrides) =
 
 ### transferFrom
 
-Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.
+Moves `amount` of tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.
 
 NOTE: Does not update the allowance if the current allowance is the maximum `uint256`<!-- -->.
 

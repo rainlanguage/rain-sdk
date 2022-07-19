@@ -2,6 +2,9 @@ import { BigNumber } from "ethers";
 import { paddedUInt256, paddedUInt32 } from "../../utils";
 
 
+/**
+ * @public 
+ */
 export const updateTimesForTierRange = (report: BigNumber, timestamp: BigNumber, range: number) : BigNumber => {
 
 	const endTier_ = range >> 4;

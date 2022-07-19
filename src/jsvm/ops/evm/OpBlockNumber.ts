@@ -3,6 +3,9 @@ import { RainJSVM } from "../../RainJSVM";
 import { StateJSVM } from "../../types";
 
 
+/**
+ * @public
+ */
 export async function OpBlockNumber(this: RainJSVM, state: StateJSVM, operand: number, data?: any): Promise<void> {
 
 	if (this.signer !== undefined) {

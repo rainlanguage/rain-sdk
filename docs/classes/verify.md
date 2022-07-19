@@ -54,7 +54,7 @@ const existingVerify = new Verify(address, signer)
 |  [BANNER](./verify.md#BANNER-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Role for `BANNER` |
 |  [BANNER\_ADMIN](./verify.md#BANNER_ADMIN-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Admin role for `BANNER` |
 |  [callback](./verify.md#callback-property) | `(overrides?: ReadTxOverrides) => Promise<string>` |  |
-|  [connect](./verify.md#connect-property) | `(signer: Signer) => Verify` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./verify.md#connect-property) | `(signer: Signer) => Verify` | Conncect to this Verify contract with another signer<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [DEFAULT\_ADMIN\_ROLE](./verify.md#DEFAULT_ADMIN_ROLE-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`<!-- -->, which means that only accounts with this role will be able to grant or revoke other roles.<br></br>WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to grant and revoke this role. Extra precautions should be taken to secure accounts that have been granted it. |
 |  [getRoleAdmin](./verify.md#getRoleAdmin-property) | `(role: BytesLike, overrides?: ReadTxOverrides) => Promise<string>` | Get the admin role that controls `role` |
 |  [grantRole](./verify.md#grantRole-property) | `(role: BytesLike, account: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | Grants `role` to `account`<!-- -->.<br></br>If `account` had not been already granted `role`<!-- -->, emits a RoleGranted event.<br></br>Require that caller have admin role of `role`<!-- -->. |
@@ -243,7 +243,7 @@ readonly callback: (overrides?: ReadTxOverrides) => Promise<string>;
 
 ### connect
 
-Connect the current contract instance to a new ethers signer.
+Conncect to this Verify contract with another signer
 
 *Overrides [RainContract.connect](./raincontract.md#connect-property)*
 

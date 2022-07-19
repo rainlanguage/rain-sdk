@@ -3,6 +3,9 @@ import { scaleBy } from "../../../lib/FixedPointMath";
 import { StateJSVM } from "../../../types";
 
 
+/**
+ * @public 
+ */
 export function OpScaleBy(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void {
 
 	const item_ = state.stack.pop();

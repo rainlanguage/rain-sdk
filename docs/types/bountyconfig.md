@@ -1,6 +1,7 @@
 
 # Type BountyConfig
 
+Type for bounty vaultIds used when in
 
 <b>Signature:</b>
 

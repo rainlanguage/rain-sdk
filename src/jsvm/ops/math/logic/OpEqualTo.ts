@@ -3,6 +3,9 @@ import { RainJSVM } from "../../../RainJSVM";
 import { StateJSVM } from "../../../types";
 
 
+/**
+ * @public 
+ */
 export function OpEqualTo(this: RainJSVM, state: StateJSVM, operand: number, data?: any) : void {
 
 	const item2_ = state.stack.pop();

@@ -128,7 +128,7 @@ import { vmSimulation } from "./vmSimulation";
 	 * @param timestamp - (optional) custom timestamp to be used when running the script
 	 * @param blockNumber - (optional) custom block number to be used when running the script
 	 * 
-	 * @return a pair of BigNumbers represting amount and price 
+	 * @returns a pair of BigNumbers represting amount and price 
 	 */
 	public async calculateBuy(
 	  units: number,
@@ -159,14 +159,14 @@ import { vmSimulation } from "./vmSimulation";
 	 * Method to simulate the sale's calculateBuy results by using JSVM to run calculateBuy script of a sale script.
 	 * requires the class's sender property to be defined.
 	 * 
-	 * @remark after running this method all the defined class's related types/storage will get updated with new 
+	 * @remarks after running this method all the defined class's related types/storage will get updated with new 
 	 * values that are result of the JSVM running the script. 
 	 * 
 	 * @param units - Units to get the calculation for
 	 * @param timestamp - (optional) custom timestamp to be used when running the script
 	 * @param blockNumber - (optional) custom block number to be used when running the script
 	 * 
-	 * @return void
+	 * @returns void
 	 */
 	public async buy(
 	  units: number,

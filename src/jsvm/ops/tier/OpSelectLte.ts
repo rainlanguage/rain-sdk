@@ -3,6 +3,9 @@ import { selectLte } from "../../lib/TierwiseCombine";
 import { StateJSVM } from "../../types";
 
 
+/**
+ * @public
+ */
 export function OpSelectLte(this: RainJSVM, state: StateJSVM, operand: number, data?: any) : void {
 
 	const length_ = operand & 31;

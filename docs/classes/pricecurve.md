@@ -23,7 +23,7 @@ class PriceCurve
 |  Method | Description |
 |  --- | --- |
 |  [applyExtraTimeDiscount(endTimestamp, extraTimeDiscountThreshold, extraTimeDiscount)](./pricecurve.md#applyExtraTimeDiscount-method-1) | Method to apply extra time discount to the sale. if sale's continues into extra time then those addresses that have met the critera of extra time discount which is already purchased a certain amount of rTKN will get some discount on price for their next purchase. |
-|  [applyTierDiscount(tierAddress, tierDiscount, tierActivation)](./pricecurve.md#applyTierDiscount-method-1) | Method to apply tiers' discounts to the sale. Tiered addresses will get discount based on the tier they hold. |
+|  [applyTierDiscount(tierAddress, tierDiscount, options)](./pricecurve.md#applyTierDiscount-method-1) | Method to apply tiers' discounts to the sale. Tiered addresses will get discount based on the tier they hold. |
 
 ## Property Details
 
@@ -79,14 +79,17 @@ this
 
 <a id="applyTierDiscount-method-1"></a>
 
-### applyTierDiscount(tierAddress, tierDiscount, tierActivation)
+### applyTierDiscount(tierAddress, tierDiscount, options)
 
 Method to apply tiers' discounts to the sale. Tiered addresses will get discount based on the tier they hold.
 
 <b>Signature:</b>
 
 ```typescript
-applyTierDiscount(tierAddress: string, tierDiscount: number[], tierActivation?: (number | string)[]): PriceCurve;
+applyTierDiscount(tierAddress: string, tierDiscount: number[], options?: {
+        tierActivation?: (number | string)[];
+        tierContext?: BigNumber[];
+    }): PriceCurve;
 ```
 
 #### Parameters
@@ -95,7 +98,7 @@ applyTierDiscount(tierAddress: string, tierDiscount: number[], tierActivation?: 
 |  --- | --- | --- |
 |  tierAddress | `string` | The Tier contract address. |
 |  tierDiscount | `number[]` | An array of each tiers' discount ranging between 0 - 99. |
-|  tierActivation | `(number \| string)[]` | (optional) An array of number of blocks for each tier that will be the required period of time for that tiered address to hold the tier's in order to be eligible for that tier's discount. |
+|  options | <pre>{&#010;    tierActivation?: (number \| string)[];&#010;    tierContext?: BigNumber[];&#010;}</pre> | (optional) used for stake tier contracts - (param) tierActivation - An array of number of timestamps for each tier that will be the required period of time for that tiered address to hold the tier's in order to be eligible for that tier's discount. - (param) tierContext - an array of 8 items represtenting stake contract thresholds |
 
 <b>Returns:</b>
 

@@ -24,9 +24,9 @@ new CombineTier(a tierAddress or a StateConfig)
 
 |  Method | Description |
 |  --- | --- |
-|  [combineWith(reporter, logic, mode, number)](./combinetiergenerator.md#combineWith-method-1) | Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode |
-|  [differenceFrom(reporter)](./combinetiergenerator.md#differenceFrom-method-1) | Saturating difference between 2 reports |
-|  [isTierHeldFor(reporter, numberOfBlocks, thresholds, tokenDecimals)](./combinetiergenerator.md#isTierHeldFor-method-1) | Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier. |
+|  [combineWith(reporter, logic, mode, accountOrSender, number)](./combinetiergenerator.md#combineWith-method-1) | Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode |
+|  [differenceFrom(reporter, accountOrSender)](./combinetiergenerator.md#differenceFrom-method-1) | Saturating difference between 2 reports |
+|  [isTierHeldFor(duration)](./combinetiergenerator.md#isTierHeldFor-method-1) | Creats a holding time ALWAYS/NEVER tier script for a Combinetier contract out of a Stake contract. |
 |  [updateReport(startTier, endTier, number)](./combinetiergenerator.md#updateReport-method-1) | Method to update a report at given tier range (can be any range between 0 to 8) |
 
 ## Property Details
@@ -55,14 +55,14 @@ sources: BytesLike[];
 
 <a id="combineWith-method-1"></a>
 
-### combineWith(reporter, logic, mode, number)
+### combineWith(reporter, logic, mode, accountOrSender, number)
 
 Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode
 
 <b>Signature:</b>
 
 ```typescript
-combineWith(reporter: string | StateConfig, logic: selectLteLogic, mode: selectLteMode, number?: number): CombineTierGenerator;
+combineWith(reporter: string | StateConfig, logic: selectLteLogic, mode: selectLteMode, accountOrSender?: boolean, number?: number): CombineTierGenerator;
 ```
 
 #### Parameters
@@ -72,6 +72,7 @@ combineWith(reporter: string | StateConfig, logic: selectLteLogic, mode: selectL
 |  reporter | `string \| StateConfig` | either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired) |
 |  logic | `selectLteLogic` | selectLte logic |
 |  mode | `selectLteMode` | selectLte mode |
+|  accountOrSender | `boolean` | (optional) Used to determine if this script is being used for combinetier contract or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT\[0\] |
 |  number | `number` | (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK\_TIMESTAMP |
 
 <b>Returns:</b>
@@ -82,14 +83,14 @@ this
 
 <a id="differenceFrom-method-1"></a>
 
-### differenceFrom(reporter)
+### differenceFrom(reporter, accountOrSender)
 
 Saturating difference between 2 reports
 
 <b>Signature:</b>
 
 ```typescript
-differenceFrom(reporter: string | StateConfig): this;
+differenceFrom(reporter: string | StateConfig, accountOrSender?: boolean): this;
 ```
 
 #### Parameters
@@ -97,6 +98,7 @@ differenceFrom(reporter: string | StateConfig): this;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  reporter | `string \| StateConfig` | either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired) |
+|  accountOrSender | `boolean` | (optional) Used to determine if this script is being used for combinetier contract or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT\[0\] |
 
 <b>Returns:</b>
 
@@ -106,24 +108,21 @@ this
 
 <a id="isTierHeldFor-method-1"></a>
 
-### isTierHeldFor(reporter, numberOfBlocks, thresholds, tokenDecimals)
+### isTierHeldFor(duration)
 
-Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier.
+Creats a holding time ALWAYS/NEVER tier script for a Combinetier contract out of a Stake contract.
 
 <b>Signature:</b>
 
 ```typescript
-isTierHeldFor(reporter: string | StateConfig, numberOfBlocks: number | number[], thresholds?: (number | string)[], tokenDecimals?: number): CombineTierGenerator;
+isTierHeldFor(duration: number | number[]): CombineTierGenerator;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  reporter | `string \| StateConfig` | either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of StateConfig desired) |
-|  numberOfBlocks | `number \| number[]` | A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report. |
-|  thresholds | `(number \| string)[]` |  |
-|  tokenDecimals | `number` |  |
+|  duration | `number \| number[]` | A number or an array of numbers represting the duration in timestamp a given tier must be held to get ALWAYS report or else it gets NEVER report. |
 
 <b>Returns:</b>
 

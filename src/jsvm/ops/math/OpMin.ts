@@ -1,6 +1,10 @@
 import { RainJSVM } from "../../RainJSVM";
 import { StateJSVM } from "../../types";
 
+
+/**
+ * @public
+ */
 export function OpMin(this: RainJSVM,state: StateJSVM, operand: number, data?: any) : void {
 
 	const items_ = state.stack.splice(-operand);

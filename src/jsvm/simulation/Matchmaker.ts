@@ -13,6 +13,7 @@ import {
 
 
 /**
+ * @public
  * Interface for matchmaker forcasting a script
  */
 export interface forcast {
@@ -33,21 +34,24 @@ export interface forcast {
 export class MatchMaker extends OrderbookSimulation {
 
   /**
+   * @public
    * The forcast property of the matchmaker
    */
   public orderForcast: forcast = {};
 
   /**
+   * @public
    * The type of stores all the found matches
    */
   public foundMatches: {orderA: string, orderB: string}[] = [];
 
   /**
+   * @public
    * Method that inherits from the parent class addOrder and after perfroming that will execute orderEval method
    * 
    * @param order - the order to be added
    * 
-   * @return void
+   * @returns void
    */
   public async addOrder(order: order): Promise<void> {
     super.addOrder(order);
@@ -76,6 +80,7 @@ export class MatchMaker extends OrderbookSimulation {
   // }
 
   /**
+   * @public
    * Method to evaluate and forcast the order's script
    * 
    * @param order - the order to be evaluated
@@ -111,6 +116,7 @@ export class MatchMaker extends OrderbookSimulation {
   }
 
   /**
+   * @public
    * The main method to perform matchmaking and find matches among orders
    * 
    * @param bountyConfig - the BountyConfig of this matchmaker class

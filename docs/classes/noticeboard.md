@@ -47,7 +47,7 @@ const tx = await notice.createNotices([noticeArg]);
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
-|  [connect](./noticeboard.md#connect-property) | `(signer: Signer) => NoticeBoard` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./noticeboard.md#connect-property) | `(signer: Signer) => NoticeBoard` | Conncect to this Noticeboard contract with another signer<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [createNotices](./noticeboard.md#createNotices-property) | `(notices: NoticeStruct[], overrides?: TxOverrides) => Promise<ContractTransaction>` | Anyone can create notices about some subject. The notice is opaque bytes. The indexer/GUI is expected to understand the context to decode/interpret it. The indexer/GUI is strongly recommended to filter out untrusted content. |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 
@@ -101,7 +101,7 @@ protected static readonly nameBookReference: string;
 
 ### connect
 
-Connect the current contract instance to a new ethers signer.
+Conncect to this Noticeboard contract with another signer
 
 *Overrides [RainContract.connect](./raincontract.md#connect-property)*
 

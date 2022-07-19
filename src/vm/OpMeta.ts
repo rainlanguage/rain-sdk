@@ -46,37 +46,38 @@ import { OpERC20SnapshotTotalSupplyAt } from "../jsvm/ops/erc20/snapshot/OpERC20
 
 
 /**
- * 
+ * @public
+ * Class for Opcodes number of stack pushes and pops
  */
  export const pnp: Record<string, (opcode: number, operand: number) => number> = {
 
     /**
-     * 
+     * @public
      */
     zero: (opcode: number, operand: number) => 0,
 
     /**
-     *  
+     * @public
      */
     one: (opcode: number, operand: number) => 1,
 
     /**
-     *  
+     * @public
      */
     two: (opcode: number, operand: number) => 2,
 
     /**
-     * 
+     * @public
      */
     three: (opcode: number, operand: number) => 3,
 
     /**
-     * 
+     * @public
      */
     oprnd: (opcode: number, operand: number) => operand,
 
     /**
-     *  
+     * @public
      */
     derived: (opcode: number, operand: number) => {
 
@@ -99,7 +100,7 @@ import { OpERC20SnapshotTotalSupplyAt } from "../jsvm/ops/erc20/snapshot/OpERC20
     },
 
     /**
-     *  
+     * @public
      */
     zipmappush: (opcode: number, operand: number) => {
         return 2 ** ((operand >> 3) & 3);
@@ -107,7 +108,7 @@ import { OpERC20SnapshotTotalSupplyAt } from "../jsvm/ops/erc20/snapshot/OpERC20
 };
 
 /**
- * 
+ * @public
  */
 export interface IOpMeta extends Record<string, any> {
 
@@ -121,7 +122,7 @@ export interface IOpMeta extends Record<string, any> {
 }
 
 /**
- * 
+ * @public
  */
 export const OpMeta: Map<number, IOpMeta> = new Map([
     [

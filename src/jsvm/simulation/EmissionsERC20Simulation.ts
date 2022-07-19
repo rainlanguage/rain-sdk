@@ -8,7 +8,7 @@ import { vmSimulation } from "./vmSimulation";
  * @public
  * A class for creating a simulation environment for simulating a EmissionsERC20 contract off-chain using JSVM.
  * 
- * @remark
+ * @remarks
  * this class is compatible with @see erc20 interface and @see itiers interface with using its address
  */
  export class EmissionSmiulation extends vmSimulation {
@@ -95,7 +95,7 @@ import { vmSimulation } from "./vmSimulation";
 	 * @param timestamp - (optional) custom timestamp to be used when running the script
 	 * @param blockNumber - (optional) custom block number to be used when running the script
 	 * 
-	 * @return A BigNumber that represents the claimable amount
+	 * @returns A BigNumber that represents the claimable amount
 	 */
 	public async calculateClaim(
 	  claimantAccount: string,
@@ -129,7 +129,7 @@ import { vmSimulation } from "./vmSimulation";
 	 * @param timestamp - (optional) custom timestamp to be used when running the script
 	 * @param blockNumber - (optional) custom block number to be used when running the script
 	 * 
-	 * @return the minted amount in a BigNumber format
+	 * @returns the minted amount in a BigNumber format
 	 */
 	public async claim (
 	  claimantAccount: string,

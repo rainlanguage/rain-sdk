@@ -18,12 +18,6 @@ const saleType = new FixedPrice(price)
 
 ```
 
-## Static Properties
-
-|  Property | Type | Description |
-|  --- | --- | --- |
-|  [FIXED\_PRICE\_SOURCES](./fixedprice.md#FIXED_PRICE_SOURCES-property-static) | `() => Uint8Array` |  |
-
 ## Properties
 
 |  Property | Type | Description |
@@ -36,16 +30,5 @@ const saleType = new FixedPrice(price)
 |  Method | Description |
 |  --- | --- |
 |  [applyExtraTimeDiscount(endTimestamp, extraTimeDiscountThreshold, extraTimeDiscount)](./pricecurve.md#applyExtraTimeDiscount-method-1) | Method to apply extra time discount to the sale. if sale's continues into extra time then those addresses that have met the critera of extra time discount which is already purchased a certain amount of rTKN will get some discount on price for their next purchase.<br></br>*Inherited from [PriceCurve.applyExtraTimeDiscount()](./pricecurve.md#applyExtraTimeDiscount-method-1)* |
-|  [applyTierDiscount(tierAddress, tierDiscount, tierActivation)](./pricecurve.md#applyTierDiscount-method-1) | Method to apply tiers' discounts to the sale. Tiered addresses will get discount based on the tier they hold.<br></br>*Inherited from [PriceCurve.applyTierDiscount()](./pricecurve.md#applyTierDiscount-method-1)* |
+|  [applyTierDiscount(tierAddress, tierDiscount, options)](./pricecurve.md#applyTierDiscount-method-1) | Method to apply tiers' discounts to the sale. Tiered addresses will get discount based on the tier they hold.<br></br>*Inherited from [PriceCurve.applyTierDiscount()](./pricecurve.md#applyTierDiscount-method-1)* |
 
-## Static Property Details
-
-<a id="FIXED_PRICE_SOURCES-property-static"></a>
-
-### FIXED\_PRICE\_SOURCES
-
-<b>Signature:</b>
-
-```typescript
-static FIXED_PRICE_SOURCES: () => Uint8Array;
-```

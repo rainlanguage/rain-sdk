@@ -31,5 +31,6 @@ type EmissionsConfig = {
         tier8: number;
     };
     numberOfIncrements?: number;
+    tierContext?: BigNumber[];
 };
 ```

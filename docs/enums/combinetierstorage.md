@@ -13,5 +13,5 @@ enum CombineTierStorage
 
 |  Member | Value | Description |
 |  --- | --- | --- |
-|  length | `0` | length of CombineTier's valid storage opcodes |
+|  length | `0` | length of CombineTier's valid storage opcodes - 0 |
 

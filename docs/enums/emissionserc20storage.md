@@ -13,5 +13,5 @@ enum EmissionsERC20Storage
 
 |  Member | Value | Description |
 |  --- | --- | --- |
-|  length | `0` | length of EmissionsERC20's valid storage opcodes |
+|  length | `0` | length of EmissionsERC20's valid storage opcodes - 0 |
 

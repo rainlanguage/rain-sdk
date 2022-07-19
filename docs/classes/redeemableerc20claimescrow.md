@@ -46,7 +46,7 @@ const tx = escrow.deposit(amount);
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
 |  [changeSale](./redeemableerc20claimescrow.md#changeSale-property) | `(newSale: string) => RedeemableERC20ClaimEscrow` | Get a new instance with a different Sale to interact with the Escrow contract |
 |  [changeToken](./redeemableerc20claimescrow.md#changeToken-property) | `(newToken: string) => RedeemableERC20ClaimEscrow` | Get a new instance with a different ERC20 to interact with the Escrow contract |
-|  [connect](./redeemableerc20claimescrow.md#connect-property) | `(signer: Signer) => RedeemableERC20ClaimEscrow` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./redeemableerc20claimescrow.md#connect-property) | `(signer: Signer) => RedeemableERC20ClaimEscrow` | Conncect to this RedeemableERC20ClaimEscrow contract with another signer<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [deposit](./redeemableerc20claimescrow.md#deposit-property) | `(amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Make a deposit in the Escrow contract. |
 |  [depositPending](./redeemableerc20claimescrow.md#depositPending-property) | `(amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Make a deposit pending in the escrow |
 |  [sale](./redeemableerc20claimescrow.md#sale-property) | `string` | The `ISale` contract address that is used to interact with the Escrow contract. |
@@ -130,7 +130,7 @@ readonly changeToken: (newToken: string) => RedeemableERC20ClaimEscrow;
 
 ### connect
 
-Connect the current contract instance to a new ethers signer.
+Conncect to this RedeemableERC20ClaimEscrow contract with another signer
 
 *Overrides [RainContract.connect](./raincontract.md#connect-property)*
 

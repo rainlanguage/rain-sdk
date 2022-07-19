@@ -6,6 +6,7 @@ import { IOpMeta, OpMeta } from '../vm/OpMeta';
 
 
 /**
+ * @public
  * Options for instantiating RainJSVM
  */
 export type CallOptions = {
@@ -196,6 +197,7 @@ export class RainJSVM {
 	 *
 	 * @param data - (optional) Used as additional info for some local opcodes
 	 * or custom opcode functions i.e. applyOpFn.
+	 * @param entrypoint - the index of sources to start eval
 	 *
 	 * @returns - An array represting the final state of the RainJS stack.
 	 */
@@ -209,7 +211,7 @@ export class RainJSVM {
   	}
 
 	/**
-	 * 
+	 * @public
 	 */
 	private _constant(operand: number, data?: any): void {
 
@@ -231,7 +233,7 @@ export class RainJSVM {
 	}
 
 	/**
-	 * 
+	 * @public
 	 */
 	private _stack(operand: number, data?: any): void {
 
@@ -239,7 +241,7 @@ export class RainJSVM {
 	}
 
 	/**
-	 * 
+	 * @public
 	 */
 	private _context(operand: number, data?: any): void {
 
@@ -265,7 +267,7 @@ export class RainJSVM {
 	}
 
 	/**
-	 * 
+	 * @public
 	 */
 	private async _storage(operand: number, data?: any): Promise<void> {
 
@@ -285,7 +287,7 @@ export class RainJSVM {
 	}
 
 	/**
-	 * 
+	 * @public
 	 */
 	private _debug(operand: number, data?: any): void {
 
@@ -296,7 +298,7 @@ export class RainJSVM {
 	}
 
 	/**
-	 *  
+	 * @public
 	 */
 	private async _zipmap(operand: number, data?: any): Promise<void> {
 
@@ -371,35 +373,35 @@ export class RainJSVM {
 	}
 
 	/**
-	 * 
+	 * @public
 	 */
 	public get constant() {
 		return this._constant
 	}
 
 	/**
-	 * 
+	 * @public
 	 */
 	public get stack() {
 		return this._stack
 	}
 
 	/**
-	 * 
+	 * @public
 	 */
 	public get context() {
 		return this._context
 	}
 
 	/**
-	 * 
+	 * @public
 	 */
 	public get storage() {
 		return this._storage
 	}	
 
 	/**
-	 * 
+	 *
 	 */
 	public get debug() {
 		return this._debug
@@ -413,9 +415,7 @@ export class RainJSVM {
 	}
 
 	/**
-	 * 
-	 * @param signer 
-	 * @returns 
+	 * @public
 	 */
 	public connect(signer: Signer): this {
 		this.signer = signer;
@@ -423,9 +423,7 @@ export class RainJSVM {
 	}
 
 	/**
-	 * 
-	 * @param contract 
-	 * @returns 
+	 * @public 
 	 */
 	public setContract(contract: string | Contract): this {
 		if (contract instanceof Contract) {

@@ -24,39 +24,46 @@ import {
  export class OrderbookSimulation extends vmSimulation {
   
 	/**
+	 * @public
 	 * The EmissionsERC20 address of this class that the simulation is done for. this is needed for THIS_ADDRESS opcode 
 	 * and updating storage types after method calls, and needs to be a string number or hex string.
 	 */
 	public address: string;
   
 	/**
+	 * @public
 	 * A sender that performs the simulation transactions. this is needed for SENDER opcode simulation,
 	 * and updating storage types after method calls and needs to be a string number or hex string.
 	 */
 	public sender: string;
   
 	/**
+	 * @public
 	 * The property that stores all the data of the class's vaults @see vault
 	 */
 	public vaults: vaults = {};
   
 	/**
+	 * @public
 	 * The property that stores all the data of the class's orders, @see orders and @see order
 	 */
 	public orders: orders = {};
   
 	/**
+	 * @public
 	 * The property that stores all the data of an order's total cleared amount, @see clearedFunds
 	 */
 	public clearedFunds: clearedFunds = {};
   
 	/**
+	 * @public
 	 * The property that stores all the data of an order's total cleared amount to a specific counterparty address
 	 * which needs to be in form of a string number or hex string @see clearedCounterPartyFunds
 	 */
 	public clearedCounterPartyFunds: clearedCounterPartyFunds = {};
 	
 	/**
+	 * @public
 	 * Constructor of this class
 	 * 
 	 * @param address - this Orderbook's class adress which needs to be a string number or hex string
@@ -77,6 +84,7 @@ import {
 	}
   
 	/**
+	 * @public
 	 * Local Orderbook Opcodes' functions body for simulation that uses the class properties/types. @see FnPtrs and @see OpcodeFN
 	 */
 	protected OpFns: FnPtrs = {
@@ -112,10 +120,11 @@ import {
 	};
   
 	/**
+	 * @public
 	 * Method to submit an order into the class orders
 	 * 
 	 * @param order - the order to add
-	 * @return void
+	 * @returns void
 	 */
 	public addOrder(order: order): void {
 	  this.orders[order.orderHash] = order;
@@ -158,10 +167,11 @@ import {
   
   
 	/**
+	 * @public
 	 * Method to remove an order from the class's orders
 	 * 
 	 * @param order - the order to remove
-	 * @return void
+	 * @returns void
 	 */
 	public removeOrder(order: order | string): void {
 	  if (typeof order === "string") {
@@ -173,6 +183,7 @@ import {
 	}
   
 	/**
+	 * @public
 	 * Method to dposit some units of token of tokenAddress into the vaultId of the sender 
 	 * 
 	 * @param sender - sender that deposit is done for
@@ -181,7 +192,7 @@ import {
 	 * @param units - amount of token to deposit
 	 * @param tokenDecimals - (optional) decimals of the token, 18 will be used as default
 	 * 
-	 * @return void
+	 * @returns void
 	 */
 	public deposit (
 	  sender: string,
@@ -239,6 +250,7 @@ import {
 	}
   
 	/**
+	 * @public
 	 * Method to withdraw some units of token of tokenAddress from VaultId of the sender
 	 * 
 	 * @param sender - sender that withdraw is done for
@@ -246,7 +258,7 @@ import {
 	 * @param vaultId - the vault ID to withdraw
 	 * @param units - amount of token to withdraw 
 	 * 
-	 * @return void
+	 * @returns void
 	 */
 	public withdraw (
 	  sender: string,
@@ -282,6 +294,7 @@ import {
 	}
   
 	/**
+	 * @public
 	 * Method to perform the clear by JSVM for this simulation which will update all the present storage/types of the the class
 	 * 
 	 * @param a - order A to clear
@@ -290,7 +303,7 @@ import {
 	 * @param timestamp - (optional) custom timestamp to be used when running the script
 	 * @param blockNumber - (optional) custom block number to be used when running the script
 	 * 
-	 * @return void
+	 * @returns void
 	 */
 	public async clear (
 	  a: order,

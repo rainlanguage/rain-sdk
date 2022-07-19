@@ -8,7 +8,7 @@ import { vmSimulation } from "./vmSimulation";
  * @public
  * A class for creating a simulation environment for simulating a CombineTier contract off-chain using JSVM.
  * 
- * @remark
+ * @remarks
  * this class is compatible with @see itiers interface with using its address
  */
  export class CombinetierSimulation extends vmSimulation {

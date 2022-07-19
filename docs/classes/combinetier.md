@@ -10,7 +10,7 @@ The combine tiers implements the `ReadOnlyTier` over RainVM. Allows combining th
 <b>Signature:</b>
 
 ```typescript
-class CombineTier extends TierContract 
+class CombineTier extends ITierV2 
 ```
 
 ## Example
@@ -41,6 +41,7 @@ const alwaysTier = await CombineTier.getAlwaysTier(signer);
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [deploy](./combinetier.md#deploy-property-static) | `(signer: Signer, args: CombineTierDeployArgs, overrides?: TxOverrides) => Promise<CombineTier>` | Deploy a new CombineTier contract from the factory. |
+|  [deployBalanceTier](./combinetier.md#deployBalanceTier-property-static) | `(address: string, type: "erc20" \| "erc721" \| "erc1155", levels: (number \| string)[], signer: Signer, erc20Decimals?: number, tokenId?: BigNumber) => Promise<CombineTier>` | Method to deploy similar to Rain v1 BalanceTier contracts using CombineTier and CombineTier script generator for either of ERC20, ERC721, or ERC1155 tokens |
 |  [getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static) | `(chainId: number) => Addresses` | Obtain all the addresses deployed in a specific network with a chain ID.<br></br>*Inherited from [AddressBook.getAddressesForChainId](./addressbook.md#getAddressesForChainId-property-static)* |
 |  [getAlwaysTier](./combinetier.md#getAlwaysTier-property-static) | `(signer: Signer) => Promise<CombineTier>` | Get an instance of a CombineTier contract that represent an AlwaysTier contract. |
 |  [getChainId](./raincontract.md#getChainId-property-static) | `(signerOrProvider: Signer \| Provider) => Promise<number>` | Get the chain ID from a valid ethers provider.<br></br>Request to the provider stored in the signer which is the chain ID.<br></br>*Inherited from [RainContract.getChainId](./raincontract.md#getChainId-property-static)* |
@@ -53,12 +54,11 @@ const alwaysTier = await CombineTier.getAlwaysTier(signer);
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
-|  [connect](./combinetier.md#connect-property) | `(signer: Signer) => CombineTier` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./combinetier.md#connect-property) | `(signer: Signer) => CombineTier` | Conncect to this CombineTier contract with another signer<br></br>*Overrides [ITierV2.connect](./itierv2.md#connect-property)* |
 |  [fnPtrs](./combinetier.md#fnPtrs-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
-|  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
-|  [report](./tiercontract.md#report-property) | `(account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
-|  [reportTimeForTier](./tiercontract.md#reportTimeForTier-property) | `(account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | *Inherited from [TierContract.reportTimeForTier](./tiercontract.md#reportTimeForTier-property)* |
-|  [setTier](./combinetier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>` | It is NOT implemented in CombineTiers. Always will throw an error |
+|  [levels](./itierv2.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [ITierV2.levels](./itierv2.md#levels-property)* |
+|  [report](./itierv2.md#report-property) | `(account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [ITierV2.report](./itierv2.md#report-property)* |
+|  [reportTimeForTier](./itierv2.md#reportTimeForTier-property) | `(account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | Same as report but only returns the time for a single tier. Often the implementing contract can calculate a single tier more efficiently than all 8 tiers. If the consumer only needs one or a few tiers it MAY be much cheaper to request only those tiers individually.<br></br>*Inherited from [ITierV2.reportTimeForTier](./itierv2.md#reportTimeForTier-property)* |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [storageOpcodesRange](./combinetier.md#storageOpcodesRange-property) | `(overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>` | Returns the pointer and length for combineTier's storage opcodes |
 
@@ -75,7 +75,7 @@ const alwaysTier = await CombineTier.getAlwaysTier(signer);
 |  Method | Description |
 |  --- | --- |
 |  [checkAddress(address, message)](./raincontract.md#checkAddress-method-1) | Check if an address is correctly formatted and throw an error if it is not an valid address<br></br>*Inherited from [RainContract.checkAddress()](./raincontract.md#checkAddress-method-1)* |
-|  [currentTier(account, timestamp)](./tiercontract.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br>*Inherited from [TierContract.currentTier()](./tiercontract.md#currentTier-method-1)* |
+|  [currentTier(account, timestamp)](./itierv2.md#currentTier-method-1) | Get the current tier of an `account` in the Tier as an expression between `[0 - 8]`<!-- -->. Tier 0 is that a address has never interact with the Tier Contract.<br></br>*Inherited from [ITierV2.currentTier()](./itierv2.md#currentTier-method-1)* |
 
 ## Static Property Details
 
@@ -91,6 +91,29 @@ Use the factory stored in the book addresses and use the provided signer as depl
 
 ```typescript
 static deploy: (signer: Signer, args: CombineTierDeployArgs, overrides?: TxOverrides) => Promise<CombineTier>;
+```
+
+<a id="deployBalanceTier-property-static"></a>
+
+### deployBalanceTier
+
+Method to deploy similar to Rain v1 BalanceTier contracts using CombineTier and CombineTier script generator for either of ERC20, ERC721, or ERC1155 tokens
+
+A BalanceTier checks a wallet address balance of the token and reports the results as an ALWAYS/NEVER tier.
+
+<b>Signature:</b>
+
+```typescript
+static deployBalanceTier: (address: string, type: "erc20" | "erc721" | "erc1155", levels: (number | string)[], signer: Signer, erc20Decimals?: number, tokenId?: BigNumber) => Promise<CombineTier>;
+```
+
+#### Example
+
+
+```typescript
+Deploy a new BalanceTier contract using CombineTier class and script generators
+const newBalanceTier = CombineTier.deployBalanceTier(address, type, levels, signer)
+
 ```
 
 <a id="getAlwaysTier-property-static"></a>
@@ -143,9 +166,9 @@ protected static readonly nameBookReference: string;
 
 ### connect
 
-Connect the current contract instance to a new ethers signer.
+Conncect to this CombineTier contract with another signer
 
-*Overrides [RainContract.connect](./raincontract.md#connect-property)*
+*Overrides [ITierV2.connect](./itierv2.md#connect-property)*
 
 <b>Signature:</b>
 
@@ -163,18 +186,6 @@ Pointers to opcode functions, necessary for being able to read the packedBytes
 
 ```typescript
 readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
-```
-
-<a id="setTier-property"></a>
-
-### setTier
-
-It is NOT implemented in CombineTiers. Always will throw an error
-
-<b>Signature:</b>
-
-```typescript
-readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>;
 ```
 
 <a id="storageOpcodesRange-property"></a>

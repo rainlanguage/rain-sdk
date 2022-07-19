@@ -2,6 +2,9 @@ import { ethers } from "ethers";
 import { RainJSVM } from "../../RainJSVM";
 import { StateJSVM } from "../../types";
 
+/**
+ * @public
+ */
 export function OpAdd(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void  {
 
 	let _item;

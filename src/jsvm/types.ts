@@ -50,10 +50,14 @@ export interface StateJSVM {
 
 }
 
-// 18 decimals or i.e "DECIMALS" - used for fixed point match
+/**
+ * @public
+ * 18 decimals or i.e "DECIMALS" - used for fixed point match
+ */ 
 export const eighteenZeros = "1000000000000000000";
 
 /**
+ * @public
  * type for simulating and storing ITier contract data
  */
 export interface itiers {
@@ -67,6 +71,7 @@ export interface itiers {
 }
 
 /**
+ * @public
  * type for simulating and storing ERC20token contract data
  */
 export interface erc20 {
@@ -88,6 +93,7 @@ export interface erc20 {
 }
 
 /**
+ * @public
  * type for simulating and storing ERC721 contract data
  */
 export interface erc721 {
@@ -99,6 +105,7 @@ export interface erc721 {
 }
 
 /**
+ * @public
  * type for simulating and storing ERC1155 contract data
  */
 export interface erc1155 {
@@ -112,6 +119,7 @@ export interface erc1155 {
 }
 
 /**
+ * @public
  * type for simulating and storing multiple ERC20 tokens
  */
 export interface erc20s {
@@ -121,6 +129,7 @@ export interface erc20s {
 }
 
 /**
+ * @public
  * type for simulating and storing multiple ERC721 tokens
  */
 export interface erc721s {
@@ -130,6 +139,7 @@ export interface erc721s {
 }
 
 /**
+ * @public
  * type for simulating and storing multiple ERC1155 tokens
  */
 export interface erc1155s {
@@ -139,6 +149,7 @@ export interface erc1155s {
 }
 
 /**
+ * @public
  * type for simulating and storing orderbook Vaults data
  */
 export interface vaults {
@@ -154,6 +165,7 @@ export interface vaults {
 }
 
 /**
+ * @public
  * type for simulating and storing orderbook Order data
  */
 export interface order {
@@ -169,6 +181,7 @@ export interface order {
 }
 
 /**
+ * @public
  * type for simulating and storing multiple orderbook Orders
  */
 export interface orders {
@@ -178,6 +191,7 @@ export interface orders {
 }
 
 /**
+ * @public
  * type for bounty config
  */
 export interface bountyConfig {
@@ -188,6 +202,7 @@ export interface bountyConfig {
 }
 
 /**
+ * @public
  * type for simulating and storing matched order cleared funds
  */
 export interface clearedFunds {
@@ -197,6 +212,7 @@ export interface clearedFunds {
 }
 
 /**
+ * @public
  * type for simulating and storing matched order counterparty cleared funds
  */
 export interface clearedCounterPartyFunds {

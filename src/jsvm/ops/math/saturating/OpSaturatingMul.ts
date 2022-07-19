@@ -2,6 +2,10 @@ import { RainJSVM } from "../../../RainJSVM";
 import { saturatingMul } from "../../../lib/SaturatingMath";
 import { StateJSVM } from "../../../types";
 
+
+/**
+ * @public 
+ */
 export function OpSaturatingMul(this: RainJSVM, state: StateJSVM, operand: number, data?: any) : void {
 
 	const items_ = state.stack.splice(-operand);

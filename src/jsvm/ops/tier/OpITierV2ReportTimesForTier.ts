@@ -4,6 +4,9 @@ import { RainJSVM } from "../../RainJSVM";
 import { StateJSVM } from "../../types";
 
 
+/**
+ * @public 
+ */
 export async function OpITierV2ReportTimesForTier(this: RainJSVM, state: StateJSVM, operand: number, data?: any): Promise<void> {
 
 	const context_ = operand ? state.stack.splice(-operand) : [];

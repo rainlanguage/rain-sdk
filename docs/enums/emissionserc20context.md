@@ -14,5 +14,5 @@ enum EmissionsERC20Context
 |  Member | Value | Description |
 |  --- | --- | --- |
 |  ClaimantAccount | `0` | 0 or the index of the context array in the emissionsERC20 contract used as the operand for CONTEXT opcode. operand for CONTEXT opcode to stack the claimant account that report is being call for. |
-|  length | `1` | length of EmissionsERC20's valid context opcodes |
+|  length | `1` | length of EmissionsERC20's valid context opcodes - 2 |
 

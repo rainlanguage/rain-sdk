@@ -2,6 +2,10 @@ import { RainJSVM } from "../../RainJSVM";
 import { saturatingDiff } from "../../lib/TierwiseCombine";
 import { StateJSVM } from "../../types";
 
+
+/**
+ * @public
+ */
 export function OpSaturatingDiff(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void {
 
 	const item2_ = state.stack.pop();

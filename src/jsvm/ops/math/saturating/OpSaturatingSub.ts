@@ -3,6 +3,10 @@ import { saturatingSub } from "../../../lib/SaturatingMath";
 import { StateJSVM } from "../../../types";
 import { ethers } from "ethers";
 
+
+/**
+ * @public
+ */
 export function OpSaturatingSub(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void {
 
 	const items_ = state.stack.splice(-operand);

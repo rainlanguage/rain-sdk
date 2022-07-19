@@ -19,13 +19,34 @@ class VM
 
 |  Method | Description |
 |  --- | --- |
+|  [addTogether(configs)](./vm.md#addTogether-method-static-1) | Method to add multiple scripts together |
+|  [and(configs)](./vm.md#and-method-static-1) | Method to and multiple scripts together ie EVERY |
+|  [beforeAfterBlock(blockNumber, type: "gt" \| "lt" \| "gte" \| "lte")](./vm.md#beforeAfterBlock-method-static-1) | Method to create a simple block number based rule |
+|  [beforeAfterTime(timestamp, type: "gt" \| "lt" \| "gte" \| "lte")](./vm.md#beforeAfterTime-method-static-1) | Method to create a simple time based rule |
 |  [combiner(config1, config2, options)](./vm.md#combiner-method-static-1) | Combines 2 individual VM scripts |
+|  [constant(value)](./vm.md#constant-method-static-1) | Methdo to create a simple signle value script, ie CONTANT |
 |  [createVMSources(OPerands)](./vm.md#createVMSources-method-static-1) | Create a VM sources to be ready to use in any call just providing the combination desired. |
+|  [getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id)](./vm.md#getAsset-method-static-1) | A method to generate the StateConfig out of EVM assets' opcodes |
+|  [gt(config1, config2)](./vm.md#gt-method-static-1) | Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not |
+|  [gte(config1, config2)](./vm.md#gte-method-static-1) | Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not |
+|  [hasAnyTier(tierConfig)](./vm.md#hasAnyTier-method-static-1) | Method to check if an address has any tier status or not, i.e if is in tier contract or not |
+|  [hasMinTier(tierConfig, tier)](./vm.md#hasMinTier-method-static-1) | Method to check if an address has at least the "TIER" status |
+|  [ifelse(condition, ifStatement, elseStatement)](./vm.md#ifelse-method-static-1) | Method to create an if/else script |
+|  [isEqual(config1, config2)](./vm.md#isEqual-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
+|  [isZero(config)](./vm.md#isZero-method-static-1) | Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not |
+|  [lt(config1, config2)](./vm.md#lt-method-static-1) | Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not |
+|  [lte(config1, config2)](./vm.md#lte-method-static-1) | Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not |
+|  [max(configs)](./vm.md#max-method-static-1) | Method to get maximum of multiple scripts |
+|  [min(configs)](./vm.md#min-method-static-1) | Method to get minimum of multiple scripts |
+|  [multi(configs)](./vm.md#multi-method-static-1) | A method to combine multiple StateConfigs together each on top of the other at the first item in final sources. |
+|  [mulTogether(configs)](./vm.md#mulTogether-method-static-1) | Method to multiply multiple scripts together |
+|  [or(configs)](./vm.md#or-method-static-1) | Method to or multiple scripts together ie ANY |
 |  [pair(amountConfig, priceConfig)](./vm.md#pair-method-static-1) | method to create paired(amount-price) StateConfig, which is used for sale, orderbook, etc |
-|  [toOwnerMaker(config, ownerAddress, options)](./vm.md#toOwnerMaker-method-static-1) | Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default. |
-|  [toTierDiscounter(config, tierAddress, tierDiscount, options)](./vm.md#toTierDiscounter-method-static-1) | Deducts percentage off of the result of a VM script based on the holding tier of a tier contract. |
-|  [toTierMultiplier(config, tierAddress, tierMultiplier, options)](./vm.md#toTierMultiplier-method-static-1) | Multiply the result of a VM script based on the holding tier of a tier contract. |
-|  [toTimeSlicer(configs, times, inBlockNumber)](./vm.md#toTimeSlicer-method-static-1) | A method to merge multiple (more than 1) scripts to be executed based on time slices. |
+|  [setDiscountForTiers(config, tierAddress, tierDiscount, options)](./vm.md#setDiscountForTiers-method-static-1) | Deducts percentage off of the result of a VM script based on a tier contract. |
+|  [setMultiplierForTiers(config, tierAddress, tierMultiplier, options)](./vm.md#setMultiplierForTiers-method-static-1) | Multiply the result of a VM script based on a tier contract. |
+|  [setOwnership(config, ownerAddress, options)](./vm.md#setOwnership-method-static-1) | Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default. |
+|  [setTimers(configs, times, inBlockNumber)](./vm.md#setTimers-method-static-1) | A method to merge multiple (more than 1) scripts to be executed based on time slices. |
+|  [setValueForTiers(config, tierAddress, tierValues, ascending, options)](./vm.md#setValueForTiers-method-static-1) | Produce different values from the result of a VM script based on a tier contract. |
 
 ## Static Property Details
 
@@ -42,6 +63,104 @@ static Opcodes: typeof AllStandardOps;
 ```
 
 ## Static Method Details
+
+<a id="addTogether-method-static-1"></a>
+
+### addTogether(configs)
+
+Method to add multiple scripts together
+
+<b>Signature:</b>
+
+```typescript
+static addTogether(configs: StateConfig[]): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to add |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="and-method-static-1"></a>
+
+### and(configs)
+
+Method to and multiple scripts together ie EVERY
+
+<b>Signature:</b>
+
+```typescript
+static and(configs: StateConfig[]): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to and |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="beforeAfterBlock-method-static-1"></a>
+
+### beforeAfterBlock(blockNumber, type: "gt" \| "lt" \| "gte" \| "lte")
+
+Method to create a simple block number based rule
+
+<b>Signature:</b>
+
+```typescript
+static beforeAfterBlock(blockNumber: number, type: "gt" | "lt" | "gte" | "lte"): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  blockNumber | `number` | the block number to set the rule for |
+|  type | `"gt" \| "lt" \| "gte" \| "lte"` | type of the check, meaning current block number to be gt, gte, lt, lte than the "blockNumber" |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+A
+
+<a id="beforeAfterTime-method-static-1"></a>
+
+### beforeAfterTime(timestamp, type: "gt" \| "lt" \| "gte" \| "lte")
+
+Method to create a simple time based rule
+
+<b>Signature:</b>
+
+```typescript
+static beforeAfterTime(timestamp: number, type: "gt" | "lt" | "gte" | "lte"): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  timestamp | `number` | the timestamp to set the rule for |
+|  type | `"gt" \| "lt" \| "gte" \| "lte"` | type of the check, meaning current timestamp to be gt, gte, lt, lte than the "timestamp" |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+A
 
 <a id="combiner-method-static-1"></a>
 
@@ -75,6 +194,30 @@ static combiner(config1: StateConfig, config2: StateConfig, options?: {
 
 combined VM script.
 
+<a id="constant-method-static-1"></a>
+
+### constant(value)
+
+Methdo to create a simple signle value script, ie CONTANT
+
+<b>Signature:</b>
+
+```typescript
+static constant(value: BigNumberish): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  value | `BigNumberish` | the value |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
 <a id="createVMSources-method-static-1"></a>
 
 ### createVMSources(OPerands)
@@ -98,6 +241,376 @@ static createVMSources(OPerands: (OPerand | Uint8Array)[]): [Uint8Array];
 `[Uint8Array]`
 
 A source
+
+<a id="getAsset-method-static-1"></a>
+
+### getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id)
+
+A method to generate the StateConfig out of EVM assets' opcodes
+
+<b>Signature:</b>
+
+```typescript
+static getAsset(type: "erc20-balance-of" | "erc20-total-supply" | "snapshot-balance-of" | "snapshot-total-supply" | "erc721-balance-of" | "erc721-owner-of" | "erc1155-balance-of" | "erc1155-balance-of-batch", address: string[], id?: BigNumber[]): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  type | `"erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch"` | the type of the asset script |
+|  address | `string[]` | an array of address(es) of the asset(s) contract(s), only IERC20-Balance-of-Batch uses more than 1 address |
+|  id | `BigNumber[]` | an array of id(s) of either tokenId(s) or snapshotId(s) , only IERC20-Balance-of-Batch uses more than 1 id |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
+
+<a id="gt-method-static-1"></a>
+
+### gt(config1, config2)
+
+Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not
+
+<b>Signature:</b>
+
+```typescript
+static gt(config1: StateConfig, config2: StateConfig): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
+|  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="gte-method-static-1"></a>
+
+### gte(config1, config2)
+
+Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not
+
+<b>Signature:</b>
+
+```typescript
+static gte(config1: StateConfig, config2: StateConfig): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
+|  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="hasAnyTier-method-static-1"></a>
+
+### hasAnyTier(tierConfig)
+
+Method to check if an address has any tier status or not, i.e if is in tier contract or not
+
+<b>Signature:</b>
+
+```typescript
+static hasAnyTier(tierConfig: StateConfig): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  tierConfig | [StateConfig](../interfaces/stateconfig.md) | the tier report config |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
+
+<a id="hasMinTier-method-static-1"></a>
+
+### hasMinTier(tierConfig, tier)
+
+Method to check if an address has at least the "TIER" status
+
+<b>Signature:</b>
+
+```typescript
+static hasMinTier(tierConfig: StateConfig, tier: Tier): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  tierConfig | [StateConfig](../interfaces/stateconfig.md) | the tier report config |
+|  tier | [Tier](../enums/tier.md) | the minimum tier needed to be held |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
+
+<a id="ifelse-method-static-1"></a>
+
+### ifelse(condition, ifStatement, elseStatement)
+
+Method to create an if/else script
+
+<b>Signature:</b>
+
+```typescript
+static ifelse(condition: StateConfig, ifStatement: StateConfig, elseStatement: StateConfig): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  condition | [StateConfig](../interfaces/stateconfig.md) | the condition script ie the if check statement |
+|  ifStatement | [StateConfig](../interfaces/stateconfig.md) | the script(statement) if the check passes |
+|  elseStatement | [StateConfig](../interfaces/stateconfig.md) | the script(statement) if the check fails |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="isEqual-method-static-1"></a>
+
+### isEqual(config1, config2)
+
+Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not
+
+<b>Signature:</b>
+
+```typescript
+static isEqual(config1: StateConfig, config2: StateConfig): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
+|  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="isZero-method-static-1"></a>
+
+### isZero(config)
+
+Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not
+
+<b>Signature:</b>
+
+```typescript
+static isZero(config: StateConfig): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | the script to check |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="lt-method-static-1"></a>
+
+### lt(config1, config2)
+
+Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not
+
+<b>Signature:</b>
+
+```typescript
+static lt(config1: StateConfig, config2: StateConfig): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
+|  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="lte-method-static-1"></a>
+
+### lte(config1, config2)
+
+Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not
+
+<b>Signature:</b>
+
+```typescript
+static lte(config1: StateConfig, config2: StateConfig): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
+|  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="max-method-static-1"></a>
+
+### max(configs)
+
+Method to get maximum of multiple scripts
+
+<b>Signature:</b>
+
+```typescript
+static max(configs: StateConfig[]): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to get maximum of |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="min-method-static-1"></a>
+
+### min(configs)
+
+Method to get minimum of multiple scripts
+
+<b>Signature:</b>
+
+```typescript
+static min(configs: StateConfig[]): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to get minimum of |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="multi-method-static-1"></a>
+
+### multi(configs)
+
+A method to combine multiple StateConfigs together each on top of the other at the first item in final sources.
+
+<b>Signature:</b>
+
+```typescript
+static multi(configs: StateConfig[]): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | An array of StateConfigs to combine together and its lengths should be more than 2 (can use VM.pair() method for combining 2 configs - |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="mulTogether-method-static-1"></a>
+
+### mulTogether(configs)
+
+Method to multiply multiple scripts together
+
+<b>Signature:</b>
+
+```typescript
+static mulTogether(configs: StateConfig[]): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to multiply |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="or-method-static-1"></a>
+
+### or(configs)
+
+Method to or multiple scripts together ie ANY
+
+<b>Signature:</b>
+
+```typescript
+static or(configs: StateConfig[]): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to or |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
 
 <a id="pair-method-static-1"></a>
 
@@ -124,9 +637,71 @@ static pair(amountConfig: StateConfig, priceConfig: StateConfig): StateConfig;
 
 a
 
-<a id="toOwnerMaker-method-static-1"></a>
+<a id="setDiscountForTiers-method-static-1"></a>
 
-### toOwnerMaker(config, ownerAddress, options)
+### setDiscountForTiers(config, tierAddress, tierDiscount, options)
+
+Deducts percentage off of the result of a VM script based on a tier contract.
+
+<b>Signature:</b>
+
+```typescript
+static setDiscountForTiers(config: StateConfig, tierAddress: string, tierDiscount: number[], options?: {
+        index?: number;
+        tierActivation?: (string | number)[];
+        tierContext?: BigNumber[];
+    }): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
+|  tierAddress | `string` | the contract address of the tier contract. |
+|  tierDiscount | `number[]` | an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array. |
+|  options | <pre>{&#010;    index?: number;&#010;    tierActivation?: (string \| number)[];&#010;    tierContext?: BigNumber[];&#010;}</pre> | used for additional configuraions: - (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0. - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the discount, e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the discount.(used for stake tier contract) - (param) tierContext an array of values mostly used for stake tier contracts. |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
+
+<a id="setMultiplierForTiers-method-static-1"></a>
+
+### setMultiplierForTiers(config, tierAddress, tierMultiplier, options)
+
+Multiply the result of a VM script based on a tier contract.
+
+<b>Signature:</b>
+
+```typescript
+static setMultiplierForTiers(config: StateConfig, tierAddress: string, tierMultiplier: number[], options?: {
+        index?: number;
+        tierActivation?: (string | number)[];
+        tierContext?: BigNumber[];
+    }): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
+|  tierAddress | `string` | the contract address of the tier contract. |
+|  tierMultiplier | `number[]` | an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array. |
+|  options | <pre>{&#010;    index?: number;&#010;    tierActivation?: (string \| number)[];&#010;    tierContext?: BigNumber[];&#010;}</pre> | used for additional configuraions: - (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0. - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the multiplier, e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the multiplier.(used for stake tier contract) - (param) tierContext an array of values mostly used for stake tier contracts. |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
+
+<a id="setOwnership-method-static-1"></a>
+
+### setOwnership(config, ownerAddress, options)
 
 Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default.
 
@@ -135,7 +710,7 @@ Make an address the owner of a VM Script - checks the sender address against the
 <b>Signature:</b>
 
 ```typescript
-static toOwnerMaker(config: StateConfig, ownerAddress: string, options?: {
+static setOwnership(config: StateConfig, ownerAddress: string, options?: {
         index?: number;
         position?: number[];
         notOwnerVar?: StateConfig | number;
@@ -156,76 +731,16 @@ static toOwnerMaker(config: StateConfig, ownerAddress: string, options?: {
 
 a VM script.
 
-<a id="toTierDiscounter-method-static-1"></a>
+<a id="setTimers-method-static-1"></a>
 
-### toTierDiscounter(config, tierAddress, tierDiscount, options)
-
-Deducts percentage off of the result of a VM script based on the holding tier of a tier contract.
-
-<b>Signature:</b>
-
-```typescript
-static toTierDiscounter(config: StateConfig, tierAddress: string, tierDiscount: number[], options?: {
-        index?: number;
-        tierActivation?: (string | number)[];
-    }): StateConfig;
-```
-
-#### Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
-|  tierAddress | `string` | the contract address of the tier contract. |
-|  tierDiscount | `number[]` | an array of 8 items - the discount value (range 0 - 99) of each tier are the 8 items of the array. |
-|  options | <pre>{&#010;    index?: number;&#010;    tierActivation?: (string \| number)[];&#010;}</pre> | used for additional configuraions: - (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0. - (param) tierActivation An array of numbers, representing the amount of blocks each tier must hold in order to get the discount, e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 blocks to get the discount. |
-
-<b>Returns:</b>
-
-`StateConfig`
-
-a VM script
-
-<a id="toTierMultiplier-method-static-1"></a>
-
-### toTierMultiplier(config, tierAddress, tierMultiplier, options)
-
-Multiply the result of a VM script based on the holding tier of a tier contract.
-
-<b>Signature:</b>
-
-```typescript
-static toTierMultiplier(config: StateConfig, tierAddress: string, tierMultiplier: number[], options?: {
-        index?: number;
-        tierActivation?: (string | number)[];
-    }): StateConfig;
-```
-
-#### Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
-|  tierAddress | `string` | the contract address of the tier contract. |
-|  tierMultiplier | `number[]` | an array of 8 items - the multiplier value (2 decimals max) of each tier are the 8 items of the array. |
-|  options | <pre>{&#010;    index?: number;&#010;    tierActivation?: (string \| number)[];&#010;}</pre> | used for additional configuraions: - (param) index to identify which sources item in config.sources the tierMultiplier applies to, if not specified, it will be 0. - (param) tierActivation An array of numbers, representing the amount of blocks each tier must hold in order to get the multiplier, e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 blocks to get the multiplier. |
-
-<b>Returns:</b>
-
-`StateConfig`
-
-a VM script
-
-<a id="toTimeSlicer-method-static-1"></a>
-
-### toTimeSlicer(configs, times, inBlockNumber)
+### setTimers(configs, times, inBlockNumber)
 
 A method to merge multiple (more than 1) scripts to be executed based on time slices.
 
 <b>Signature:</b>
 
 ```typescript
-static toTimeSlicer(configs: StateConfig[], times: number[], inBlockNumber?: boolean): StateConfig;
+static setTimers(configs: StateConfig[], times: number[], inBlockNumber?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -235,6 +750,39 @@ static toTimeSlicer(configs: StateConfig[], times: number[], inBlockNumber?: boo
 |  configs | `StateConfig[]` | An array of StateConfigs that will be merged and executed at runtime in order by time slices |
 |  times | `number[]` | An array of numbers representing either BLOCK\_NUMBER or TIMESTAMP that time slices will be between each of the 2 items in the array its length should be number of configs - 1. |
 |  inBlockNumber | `boolean` | (optional) false by default which means the time slices will be based on TIMESTAMP, pass true to base it on BLOCK\_NUMBER |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
+
+<a id="setValueForTiers-method-static-1"></a>
+
+### setValueForTiers(config, tierAddress, tierValues, ascending, options)
+
+Produce different values from the result of a VM script based on a tier contract.
+
+<b>Signature:</b>
+
+```typescript
+static setValueForTiers(config: StateConfig, tierAddress: string, tierValues: number[], ascending: boolean, options?: {
+        index?: number;
+        tierActivation?: (string | number)[];
+        tierContext?: BigNumber[];
+        finalDecimals?: number;
+    }): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | the main VM script |
+|  tierAddress | `string` | the contract address of the tier contract. |
+|  tierValues | `number[]` | an array of 8 items - the value (6 decimals max) of each tier are the 8 items of the array. |
+|  ascending | `boolean` | true if the tierValues (argument above) are ascending and false if descending from tier 1 to 8 |
+|  options | <pre>{&#010;    index?: number;&#010;    tierActivation?: (string \| number)[];&#010;    tierContext?: BigNumber[];&#010;    finalDecimals?: number;&#010;}</pre> | used for additional configuraions: - (param) index to identify which sources item in config.sources the TierValues applies to, if not specified, it will be 0. - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the different value, e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the respective value. (used for stake tier contract) - (param) tierContext an array of values mostly used for stake tier contracts. - (param) finalDecimals produce the final values in this fixed decimals - 0 by deafult |
 
 <b>Returns:</b>
 

@@ -1,6 +1,7 @@
 
 # Type WithdrawConfig
 
+Type for withdrawing some token amount from a vault used in
 
 <b>Signature:</b>
 

@@ -52,18 +52,18 @@ await RedeemableERC20.isChild(signer, maybeChildAddress);
 |  --- | --- | --- |
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
 |  [allowance](./redeemableerc20.md#allowance-property) | `(owner: string, spender: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom()`<!-- -->. This is zero by default.<br></br>This value changes when `approve()` or `transferFrom()` are called. |
-|  [approve](./redeemableerc20.md#approve-property) | `(spender: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Sets `amount` as the allowance of `spender` over the caller's tokens. |
+|  [approve](./redeemableerc20.md#approve-property) | `(spender: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Approve spend limit `amount` as the allowance for a `spender` over this tokens. |
 |  [balanceOf](./redeemableerc20.md#balanceOf-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens owned by `account`<!-- -->. |
 |  [burn](./redeemableerc20.md#burn-property) | `(amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Destroys `amount` tokens from the caller, reducing the total supply. Emits a `Transfer` event with `to` set to the zero address.<br></br>Requirements: - Caller MUST have at least `amount` tokens. |
 |  [burnFrom](./redeemableerc20.md#burnFrom-property) | `(account: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Destroys `amount` tokens from `account`<!-- -->, deducting from the caller's allowance.<br></br>Requirements: - The caller must have allowance for `accounts`<!-- -->'s tokens of at least `amount`<!-- -->. |
-|  [connect](./redeemableerc20.md#connect-property) | `(signer: Signer) => RedeemableERC20` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./redeemableerc20.md#connect-property) | `(signer: Signer) => RedeemableERC20` | Conncect to this RedeemableErc20 contract with another signer<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [currentPhase](./redeemableerc20.md#currentPhase-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | Impure read-only function to return the "current" phase from internal contract state. Simply wraps `phaseAtBlockNumber` for current values of `phaseBlocks` and `block.number`<!-- -->. |
-|  [decimals](./redeemableerc20.md#decimals-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the number of decimals used to get its user representation. |
-|  [decreaseAllowance](./redeemableerc20.md#decreaseAllowance-property) | `(spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically decreases the allowance granted to `spender` by the caller.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
+|  [decimals](./redeemableerc20.md#decimals-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the number of decimals used to get its user representation. (It is always 18 for this contract type) |
+|  [decreaseAllowance](./redeemableerc20.md#decreaseAllowance-property) | `(spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Automatically decreases the allowance granted to `spender` for this token.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
 |  [endDistribution](./redeemableerc20.md#endDistribution-property) | `(distributor: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | The admin can forward or burn all tokens of a single address to end `PHASE_DISTRIBUTING`<!-- -->.<br></br>The intent is that during `PHASE_DISTRIBUTING` there is some contract responsible for distributing the tokens.<br></br>The admin specifies the distributor to end `PHASE_DISTRIBUTING` and the forwarding address set during initialization is used. If the forwarding address is `0` the rTKN will be burned, otherwise the entire balance of the distributor is forwarded to the nominated address. In practical terms the forwarding allows for escrow depositors to receive a prorata claim on unsold rTKN if they forward it to themselves, otherwise raise participants will receive a greater share of the final escrowed tokens due to the burn reducing the total supply.<br></br>The distributor is NOT set during the constructor because it may not exist at that point. For example, Balancer needs the paired erc20 tokens to exist before the trading pool can be built. |
 |  [grantReceiver](./redeemableerc20.md#grantReceiver-property) | `(newReceiver: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | Admin can grant an address receiver rights.<br></br>Requirements: - Caller have to be the admin |
 |  [grantSender](./redeemableerc20.md#grantSender-property) | `(newSender: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | Admin can grant an addres sender rights.<br></br>Requirements: - Caller have to be the admin |
-|  [increaseAllowance](./redeemableerc20.md#increaseAllowance-property) | `(spender: string, addedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Atomically increases the allowance granted to `spender` by the caller.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
+|  [increaseAllowance](./redeemableerc20.md#increaseAllowance-property) | `(spender: string, addedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Automically increases the allowance granted to `spender` for this token.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
 |  [isReceiver](./redeemableerc20.md#isReceiver-property) | `(maybeReceiver: string, overrides?: ReadTxOverrides) => Promise<boolean>` | Check that an address is a receiver. A sender is also a receiver. |
 |  [isSender](./redeemableerc20.md#isSender-property) | `(maybeSender: string, overrides?: ReadTxOverrides) => Promise<boolean>` | Check that an address is a sender. |
 |  [minimumTier](./redeemableerc20.md#minimumTier-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | The minimum status that a user must hold to receive transfers during `Phase.ZERO`<!-- -->. |
@@ -77,8 +77,8 @@ await RedeemableERC20.isChild(signer, maybeChildAddress);
 |  [tier](./redeemableerc20.md#tier-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Tier contract that produces the report that `minimumTier` is checked against. |
 |  [timeForPhase](./redeemableerc20.md#timeForPhase-property) | `(phaseTimes_: BigNumberish[], phase_: BigNumberish, overrides?: ReadTxOverrides) => Promise<BigNumber>` | Pure function to reduce an array of phase times and phase to a specific timestamp. `Phase.ZERO` will always return block `0`<!-- -->. Every other phase will map to a time in `phaseTimes_`<!-- -->. |
 |  [totalSupply](./redeemableerc20.md#totalSupply-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber>` | Returns the amount of tokens in existence. |
-|  [transfer](./redeemableerc20.md#transfer-property) | `(to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from the caller's account to `to`<!-- -->.<br></br>Requirements:<br></br>- `to` cannot be the zero address. - the caller must have a balance of at least `amount`<!-- -->. |
-|  [transferFrom](./redeemableerc20.md#transferFrom-property) | `(from: string, to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.<br></br>NOTE: Does not update the allowance if the current allowance is the maximum `uint256`<!-- -->.<br></br>Requirements:<br></br>- `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`<!-- -->. - the caller must have allowance for `from`<!-- -->'s tokens of at least `amount`<!-- -->. |
+|  [transfer](./redeemableerc20.md#transfer-property) | `(to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` of tokens from the caller's account to `to`<!-- -->.<br></br>Requirements:<br></br>- `to` cannot be the zero address. - the caller must have a balance of at least `amount`<!-- -->. |
+|  [transferFrom](./redeemableerc20.md#transferFrom-property) | `(from: string, to: string, amount: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Moves `amount` of tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.<br></br>NOTE: Does not update the allowance if the current allowance is the maximum `uint256`<!-- -->.<br></br>Requirements:<br></br>- `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`<!-- -->. - the caller must have allowance for `from`<!-- -->'s tokens of at least `amount`<!-- -->. |
 
 ## Static Methods
 
@@ -156,7 +156,7 @@ readonly allowance: (owner: string, spender: string, overrides?: ReadTxOverrides
 
 ### approve
 
-Sets `amount` as the allowance of `spender` over the caller's tokens.
+Approve spend limit `amount` as the allowance for a `spender` over this tokens.
 
 <b>Signature:</b>
 
@@ -208,7 +208,7 @@ readonly burnFrom: (account: string, amount: BigNumberish, overrides?: TxOverrid
 
 ### connect
 
-Connect the current contract instance to a new ethers signer.
+Conncect to this RedeemableErc20 contract with another signer
 
 *Overrides [RainContract.connect](./raincontract.md#connect-property)*
 
@@ -234,7 +234,7 @@ readonly currentPhase: (overrides?: ReadTxOverrides) => Promise<BigNumber>;
 
 ### decimals
 
-Returns the number of decimals used to get its user representation.
+Returns the number of decimals used to get its user representation. (It is always 18 for this contract type)
 
 <b>Signature:</b>
 
@@ -246,7 +246,7 @@ readonly decimals: (overrides?: ReadTxOverrides) => Promise<number>;
 
 ### decreaseAllowance
 
-Atomically decreases the allowance granted to `spender` by the caller.
+Automatically decreases the allowance granted to `spender` for this token.
 
 This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729.
 
@@ -306,7 +306,7 @@ readonly grantSender: (newSender: string, overrides?: TxOverrides) => Promise<Co
 
 ### increaseAllowance
 
-Atomically increases the allowance granted to `spender` by the caller.
+Automically increases the allowance granted to `spender` for this token.
 
 This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729.
 
@@ -472,7 +472,7 @@ readonly totalSupply: (overrides?: ReadTxOverrides) => Promise<BigNumber>;
 
 ### transfer
 
-Moves `amount` tokens from the caller's account to `to`<!-- -->.
+Moves `amount` of tokens from the caller's account to `to`<!-- -->.
 
 Requirements:
 
@@ -488,7 +488,7 @@ readonly transfer: (to: string, amount: BigNumberish, overrides?: TxOverrides) =
 
 ### transferFrom
 
-Moves `amount` tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.
+Moves `amount` of tokens from `from` to `to` using the allowance mechanism. `amount` is then deducted from the caller's allowance.
 
 NOTE: Does not update the allowance if the current allowance is the maximum `uint256`<!-- -->.
 

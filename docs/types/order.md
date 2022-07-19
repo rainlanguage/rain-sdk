@@ -1,7 +1,7 @@
 
 # Type Order
 
-Order
+Type for an order containing all that is required in an order. An Order is an
 
 <b>Signature:</b>
 

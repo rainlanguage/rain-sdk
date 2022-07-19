@@ -1,6 +1,10 @@
 import { BigNumber } from "ethers";
 import { paddedUInt256, paddedUInt32 } from "../../utils";
 
+
+/**
+ * @public 
+ */
 export const saturatingDiff = (report1: BigNumber, report2: BigNumber) : BigNumber => {
 	const report1_ = paddedUInt256(report1).substring(2);
 	const report2_ = paddedUInt256(report2).substring(2);
@@ -27,6 +31,9 @@ export const saturatingDiff = (report1: BigNumber, report2: BigNumber) : BigNumb
 	return BigNumber.from('0x' + _result);
 }
 
+/**
+ * @public
+ */
 export const selectLte = (
 	reports: BigNumber[],
 	timestamp: BigNumber,

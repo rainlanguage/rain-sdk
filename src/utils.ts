@@ -267,6 +267,7 @@ export const paddedUInt160 = (address: BigNumberish): string => {
 };
 
 /**
+ * @public
  * Convert an array of 8 BigNumberish values to 8 32bit values packed in a HexString uint256 i.e. Report
  * 
  * @param array - The array to make report from
@@ -292,6 +293,7 @@ export const arrToReport = (array: BigNumberish[]): string => {
 }
 
 /**
+ * @public
  * function to check if the a value is of type BigNumberish
  * 
  * @param value - the value to check
@@ -310,6 +312,7 @@ export function isBigNumberish(value: any): boolean {
 }
 
 /**
+ * @public
  * Extract some of the properites from a Map as a new Map with same keys. 
  * 
  * @param map - the map to extract from
@@ -339,6 +342,7 @@ export function extractFromMap(map: Map<any, any>, properties: string[]): Map<an
 }
 
 /**
+ * @public
  * Extract some of the properties from a Record as new Record with same keys.
  * 
  * @param record - the record to extract from.
@@ -374,6 +378,7 @@ export function extractFromRecord<T extends string | number | symbol>(
 }
 
 /**
+ * @public
  * Conver a Map to a equivelant Record (a key/value pair object). Map keys must be of type acceptable by Record constructor,
  * which are string, number or symbol.
  * 
@@ -406,6 +411,7 @@ export function mapToRecord<K extends string | number | symbol, T>(
 }
 
 /**
+ * @public
  * Conver a Record (a key/value pair object) to a equivelant Map. Map keys will be of type acceptable by Record constructor,
  * which are string, number or symbol.
  * 

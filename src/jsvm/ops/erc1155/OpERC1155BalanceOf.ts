@@ -5,6 +5,9 @@ import { RainJSVM } from "../../RainJSVM";
 import { StateJSVM } from "../../types";
 
 
+/**
+ * @public
+ */
 export async function OpERC1155BalanceOf(this: RainJSVM, state: StateJSVM, operand: number, data?: any): Promise<void> {
 
 	const item3_ = state.stack.pop();

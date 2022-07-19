@@ -48,7 +48,7 @@ await existingSale.buy(config_)
 |  [calculateBuy](./sale.md#calculateBuy-property) | `(targetUnits: BigNumberish, overrides?: ReadTxOverrides) => Promise<[BigNumber, BigNumber]>` | Calculates the current reserve price quoted for 1 unit of rTKN. Used internally to process `buy` |
 |  [canLive](./sale.md#canLive-property) | `(overrides?: ReadTxOverrides) => Promise<boolean>` | Can the sale live? Evals the "can live" script. If a non zero value is returned then the sale can move from pending to active, or remain active. If a zero value is returned the sale can remain pending or move from active to a finalised status. An out of stock (0 remaining units) WILL ALWAYS return `false` without evaluating the script. |
 |  [claimFees](./sale.md#claimFees-property) | `(recipient: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | After a sale ends in success all fees collected for a recipient can be cleared. If the raise is active or fails then fees cannot be claimed as they are set aside in case of refund. A failed raise implies that all buyers should immediately refund and zero fees claimed. |
-|  [connect](./sale.md#connect-property) | `(signer: Signer) => Sale` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
+|  [connect](./sale.md#connect-property) | `(signer: Signer) => Sale` | Conncect to this Sale contract with another signer<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [end](./sale.md#end-property) | `(overrides?: TxOverrides) => Promise<ContractTransaction>` | End the sale (move from active to success or fail). This is also done automatically inline with each `buy` call so is optional for anon to call outside of a purchase. - `canLive` MUST return true and sale status must be either `Active`<!-- -->. |
 |  [fnPtrs](./sale.md#fnPtrs-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [getRedeemable](./sale.md#getRedeemable-property) | `(signer?: Signer) => Promise<RedeemableERC20>` | Obtain the instance redeemable token from this sale. |
@@ -172,7 +172,7 @@ readonly claimFees: (recipient: string, overrides?: TxOverrides) => Promise<Cont
 
 ### connect
 
-Connect the current contract instance to a new ethers signer.
+Conncect to this Sale contract with another signer
 
 *Overrides [RainContract.connect](./raincontract.md#connect-property)*
 
