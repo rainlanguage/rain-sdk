@@ -3,7 +3,7 @@ import { CallOptions, RainJSVM } from "./RainJSVM";
 import { EmissionsERC20Context, EmissionsERC20Storage } from "../contracts/emissionsERC20";
 
 /**
- * @public - The javascript version of EmissionsERC20JSVM which inherits RainJS with local EmissionsERC20JSVM opcodes.
+ * @public - The javascript version of EmissionsERC20JSVM which inherits RainJSVM with local EmissionsERC20JSVM opcodes.
  * @see EmissionsERC20.sol in contracts
  *
  */
@@ -21,7 +21,7 @@ export class EmissionsERC20JSVM extends RainJSVM {
 
 	/**
 	 * Constructor of SaleJS to create a instance of this class with EmissionsERC20's local opcodes.
-	 * @see RainJS
+	 * @see RainJSVM
 	 *
 	 * @param state - A regular StateConfig
 	 * @param options - (optional) additional arguments for instantiating this class

@@ -4,7 +4,7 @@ import { CombineTierStorage } from '../contracts/tiers/combineTier';
 
 
 /**
- * @public - The javascript version of CombineTierVM which inherits RainJS with local CombineTier opcodes.
+ * @public - The javascript version of CombineTierVM which inherits RainJSVM with local CombineTier opcodes.
  * @see CombineTier.sol in contracts
  *
  */
@@ -22,7 +22,7 @@ export class CombineTierJSVM extends RainJSVM {
 
 	/**
 	 * Constructor of CombineTierJSVM to create a instance of this class with CombineTier's local opcodes.
-	 * @see RainJS
+	 * @see RainJSVM
 	 *
 	 * @param state - A regular StateConfig
 	 * @param options - (optional) additional arguments for instantiating this class

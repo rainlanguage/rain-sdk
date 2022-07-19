@@ -6,7 +6,7 @@ import { OrderbookContext, OrderbookStorage } from '../contracts/orderBook';
 // @TODO - not complete, local opcodes functions need to be added
 
 /**
- * @public - The javascript version of OrderbookVM which inherits RainJS with local Orderbook opcodes.
+ * @public - The javascript version of OrderbookVM which inherits RainJSVM with local Orderbook opcodes.
  * @see Orderbook.sol in contracts
  *
  */
@@ -24,7 +24,7 @@ export class OrderbookJSVM extends RainJSVM {
 
 	/**
 	 * Constructor of OrderbookJSVM to create a instance of this class with Orderbook's local opcodes.
-	 * @see RainJS
+	 * @see RainJSVM
 	 *
 	 * @param state - A regular StateConfig
 	 * @param options - (optional) additional arguments for instantiating this class

@@ -39,7 +39,7 @@ export interface StateJSVM {
 	readonly sources: Uint8Array[];
 
 	/**
-	 * The RainJS's stack.
+	 * The RainJSVM's stack.
 	 */
 	readonly stack: BigNumber[];
 

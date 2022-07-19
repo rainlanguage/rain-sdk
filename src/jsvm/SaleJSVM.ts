@@ -7,7 +7,7 @@ import { FnPtrs, StateJSVM } from "./types";
 
 
 /**
- * @public - The javascript version of SaleVM which inherits RainJS with local Sale opcodes.
+ * @public - The javascript version of SaleVM which inherits RainJSVM with local Sale opcodes.
  * @see Sale.sol in contracts
  * 
  */
@@ -25,7 +25,7 @@ export class SaleJSVM extends RainJSVM {
 
 	/**
 	 * Constructor of SaleJSVM to create a instance of this class with Sale's local opcodes.
-	 * @see RainJS
+	 * @see RainJSVM
 	 * 
 	 * @param state - A regular StateConfig
 	 * @param options - (optional) additional arguments for instantiating this class 

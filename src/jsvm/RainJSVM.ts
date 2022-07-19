@@ -31,13 +31,13 @@ export class RainJSVM {
 	public readonly lastState: BigNumber[] = [];
 
 	/**
-	 * The property of type StateJSVM which that RainJS will run based on.
+	 * The property of type StateJSVM which that RainJSVM will run based on.
 	 */
 	private readonly state: StateJSVM;
 
 	/**
 	 * It is a property for overriding the opcodes. Need to ba passed at the time of construction
-	 * because the RainJS opcode functions should not change after an instance has be created.
+	 * because the RainJSVM opcode functions should not change after an instance has be created.
 	 */
 	public readonly applyOpFn?: FnPtrs;
 
@@ -67,9 +67,9 @@ export class RainJSVM {
 	protected readonly ContextRange?: number;
 
 	/**
-	 * The constructor of RainJS which initiates the RainJS and also a StateJSVM for a RainVM script.
+	 * The constructor of RainJSVM which initiates the RainJSVM and also a StateJSVM for a RainVM script.
 	 *
-	 * @param state - A regular StateConfig used to new a StateJSVM object to be used in RainJS.
+	 * @param state - A regular StateConfig used to new a StateJSVM object to be used in RainJSVM.
 	 * @param options - (optional) used for initiating the optional properties (signer, provider, contract and applyOpFn)
 	 */
 	constructor(state: StateConfig, options?: CallOptions) {
@@ -124,9 +124,9 @@ export class RainJSVM {
 	protected readonly fnPtrs: FnPtrs;
 
 	/**
-	 * The main workhorse of RainJS, basically the javascript version of 'eval' method in RainVM.sol.
+	 * The main workhorse of RainJSVM, basically the javascript version of 'eval' method in RainVM.sol.
 	 * It executes the RainVM script based on each Opcode or the custom opcodes i.e. applyOpFn that
-	 * has been passed at the time of cinstruction of a RainJS object.
+	 * has been passed at the time of cinstruction of a RainJSVM object.
 	 * @see eval method in RainVM.sol
 	 *
 	 * @param data - (optional) An object which is used to provide additional values for "applyOpFn" if there
@@ -193,13 +193,13 @@ export class RainJSVM {
 	}
 
 	/**
-	 * Method to execute the RainJS.
+	 * Method to execute the RainJSVM.
 	 *
 	 * @param data - (optional) Used as additional info for some local opcodes
 	 * or custom opcode functions i.e. applyOpFn.
 	 * @param entrypoint - the index of sources to start eval
 	 *
-	 * @returns - An array represting the final state of the RainJS stack.
+	 * @returns - An array represting the final state of the RainJSVM stack.
 	 */
 	public async run(data?: any, entrypoint?: number): Promise<BigNumber[]> {
 		
