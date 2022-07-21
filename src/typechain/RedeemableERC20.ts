@@ -243,6 +243,7 @@ export interface RedeemableERC20Interface extends utils.Interface {
     "Approval(address,address,uint256)": EventFragment;
     "ERC20PullInitialize(address,address,address)": EventFragment;
     "Initialize(address,tuple)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "PhaseScheduled(address,uint256,uint256)": EventFragment;
     "Receiver(address,address)": EventFragment;
     "Redeem(address,address,uint256,uint256)": EventFragment;
@@ -254,6 +255,7 @@ export interface RedeemableERC20Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ERC20PullInitialize"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PhaseScheduled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Receiver"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Redeem"): EventFragment;
@@ -283,6 +285,10 @@ export type InitializeEvent = TypedEvent<
 >;
 
 export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type PhaseScheduledEvent = TypedEvent<
   [string, BigNumber, BigNumber],
@@ -749,6 +755,9 @@ export interface RedeemableERC20 extends BaseContract {
       config?: null
     ): InitializeEventFilter;
     Initialize(sender?: null, config?: null): InitializeEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "PhaseScheduled(address,uint256,uint256)"(
       sender?: null,

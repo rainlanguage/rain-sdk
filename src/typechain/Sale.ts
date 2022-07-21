@@ -255,6 +255,7 @@ export interface SaleInterface extends utils.Interface {
     "CooldownTriggered(address,uint256)": EventFragment;
     "End(address,uint8)": EventFragment;
     "Initialize(address,tuple,address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "Refund(address,tuple)": EventFragment;
     "Snapshot(address,address,tuple)": EventFragment;
     "Start(address)": EventFragment;
@@ -267,6 +268,7 @@ export interface SaleInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "CooldownTriggered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "End"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Refund"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Snapshot"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Start"): EventFragment;
@@ -320,6 +322,10 @@ export type InitializeEvent = TypedEvent<
 >;
 
 export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type RefundEvent = TypedEvent<
   [string, ReceiptStructOutput],
@@ -547,6 +553,9 @@ export interface Sale extends BaseContract {
       config?: null,
       token?: null
     ): InitializeEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "Refund(address,tuple)"(sender?: null, receipt?: null): RefundEventFilter;
     Refund(sender?: null, receipt?: null): RefundEventFilter;

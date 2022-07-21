@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
-import type {
-  ERC721Burnable,
-  ERC721BurnableInterface,
-} from "../ERC721Burnable";
+import type { ERC20Snapshot, ERC20SnapshotInterface } from "../ERC20Snapshot";
 
 const _abi = [
   {
@@ -22,13 +19,13 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "approved",
+        name: "spender",
         type: "address",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "uint256",
-        name: "tokenId",
+        name: "value",
         type: "uint256",
       },
     ],
@@ -39,25 +36,13 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "operator",
-        type: "address",
-      },
-      {
         indexed: false,
-        internalType: "bool",
-        name: "approved",
-        type: "bool",
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
       },
     ],
-    name: "ApprovalForAll",
+    name: "Snapshot",
     type: "event",
   },
   {
@@ -76,9 +61,9 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: true,
+        indexed: false,
         internalType: "uint256",
-        name: "tokenId",
+        name: "value",
         type: "uint256",
       },
     ],
@@ -89,17 +74,47 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "to",
+        name: "owner",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+    ],
+    name: "allowance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "spender",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "tokenId",
+        name: "amount",
         type: "uint256",
       },
     ],
     name: "approve",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -107,7 +122,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "owner",
+        name: "account",
         type: "address",
       },
     ],
@@ -125,30 +140,35 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
         internalType: "uint256",
-        name: "tokenId",
+        name: "snapshotId",
         type: "uint256",
       },
     ],
-    name: "burn",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "balanceOfAt",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "getApproved",
+    inputs: [],
+    name: "decimals",
     outputs: [
       {
-        internalType: "address",
+        internalType: "uint8",
         name: "",
-        type: "address",
+        type: "uint8",
       },
     ],
     stateMutability: "view",
@@ -158,16 +178,16 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "owner",
+        name: "spender",
         type: "address",
       },
       {
-        internalType: "address",
-        name: "operator",
-        type: "address",
+        internalType: "uint256",
+        name: "subtractedValue",
+        type: "uint256",
       },
     ],
-    name: "isApprovedForAll",
+    name: "decreaseAllowance",
     outputs: [
       {
         internalType: "bool",
@@ -175,7 +195,31 @@ const _abi = [
         type: "bool",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "addedValue",
+        type: "uint256",
+      },
+    ],
+    name: "increaseAllowance",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -186,113 +230,6 @@ const _abi = [
         internalType: "string",
         name: "",
         type: "string",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "ownerOf",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "safeTransferFrom",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "safeTransferFrom",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "operator",
-        type: "address",
-      },
-      {
-        internalType: "bool",
-        name: "approved",
-        type: "bool",
-      },
-    ],
-    name: "setApprovalForAll",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes4",
-        name: "interfaceId",
-        type: "bytes4",
-      },
-    ],
-    name: "supportsInterface",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -312,22 +249,59 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
+    inputs: [],
+    name: "totalSupply",
+    outputs: [
       {
         internalType: "uint256",
-        name: "tokenId",
+        name: "",
         type: "uint256",
       },
     ],
-    name: "tokenURI",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "snapshotId",
+        type: "uint256",
+      },
+    ],
+    name: "totalSupplyAt",
     outputs: [
       {
-        internalType: "string",
+        internalType: "uint256",
         name: "",
-        type: "string",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "transfer",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -344,26 +318,32 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "tokenId",
+        name: "amount",
         type: "uint256",
       },
     ],
     name: "transferFrom",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
 ];
 
-export class ERC721Burnable__factory {
+export class ERC20Snapshot__factory {
   static readonly abi = _abi;
-  static createInterface(): ERC721BurnableInterface {
-    return new utils.Interface(_abi) as ERC721BurnableInterface;
+  static createInterface(): ERC20SnapshotInterface {
+    return new utils.Interface(_abi) as ERC20SnapshotInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): ERC721Burnable {
-    return new Contract(address, _abi, signerOrProvider) as ERC721Burnable;
+  ): ERC20Snapshot {
+    return new Contract(address, _abi, signerOrProvider) as ERC20Snapshot;
   }
 }
