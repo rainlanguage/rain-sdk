@@ -211,12 +211,12 @@ export class CombineTierGenerator {
     
     numberOfBlocks[0] = numberOfBlocks[0] ? numberOfBlocks[0] : 0;
     numberOfBlocks[1] = numberOfBlocks[1] && numberOfBlocks[1] <= numberOfBlocks[0] ? numberOfBlocks[1] : numberOfBlocks[0];
-    numberOfBlocks[2] = numberOfBlocks[1] && numberOfBlocks[2] <= numberOfBlocks[1] ? numberOfBlocks[2] : numberOfBlocks[1];
-    numberOfBlocks[3] = numberOfBlocks[1] && numberOfBlocks[3] <= numberOfBlocks[2] ? numberOfBlocks[3] : numberOfBlocks[2];
-    numberOfBlocks[4] = numberOfBlocks[1] && numberOfBlocks[4] <= numberOfBlocks[3] ? numberOfBlocks[4] : numberOfBlocks[3];
-    numberOfBlocks[5] = numberOfBlocks[1] && numberOfBlocks[5] <= numberOfBlocks[4] ? numberOfBlocks[5] : numberOfBlocks[4];
-    numberOfBlocks[6] = numberOfBlocks[1] && numberOfBlocks[6] <= numberOfBlocks[5] ? numberOfBlocks[6] : numberOfBlocks[5];
-    numberOfBlocks[7] = numberOfBlocks[1] && numberOfBlocks[7] <= numberOfBlocks[6] ? numberOfBlocks[7] : numberOfBlocks[6];
+    numberOfBlocks[2] = numberOfBlocks[2] && numberOfBlocks[2] <= numberOfBlocks[1] ? numberOfBlocks[2] : numberOfBlocks[1];
+    numberOfBlocks[3] = numberOfBlocks[3] && numberOfBlocks[3] <= numberOfBlocks[2] ? numberOfBlocks[3] : numberOfBlocks[2];
+    numberOfBlocks[4] = numberOfBlocks[4] && numberOfBlocks[4] <= numberOfBlocks[3] ? numberOfBlocks[4] : numberOfBlocks[3];
+    numberOfBlocks[5] = numberOfBlocks[5] && numberOfBlocks[5] <= numberOfBlocks[4] ? numberOfBlocks[5] : numberOfBlocks[4];
+    numberOfBlocks[6] = numberOfBlocks[6] && numberOfBlocks[6] <= numberOfBlocks[5] ? numberOfBlocks[6] : numberOfBlocks[5];
+    numberOfBlocks[7] = numberOfBlocks[7] && numberOfBlocks[7] <= numberOfBlocks[6] ? numberOfBlocks[7] : numberOfBlocks[6];
 
     const _blocks = paddedUInt256(
       BigNumber.from(

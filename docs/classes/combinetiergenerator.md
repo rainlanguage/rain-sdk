@@ -135,14 +135,14 @@ Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of
 <b>Signature:</b>
 
 ```typescript
-isTierHeldFor(numberOfBlocks: number | number[]): this;
+isTierHeldFor(numberOfBlocks: number[]): this;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  numberOfBlocks | `number \| number[]` | A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report. |
+|  numberOfBlocks | `number[]` | A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report. |
 
 <b>Returns:</b>
 
