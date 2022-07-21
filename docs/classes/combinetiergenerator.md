@@ -28,7 +28,7 @@ new CombineTier(a tierAddress or a StateConfig)
 |  --- | --- |
 |  [combineWith(reportVar, logic, mode, number)](./combinetiergenerator.md#combineWith-method-1) | Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode |
 |  [differenceFrom(reportVar)](./combinetiergenerator.md#differenceFrom-method-1) | Saturating difference between 2 reports |
-|  [isTierHeldFor(reportVar, numberOfBlocks)](./combinetiergenerator.md#isTierHeldFor-method-1) | Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier. |
+|  [isTierHeldFor(numberOfBlocks)](./combinetiergenerator.md#isTierHeldFor-method-1) | Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier. |
 |  [updateReport(startTier, endTier, number)](./combinetiergenerator.md#updateReport-method-1) | Method to update a report at given tier range (can be any range between 0 to 8) |
 
 ## Property Details
@@ -128,21 +128,20 @@ this
 
 <a id="isTierHeldFor-method-1"></a>
 
-### isTierHeldFor(reportVar, numberOfBlocks)
+### isTierHeldFor(numberOfBlocks)
 
 Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier.
 
 <b>Signature:</b>
 
 ```typescript
-isTierHeldFor(reportVar: string | StateConfig, numberOfBlocks: number | number[]): this;
+isTierHeldFor(numberOfBlocks: number | number[]): this;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  reportVar | `string \| StateConfig` | either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of report-like StateConfig desired) |
 |  numberOfBlocks | `number \| number[]` | A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report. |
 
 <b>Returns:</b>

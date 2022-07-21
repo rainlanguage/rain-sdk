@@ -188,19 +188,12 @@ export class CombineTierGenerator {
   /**
    * Creats a holding time ALWAYS/NEVER tier script for a CombineTier contract out of a TransferTier.
    * 
-   * @param reportVar - either a TransferTier contract address or a StateConfig of TransferTier REPORT script (or can be any other form of report-like StateConfig desired)
    * @param numberOfBlocks - A number or an array of numbers represting the number of blocks a given tier must be held to get ALWAYS report or else it gets NEVER report.
-   * 
    * @returns this
    */
   public isTierHeldFor (
-    reportVar: string | StateConfig,
     numberOfBlocks: number | number[],
   ) : this {
-
-    const _report: StateConfig = typeof reportVar == "string"
-      ? new CombineTierGenerator(reportVar)
-      : reportVar;
 
     const _shifter = paddedUInt256(
       BigNumber.from(
@@ -215,6 +208,16 @@ export class CombineTierGenerator {
         paddedUInt32("0")
       )
     );
+    
+    if (typeof numberOfBlocks !== "number") {
+      numberOfBlocks[1] = numberOfBlocks[1] <= numberOfBlocks[0] ? numberOfBlocks[1] : numberOfBlocks[0];
+      numberOfBlocks[2] = numberOfBlocks[2] <= numberOfBlocks[1] ? numberOfBlocks[2] : numberOfBlocks[1];
+      numberOfBlocks[3] = numberOfBlocks[3] <= numberOfBlocks[2] ? numberOfBlocks[3] : numberOfBlocks[2];
+      numberOfBlocks[4] = numberOfBlocks[4] <= numberOfBlocks[3] ? numberOfBlocks[4] : numberOfBlocks[3];
+      numberOfBlocks[5] = numberOfBlocks[5] <= numberOfBlocks[4] ? numberOfBlocks[5] : numberOfBlocks[4];
+      numberOfBlocks[6] = numberOfBlocks[6] <= numberOfBlocks[5] ? numberOfBlocks[6] : numberOfBlocks[5];
+      numberOfBlocks[7] = numberOfBlocks[7] <= numberOfBlocks[6] ? numberOfBlocks[7] : numberOfBlocks[6];
+    }
 
     const _blocks = paddedUInt256(
       BigNumber.from(
@@ -229,6 +232,13 @@ export class CombineTierGenerator {
         paddedUInt32(typeof numberOfBlocks == "number" ? numberOfBlocks : numberOfBlocks[0])
       )
     );
+    
+    this.sources[0] = concat([
+      op(CombineTier.Opcodes.NEVER),
+      op(CombineTier.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.ZERO, Tier.EIGHT)),
+      this.sources[0],
+      op(CombineTier.Opcodes.SATURATING_DIFF)
+    ])
 
     let _result: StateConfig = {
       constants: [
@@ -246,11 +256,9 @@ export class CombineTierGenerator {
           op(CombineTier.Opcodes.ADD, 8)
         ]),
         concat([
-          op(CombineTier.Opcodes.BLOCK_NUMBER),
-          op(CombineTier.Opcodes.VAL, arg(0)),
-          op(CombineTier.Opcodes.SATURATING_SUB, 2),
           op(CombineTier.Opcodes.VAL, arg(1)),
-          op(CombineTier.Opcodes.LESS_THAN),
+          op(CombineTier.Opcodes.VAL, arg(0)),
+          op(CombineTier.Opcodes.GREATER_THAN),
           op(CombineTier.Opcodes.VAL, 4),
           op(CombineTier.Opcodes.VAL, 3),
           op(CombineTier.Opcodes.EAGER_IF),
@@ -264,7 +272,7 @@ export class CombineTierGenerator {
       argumentsLength: 3
     };
 
-    _result = VM.combiner(_report, _result);
+    _result = VM.combiner(this, _result);
 
     this.constants = _result.constants;
     this.sources = _result.sources;

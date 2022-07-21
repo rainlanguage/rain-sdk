@@ -80,13 +80,19 @@ export interface CombineTierInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setTier", data: BytesLike): Result;
 
   events: {
+    "Initialized(uint8)": EventFragment;
     "Snapshot(address,address,tuple)": EventFragment;
     "TierChange(address,address,uint256,uint256,bytes)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Snapshot"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TierChange"): EventFragment;
 }
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type SnapshotEvent = TypedEvent<
   [string, string, StateStructOutput],
@@ -181,6 +187,9 @@ export interface CombineTier extends BaseContract {
   };
 
   filters: {
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "Snapshot(address,address,tuple)"(
       sender?: null,
       pointer?: null,

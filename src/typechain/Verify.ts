@@ -209,6 +209,7 @@ export interface VerifyInterface extends utils.Interface {
     "Approve(address,tuple)": EventFragment;
     "Ban(address,tuple)": EventFragment;
     "Initialize(address,tuple)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "Remove(address,tuple)": EventFragment;
     "RequestApprove(address,tuple)": EventFragment;
     "RequestBan(address,tuple)": EventFragment;
@@ -221,6 +222,7 @@ export interface VerifyInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Approve"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Ban"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Remove"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RequestApprove"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RequestBan"): EventFragment;
@@ -250,6 +252,10 @@ export type InitializeEvent = TypedEvent<
 >;
 
 export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type RemoveEvent = TypedEvent<
   [string, EvidenceStructOutput],
@@ -634,6 +640,9 @@ export interface Verify extends BaseContract {
       config?: null
     ): InitializeEventFilter;
     Initialize(sender?: null, config?: null): InitializeEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "Remove(address,tuple)"(sender?: null, evidence?: null): RemoveEventFilter;
     Remove(sender?: null, evidence?: null): RemoveEventFilter;

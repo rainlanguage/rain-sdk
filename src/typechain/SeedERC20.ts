@@ -218,6 +218,7 @@ export interface SeedERC20Interface extends utils.Interface {
     "CooldownTriggered(address,uint256)": EventFragment;
     "ERC20PullInitialize(address,address,address)": EventFragment;
     "Initialize(address,address,address,uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "PhaseScheduled(address,uint256,uint256)": EventFragment;
     "Redeem(address,address,uint256,uint256)": EventFragment;
     "Seed(address,uint256,uint256)": EventFragment;
@@ -231,6 +232,7 @@ export interface SeedERC20Interface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "CooldownTriggered"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ERC20PullInitialize"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PhaseScheduled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Redeem"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Seed"): EventFragment;
@@ -276,6 +278,10 @@ export type InitializeEvent = TypedEvent<
 >;
 
 export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type PhaseScheduledEvent = TypedEvent<
   [string, BigNumber, BigNumber],
@@ -725,6 +731,9 @@ export interface SeedERC20 extends BaseContract {
       reserve?: null,
       seedPrice?: null
     ): InitializeEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "PhaseScheduled(address,uint256,uint256)"(
       sender?: null,

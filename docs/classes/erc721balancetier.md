@@ -48,7 +48,7 @@ const tierValues = await existingTier.tierValues();
 |  [connect](./erc721balancetier.md#connect-property) | `(signer: Signer) => ERC721BalanceTier` | Connect the current contract instance to a new ethers signer.<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [levels](./tiercontract.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [TierContract.levels](./tiercontract.md#levels-property)* |
 |  [report](./tiercontract.md#report-property) | `(account: string, overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [TierContract.report](./tiercontract.md#report-property)* |
-|  [setTier](./erc721balancetier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides \| undefined) => Promise<never>` | It is NOT implemented in BalanceTiers. Always will throw an error<br></br>*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)* |
+|  [setTier](./erc721balancetier.md#setTier-property) | `(account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>` | It is NOT implemented in BalanceTiers. Always will throw an error<br></br>*Overrides [TierContract.setTier](./tiercontract.md#setTier-property)* |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [tierValues](./erc721balancetier.md#tierValues-property) | `(overrides?: ReadTxOverrides) => Promise<BigNumber[]>` | Complements the default solidity accessor for `tierValues`<!-- -->. Returns all the values in a listrather than requiring an index be specified. |
 |  [token](./erc721balancetier.md#token-property) | `string` | ERC721 Token address that track the Tier |
@@ -154,7 +154,7 @@ Users can set their own tier by calling `setTier` if is this option available on
 <b>Signature:</b>
 
 ```typescript
-readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides | undefined) => Promise<never>;
+readonly setTier: (account: string, endTier: BigNumberish, data: BytesLike, overrides?: TxOverrides) => Promise<never>;
 ```
 
 <a id="tierValues-property"></a>
