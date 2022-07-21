@@ -14,6 +14,7 @@ import {
   selectLteLogic,
   selectLteMode 
 } from '../../utils';
+import { HumanFriendlySource } from '../../friendlySource';
 
 
 
@@ -211,12 +212,12 @@ export class CombineTierGenerator {
     
     numberOfBlocks[0] = numberOfBlocks[0] ? numberOfBlocks[0] : 0;
     numberOfBlocks[1] = numberOfBlocks[1] && numberOfBlocks[1] <= numberOfBlocks[0] ? numberOfBlocks[1] : numberOfBlocks[0];
-    numberOfBlocks[2] = numberOfBlocks[1] && numberOfBlocks[2] <= numberOfBlocks[1] ? numberOfBlocks[2] : numberOfBlocks[1];
-    numberOfBlocks[3] = numberOfBlocks[1] && numberOfBlocks[3] <= numberOfBlocks[2] ? numberOfBlocks[3] : numberOfBlocks[2];
-    numberOfBlocks[4] = numberOfBlocks[1] && numberOfBlocks[4] <= numberOfBlocks[3] ? numberOfBlocks[4] : numberOfBlocks[3];
-    numberOfBlocks[5] = numberOfBlocks[1] && numberOfBlocks[5] <= numberOfBlocks[4] ? numberOfBlocks[5] : numberOfBlocks[4];
-    numberOfBlocks[6] = numberOfBlocks[1] && numberOfBlocks[6] <= numberOfBlocks[5] ? numberOfBlocks[6] : numberOfBlocks[5];
-    numberOfBlocks[7] = numberOfBlocks[1] && numberOfBlocks[7] <= numberOfBlocks[6] ? numberOfBlocks[7] : numberOfBlocks[6];
+    numberOfBlocks[2] = numberOfBlocks[2] && numberOfBlocks[2] <= numberOfBlocks[1] ? numberOfBlocks[2] : numberOfBlocks[1];
+    numberOfBlocks[3] = numberOfBlocks[3] && numberOfBlocks[3] <= numberOfBlocks[2] ? numberOfBlocks[3] : numberOfBlocks[2];
+    numberOfBlocks[4] = numberOfBlocks[4] && numberOfBlocks[4] <= numberOfBlocks[3] ? numberOfBlocks[4] : numberOfBlocks[3];
+    numberOfBlocks[5] = numberOfBlocks[5] && numberOfBlocks[5] <= numberOfBlocks[4] ? numberOfBlocks[5] : numberOfBlocks[4];
+    numberOfBlocks[6] = numberOfBlocks[6] && numberOfBlocks[6] <= numberOfBlocks[5] ? numberOfBlocks[6] : numberOfBlocks[5];
+    numberOfBlocks[7] = numberOfBlocks[7] && numberOfBlocks[7] <= numberOfBlocks[6] ? numberOfBlocks[7] : numberOfBlocks[6];
 
     const _blocks = paddedUInt256(
       BigNumber.from(
@@ -234,6 +235,7 @@ export class CombineTierGenerator {
     
     this.sources[0] = concat([
       op(CombineTier.Opcodes.NEVER),
+      op(CombineTier.Opcodes.BLOCK_NUMBER),
       op(CombineTier.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.ZERO, Tier.EIGHT)),
       this.sources[0],
       op(CombineTier.Opcodes.SATURATING_DIFF)
