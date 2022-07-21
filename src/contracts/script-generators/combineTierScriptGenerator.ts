@@ -14,6 +14,7 @@ import {
   selectLteLogic,
   selectLteMode 
 } from '../../utils';
+import { HumanFriendlySource } from '../../friendlySource';
 
 
 
@@ -234,6 +235,7 @@ export class CombineTierGenerator {
     
     this.sources[0] = concat([
       op(CombineTier.Opcodes.NEVER),
+      op(CombineTier.Opcodes.BLOCK_NUMBER),
       op(CombineTier.Opcodes.UPDATE_BLOCKS_FOR_TIER_RANGE, tierRange(Tier.ZERO, Tier.EIGHT)),
       this.sources[0],
       op(CombineTier.Opcodes.SATURATING_DIFF)
