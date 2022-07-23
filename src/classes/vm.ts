@@ -13,7 +13,6 @@ import {
   arrayify,
   parseUnits,
 } from '../utils';
-import { CombineTierGenerator } from '../contracts/script-generators/combineTierScriptGenerator';
 
 /**
  * @public
@@ -1726,11 +1725,3 @@ export class VM {
   }
 
 }
-
-const rule1 = VM.and([
-  VM.beforeAfterTime(1, "lt"),
-  VM.hasAnyTier(
-    new CombineTierGenerator("jhgiggi")
-  )
-]);
-console.log(rule1)
