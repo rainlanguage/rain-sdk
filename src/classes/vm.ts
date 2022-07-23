@@ -1068,10 +1068,10 @@ export class VM {
         src = op(VM.Opcodes.LESS_THAN)
       }
       if (type === "lt") {
-        src = op(VM.Opcodes.GREATER_THAN)
+        src = op(VM.Opcodes.LESS_THAN)
       }
       if (type === "gt") {
-        src = op(VM.Opcodes.LESS_THAN)
+        src = op(VM.Opcodes.GREATER_THAN)
       }
 
       return {
@@ -1110,10 +1110,10 @@ export class VM {
         src = op(VM.Opcodes.LESS_THAN)
       }
       if (type === "lt") {
-        src = op(VM.Opcodes.GREATER_THAN)
+        src = op(VM.Opcodes.LESS_THAN)
       }
       if (type === "gt") {
-        src = op(VM.Opcodes.LESS_THAN)
+        src = op(VM.Opcodes.GREATER_THAN)
       }
 
       return {
