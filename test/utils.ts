@@ -61,6 +61,7 @@ export interface Addresses {
   StakeFactory: string;
   OrderBook: string;
   AlwaysTier: string;
+  AutoApproveFactory: string;
 }
 
 export const sixZeros = '000000';

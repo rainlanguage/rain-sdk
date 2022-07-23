@@ -5,17 +5,18 @@
 |  Class | Description |
 |  --- | --- |
 |  [AddressBook](./classes/addressbook.md) | Class related to handle and obtain all the addresses and tools (like Subgraph) deployed by chain and stored in the SDK. |
+|  [AutoApprove](./classes/autoapprove.md) | A class for calling method on a Rain AutoApprove contract. |
 |  [BetweenBlocks](./classes/betweenblocks.md) | - A class used for creating a VM state for Sale's canLive StateConfig based on block number. |
 |  [BetweenTimestamps](./classes/betweentimestamps.md) | - A class used for creating a VM state for Sale's canLive StateConfig based on timestamp. |
 |  [BuildReport](./classes/buildreport.md) | A class for creating a report-like script which inherits from CombineTierGenerator |
 |  [BuyAmount](./classes/buyamount.md) | The fisrt piece of script in a sale's amount/price pair script which determines the amoount or cap that can be bought. |
 |  [CombineTier](./classes/combinetier.md) | Class for deploying and calling methods on a CombineTier contract, providin easy way to interact with deployed CombineTiers. |
 |  [CombineTierGenerator](./classes/combinetiergenerator.md) | The script generator for generating CombineTier scripts although it is worth mentioning that the usecases would not be only limited to CombineTier contract and can be used for any script. |
-|  [CombineTierJSVM](./classes/combinetierjsvm.md) | - The javascript version of CombineTierVM which inherits RainJS with local CombineTier opcodes. |
+|  [CombineTierJSVM](./classes/combinetierjsvm.md) | - The javascript version of CombineTierVM which inherits RainJSVM with local CombineTier opcodes. |
 |  [CombinetierSimulation](./classes/combinetiersimulation.md) | A class for creating a simulation environment for simulating a CombineTier contract off-chain using JSVM. |
 |  [CreateERC20](./classes/createerc20.md) | A class to creat a an ERC20 token with ability to be a faucet. owner can mint extar token if i=the token is not fixed supply. It can be claimed x number of tokens once every number of blocks passed which is defined by the faucet at the time of deployment. |
 |  [EmissionsERC20](./classes/emissionserc20.md) | A class for calling methods on a EmissionsERC20. |
-|  [EmissionsERC20JSVM](./classes/emissionserc20jsvm.md) | - The javascript version of EmissionsERC20JSVM which inherits RainJS with local EmissionsERC20JSVM opcodes. |
+|  [EmissionsERC20JSVM](./classes/emissionserc20jsvm.md) | - The javascript version of EmissionsERC20JSVM which inherits RainJSVM with local EmissionsERC20JSVM opcodes. |
 |  [EmissionSmiulation](./classes/emissionsmiulation.md) | A class for creating a simulation environment for simulating a EmissionsERC20 contract off-chain using JSVM. |
 |  [ERC1155](./classes/erc1155.md) | A generic ERC1155 interface to get connected to any ERC1155 address and make transactions. |
 |  [ERC1155BalanceTier](./classes/erc1155balancetier.md) | class to create a the vmStateConfig for CombineTier as BalanceTier. this will perform similar to ERC1155BalancTier witha certain toke ID |
@@ -39,9 +40,10 @@
 |  [RedeemableERC20](./classes/redeemableerc20.md) | A class for calling methods on a RedeemableERC20. |
 |  [RedeemableERC20ClaimEscrow](./classes/redeemableerc20claimescrow.md) | A class for calling methods on a RedeemableERC20ClaimEscrow. |
 |  [Sale](./classes/sale.md) | A class for deploying and calling methods on a Sale. |
-|  [SaleJSVM](./classes/salejsvm.md) | - The javascript version of SaleVM which inherits RainJS with local Sale opcodes. |
+|  [SaleJSVM](./classes/salejsvm.md) | - The javascript version of SaleVM which inherits RainJSVM with local Sale opcodes. |
 |  [SaleSimulation](./classes/salesimulation.md) | A class for creating a simulation environment for simulating a Sale contract off-chain using JSVM. |
 |  [SaleVmFrom](./classes/salevmfrom.md) | Builds a sale compatible StateConfig out of 2 individual StateConfigs (canLive and calculateBuy) |
+|  [SeedDance](./classes/seeddance.md) | A class for calling method on a Rain SeedDance contract. |
 |  [SequentialEmissions](./classes/sequentialemissions.md) | A sequential minting emission, minting can only be done once in every period of time, also can set a max reward with increment over the span of several periods. |
 |  [Stake](./classes/stake.md) | A class for calling methods on a Stake. |
 |  [Verify](./classes/verify.md) | A class for deploying and calling methods on a Verify. |
@@ -55,6 +57,8 @@
 |  Enumeration | Description |
 |  --- | --- |
 |  [AllStandardOps](./enums/allstandardops.md) | All the standard Op Codes |
+|  [AutoApproveContext](./enums/autoapprovecontext.md) | Enum for operand of the AutoApprove's CONTEXT opcode |
+|  [AutoApproveStorage](./enums/autoapprovestorage.md) | Enum for operand of the AutoApprove's STORAGE opcode |
 |  [BuyCapMode](./enums/buycapmode.md) | Standard cap per wallet modes |
 |  [CombineTierContext](./enums/combinetiercontext.md) | Enum for operand of the combineTier's CONTEXT opcode |
 |  [CombineTierStorage](./enums/combinetierstorage.md) | Enum for operand of the CombineTier's STORAGE opcode |
@@ -182,19 +186,23 @@
 |  Type Alias | Description |
 |  --- | --- |
 |  [Addresses](./types/addresses.md) | Type for all the addresses stored in the Book. |
-|  [BountyConfig](./types/bountyconfig.md) | Type for bounty vaultIds used when in |
+|  [AutoApproveOps](./types/autoapproveops.md) | Type for the opcodes availables in a AutoApprove instance. |
 |  [CallOptions](./types/calloptions.md) | Options for instantiating RainJSVM |
+|  [ClearConfig](./types/clearconfig.md) | Type for clear vaultIds used when in |
 |  [ClearStateChange](./types/clearstatechange.md) | Type for changes in state of an orderbook vaults after an successful clear |
 |  [CombineTierDeployArgs](./types/combinetierdeployargs.md) | The argument of the CombineTier. The StateConfig will be deployed as a pointer under VM State Pointer. |
 |  [Config](./types/config.md) | Specific the configuration of the generation method |
 |  [DepositConfig](./types/depositconfig.md) | Type for depositing some token amount into a vault used in |
 |  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
+|  [EvidenceConfig](./types/evidenceconfig.md) |  |
+|  [IOConfig](./types/ioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
 |  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |
 |  [Order](./types/order.md) | Type for an order containing all that is required in an order. An Order is an |
 |  [OrderBookOpcodes](./types/orderbookopcodes.md) | Type for the opcodes availables in a OrderBook instance. |
-|  [OrderConfig](./types/orderconfig.md) | A type for an order configuration without any specific owner<br></br>'inputToken' address - the desired token to be recieved if order clears 'inputVaultId' corresponding inputToken vault 'outputToken' address - the token to be paid if order clears 'outputVaultId' corresponding outputToken vault 'tracking' the tracking state of the order 'vmState' the |
+|  [OrderConfig](./types/orderconfig.md) | A type for an order configuration without any specific owner |
 |  [PrettifyConfig](./types/prettifyconfig.md) | Specific the configuration of the Prettify method. |
 |  [StakeDeployArgs](./types/stakedeployargs.md) | A type for deploying a new stake contract which contains everything required for deployment.<br></br>'token' is the main token addtess. 'initialRatio' is the initial conversion ratio between the stake token and main token. 'name' of the stake token. 'symbol' of the stake token |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
+|  [TimeBoundConfig](./types/timeboundconfig.md) |  |
 |  [WithdrawConfig](./types/withdrawconfig.md) | Type for withdrawing some token amount from a vault used in |
 

@@ -34,11 +34,9 @@ export type BoundsStruct = {
   stackLength: BigNumberish;
   argumentsLength: BigNumberish;
   storageLength: BigNumberish;
-  opcodesLength: BigNumberish;
 };
 
 export type BoundsStructOutput = [
-  BigNumber,
   BigNumber,
   BigNumber,
   BigNumber,
@@ -52,16 +50,14 @@ export type BoundsStructOutput = [
   stackLength: BigNumber;
   argumentsLength: BigNumber;
   storageLength: BigNumber;
-  opcodesLength: BigNumber;
 };
 
 export interface OrderBookStateBuilderInterface extends utils.Interface {
   functions: {
-    "buildState(address,(bytes[],uint256[]),(uint256,uint256,uint256,uint256,uint256,uint256,uint256)[])": FunctionFragment;
-    "ensureIntegrity((bytes[],uint256[]),(uint256,uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
-    "ptrSource(bytes,bytes)": FunctionFragment;
-    "stackPopsFnPtrs()": FunctionFragment;
-    "stackPushesFnPtrs()": FunctionFragment;
+    "buildState(address,(bytes[],uint256[]),(uint256,uint256,uint256,uint256,uint256,uint256)[])": FunctionFragment;
+    "ensureIntegrity(uint256[],uint256[],(bytes[],uint256[]),(uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
+    "stackPops()": FunctionFragment;
+    "stackPushes()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -70,18 +66,11 @@ export interface OrderBookStateBuilderInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "ensureIntegrity",
-    values: [StateConfigStruct, BoundsStruct]
+    values: [BigNumberish[], BigNumberish[], StateConfigStruct, BoundsStruct]
   ): string;
+  encodeFunctionData(functionFragment: "stackPops", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "ptrSource",
-    values: [BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "stackPopsFnPtrs",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "stackPushesFnPtrs",
+    functionFragment: "stackPushes",
     values?: undefined
   ): string;
 
@@ -90,13 +79,9 @@ export interface OrderBookStateBuilderInterface extends utils.Interface {
     functionFragment: "ensureIntegrity",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "ptrSource", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stackPops", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "stackPopsFnPtrs",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "stackPushesFnPtrs",
+    functionFragment: "stackPushes",
     data: BytesLike
   ): Result;
 
@@ -138,20 +123,20 @@ export interface OrderBookStateBuilder extends BaseContract {
     ): Promise<ContractTransaction>;
 
     ensureIntegrity(
+      stackPops_: BigNumberish[],
+      stackPushes_: BigNumberish[],
       stateConfig_: StateConfigStruct,
       bounds_: BoundsStruct,
       overrides?: CallOverrides
     ): Promise<[void]>;
 
-    ptrSource(
-      packedFnPtrs_: BytesLike,
-      source_: BytesLike,
+    stackPops(
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[BigNumber[]] & { pops_: BigNumber[] }>;
 
-    stackPopsFnPtrs(overrides?: CallOverrides): Promise<[string]>;
-
-    stackPushesFnPtrs(overrides?: CallOverrides): Promise<[string]>;
+    stackPushes(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]] & { pushes_: BigNumber[] }>;
   };
 
   buildState(
@@ -162,20 +147,16 @@ export interface OrderBookStateBuilder extends BaseContract {
   ): Promise<ContractTransaction>;
 
   ensureIntegrity(
+    stackPops_: BigNumberish[],
+    stackPushes_: BigNumberish[],
     stateConfig_: StateConfigStruct,
     bounds_: BoundsStruct,
     overrides?: CallOverrides
   ): Promise<void>;
 
-  ptrSource(
-    packedFnPtrs_: BytesLike,
-    source_: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  stackPops(overrides?: CallOverrides): Promise<BigNumber[]>;
 
-  stackPopsFnPtrs(overrides?: CallOverrides): Promise<string>;
-
-  stackPushesFnPtrs(overrides?: CallOverrides): Promise<string>;
+  stackPushes(overrides?: CallOverrides): Promise<BigNumber[]>;
 
   callStatic: {
     buildState(
@@ -186,20 +167,16 @@ export interface OrderBookStateBuilder extends BaseContract {
     ): Promise<string>;
 
     ensureIntegrity(
+      stackPops_: BigNumberish[],
+      stackPushes_: BigNumberish[],
       stateConfig_: StateConfigStruct,
       bounds_: BoundsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    ptrSource(
-      packedFnPtrs_: BytesLike,
-      source_: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    stackPops(overrides?: CallOverrides): Promise<BigNumber[]>;
 
-    stackPopsFnPtrs(overrides?: CallOverrides): Promise<string>;
-
-    stackPushesFnPtrs(overrides?: CallOverrides): Promise<string>;
+    stackPushes(overrides?: CallOverrides): Promise<BigNumber[]>;
   };
 
   filters: {};
@@ -213,20 +190,16 @@ export interface OrderBookStateBuilder extends BaseContract {
     ): Promise<BigNumber>;
 
     ensureIntegrity(
+      stackPops_: BigNumberish[],
+      stackPushes_: BigNumberish[],
       stateConfig_: StateConfigStruct,
       bounds_: BoundsStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    ptrSource(
-      packedFnPtrs_: BytesLike,
-      source_: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    stackPops(overrides?: CallOverrides): Promise<BigNumber>;
 
-    stackPopsFnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
-
-    stackPushesFnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
+    stackPushes(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -238,19 +211,15 @@ export interface OrderBookStateBuilder extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     ensureIntegrity(
+      stackPops_: BigNumberish[],
+      stackPushes_: BigNumberish[],
       stateConfig_: StateConfigStruct,
       bounds_: BoundsStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    ptrSource(
-      packedFnPtrs_: BytesLike,
-      source_: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    stackPops(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    stackPopsFnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    stackPushesFnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    stackPushes(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

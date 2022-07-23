@@ -61,8 +61,8 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
 
 export interface AllStandardOpsTestInterface extends utils.Interface {
   functions: {
-    "fnPtrs()": FunctionFragment;
     "initialize((bytes[],uint256[]))": FunctionFragment;
+    "packedFunctionPointers()": FunctionFragment;
     "run()": FunctionFragment;
     "runContext(uint256[])": FunctionFragment;
     "stack()": FunctionFragment;
@@ -71,10 +71,13 @@ export interface AllStandardOpsTestInterface extends utils.Interface {
     "storageOpcodesRange()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [StateConfigStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "packedFunctionPointers",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "run", values?: undefined): string;
   encodeFunctionData(
@@ -89,8 +92,11 @@ export interface AllStandardOpsTestInterface extends utils.Interface {
     values?: undefined
   ): string;
 
-  decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "packedFunctionPointers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "run", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "runContext", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stack", data: BytesLike): Result;
@@ -131,19 +137,21 @@ export interface AllStandardOpsTest extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    fnPtrs(overrides?: CallOverrides): Promise<[string]>;
-
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<[string] & { ptrs_: string }>;
 
     run(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     runContext(
-      values_: BigNumberish[],
+      context_: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -158,19 +166,19 @@ export interface AllStandardOpsTest extends BaseContract {
     ): Promise<[StorageOpcodesRangeStructOutput]>;
   };
 
-  fnPtrs(overrides?: CallOverrides): Promise<string>;
-
   initialize(
     stateConfig_: StateConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
   run(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   runContext(
-    values_: BigNumberish[],
+    context_: BigNumberish[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -185,17 +193,17 @@ export interface AllStandardOpsTest extends BaseContract {
   ): Promise<StorageOpcodesRangeStructOutput>;
 
   callStatic: {
-    fnPtrs(overrides?: CallOverrides): Promise<string>;
-
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
+    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
+
     run(overrides?: CallOverrides): Promise<void>;
 
     runContext(
-      values_: BigNumberish[],
+      context_: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -213,19 +221,19 @@ export interface AllStandardOpsTest extends BaseContract {
   filters: {};
 
   estimateGas: {
-    fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
-
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
 
     run(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     runContext(
-      values_: BigNumberish[],
+      context_: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -239,11 +247,13 @@ export interface AllStandardOpsTest extends BaseContract {
   };
 
   populateTransaction: {
-    fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     run(
@@ -251,7 +261,7 @@ export interface AllStandardOpsTest extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     runContext(
-      values_: BigNumberish[],
+      context_: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

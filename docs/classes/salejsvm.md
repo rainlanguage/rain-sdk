@@ -1,7 +1,7 @@
 
 # Class SaleJSVM
 
-- The javascript version of SaleVM which inherits RainJS with local Sale opcodes.
+- The javascript version of SaleVM which inherits RainJSVM with local Sale opcodes.
 
 <b>Signature:</b>
 
@@ -13,7 +13,7 @@ class SaleJSVM extends RainJSVM
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrs](../interfaces/fnptrs.md) | It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJS opcode functions should not change after an instance has be created.<br></br>*Inherited from [RainJSVM.applyOpFn](./rainjsvm.md#applyOpFn-property)* |
+|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrs](../interfaces/fnptrs.md) | It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJSVM opcode functions should not change after an instance has be created.<br></br>*Inherited from [RainJSVM.applyOpFn](./rainjsvm.md#applyOpFn-property)* |
 |  [constant](./rainjsvm.md#constant-property) | `(operand: number, data?: any) => void` | <br></br>*Inherited from [RainJSVM.constant](./rainjsvm.md#constant-property)* |
 |  [context](./rainjsvm.md#context-property) | `(operand: number, data?: any) => void` | <br></br>*Inherited from [RainJSVM.context](./rainjsvm.md#context-property)* |
 |  [ContextRange](./salejsvm.md#ContextRange-property) | `` | SaleJSVM valid context length<br></br>*Overrides [RainJSVM.ContextRange](./rainjsvm.md#ContextRange-property)* |
@@ -39,7 +39,7 @@ class SaleJSVM extends RainJSVM
 |  Method | Description |
 |  --- | --- |
 |  [connect(signer)](./rainjsvm.md#connect-method-1) | <br></br>*Inherited from [RainJSVM.connect()](./rainjsvm.md#connect-method-1)* |
-|  [run(data, entrypoint)](./rainjsvm.md#run-method-1) | Method to execute the RainJS.<br></br>*Inherited from [RainJSVM.run()](./rainjsvm.md#run-method-1)* |
+|  [run(data, entrypoint)](./rainjsvm.md#run-method-1) | Method to execute the RainJSVM.<br></br>*Inherited from [RainJSVM.run()](./rainjsvm.md#run-method-1)* |
 |  [setContract(contract)](./rainjsvm.md#setContract-method-1) | <br></br>*Inherited from [RainJSVM.setContract()](./rainjsvm.md#setContract-method-1)* |
 
 ## Property Details

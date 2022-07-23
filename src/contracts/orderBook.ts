@@ -66,10 +66,10 @@ export class OrderBook extends RainContract {
     this.addOrder = _orderBook.addOrder;
     this.clear = _orderBook.clear;
     this.deposit = _orderBook.deposit;
-    this.fnPtrs = _orderBook.fnPtrs;
     this.removeOrder = _orderBook.removeOrder;
     this.storageOpcodesRange = _orderBook.storageOpcodesRange;
     this.withdraw = _orderBook.withdraw;
+  this.packedFunctionPointers = _orderBook.packedFunctionPointers;
   }
 
   /**
@@ -170,14 +170,14 @@ export class OrderBook extends RainContract {
    * 
    * @param a_ - @see Order The first order
    * @param b_ - @see Order The second order
-   * @param bountyConfig_ - @see BountyConfig The corresponding vault IDs of the bounty
+   * @param clearConfig_ - @see ClearConfig The corresponding vault IDs of the bounty
    * @param overrides - @see TxOverrides
    * @returns
    */
   public readonly clear: (
     a_: Order,
     b_: Order,
-    bountyConfig_: BountyConfig,
+    clearConfig_: ClearConfig,
     overrides?: TxOverrides
   ) => Promise<ContractTransaction>;
 
@@ -191,32 +191,29 @@ export class OrderBook extends RainContract {
     overrides?: ReadTxOverrides
   ) => Promise<StorageOpcodesRange>;
 
-  /**
+   /**
    * Pointers to opcode functions, necessary for being able to read the packedBytes
-   *
+   * 
    * @param overrides - @see ReadTxOverrides
    * @returns the opcode functions pointers
    */
-  public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
-
+   public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 }
 
 /**
  * @public
+ * token the address of the desired token
+ * vaultId corresponding token vault id
+ */
+export type IOConfig = { token: string; vaultId: BigNumberish };
+
+/**
+ * @public
  * A type for an order configuration without any specific owner
- *
- * 'inputToken' address - the desired token to be recieved if order clears
- * 'inputVaultId' corresponding inputToken vault
- * 'outputToken' address - the token to be paid if order clears
- * 'outputVaultId' corresponding outputToken vault
- * 'tracking' the tracking state of the order
- * 'vmState' the @see StateConfig that determines the Amount and Price of the order
  */
 export type OrderConfig = {
-  inputToken: string;
-  inputVaultId: BigNumberish;
-  outputToken: string;
-  outputVaultId: BigNumberish;
+  validInputs: IOConfig[];
+  validOutputs: IOConfig[];
   tracking: BigNumberish;
   vmStateConfig: StateConfig;
 };
@@ -225,21 +222,11 @@ export type OrderConfig = {
  * @public
  * Type for an order containing all that is required in an order.
  * An Order is an @see OrderConfig with an owner
- * 
- * 'owner' of this order
- * 'inputToken' address - the desired token to be recieved if order clears
- * 'inputVaultId' corresponding inputToken vault
- * 'outputToken' address - the token to be paid if order clears
- * 'outputVaultId' corresponding outputToken vault
- * 'tracking' the tracking state of the order
- * 'vmState' the @see StateConfig that determines the Amount and Price of the order
  */
 export type Order = {
   owner: string;
-  inputToken: string;
-  inputVaultId: BigNumberish;
-  outputToken: string;
-  outputVaultId: BigNumberish;
+  validInputs: IOConfig[];
+  validOutputs: IOConfig[];
   tracking: BigNumberish;
   vmState: BytesLike;
 };
@@ -274,11 +261,15 @@ export type WithdrawConfig = {
 
 /**
  * @public
- * Type for bounty vaultIds used when in @see clear when clearing 2 orders that will collect the bounties into its vaults
+ * Type for clear vaultIds used when in @see clear when clearing 2 orders that will collect the bounties into its vaults
  */
-export type BountyConfig = {
-  aVaultId: BigNumberish;
-  bVaultId: BigNumberish;
+ export type ClearConfig = {
+  aInputIndex: BigNumberish;
+  aOutputIndex: BigNumberish;
+  bInputIndex: BigNumberish;
+  bOutputIndex: BigNumberish;
+  aBountyVaultId: BigNumberish;
+  bBountyVaultId: BigNumberish;
 };
 
 /**

@@ -1,4 +1,4 @@
-import { Signer, BigNumberish, BigNumber } from 'ethers';
+import { Signer, BigNumberish, BigNumber, BytesLike } from 'ethers';
 import { ITierV2 } from '../../classes/iTierV2';
 import { RainContract, ReadTxOverrides, TxOverrides } from '../../classes/rainContract';
 import { StateConfig, StorageOpcodesRange } from '../../classes/vm';
@@ -99,8 +99,9 @@ export class CombineTier extends ITierV2 {
     const _combineTier = CombineTier__factory.connect(address, signer);
     super(address, signer);
 
-    this.fnPtrs = _combineTier.fnPtrs;
     this.storageOpcodesRange = _combineTier.storageOpcodesRange;
+  this.packedFunctionPointers = _combineTier.packedFunctionPointers;
+  this.supportsInterface = _combineTier.supportsInterface;
   }
 
   /**
@@ -182,22 +183,25 @@ export class CombineTier extends ITierV2 {
   };
 
   /**
-   * Pointers to opcode functions, necessary for being able to read the packedBytes
-   *
-   * @param overrides - @see ReadTxOverrides
-   * @returns the opcode functions pointers
-   */
-  public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
-
-  /**
    * Returns the pointer and length for combineTier's storage opcodes
    *
    * @param overrides - @see ReadTxOverrides
    * @returns a StorageOpcodesRange
    */
-  public readonly storageOpcodesRange: (
-    overrides?: ReadTxOverrides
-  ) => Promise<StorageOpcodesRange>;
+  public readonly storageOpcodesRange: (overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>;
+
+  /**
+   * Pointers to opcode functions, necessary for being able to read the packedBytes
+   * 
+   * @param overrides - @see ReadTxOverrides
+   * @returns the opcode functions pointers
+   */
+   public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
+
+  /**
+   * @public
+   */
+   public readonly supportsInterface: (interfaceId_: BytesLike, overrides?: ReadTxOverrides) => Promise<boolean>;
 
   /**
    * @public

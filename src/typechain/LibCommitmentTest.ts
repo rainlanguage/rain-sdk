@@ -19,7 +19,7 @@ export interface LibCommitmentTestInterface extends utils.Interface {
   functions: {
     "eq(uint256,uint256)": FunctionFragment;
     "fromSecret(uint256)": FunctionFragment;
-    "zero()": FunctionFragment;
+    "nil()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -30,11 +30,11 @@ export interface LibCommitmentTestInterface extends utils.Interface {
     functionFragment: "fromSecret",
     values: [BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "zero", values?: undefined): string;
+  encodeFunctionData(functionFragment: "nil", values?: undefined): string;
 
   decodeFunctionResult(functionFragment: "eq", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "fromSecret", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "zero", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nil", data: BytesLike): Result;
 
   events: {};
 }
@@ -77,9 +77,7 @@ export interface LibCommitmentTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { commitment_: BigNumber }>;
 
-    zero(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { zero_: BigNumber }>;
+    nil(overrides?: CallOverrides): Promise<[BigNumber] & { nil_: BigNumber }>;
   };
 
   eq(
@@ -93,7 +91,7 @@ export interface LibCommitmentTest extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  zero(overrides?: CallOverrides): Promise<BigNumber>;
+  nil(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
     eq(
@@ -107,7 +105,7 @@ export interface LibCommitmentTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    zero(overrides?: CallOverrides): Promise<BigNumber>;
+    nil(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
@@ -124,7 +122,7 @@ export interface LibCommitmentTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    zero(overrides?: CallOverrides): Promise<BigNumber>;
+    nil(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -139,6 +137,6 @@ export interface LibCommitmentTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    zero(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    nil(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

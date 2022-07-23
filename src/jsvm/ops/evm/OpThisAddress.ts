@@ -8,11 +8,11 @@ import { StateJSVM } from "../../types";
  */
 export function OpThisAddress(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void {
 
-	if (this.self !== undefined) {
+  if (this.self !== undefined) {
 
-	  	state.stack.push(
-			BigNumber.from(this.self)
-		);
-	} 
-	else throw new Error('Undefined contract');
+      state.stack.push(
+      BigNumber.from(this.self)
+    );
+  } 
+  else throw new Error('Undefined contract');
 }

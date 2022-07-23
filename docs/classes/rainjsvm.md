@@ -13,7 +13,7 @@ class RainJSVM
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrs](../interfaces/fnptrs.md) | It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJS opcode functions should not change after an instance has be created. |
+|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrs](../interfaces/fnptrs.md) | It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJSVM opcode functions should not change after an instance has be created. |
 |  [constant](./rainjsvm.md#constant-property) | `(operand: number, data?: any) => void` |  |
 |  [context](./rainjsvm.md#context-property) | `(operand: number, data?: any) => void` |  |
 |  [ContextRange](./rainjsvm.md#ContextRange-property) | `number` | Length of the valid context argument accessible by eval |
@@ -39,7 +39,7 @@ class RainJSVM
 |  Method | Description |
 |  --- | --- |
 |  [connect(signer)](./rainjsvm.md#connect-method-1) |  |
-|  [run(data, entrypoint)](./rainjsvm.md#run-method-1) | Method to execute the RainJS. |
+|  [run(data, entrypoint)](./rainjsvm.md#run-method-1) | Method to execute the RainJSVM. |
 |  [setContract(contract)](./rainjsvm.md#setContract-method-1) |  |
 
 ## Property Details
@@ -48,7 +48,7 @@ class RainJSVM
 
 ### applyOpFn
 
-It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJS opcode functions should not change after an instance has be created.
+It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJSVM opcode functions should not change after an instance has be created.
 
 <b>Signature:</b>
 
@@ -253,7 +253,7 @@ connect(signer: Signer): this;
 
 ### run(data, entrypoint)
 
-Method to execute the RainJS.
+Method to execute the RainJSVM.
 
 <b>Signature:</b>
 
@@ -272,7 +272,7 @@ run(data?: any, entrypoint?: number): Promise<BigNumber[]>;
 
 `Promise<BigNumber[]>`
 
-- An array represting the final state of the RainJS stack.
+- An array represting the final state of the RainJSVM stack.
 
 <a id="setContract-method-1"></a>
 

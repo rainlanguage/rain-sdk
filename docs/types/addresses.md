@@ -20,5 +20,6 @@ type Addresses = {
     alwaysTier: string;
     stakeFactory: string;
     orderBook: string;
+    autoApproveFactory: string;
 };
 ```

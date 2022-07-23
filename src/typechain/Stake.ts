@@ -39,6 +39,7 @@ export interface StakeInterface extends utils.Interface {
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "deposit(uint256)": FunctionFragment;
+    "deposits(address,uint256)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initialize((address,uint256,string,string))": FunctionFragment;
     "name()": FunctionFragment;
@@ -69,6 +70,10 @@ export interface StakeInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "deposit",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "deposits",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
@@ -118,6 +123,7 @@ export interface StakeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "deposits", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
@@ -237,6 +243,12 @@ export interface Stake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    deposits(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[number, BigNumber] & { timestamp: number; amount: BigNumber }>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -318,6 +330,12 @@ export interface Stake extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  deposits(
+    arg0: string,
+    arg1: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<[number, BigNumber] & { timestamp: number; amount: BigNumber }>;
+
   increaseAllowance(
     spender: string,
     addedValue: BigNumberish,
@@ -395,6 +413,12 @@ export interface Stake extends BaseContract {
     ): Promise<boolean>;
 
     deposit(amount_: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    deposits(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[number, BigNumber] & { timestamp: number; amount: BigNumber }>;
 
     increaseAllowance(
       spender: string,
@@ -508,6 +532,12 @@ export interface Stake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    deposits(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -591,6 +621,12 @@ export interface Stake extends BaseContract {
     deposit(
       amount_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    deposits(
+      arg0: string,
+      arg1: BigNumberish,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     increaseAllowance(

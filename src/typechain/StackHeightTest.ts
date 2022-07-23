@@ -39,23 +39,29 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
 
 export interface StackHeightTestInterface extends utils.Interface {
   functions: {
-    "fnPtrs()": FunctionFragment;
     "initialize((bytes[],uint256[]))": FunctionFragment;
+    "packedFunctionPointers()": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [StateConfigStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "packedFunctionPointers",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "storageOpcodesRange",
     values?: undefined
   ): string;
 
-  decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "packedFunctionPointers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "storageOpcodesRange",
     data: BytesLike
@@ -91,36 +97,38 @@ export interface StackHeightTest extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    fnPtrs(overrides?: CallOverrides): Promise<[string]>;
-
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<[string] & { ptrs_: string }>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<[StorageOpcodesRangeStructOutput]>;
   };
 
-  fnPtrs(overrides?: CallOverrides): Promise<string>;
-
   initialize(
     stateConfig_: StateConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
   storageOpcodesRange(
     overrides?: CallOverrides
   ): Promise<StorageOpcodesRangeStructOutput>;
 
   callStatic: {
-    fnPtrs(overrides?: CallOverrides): Promise<string>;
-
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
@@ -130,22 +138,24 @@ export interface StackHeightTest extends BaseContract {
   filters: {};
 
   estimateGas: {
-    fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
-
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
+
     storageOpcodesRange(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     storageOpcodesRange(

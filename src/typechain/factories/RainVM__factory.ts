@@ -9,11 +9,11 @@ import type { RainVM, RainVMInterface } from "../RainVM";
 const _abi = [
   {
     inputs: [],
-    name: "fnPtrs",
+    name: "packedFunctionPointers",
     outputs: [
       {
         internalType: "bytes",
-        name: "",
+        name: "ptrs_",
         type: "bytes",
       },
     ],

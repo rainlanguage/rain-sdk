@@ -23,7 +23,8 @@ import {
   RedeemableERC20ClaimEscrow,
   ERC20,
   ERC721,
-  ERC1155
+  ERC1155,
+  AutoApprove,
 } from '../src';
 
 
@@ -72,6 +73,12 @@ before('Initializing and deploying contracts to hardhat network', async () => {
   );
   const OrderBookFactory = await ethers.getContractFactory('OrderBook');
 
+  const AutoApproveStateBuilderFactory = await ethers.getContractFactory(
+    'AutoApproveStateBuilder'
+  );
+  const AutoApproveFactoryFactory = await ethers.getContractFactory('AutoApproveFactory');
+
+  
   // ⚠️ Deployments to hardhat test network ⚠️
   const vmStateBuilder = await vmStateBuilderFactory.deploy();
   const RedeemableERC20Factory = await RedeemableERC20FactoryFactory.deploy();
@@ -95,12 +102,18 @@ before('Initializing and deploying contracts to hardhat network', async () => {
     vmStateBuilder: vmStateBuilder.address,
   });
 
-  const stakeFactory = await StakeFactoryFactory.deploy();
+  const StakeFactory = await StakeFactoryFactory.deploy();
 
-  const orderBookStateBuilder = await OrderBookStateBuilderFactory.deploy();
-  const orderBook = await OrderBookFactory.deploy(
-    orderBookStateBuilder.address
+  const OrderBookStateBuilder = await OrderBookStateBuilderFactory.deploy();
+  const OrderBook = await OrderBookFactory.deploy(
+    OrderBookStateBuilder.address
   );
+
+  const AutoApproveStateBuilder = await AutoApproveStateBuilderFactory.deploy();
+  const AutoApproveFactory = await AutoApproveFactoryFactory.deploy(
+    AutoApproveStateBuilder.address
+  );
+  
 
   // Deploying AlwaysTier
   const alwaysArg = {
@@ -129,11 +142,14 @@ before('Initializing and deploying contracts to hardhat network', async () => {
     NoticeBoard: NoticeBoard.address,
     EmissionsERC20Factory: EmissionsERC20Factory.address,
     SaleFactory: SaleFactory.address,
-    StakeFactory: stakeFactory.address,
-    OrderBook: orderBook.address,
+    StakeFactory: StakeFactory.address,
+    OrderBook: OrderBook.address,
     AlwaysTier: AlwaysTier,
+    AutoApproveFactory: AutoApproveFactory.address,
   };
 });
+
+
 
 describe('SDK - BookAddress', () => {
   it('should fail if no address stored in the book for a chain', () => {
@@ -197,6 +213,11 @@ describe('SDK - BookAddress', () => {
   it('should get the Stake address', () => {
     const address = Stake.getBookAddress(chainId);
     expect(address).to.be.equals(addresses.StakeFactory);
+  });
+
+  it('should get the AutoApproveFactory address', async () => {
+    const address = AutoApprove.getBookAddress(chainId);
+    expect(address).to.be.equals(addresses.AutoApproveFactory);
   });
 
   it('should get the NoticeBoard address', () => {

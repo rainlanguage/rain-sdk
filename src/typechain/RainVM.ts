@@ -27,17 +27,23 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
 
 export interface RainVMInterface extends utils.Interface {
   functions: {
-    "fnPtrs()": FunctionFragment;
+    "packedFunctionPointers()": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "packedFunctionPointers",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "storageOpcodesRange",
     values?: undefined
   ): string;
 
-  decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "packedFunctionPointers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "storageOpcodesRange",
     data: BytesLike
@@ -73,21 +79,23 @@ export interface RainVM extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    fnPtrs(overrides?: CallOverrides): Promise<[string]>;
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<[string] & { ptrs_: string }>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<[StorageOpcodesRangeStructOutput]>;
   };
 
-  fnPtrs(overrides?: CallOverrides): Promise<string>;
+  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
   storageOpcodesRange(
     overrides?: CallOverrides
   ): Promise<StorageOpcodesRangeStructOutput>;
 
   callStatic: {
-    fnPtrs(overrides?: CallOverrides): Promise<string>;
+    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
@@ -97,13 +105,15 @@ export interface RainVM extends BaseContract {
   filters: {};
 
   estimateGas: {
-    fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
+    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
 
     storageOpcodesRange(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     storageOpcodesRange(
       overrides?: CallOverrides

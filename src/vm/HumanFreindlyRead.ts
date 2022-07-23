@@ -9,18 +9,20 @@ import { OrderbookContext, OrderbookStorage } from '../contracts/orderBook';
 import { SaleContext, SaleStorage } from '../contracts/sale';
 import {
   arrayify,
+  extractFromMap,
   paddedUInt256,
   selectLteLogic,
   selectLteMode,
 } from '../utils';
+import { OpMeta } from './OpMeta';
 
-interface OpMeta {
-  opcode: number;
+interface opMeta {
+  enum: number;
   name: string;
   input: string;
 }
 
-interface OpInfo extends OpMeta {
+interface OpInfo extends opMeta {
   operand: number;
 }
 
@@ -56,7 +58,7 @@ type Stack = {
 };
 
 /**
- * Type identify the pair relate to the [opcode, operand]
+ * Type identify the pair relate to the [enum, operand]
  */
 type Pair = [number, number];
 
@@ -93,242 +95,13 @@ export type PrettifyConfig = {
   length?: number;
 };
 
-const newOpMeta: OpMeta[] = [
-  {
-    opcode: AllStandardOps.CONSTANT,
-    name: 'CONSTANTS',
-    input: 'constantIndex',
-  },
-  {
-    opcode: AllStandardOps.STACK,
-    name: 'STACK',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.CONTEXT,
-    name: 'CONTEXT',
-    input: 'CONTEXT',
-  },
-  {
-    opcode: AllStandardOps.STORAGE,
-    name: 'STORAGE',
-    input: 'STORAGE',
-  },
-  {
-    opcode: AllStandardOps.ZIPMAP,
-    name: 'ZIPMAP',
-    input: 'zipmap',
-  },
-  {
-    opcode: AllStandardOps.DEBUG,
-    name: 'DEBUG',
-    input: '',
-  },
-  {
-    opcode: AllStandardOps.IERC20_BALANCE_OF,
-    name: 'IERC20_BALANCE_OF',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.IERC20_TOTAL_SUPPLY,
-    name: 'IERC20_TOTAL_SUPPLY',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.IERC20_SNAPSHOT_BALANCE_OF_AT,
-    name: 'IERC20_SNAPSHOT_BALANCE_OF_AT',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.IERC20_SNAPSHOT_TOTAL_SUPPLY_AT,
-    name: 'IERC20_SNAPSHOT_TOTAL_SUPPLY_AT',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.IERC721_BALANCE_OF,
-    name: 'IERC721_BALANCE_OF',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.IERC721_OWNER_OF,
-    name: 'IERC721_OWNER_OF',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.IERC1155_BALANCE_OF,
-    name: 'IERC1155_BALANCE_OF',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.IERC1155_BALANCE_OF_BATCH,
-    name: 'IERC1155_BALANCE_OF_BATCH',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.BLOCK_NUMBER,
-    name: 'BLOCK_NUMBER',
-    input: 'blockNumber',
-  },
-  {
-    opcode: AllStandardOps.SENDER,
-    name: 'SENDER',
-    input: 'msgSender',
-  },
-  {
-    opcode: AllStandardOps.THIS_ADDRESS,
-    name: 'THIS_ADDRESS',
-    input: 'thisAddress',
-  },
-  {
-    opcode: AllStandardOps.BLOCK_TIMESTAMP,
-    name: 'BLOCK_TIMESTAMP',
-    input: 'blockTimestamp',
-  },
-  {
-    opcode: AllStandardOps.SCALE18,
-    name: 'SCALE18',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SCALE18_DIV,
-    name: 'SCALE18_DIV',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SCALE18_MUL,
-    name: 'SCALE18_MUL',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SCALE_BY,
-    name: 'SCALE_BY',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SCALEN,
-    name: 'SCALEN',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.ANY,
-    name: 'ANY',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.EAGER_IF,
-    name: 'EAGER_IF',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.EQUAL_TO,
-    name: 'EQUAL_TO',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.EVERY,
-    name: 'EVERY',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.GREATER_THAN,
-    name: 'GREATER_THAN',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.ISZERO,
-    name: 'ISZERO',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.LESS_THAN,
-    name: 'LESS_THAN',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SATURATING_ADD,
-    name: 'SATURATING_ADD',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SATURATING_MUL,
-    name: 'SATURATING_MUL',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SATURATING_SUB,
-    name: 'SATURATING_SUB',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.ADD,
-    name: 'ADD',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.DIV,
-    name: 'DIV',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.EXP,
-    name: 'EXP',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.MAX,
-    name: 'MAX',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.MIN,
-    name: 'MIN',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.MOD,
-    name: 'MOD',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.MUL,
-    name: 'MUL',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SUB,
-    name: 'SUB',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.ITIERV2_REPORT,
-    name: 'ITIERV2_REPORT',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.ITIERV2_REPORT_TIME_FOR_TIER,
-    name: 'ITIERV2_REPORT_TIME_FOR_TIER',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SATURATING_DIFF,
-    name: 'SATURATING_DIFF',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.SELECT_LTE,
-    name: 'SELECT_LTE',
-    input: 'takeFromStack',
-  },
-  {
-    opcode: AllStandardOps.UPDATE_TIMES_FOR_TIER_RANGE,
-    name: 'UPDATE_TIMES_FOR_TIER_RANGE',
-    input: 'takeFromStack',
-  },
-];
+const newOpMeta: opMeta[] = Array.from(
+  extractFromMap(OpMeta, ["name", "enum", "input"]).values()
+);
 
 /**
  * @public
- * The generator of friendly human readable source.
+ * The generator of human friendly readable source.
  *
  * @remarks
  * Parse an State/Script to a more human readable form, making easier to understand. This form allow to the users read exactly
@@ -339,7 +112,7 @@ const newOpMeta: OpMeta[] = [
  * feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
  */
 export class HumanFriendlyRead {
-  private static opMeta: OpMeta[] = newOpMeta;
+  private static opMeta: opMeta[] = newOpMeta;
   private static _context: string | undefined;
   private static _pretty: boolean;
 
@@ -441,7 +214,7 @@ export class HumanFriendlyRead {
     };
 
     const ops = this.pairs(state.sources[sourceIndex]).map((pair) => {
-      let opmeta = this.opMeta.find((opmeta) => opmeta.opcode === pair[0]);
+      let opmeta = this.opMeta.find((opmeta) => opmeta.enum === pair[0]);
       if (typeof opmeta === 'undefined') {
         // still undefined
         if (typeof opmeta === 'undefined') {
@@ -696,22 +469,22 @@ export class HumanFriendlyRead {
     let selectLteFlag = false;
 
     if (
-      op.opcode === AllStandardOps.IERC1155_BALANCE_OF_BATCH ||
-      op.opcode === AllStandardOps.IERC1155_BALANCE_OF
+      op.enum === AllStandardOps.IERC1155_BALANCE_OF_BATCH ||
+      op.enum === AllStandardOps.IERC1155_BALANCE_OF
     ) {
       baseIndex = _stackIndex - 1 - (op.operand + 1) * 2;
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
       //
-    } else if (op.opcode === AllStandardOps.UPDATE_TIMES_FOR_TIER_RANGE) {
+    } else if (op.enum === AllStandardOps.UPDATE_TIMES_FOR_TIER_RANGE) {
       tierRangeFlag = true;
       baseIndex = _stackIndex - 2;
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
       //
     } else if (
-      op.opcode === AllStandardOps.SCALE18_DIV ||
-      op.opcode === AllStandardOps.SCALE18_MUL
+      op.enum === AllStandardOps.SCALE18_DIV ||
+      op.enum === AllStandardOps.SCALE18_MUL
     ) {
       const _stackLength = this.identifyZipmap(state.stack, 2);
 
@@ -727,7 +500,7 @@ export class HumanFriendlyRead {
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val + '*10**18'];
       //
-    } else if (op.opcode === AllStandardOps.EAGER_IF) {
+    } else if (op.enum === AllStandardOps.EAGER_IF) {
       const _stackLength = this.identifyZipmap(state.stack, 3);
 
       // At least one zipmap was found to fll all the required stack from MIN
@@ -743,10 +516,10 @@ export class HumanFriendlyRead {
       tempArr = [state.stack[cursor].val];
       //
     } else if (
-      op.opcode === AllStandardOps.SCALE18 ||
-      op.opcode === AllStandardOps.ISZERO ||
-      op.opcode === AllStandardOps.IERC20_TOTAL_SUPPLY ||
-      this.flagOp(op.opcode)
+      op.enum === AllStandardOps.SCALE18 ||
+      op.enum === AllStandardOps.ISZERO ||
+      op.enum === AllStandardOps.IERC20_TOTAL_SUPPLY ||
+      this.flagOp(op.enum)
     ) {
       const _stackLength = this.identifyZipmap(state.stack, 1);
 
@@ -759,19 +532,19 @@ export class HumanFriendlyRead {
         baseIndex = _stackIndex - 1;
       }
 
-      operandFlag = this.flagOp(op.opcode);
+      operandFlag = this.flagOp(op.enum);
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
       //
     } else if (
-      op.opcode === AllStandardOps.GREATER_THAN ||
-      op.opcode === AllStandardOps.LESS_THAN ||
-      op.opcode === AllStandardOps.EQUAL_TO ||
-      op.opcode === AllStandardOps.SATURATING_DIFF ||
-      op.opcode === AllStandardOps.IERC721_OWNER_OF ||
-      op.opcode === AllStandardOps.IERC721_BALANCE_OF ||
-      op.opcode === AllStandardOps.IERC20_BALANCE_OF ||
-      op.opcode === AllStandardOps.ITIERV2_REPORT
+      op.enum === AllStandardOps.GREATER_THAN ||
+      op.enum === AllStandardOps.LESS_THAN ||
+      op.enum === AllStandardOps.EQUAL_TO ||
+      op.enum === AllStandardOps.SATURATING_DIFF ||
+      op.enum === AllStandardOps.IERC721_OWNER_OF ||
+      op.enum === AllStandardOps.IERC721_BALANCE_OF ||
+      op.enum === AllStandardOps.IERC20_BALANCE_OF ||
+      op.enum === AllStandardOps.ITIERV2_REPORT
     ) {
       const _stackLength = this.identifyZipmap(state.stack, 2);
 
@@ -787,7 +560,7 @@ export class HumanFriendlyRead {
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
       //
-    } else if (op.opcode === AllStandardOps.SELECT_LTE) {
+    } else if (op.enum === AllStandardOps.SELECT_LTE) {
       const _stackLength = this.identifyZipmap(state.stack, 3);
 
       // At least one zipmap was found to fll all the required stack from MIN
@@ -803,15 +576,15 @@ export class HumanFriendlyRead {
       cursor = baseIndex;
       tempArr = [];
     } else if (
-      op.opcode === AllStandardOps.MIN ||
-      op.opcode === AllStandardOps.MAX ||
-      op.opcode === AllStandardOps.ADD ||
-      op.opcode === AllStandardOps.SUB ||
-      op.opcode === AllStandardOps.MUL ||
-      op.opcode === AllStandardOps.DIV ||
-      op.opcode === AllStandardOps.SATURATING_ADD ||
-      op.opcode === AllStandardOps.SATURATING_SUB ||
-      op.opcode === AllStandardOps.SATURATING_MUL
+      op.enum === AllStandardOps.MIN ||
+      op.enum === AllStandardOps.MAX ||
+      op.enum === AllStandardOps.ADD ||
+      op.enum === AllStandardOps.SUB ||
+      op.enum === AllStandardOps.MUL ||
+      op.enum === AllStandardOps.DIV ||
+      op.enum === AllStandardOps.SATURATING_ADD ||
+      op.enum === AllStandardOps.SATURATING_SUB ||
+      op.enum === AllStandardOps.SATURATING_MUL
     ) {
       const operand = this.identifyZipmap(state.stack, op.operand);
 

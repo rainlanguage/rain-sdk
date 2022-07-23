@@ -8,7 +8,7 @@ import { OpMin } from "../jsvm/ops/math/OpMin";
 import { OpMod } from "../jsvm/ops/math/OpMod";
 import { OpMul } from "../jsvm/ops/math/OpMul";
 import { OpSub } from "../jsvm/ops/math/OpSub";
-import { OpFn, StateJSVM } from "./../jsvm/types";
+import { OpJSVM, StateJSVM } from "./../jsvm/types";
 import { AllStandardOps } from "../../src/classes/vm";
 import { OpCaller } from "../jsvm/ops/evm/OpCaller";
 import { OpAny } from "../jsvm/ops/math/logic/OpAny";
@@ -42,7 +42,6 @@ import { OpUpdateTimesForTierRange } from "../jsvm/ops/tier/OpUpdateTimesForTier
 import { OpITierV2ReportTimesForTier } from "../jsvm/ops/tier/OpITierV2ReportTimesForTier";
 import { OpERC20SnapshotBalanceOfAt } from "../jsvm/ops/erc20/snapshot/OpERC20SnapshotBalanceOfAt";
 import { OpERC20SnapshotTotalSupplyAt } from "../jsvm/ops/erc20/snapshot/OpERC20SnapshotTotalSupplyAt";
-
 
 
 /**
@@ -114,10 +113,10 @@ export interface IOpMeta extends Record<string, any> {
 
     enum: number;
     name: string;
-	input: string,
+  input: string,
     pushes: (opcode: number, operand: number) => number;
     pops: (opcode: number, operand: number) => number;
-    jsvmfn: OpFn;
+    jsvmfn: OpJSVM;
     description?: string;
 }
 
@@ -131,12 +130,12 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.CONSTANT, 
             name: 'CONSTANT',
             description: '',
-			input: 'constantIndex',
+      input: 'constantIndex',
             pushes: pnp.one, 
             pops: pnp.zero, 
             jsvmfn: function(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void {
-				this.constant(operand, data)
-			}
+        this.constant(operand, data)
+      }
         }
     ],
     [
@@ -145,12 +144,12 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.STACK,
             name: 'STACK',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.zero, 
             jsvmfn: function(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void {
-				this.stack(operand, data)
-			}
+        this.stack(operand, data)
+      }
         }
     ],
     [
@@ -159,12 +158,12 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.CONTEXT,
             name: 'CONTEXT',
             description: '',
-			input: 'CONTEXT',
+      input: 'CONTEXT',
             pushes: pnp.one,
             pops: pnp.zero, 
             jsvmfn: function(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void {
-				this.context(operand, data)
-			}
+        this.context(operand, data)
+      }
         }
     ],
     [
@@ -173,12 +172,12 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.STORAGE,
             name: 'STORAGE',
             description: '',
-			input: 'STORAGE',
+      input: 'STORAGE',
             pushes: pnp.one,
             pops: pnp.zero, 
             jsvmfn: async function(this: RainJSVM, state: StateJSVM, operand: number, data?: any): Promise<void> {
-				await this.storage(operand, data)
-			}
+        await this.storage(operand, data)
+      }
         }
     ],
     [
@@ -187,26 +186,26 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.ZIPMAP,
             name: 'ZIPMAP',
             description: '',
-			input: 'zipmap',
+      input: 'zipmap',
             pushes: pnp.zipmappush,
             pops: pnp.derived, 
             jsvmfn: async function(this: RainJSVM, state: StateJSVM, operand: number, data?: any): Promise<void> {
-				await this.zipmap(operand, data)
-			}
+        await this.zipmap(operand, data)
+      }
         }
     ],
-	[
+  [
         5,
         {
             enum: AllStandardOps.DEBUG,
             name: 'DEBUG',
             description: '',
-			input: '',
+      input: '',
             pushes: pnp.zero,
             pops: pnp.zero, 
             jsvmfn: function(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void {
-				this.debug(operand, data)
-			}
+        this.debug(operand, data)
+      }
         }
     ],
     [
@@ -215,7 +214,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.IERC20_BALANCE_OF,
             name: 'IERC20_BALANCE_OF',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpERC20BalanceOf
@@ -227,7 +226,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.IERC20_TOTAL_SUPPLY,
             name: 'IERC20_TOTAL_SUPPLY',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.one, 
             jsvmfn: OpERC20TotalSupply
@@ -239,7 +238,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.IERC20_SNAPSHOT_BALANCE_OF_AT,
             name: 'IERC20_SNAPSHOT_BALANCE_OF_AT',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.three, 
             jsvmfn: OpERC20SnapshotBalanceOfAt
@@ -251,7 +250,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.IERC20_SNAPSHOT_TOTAL_SUPPLY_AT,
             name: 'IERC20_SNAPSHOT_TOTAL_SUPPLY_AT',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpERC20SnapshotTotalSupplyAt
@@ -263,7 +262,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.IERC721_BALANCE_OF,
             name: 'IERC721_BALANCE_OF',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpERC721BalanceOf
@@ -275,7 +274,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.IERC721_OWNER_OF,
             name: 'IERC721_OWNER_OF',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpERC721OwnerOf
@@ -287,7 +286,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.IERC1155_BALANCE_OF,
             name: 'IERC1155_BALANCE_OF',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.three, 
             jsvmfn: OpERC1155BalanceOf
@@ -299,7 +298,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.IERC1155_BALANCE_OF_BATCH,
             name: 'IERC1155_BALANCE_OF_BATCH',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.oprnd,
             pops: pnp.derived, 
             jsvmfn: OpERC1155BalanceOfBatch
@@ -311,7 +310,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.BLOCK_NUMBER,
             name: 'BLOCK_NUMBER',
             description: '',
-			input: 'blockNumber',
+      input: 'blockNumber',
             pushes: pnp.one,
             pops: pnp.zero, 
             jsvmfn: OpBlockNumber
@@ -323,7 +322,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SENDER,
             name: 'SENDER',
             description: '',
-			input: 'msgSender',
+      input: 'msgSender',
             pushes: pnp.one,
             pops: pnp.zero, 
             jsvmfn: OpCaller
@@ -335,7 +334,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.THIS_ADDRESS,
             name: 'THIS_ADDRESS',
             description: '',
-			input: 'thisAddress',
+      input: 'thisAddress',
             pushes: pnp.one,
             pops: pnp.zero, 
             jsvmfn: OpThisAddress
@@ -347,7 +346,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.BLOCK_TIMESTAMP,
             name: 'BLOCK_TIMESTAMP',
             description: '',
-			input: 'blockTimestamp',
+      input: 'blockTimestamp',
             pushes: pnp.one,
             pops: pnp.zero, 
             jsvmfn: OpTimestamp
@@ -359,7 +358,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SCALE18,
             name: 'SCALE18',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.one, 
             jsvmfn: OpScale18 
@@ -371,7 +370,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SCALE18_DIV,
             name: 'SCALE18_DIV',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpScale18Div 
@@ -383,7 +382,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SCALE18_MUL,
             name: 'SCALE18_MUL',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpScale18Mul
@@ -395,7 +394,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SCALE_BY,
             name: 'SCALE_BY',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.one,
             jsvmfn: OpScaleBy  
@@ -407,7 +406,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SCALEN,
             name: 'SCALEN',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.one, 
             jsvmfn: OpScaleN 
@@ -419,7 +418,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.ANY,
             name: 'ANY',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpAny 
@@ -431,7 +430,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.EAGER_IF,
             name: 'EAGER_IF',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.three, 
             jsvmfn: OpEagerIf 
@@ -443,7 +442,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.EQUAL_TO,
             name: 'EQUAL_TO',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpEqualTo
@@ -455,7 +454,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.EVERY,
             name: 'EVERY',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpEvery 
@@ -467,7 +466,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.GREATER_THAN,
             name: 'GREATER_THAN',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpGreaterThan
@@ -479,7 +478,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.ISZERO,
             name: 'ISZERO',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.one, 
             jsvmfn: OpIsZero
@@ -491,7 +490,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.LESS_THAN,
             name: 'LESS_THAN',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpLessThan
@@ -503,7 +502,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SATURATING_ADD,
             name: 'SATURATING_ADD',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpSaturatingAdd
@@ -515,7 +514,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SATURATING_MUL,
             name: 'SATURATING_MUL',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpSaturatingMul
@@ -527,7 +526,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SATURATING_SUB,
             name: 'SATURATING_SUB',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpSaturatingSub
@@ -539,7 +538,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.ADD,
             name: 'ADD',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpAdd
@@ -551,7 +550,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.DIV,
             name: 'DIV',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpDiv
@@ -563,7 +562,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.EXP,
             name: 'EXP',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpExp
@@ -575,7 +574,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.MAX,
             name: 'MAX',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpMax
@@ -587,7 +586,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.MIN,
             name: 'MIN',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpMin
@@ -599,7 +598,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.MOD,
             name: 'MOD',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpMod
@@ -611,7 +610,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.MUL,
             name: 'MUL',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd, 
             jsvmfn: OpMul
@@ -623,7 +622,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SUB,
             name: 'SUB',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.oprnd,
             jsvmfn: OpSub
@@ -635,7 +634,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.ITIERV2_REPORT,
             name: 'ITIERV2_REPORT',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.derived,
             jsvmfn: OpITierV2Report
@@ -647,7 +646,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.ITIERV2_REPORT_TIME_FOR_TIER,
             name: 'ITIERV2_REPORT_TIME_FOR_TIER',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.derived, 
             jsvmfn: OpITierV2ReportTimesForTier
@@ -659,7 +658,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SATURATING_DIFF,
             name: 'SATURATING_DIFF',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpSaturatingDiff
@@ -671,7 +670,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.SELECT_LTE,
             name: 'SELECT_LTE',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.derived, 
             jsvmfn: OpSelectLte
@@ -683,11 +682,10 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             enum: AllStandardOps.UPDATE_TIMES_FOR_TIER_RANGE,
             name: 'UPDATE_TIMES_FOR_TIER_RANGE',
             description: '',
-			input: 'takeFromStack',
+      input: 'takeFromStack',
             pushes: pnp.one,
             pops: pnp.two, 
             jsvmfn: OpUpdateTimesForTierRange
         }
     ]
-])
-
+]);

@@ -36,42 +36,58 @@ export type ClearStateChangeStructOutput = [
   bInput: BigNumber;
 };
 
+export type IOStruct = { token: string; vaultId: BigNumberish };
+
+export type IOStructOutput = [string, BigNumber] & {
+  token: string;
+  vaultId: BigNumber;
+};
+
 export type OrderStruct = {
   owner: string;
-  inputToken: string;
-  inputVaultId: BigNumberish;
-  outputToken: string;
-  outputVaultId: BigNumberish;
+  validInputs: IOStruct[];
+  validOutputs: IOStruct[];
   tracking: BigNumberish;
   vmState: BytesLike;
 };
 
 export type OrderStructOutput = [
   string,
-  string,
-  BigNumber,
-  string,
-  BigNumber,
+  IOStructOutput[],
+  IOStructOutput[],
   BigNumber,
   string
 ] & {
   owner: string;
-  inputToken: string;
-  inputVaultId: BigNumber;
-  outputToken: string;
-  outputVaultId: BigNumber;
+  validInputs: IOStructOutput[];
+  validOutputs: IOStructOutput[];
   tracking: BigNumber;
   vmState: string;
 };
 
-export type BountyConfigStruct = {
-  aVaultId: BigNumberish;
-  bVaultId: BigNumberish;
+export type ClearConfigStruct = {
+  aInputIndex: BigNumberish;
+  aOutputIndex: BigNumberish;
+  bInputIndex: BigNumberish;
+  bOutputIndex: BigNumberish;
+  aBountyVaultId: BigNumberish;
+  bBountyVaultId: BigNumberish;
 };
 
-export type BountyConfigStructOutput = [BigNumber, BigNumber] & {
-  aVaultId: BigNumber;
-  bVaultId: BigNumber;
+export type ClearConfigStructOutput = [
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  BigNumber
+] & {
+  aInputIndex: BigNumber;
+  aOutputIndex: BigNumber;
+  bInputIndex: BigNumber;
+  bOutputIndex: BigNumber;
+  aBountyVaultId: BigNumber;
+  bBountyVaultId: BigNumber;
 };
 
 export type DepositConfigStruct = {
@@ -109,24 +125,18 @@ export type StateConfigStructOutput = [string[], BigNumber[]] & {
 };
 
 export type OrderConfigStruct = {
-  inputToken: string;
-  inputVaultId: BigNumberish;
-  outputToken: string;
-  outputVaultId: BigNumberish;
+  validInputs: IOStruct[];
+  validOutputs: IOStruct[];
   vmStateConfig: StateConfigStruct;
 };
 
 export type OrderConfigStructOutput = [
-  string,
-  BigNumber,
-  string,
-  BigNumber,
+  IOStructOutput[],
+  IOStructOutput[],
   StateConfigStructOutput
 ] & {
-  inputToken: string;
-  inputVaultId: BigNumber;
-  outputToken: string;
-  outputVaultId: BigNumber;
+  validInputs: IOStructOutput[];
+  validOutputs: IOStructOutput[];
   vmStateConfig: StateConfigStructOutput;
 };
 
@@ -142,11 +152,11 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
 
 export interface OrderBookInterface extends utils.Interface {
   functions: {
-    "addOrder((address,uint256,address,uint256,(bytes[],uint256[])))": FunctionFragment;
-    "clear((address,address,uint256,address,uint256,uint256,bytes),(address,address,uint256,address,uint256,uint256,bytes),(uint256,uint256))": FunctionFragment;
+    "addOrder(((address,uint256)[],(address,uint256)[],(bytes[],uint256[])))": FunctionFragment;
+    "clear((address,(address,uint256)[],(address,uint256)[],uint256,bytes),(address,(address,uint256)[],(address,uint256)[],uint256,bytes),(uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
     "deposit((address,uint256,uint256))": FunctionFragment;
-    "fnPtrs()": FunctionFragment;
-    "removeOrder((address,address,uint256,address,uint256,uint256,bytes))": FunctionFragment;
+    "packedFunctionPointers()": FunctionFragment;
+    "removeOrder((address,(address,uint256)[],(address,uint256)[],uint256,bytes))": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
     "withdraw((address,uint256,uint256))": FunctionFragment;
   };
@@ -157,13 +167,16 @@ export interface OrderBookInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "clear",
-    values: [OrderStruct, OrderStruct, BountyConfigStruct]
+    values: [OrderStruct, OrderStruct, ClearConfigStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "deposit",
     values: [DepositConfigStruct]
   ): string;
-  encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "packedFunctionPointers",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "removeOrder",
     values: [OrderStruct]
@@ -180,7 +193,10 @@ export interface OrderBookInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "addOrder", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "clear", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "packedFunctionPointers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "removeOrder",
     data: BytesLike
@@ -216,12 +232,12 @@ export type AfterClearEvent = TypedEvent<
 export type AfterClearEventFilter = TypedEventFilter<AfterClearEvent>;
 
 export type ClearEvent = TypedEvent<
-  [string, OrderStructOutput, OrderStructOutput, BountyConfigStructOutput],
+  [string, OrderStructOutput, OrderStructOutput, ClearConfigStructOutput],
   {
     sender: string;
     a_: OrderStructOutput;
     b_: OrderStructOutput;
-    bountyConfig: BountyConfigStructOutput;
+    clearConfig: ClearConfigStructOutput;
   }
 >;
 
@@ -290,7 +306,7 @@ export interface OrderBook extends BaseContract {
     clear(
       a_: OrderStruct,
       b_: OrderStruct,
-      bountyConfig_: BountyConfigStruct,
+      clearConfig_: ClearConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -299,7 +315,9 @@ export interface OrderBook extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<[string]>;
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<[string] & { ptrs_: string }>;
 
     removeOrder(
       order_: OrderStruct,
@@ -324,7 +342,7 @@ export interface OrderBook extends BaseContract {
   clear(
     a_: OrderStruct,
     b_: OrderStruct,
-    bountyConfig_: BountyConfigStruct,
+    clearConfig_: ClearConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -333,7 +351,7 @@ export interface OrderBook extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  fnPtrs(overrides?: CallOverrides): Promise<string>;
+  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
   removeOrder(
     order_: OrderStruct,
@@ -358,7 +376,7 @@ export interface OrderBook extends BaseContract {
     clear(
       a_: OrderStruct,
       b_: OrderStruct,
-      bountyConfig_: BountyConfigStruct,
+      clearConfig_: ClearConfigStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -367,7 +385,7 @@ export interface OrderBook extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<string>;
+    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
     removeOrder(order_: OrderStruct, overrides?: CallOverrides): Promise<void>;
 
@@ -389,13 +407,13 @@ export interface OrderBook extends BaseContract {
       sender?: null,
       a_?: null,
       b_?: null,
-      bountyConfig?: null
+      clearConfig?: null
     ): ClearEventFilter;
     Clear(
       sender?: null,
       a_?: null,
       b_?: null,
-      bountyConfig?: null
+      clearConfig?: null
     ): ClearEventFilter;
 
     "Deposit(address,tuple)"(sender?: null, config?: null): DepositEventFilter;
@@ -430,7 +448,7 @@ export interface OrderBook extends BaseContract {
     clear(
       a_: OrderStruct,
       b_: OrderStruct,
-      bountyConfig_: BountyConfigStruct,
+      clearConfig_: ClearConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -439,7 +457,7 @@ export interface OrderBook extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
+    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
 
     removeOrder(
       order_: OrderStruct,
@@ -463,7 +481,7 @@ export interface OrderBook extends BaseContract {
     clear(
       a_: OrderStruct,
       b_: OrderStruct,
-      bountyConfig_: BountyConfigStruct,
+      clearConfig_: ClearConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -472,7 +490,9 @@ export interface OrderBook extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     removeOrder(
       order_: OrderStruct,

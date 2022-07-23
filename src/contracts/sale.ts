@@ -109,8 +109,9 @@ export class Sale extends FactoryContract {
     this.timeout = _sale.timeout;
     this.reserve = _sale.reserve;
     this.token = _sale.token;
-    this.fnPtrs = _sale.fnPtrs;
+    this.packedFunctionPointers = _sale.packedFunctionPointers;
     this.storageOpcodesRange = _sale.storageOpcodesRange;
+  this.packedFunctionPointers = _sale.packedFunctionPointers;
   }
 
   /**
@@ -339,7 +340,7 @@ export class Sale extends FactoryContract {
    * @param overrides - @see ReadTxOverrides
    * @returns the opcode functions pointers
    */
-  public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
+  public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * Returns the pointer and length for sale's storage opcodes
@@ -347,9 +348,7 @@ export class Sale extends FactoryContract {
    * @param overrides - @see ReadTxOverrides
    * @returns a StorageOpcodesRange
    */
-  public readonly storageOpcodesRange: (
-    overrides?: ReadTxOverrides
-  ) => Promise<StorageOpcodesRange>;
+  public readonly storageOpcodesRange: (overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>;
 }
 
 /**

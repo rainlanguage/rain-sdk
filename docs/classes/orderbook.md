@@ -51,10 +51,10 @@ const tx = await orderBook.addOrder(addOrderArg);
 |  --- | --- | --- |
 |  [addOrder](./orderbook.md#addOrder-property) | `(orderConfig_: OrderConfig, overrides?: TxOverrides) => Promise<ContractTransaction>` | Adds an order config for signer (as the owner) into the Orderbook |
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
-|  [clear](./orderbook.md#clear-property) | `(a_: Order, b_: Order, bountyConfig_: BountyConfig, overrides?: TxOverrides) => Promise<ContractTransaction>` | Clears 2 matching order against each other, a\_ inputToken must match to b\_ outputToken and a\_ outputToken must match to b\_ inputToken. Order a\_ clears into Order b\_ and vice versa. The difference of the clearing amounts will go into the bounty's vaults and if any of them are negative then the transaction will revert |
+|  [clear](./orderbook.md#clear-property) | `(a_: Order, b_: Order, clearConfig_: ClearConfig, overrides?: TxOverrides) => Promise<ContractTransaction>` | Clears 2 matching order against each other, a\_ inputToken must match to b\_ outputToken and a\_ outputToken must match to b\_ inputToken. Order a\_ clears into Order b\_ and vice versa. The difference of the clearing amounts will go into the bounty's vaults and if any of them are negative then the transaction will revert |
 |  [connect](./orderbook.md#connect-property) | `(signer: Signer) => OrderBook` | Connect to this Orderbook instance with a new signer<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [deposit](./orderbook.md#deposit-property) | `(config_: DepositConfig, overrides?: TxOverrides) => Promise<ContractTransaction>` | Allows the sender to deposit any tokens into their own vaults. The deposit will be 'config\_.amount' of the 'config\_.token' into 'config\_.vaultId' |
-|  [fnPtrs](./orderbook.md#fnPtrs-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
+|  [packedFunctionPointers](./orderbook.md#packedFunctionPointers-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [removeOrder](./orderbook.md#removeOrder-property) | `(order_: Order, overrides?: TxOverrides) => Promise<ContractTransaction>` | Removes an order from the Orderbook completely. |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [storageOpcodesRange](./orderbook.md#storageOpcodesRange-property) | `(overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>` | Returns the pointer and length for sale's storage opcodes |
@@ -141,7 +141,7 @@ Clears 2 matching order against each other, a\_ inputToken must match to b\_ out
 <b>Signature:</b>
 
 ```typescript
-readonly clear: (a_: Order, b_: Order, bountyConfig_: BountyConfig, overrides?: TxOverrides) => Promise<ContractTransaction>;
+readonly clear: (a_: Order, b_: Order, clearConfig_: ClearConfig, overrides?: TxOverrides) => Promise<ContractTransaction>;
 ```
 
 <a id="connect-property"></a>
@@ -170,16 +170,16 @@ Allows the sender to deposit any tokens into their own vaults. The deposit will 
 readonly deposit: (config_: DepositConfig, overrides?: TxOverrides) => Promise<ContractTransaction>;
 ```
 
-<a id="fnPtrs-property"></a>
+<a id="packedFunctionPointers-property"></a>
 
-### fnPtrs
+### packedFunctionPointers
 
 Pointers to opcode functions, necessary for being able to read the packedBytes
 
 <b>Signature:</b>
 
 ```typescript
-readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
+readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 ```
 
 <a id="removeOrder-property"></a>

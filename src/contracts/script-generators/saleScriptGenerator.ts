@@ -68,7 +68,7 @@ export class PriceCurve {
    * is gone into extra time.
    * @param extraTimeDiscount - The amount of discount the address will receive.
    *
-   * @returns this
+   * @returns PriceCurve
    *
    */
   public applyExtraTimeDiscount(
@@ -135,7 +135,7 @@ export class PriceCurve {
    *    - (param) tierActivation - An array of number of timestamps for each tier that will be the required period
    *      of time for that tiered address to hold the tier's in order to be eligible for that tier's discount.
    *    - (param) tierContext - an array of 8 items represtenting stake contract thresholds
-   * @returns this
+   * @returns PriceCurve
    *
    */
   public applyTierDiscount(
@@ -390,14 +390,14 @@ export class BetweenTimestamps {
    * @param extraTime - The amount of time (in minutes) that sale can continue for, if the extra time criteria has been met.
    * @param extraTimeAmount - The criteria for extra time, if the raised amount exceeds this amount then the raise can continue into extra time.
    *
-   * @returns this
+   * @returns BetweenTimestamps
    *
    */
   public applyExtraTime(
     extraTime: number,
     extraTimeAmount: number,
     reserveTokenDecimals: number = 18
-  ): this {
+  ): BetweenTimestamps {
     const ExtraTimeAmount = parseUnits(
       extraTimeAmount.toString(),
       reserveTokenDecimals
@@ -439,12 +439,12 @@ export class BetweenTimestamps {
    * @param minimumRaise - the minimumRaise parameter of the raise which is passed at the time of
    * sale's deployment as part of the SaleConfig
    *
-   * @returns this
+   * @returns BetweenTimestamps
    */
   public afterMinimumRaise(
     minimumRaise: number,
     reserveTokenDecimals: number = 18
-  ): this {
+  ): BetweenTimestamps {
     const MinimumRaise = parseUnits(minimumRaise.toString(), reserveTokenDecimals);
 
     let _minimumRaise: StateConfig = {
@@ -532,14 +532,14 @@ export class BetweenBlocks {
    * @param extraTimeBlocks - The amount of time (in blocks) that sale can continue for, if the extra time criteria has been met.
    * @param extraTimeAmount - The criteria for extra time, if the raised amount exceeds this amount then the raise can continue into extra time.
    *
-   * @returns this
+   * @returns BetweenBlocks
    *
    */
   public applyExtraTime(
     extraTimeBlocks: number,
     extraTimeAmount: number,
     reserveTokenDecimals: number = 18
-  ): this {
+  ): BetweenBlocks {
     const ExtraTimeAmount = parseUnits(
       extraTimeAmount.toString(),
       reserveTokenDecimals
@@ -581,12 +581,12 @@ export class BetweenBlocks {
    * @param minimumRaise - the minimumRaise parameter of the raise which is passed at the time of
    * sale's deployment as part of the SaleConfig
    *
-   * @returns this
+   * @returns BetweenBlocks
    */
   public afterMinimumRaise(
     minimumRaise: number,
     reserveTokenDecimals: number = 18
-  ): this {
+  ): BetweenBlocks {
     const MinimumRaise = parseUnits(minimumRaise.toString(), reserveTokenDecimals);
 
     let _minimumRaise: StateConfig = {
@@ -653,7 +653,7 @@ export class BuyAmount {
    *       address to hold the tier's in order to be eligible for that tier's multiplier.
    *    - (param) tierContext - an array of 8 items represtenting stake contract thresholds
    *
-   * @returns this
+   * @returns BuyAmount
    *
    */
   public applyWalletCap(

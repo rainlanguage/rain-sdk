@@ -134,7 +134,7 @@ export class CombineTierGenerator {
    * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    * @param number - (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK_TIMESTAMP
    *
-   * @returns this
+   * @returns CombineTierGenerator
    */
   public combineWith(
     reporter: string | StateConfig,
@@ -171,7 +171,7 @@ export class CombineTierGenerator {
    * @param endTier - end of the report updating range (inclusive)
    * @param number - (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK_TIMESTAMP
    *
-   * @returns this
+   * @returns CombineTierGenerator
    */
   public updateReport(
     startTier: Tier,
@@ -206,7 +206,7 @@ export class CombineTierGenerator {
    * @param accountOrSender - (optional) Used to determine if this script is being used for combinetier contract 
    * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    *
-   * @returns this
+   * @returns CombineTierGenerator
    */
   public differenceFrom(reporter: string | StateConfig, accountOrSender?: boolean): this {
     const _buttom = new CombineTierGenerator(reporter, {accountOrSender})
@@ -228,14 +228,12 @@ export class CombineTierGenerator {
   /**
    * Creats a holding time ALWAYS/NEVER tier script for a Combinetier contract out of a Stake contract.
    *
-   * @param duration - A number or an array of numbers represting the duration in timestamp a given 
+   * @param duration - An array of numbers represting the duration in timestamp a given 
    * tier must be held to get ALWAYS report or else it gets NEVER report.
    * 
-   * @returns this
+   * @returns CombineTierGenerator
    */
-  public isTierHeldFor(
-    duration: number | number[]
-  ): CombineTierGenerator {
+  public isTierHeldFor(duration: number[]): CombineTierGenerator {
 
     const _shifter = paddedUInt256(
           paddedUInt32('7') +
@@ -248,79 +246,58 @@ export class CombineTierGenerator {
           paddedUInt32('0')
     );
 
+    duration[0] = duration[0] ? duration[0] : 0;
+    duration[1] = duration[1] && duration[1] <= duration[0] ? duration[1] : duration[0];
+    duration[2] = duration[2] && duration[2] <= duration[1] ? duration[2] : duration[1];
+    duration[3] = duration[3] && duration[3] <= duration[2] ? duration[3] : duration[2];
+    duration[4] = duration[4] && duration[4] <= duration[3] ? duration[4] : duration[3];
+    duration[5] = duration[5] && duration[5] <= duration[4] ? duration[5] : duration[4];
+    duration[6] = duration[6] && duration[6] <= duration[5] ? duration[6] : duration[5];
+    duration[7] = duration[7] && duration[7] <= duration[6] ? duration[7] : duration[6];
+
     const _blocks = paddedUInt256(
       BigNumber.from(
-        '0x' +
-          paddedUInt32(
-            typeof duration == 'number'
-              ? duration
-              : duration[7]
-          ) +
-          paddedUInt32(
-            typeof duration == 'number'
-              ? duration
-              : duration[6]
-          ) +
-          paddedUInt32(
-            typeof duration == 'number'
-              ? duration
-              : duration[5]
-          ) +
-          paddedUInt32(
-            typeof duration == 'number'
-              ? duration
-              : duration[4]
-          ) +
-          paddedUInt32(
-            typeof duration == 'number'
-              ? duration
-              : duration[3]
-          ) +
-          paddedUInt32(
-            typeof duration == 'number'
-              ? duration
-              : duration[2]
-          ) +
-          paddedUInt32(
-            typeof duration == 'number'
-              ? duration
-              : duration[1]
-          ) +
-          paddedUInt32(
-            typeof duration == 'number'
-              ? duration
-              : duration[0]
-          )
+        "0x" +
+        paddedUInt32(duration[7]) +
+        paddedUInt32(duration[6]) +
+        paddedUInt32(duration[5]) +
+        paddedUInt32(duration[4]) +
+        paddedUInt32(duration[3]) +
+        paddedUInt32(duration[2]) +
+        paddedUInt32(duration[1]) +
+        paddedUInt32(duration[0])
       )
     );
 
     let _result: StateConfig = {
-      constants: [_blocks, _shifter, '100000000', '0', '0xffffffff'],
+      constants: [_blocks, _shifter, '100000000', '0', '0xffffffff', ethers.constants.MaxUint256],
       sources: [
         concat([
+          op(VM.Opcodes.CONSTANT, 5),
+          op(VM.Opcodes.BLOCK_NUMBER),
+          op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(Tier.ZERO, Tier.EIGHT)),
+          op(VM.Opcodes.SATURATING_DIFF),
           op(VM.Opcodes.CONSTANT, 0),
           op(VM.Opcodes.CONSTANT, 1),
           op(VM.Opcodes.ZIPMAP, callSize(1, 3, 2)),
           op(VM.Opcodes.ADD, 8),
         ]),
         concat([
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANT, 5),
-          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.CONSTANT, 7),
           op(VM.Opcodes.CONSTANT, 6),
-          op(VM.Opcodes.LESS_THAN),
+          op(VM.Opcodes.GREATER_THAN, 2),
           op(VM.Opcodes.CONSTANT, 4),
           op(VM.Opcodes.CONSTANT, 3),
           op(VM.Opcodes.EAGER_IF),
           op(VM.Opcodes.CONSTANT, 2),
-          op(VM.Opcodes.CONSTANT, 7),
+          op(VM.Opcodes.CONSTANT, 8),
           op(VM.Opcodes.EXP, 2),
           op(VM.Opcodes.MUL, 2),
         ]),
       ],
     };
 
-    _result = VM.combiner(this, _result);
+    _result = VM.combiner(this, _result, { position: [3] });
 
     this.constants = _result.constants;
     this.sources = _result.sources;

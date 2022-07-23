@@ -96,8 +96,8 @@ export class EmissionsERC20 extends ITierV2 {
     this.totalSupply = _emission.totalSupply;
     this.transfer = _emission.transfer;
     this.transferFrom = _emission.transferFrom;
-    this.fnPtrs = _emission.fnPtrs;
     this.storageOpcodesRange = _emission.storageOpcodesRange;
+  this.packedFunctionPointers = _emission.packedFunctionPointers;
   }
 
   /**
@@ -359,14 +359,6 @@ export class EmissionsERC20 extends ITierV2 {
   ) => Promise<ContractTransaction>;
 
   /**
-   * Pointers to opcode functions, necessary for being able to read the packedBytes
-   *
-   * @param overrides - @see ReadTxOverrides
-   * @returns the opcode functions pointers
-   */
-  public readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
-
-  /**
    * Returns the pointer and length for emissionERC20's storage opcodes
    *
    * @param overrides - @see ReadTxOverrides
@@ -375,6 +367,14 @@ export class EmissionsERC20 extends ITierV2 {
   public readonly storageOpcodesRange: (
     overrides?: ReadTxOverrides
   ) => Promise<StorageOpcodesRange>;
+
+  /**
+   * Pointers to opcode functions, necessary for being able to read the packedBytes
+   * 
+   * @param overrides - @see ReadTxOverrides
+   * @returns the opcode functions pointers
+   */
+   public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 }
 
 /**

@@ -16,6 +16,7 @@ export * from './contracts/sale';
 export * from './contracts/verify';
 export * from './contracts/stake';
 export * from './contracts/orderBook';
+export * from './contracts/autoApprove';
 
 export * from './contracts/script-generators/saleScriptGenerator';
 export * from './contracts/script-generators/combineTierScriptGenerator';
@@ -87,6 +88,7 @@ export * from './contracts/tiers/verifyTier';
 export * from './contracts/generics/erc20';
 export * from './contracts/generics/erc721';
 export * from './contracts/generics/erc1155';
+export * from './contracts/generics/seedDance';
 
 export * from './vm/HumanFreindlyRead';
 export * from './vm/OpMeta';

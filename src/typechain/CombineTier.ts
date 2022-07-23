@@ -49,18 +49,21 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
 
 export interface CombineTierInterface extends utils.Interface {
   functions: {
-    "fnPtrs()": FunctionFragment;
     "initialize((uint256,(bytes[],uint256[])))": FunctionFragment;
+    "packedFunctionPointers()": FunctionFragment;
     "report(address,uint256[])": FunctionFragment;
     "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [CombineTierConfigStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "packedFunctionPointers",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "report",
@@ -79,8 +82,11 @@ export interface CombineTierInterface extends utils.Interface {
     values: [BytesLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "packedFunctionPointers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "reportTimeForTier",
@@ -142,12 +148,14 @@ export interface CombineTier extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    fnPtrs(overrides?: CallOverrides): Promise<[string]>;
-
     initialize(
       config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<[string] & { ptrs_: string }>;
 
     report(
       account_: string,
@@ -172,12 +180,12 @@ export interface CombineTier extends BaseContract {
     ): Promise<[boolean]>;
   };
 
-  fnPtrs(overrides?: CallOverrides): Promise<string>;
-
   initialize(
     config_: CombineTierConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
   report(
     account_: string,
@@ -202,12 +210,12 @@ export interface CombineTier extends BaseContract {
   ): Promise<boolean>;
 
   callStatic: {
-    fnPtrs(overrides?: CallOverrides): Promise<string>;
-
     initialize(
       config_: CombineTierConfigStruct,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
     report(
       account_: string,
@@ -244,12 +252,12 @@ export interface CombineTier extends BaseContract {
   };
 
   estimateGas: {
-    fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
-
     initialize(
       config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
 
     report(
       account_: string,
@@ -273,11 +281,13 @@ export interface CombineTier extends BaseContract {
   };
 
   populateTransaction: {
-    fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     initialize(
       config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     report(

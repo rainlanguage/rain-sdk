@@ -10,37 +10,38 @@ import { CombineTierStorage } from '../contracts/tiers/combineTier';
  */
 export class CombineTierJSVM extends RainJSVM {
 
-	/**
-	 * CombineTierJSVM can have any length for context
-	 */
-	protected readonly ContextLength = NaN;
+  /**
+   * CombineTierJSVM can have any length for context
+   */
+  protected readonly ContextLength = NaN;
 
-	/**
-	 * CombineTierJSVM valid storage range
-	 */
-	protected readonly StorageRange = CombineTierStorage.length;
+  /**
+   * CombineTierJSVM valid storage range
+   */
+  protected readonly StorageRange = CombineTierStorage.length;
 
-	/**
-	 * Constructor of CombineTierJSVM to create a instance of this class with CombineTier's local opcodes.
-	 * @see RainJSVM
-	 *
-	 * @param state - A regular StateConfig
-	 * @param options - (optional) additional arguments for instantiating this class
-	 * (a Signer, a CombineTier Contract and custom opcode functions)
-	 *
-	 */
-	constructor(state: StateConfig, options: CallOptions) {
+  /**
+   * Constructor of CombineTierJSVM to create a instance of this class with CombineTier's local opcodes.
+   * @see RainJSVM
+   *
+   * @param state - A regular StateConfig
+   * @param options - (optional) additional arguments for instantiating this class
+   * (a Signer, a CombineTier Contract and custom opcode functions)
+   *
+   */
+  constructor(state: StateConfig, options: CallOptions) {
 
-		super(
-			state,
-			{
-				opMeta: options?.opMeta,
-				signer: options?.signer,
-				contract: options?.contract,
-				applyOpFn: options?.applyOpFn,
-				storageOpFn: options?.storageOpFn, 
-			}
-		);
-	}
+    super(
+      state,
+      {
+        opMeta: options?.opMeta,
+        signer: options?.signer,
+        contract: options?.contract,
+        applyOpFn: options?.applyOpFn,
+        storageOpFn: options?.storageOpFn, 
+      }
+    );
+  }
 
 }
+

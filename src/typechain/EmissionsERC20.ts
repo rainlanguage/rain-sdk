@@ -77,10 +77,10 @@ export interface EmissionsERC20Interface extends utils.Interface {
     "claim(address,bytes)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
-    "fnPtrs()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initialize((bool,(string,string,address,uint256),(bytes[],uint256[])))": FunctionFragment;
     "name()": FunctionFragment;
+    "packedFunctionPointers()": FunctionFragment;
     "report(address,uint256[])": FunctionFragment;
     "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
@@ -117,7 +117,6 @@ export interface EmissionsERC20Interface extends utils.Interface {
     functionFragment: "decreaseAllowance",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
     values: [string, BigNumberish]
@@ -127,6 +126,10 @@ export interface EmissionsERC20Interface extends utils.Interface {
     values: [EmissionsERC20ConfigStruct]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "packedFunctionPointers",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "report",
     values: [string, BigNumberish[]]
@@ -174,13 +177,16 @@ export interface EmissionsERC20Interface extends utils.Interface {
     functionFragment: "decreaseAllowance",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "packedFunctionPointers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "reportTimeForTier",
@@ -314,8 +320,6 @@ export interface EmissionsERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<[string]>;
-
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -328,6 +332,10 @@ export interface EmissionsERC20 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     name(overrides?: CallOverrides): Promise<[string]>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<[string] & { ptrs_: string }>;
 
     report(
       account_: string,
@@ -404,8 +412,6 @@ export interface EmissionsERC20 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  fnPtrs(overrides?: CallOverrides): Promise<string>;
-
   increaseAllowance(
     spender: string,
     addedValue: BigNumberish,
@@ -418,6 +424,8 @@ export interface EmissionsERC20 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   name(overrides?: CallOverrides): Promise<string>;
+
+  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
   report(
     account_: string,
@@ -494,8 +502,6 @@ export interface EmissionsERC20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<string>;
-
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -508,6 +514,8 @@ export interface EmissionsERC20 extends BaseContract {
     ): Promise<void>;
 
     name(overrides?: CallOverrides): Promise<string>;
+
+    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
     report(
       account_: string,
@@ -625,8 +633,6 @@ export interface EmissionsERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
-
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -639,6 +645,8 @@ export interface EmissionsERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
+
+    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
 
     report(
       account_: string,
@@ -719,8 +727,6 @@ export interface EmissionsERC20 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     increaseAllowance(
       spender: string,
       addedValue: BigNumberish,
@@ -733,6 +739,10 @@ export interface EmissionsERC20 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     report(
       account_: string,

@@ -168,8 +168,8 @@ export interface SaleInterface extends utils.Interface {
     "canLive()": FunctionFragment;
     "claimFees(address)": FunctionFragment;
     "end()": FunctionFragment;
-    "fnPtrs()": FunctionFragment;
     "initialize(((bytes[],uint256[]),address,address,uint256,uint256,uint256,uint256),((string,string,address,uint256),address,uint256,address))": FunctionFragment;
+    "packedFunctionPointers()": FunctionFragment;
     "refund((uint256,address,uint256,uint256,uint256))": FunctionFragment;
     "reserve()": FunctionFragment;
     "saleStatus()": FunctionFragment;
@@ -190,10 +190,13 @@ export interface SaleInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "canLive", values?: undefined): string;
   encodeFunctionData(functionFragment: "claimFees", values: [string]): string;
   encodeFunctionData(functionFragment: "end", values?: undefined): string;
-  encodeFunctionData(functionFragment: "fnPtrs", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
     values: [SaleConfigStruct, SaleRedeemableERC20ConfigStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "packedFunctionPointers",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "refund",
@@ -220,8 +223,11 @@ export interface SaleInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "canLive", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "claimFees", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "end", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "fnPtrs", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "packedFunctionPointers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "refund", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "reserve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "saleStatus", data: BytesLike): Result;
@@ -373,13 +379,15 @@ export interface Sale extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<[string]>;
-
     initialize(
       config_: SaleConfigStruct,
       saleRedeemableERC20Config_: SaleRedeemableERC20ConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
+    ): Promise<[string] & { ptrs_: string }>;
 
     refund(
       receipt_: ReceiptStruct,
@@ -426,13 +434,13 @@ export interface Sale extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  fnPtrs(overrides?: CallOverrides): Promise<string>;
-
   initialize(
     config_: SaleConfigStruct,
     saleRedeemableERC20Config_: SaleRedeemableERC20ConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
   refund(
     receipt_: ReceiptStruct,
@@ -471,13 +479,13 @@ export interface Sale extends BaseContract {
 
     end(overrides?: CallOverrides): Promise<void>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<string>;
-
     initialize(
       config_: SaleConfigStruct,
       saleRedeemableERC20Config_: SaleRedeemableERC20ConfigStruct,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
     refund(receipt_: ReceiptStruct, overrides?: CallOverrides): Promise<void>;
 
@@ -577,13 +585,13 @@ export interface Sale extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<BigNumber>;
-
     initialize(
       config_: SaleConfigStruct,
       saleRedeemableERC20Config_: SaleRedeemableERC20ConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
 
     refund(
       receipt_: ReceiptStruct,
@@ -629,12 +637,14 @@ export interface Sale extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    fnPtrs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     initialize(
       config_: SaleConfigStruct,
       saleRedeemableERC20Config_: SaleRedeemableERC20ConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    packedFunctionPointers(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     refund(

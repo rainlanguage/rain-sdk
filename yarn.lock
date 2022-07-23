@@ -901,7 +901,7 @@
     core-js-pure "^3.20.2"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.10.2", "@babel/runtime@^7.18.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
+"@babel/runtime@^7.10.2", "@babel/runtime@^7.18.9", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
   version "7.18.9"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.18.9.tgz#b4fcfce55db3d2e5e080d2490f608a3b9f407f4a"
   integrity sha512-lkqXDcvlFT5rvEjiu6+QYO+1GXrEHRo2LOtS7E4GtX5ESIZOgepqsZBVIj6Pv+a6zqsya9VCgiK1KAK4BvJDAw==
@@ -946,12 +946,12 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@beehiveinnovation/rain-protocol@git+https://github.com/beehive-innovation/rain-protocol.git#f184482cca57c72db22ba97649d5f84a1b7ad291":
+"@beehiveinnovation/rain-protocol@git+https://github.com/beehive-innovation/rain-protocol.git#3800c739b4a3d42cb7dd8aecc0ed8a39c799b2ff":
   version "0.0.16"
-  resolved "git+https://github.com/beehive-innovation/rain-protocol.git#f184482cca57c72db22ba97649d5f84a1b7ad291"
+  resolved "git+https://github.com/beehive-innovation/rain-protocol.git#3800c739b4a3d42cb7dd8aecc0ed8a39c799b2ff"
   dependencies:
-    "@openzeppelin/contracts" "^4.3.3"
-    "@openzeppelin/contracts-upgradeable" "^4.4.1"
+    "@openzeppelin/contracts" "=4.7.0"
+    "@openzeppelin/contracts-upgradeable" "=4.7.0"
 
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
@@ -1747,21 +1747,21 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@microsoft/api-extractor-model@7.21.0", "@microsoft/api-extractor-model@^7.0.28":
-  version "7.21.0"
-  resolved "https://registry.yarnpkg.com/@microsoft/api-extractor-model/-/api-extractor-model-7.21.0.tgz#2138682e738a14038d40165ec77362e69853f200"
-  integrity sha512-NN4mXzoQWTuzznIcnLWeV6tGyn6Os9frDK6M/mmTXZ73vUYOvSWoKQ5SYzyzP7HF3YtvTmr1Rs+DsBb0HRx7WQ==
+"@microsoft/api-extractor-model@7.22.1", "@microsoft/api-extractor-model@^7.0.28":
+  version "7.22.1"
+  resolved "https://registry.yarnpkg.com/@microsoft/api-extractor-model/-/api-extractor-model-7.22.1.tgz#2c72bba972bdcc74d16f6f5c8a5f575eff9ce977"
+  integrity sha512-3Bx6VC8F4ti8XlhaOCynCpwGvdXGwHD2dGBpo2xpJT9gEmPQvpAL3Ni+5gaEX0eQ27zGILVTUZDqZSRYskk/Rw==
   dependencies:
     "@microsoft/tsdoc" "0.14.1"
     "@microsoft/tsdoc-config" "~0.16.1"
     "@rushstack/node-core-library" "3.49.0"
 
 "@microsoft/api-extractor@^7.22.2":
-  version "7.28.4"
-  resolved "https://registry.yarnpkg.com/@microsoft/api-extractor/-/api-extractor-7.28.4.tgz#8e67a69edb4937beda516d42d4f325e6e1258445"
-  integrity sha512-7JeROBGYTUt4/4HPnpMscsQgLzX0OfGTQR2qOQzzh3kdkMyxmiv2mzpuhoMnwbubb1GvPcyFm+NguoqOqkCVaw==
+  version "7.28.6"
+  resolved "https://registry.yarnpkg.com/@microsoft/api-extractor/-/api-extractor-7.28.6.tgz#da88050d37b19edd414d8daf7da890beeff264f2"
+  integrity sha512-RNUokJTlBGD0ax/Jo8xLPWv4s6IboqrYrcabEEh6rFadO/tVPoV/R5YHtEeZ2q4ubvwhHTtX3sRm+p4fJo/3Sg==
   dependencies:
-    "@microsoft/api-extractor-model" "7.21.0"
+    "@microsoft/api-extractor-model" "7.22.1"
     "@microsoft/tsdoc" "0.14.1"
     "@microsoft/tsdoc-config" "~0.16.1"
     "@rushstack/node-core-library" "3.49.0"
@@ -1915,12 +1915,12 @@
     chalk "^4.1.0"
     tslib "^2.3.1"
 
-"@openzeppelin/contracts-upgradeable@^4.4.1":
+"@openzeppelin/contracts-upgradeable@=4.7.0":
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-4.7.0.tgz#6437261286879d353f6de7bf3ac8216bef8a486d"
   integrity sha512-wO3PyoAaAV/rA77cK8H4c3SbO98QylTjfiFxyvURUZKTFLV180rnAvna1x7/Nxvt0Gqv+jt1sXKC7ygxsq8iCw==
 
-"@openzeppelin/contracts@^4.3.3":
+"@openzeppelin/contracts@=4.7.0":
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.7.0.tgz#3092d70ea60e3d1835466266b1d68ad47035a2d5"
   integrity sha512-52Qb+A1DdOss8QvJrijYYPSf32GUg2pGaG/yCxtaA3cu4jduouTdg4XZSMLW9op54m1jH7J8hoajhHKOPsoJFw==
@@ -2213,10 +2213,10 @@
   resolved "https://registry.yarnpkg.com/@statoscope/extensions/-/extensions-5.14.1.tgz#b7c32b39de447da76b9fa2daada61b2f699754e6"
   integrity sha512-5O31566+bOkkdYFH81mGGBTh0YcU0zoYurTrsK5uZfpNY87ZCPpptrszX8npTRHNsxbjBBNt7vAwImJyYdhzLw==
 
-"@statoscope/helpers@5.23.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/helpers/-/helpers-5.23.0.tgz#4f24f079a68039d2c21d1d8513acd6e7368c18b5"
-  integrity sha512-Rmix1ayv6BqxNAR71HrgcvFpa2o3GFm0GpL5zqfLnkAyVtd3fAc4eVo2KaRG3RnxfpetoPNfmueI0zsbpn7tVA==
+"@statoscope/helpers@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/helpers/-/helpers-5.24.0.tgz#3a8100ee3eb21bbfecc110547639fa708677e3fe"
+  integrity sha512-PhCynDA+FHB1DuuHlMeVnETRRDfgKrQTGey2jhBdHzd/Gae/GuwDcnFxiRVMIA97UQM8EwyE/hc0sF6dpPXd9w==
   dependencies:
     "@types/archy" "^0.0.32"
     "@types/semver" "^7.3.10"
@@ -2231,38 +2231,38 @@
   dependencies:
     "@discoveryjs/json-ext" "^0.5.7"
 
-"@statoscope/stats-extension-compressed@5.23.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/stats-extension-compressed/-/stats-extension-compressed-5.23.0.tgz#2bca5b340b660c170af5f59b4efc60d09747ff32"
-  integrity sha512-HkOBGCOIP6CxZBxwZtWEXUqQhNnoQWWsz+UPDuPebsp5biuSYbwTvv6e6y/SAEIsRSRquENh3UspcdrYFIb9AQ==
+"@statoscope/stats-extension-compressed@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/stats-extension-compressed/-/stats-extension-compressed-5.24.0.tgz#5f23227bfabe4368bc57416580594a2c11c3ab34"
+  integrity sha512-QRgTY7wnJhB5BjV2OHt2e3E8rLi+53LEJ2q7KZDjRMNZNGY6G1LPIuHTCAUlcLNxDbaeATqkioTVRyf2v9SjPQ==
   dependencies:
-    "@statoscope/helpers" "5.23.0"
+    "@statoscope/helpers" "5.24.0"
     gzip-size "^6.0.0"
 
-"@statoscope/stats-extension-custom-reports@5.23.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/stats-extension-custom-reports/-/stats-extension-custom-reports-5.23.0.tgz#2eb5dcca6d088d1fbd6aff074ed3c4cc25447406"
-  integrity sha512-jQxQMn+rbES/JCJUbzP0ciGUBRtvkX5bsS4JoUkn/jHdUv+v0T60/LlbmnokCyPknuuvCQm+g0e2WLQrLUJxww==
+"@statoscope/stats-extension-custom-reports@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/stats-extension-custom-reports/-/stats-extension-custom-reports-5.24.0.tgz#153aa71d2b74cfc5e56f265e6d15104647de87bb"
+  integrity sha512-n20dL3WYrwla8eCYNtHY0AdcBuyHiaW1F2gQBsJqV3PJzIYBijo/f1dHl2p8hzVDQmJ/QYWNwsbTvr1GQGdseg==
   dependencies:
     "@statoscope/extensions" "5.14.1"
-    "@statoscope/helpers" "5.23.0"
+    "@statoscope/helpers" "5.24.0"
     "@statoscope/stats" "5.14.1"
     "@statoscope/types" "5.22.0"
 
-"@statoscope/stats-extension-package-info@5.23.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/stats-extension-package-info/-/stats-extension-package-info-5.23.0.tgz#11dbab0eb0ead806fe826bd35b282f36cae7bbe1"
-  integrity sha512-XGJLeAbGMT2KUgnmycDALbWEIz040tDPsKAdJHhqqLFvTNVvh8rqJW+Jj7WfweiBr7H/MbQpPHZiZ7yqodSm9w==
+"@statoscope/stats-extension-package-info@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/stats-extension-package-info/-/stats-extension-package-info-5.24.0.tgz#ef8d1aacf8f268524c54f2fb21b44ce6dca38fd7"
+  integrity sha512-L7UtVb5CwG2dMZdVrGjok4+0ryEASO1rr8Kf/QzcQNIHb8mG5VSYRFBlcFfvvC/PNKafxoexbwhiSGZEtggwqw==
   dependencies:
-    "@statoscope/helpers" "5.23.0"
+    "@statoscope/helpers" "5.24.0"
 
-"@statoscope/stats-extension-stats-validation-result@5.23.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/stats-extension-stats-validation-result/-/stats-extension-stats-validation-result-5.23.0.tgz#dbfe086638e3a9b07676f6d2330e391f2fba93e2"
-  integrity sha512-UWEEo2ahzy9hupO44+Wzr8+PqbtBFBOXuOcD+eKWRZPORNfkidPahjJ/DHK6QsuoModqMPr9SLaxYjaeN+neaA==
+"@statoscope/stats-extension-stats-validation-result@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/stats-extension-stats-validation-result/-/stats-extension-stats-validation-result-5.24.0.tgz#7409bd625d9a5f15bf3f017e521bc1701850b7b4"
+  integrity sha512-++8hX2cb0CpIM+gqLwIl9N/ISJHTKtrQXwsl9CSlds3K4D49BwC2cULlvhGdjVRMf7U1RI0COL9dj79K7iK5Ig==
   dependencies:
     "@statoscope/extensions" "5.14.1"
-    "@statoscope/helpers" "5.23.0"
+    "@statoscope/helpers" "5.24.0"
     "@statoscope/stats" "5.14.1"
     "@statoscope/types" "5.22.0"
 
@@ -2278,64 +2278,62 @@
   dependencies:
     "@statoscope/stats" "5.14.1"
 
-"@statoscope/webpack-model@5.23.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/webpack-model/-/webpack-model-5.23.0.tgz#997c4f5a96c7ba1aeb3404d2932a481d56cac77d"
-  integrity sha512-ivAQAO0TS67xNPtdFHg2JxugFW2qCAiuEdOe7R8EGZ+6d5ZFBAcelz74toZ8x4h5wm5SSgwPFVEasYCxfGQJSg==
+"@statoscope/webpack-model@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/webpack-model/-/webpack-model-5.24.0.tgz#8d7b50749bd6f03cb7307e6f73cddf15d5eac771"
+  integrity sha512-6XHhTbA4Vw8LKUGLuRvsNUUgiiGAvqciUMQRjovf2xNRT2a3rCP7L3QKOntEvIBcKzNGuQ0T+L5sKF8pqiI3mA==
   dependencies:
     "@statoscope/extensions" "5.14.1"
-    "@statoscope/helpers" "5.23.0"
+    "@statoscope/helpers" "5.24.0"
     "@statoscope/stats" "5.14.1"
-    "@statoscope/stats-extension-compressed" "5.23.0"
-    "@statoscope/stats-extension-custom-reports" "5.23.0"
-    "@statoscope/stats-extension-package-info" "5.23.0"
-    "@statoscope/stats-extension-stats-validation-result" "5.23.0"
+    "@statoscope/stats-extension-compressed" "5.24.0"
+    "@statoscope/stats-extension-custom-reports" "5.24.0"
+    "@statoscope/stats-extension-package-info" "5.24.0"
+    "@statoscope/stats-extension-stats-validation-result" "5.24.0"
     "@statoscope/types" "5.22.0"
-    ajv "^8.11.0"
     md5 "^2.3.0"
 
 "@statoscope/webpack-plugin@^5.17.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/webpack-plugin/-/webpack-plugin-5.23.0.tgz#d2a363d7957f4cc9d1b8fd03d53bf302b927885d"
-  integrity sha512-6XC8689UpDeHxKNJ/ZNT8jaCNV0IQhm1qW1SWb1VeOmWj7Rh78GLlFeD3EcJ55MJp7EesU2g90DAUDq//xpdvQ==
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/webpack-plugin/-/webpack-plugin-5.24.0.tgz#1a4faa14ca110c6247662775d087ba9900fa2996"
+  integrity sha512-8GX0ULmvwZRAqQClLMdzV1L/Y9PBJZTwBTXiiKzU4+vypRiI7VA+fz9aZ2XGWErVonXbrIvclj2IAQMbz/z2YQ==
   dependencies:
     "@discoveryjs/json-ext" "^0.5.7"
     "@statoscope/report-writer" "5.22.0"
     "@statoscope/stats" "5.14.1"
-    "@statoscope/stats-extension-compressed" "5.23.0"
-    "@statoscope/stats-extension-custom-reports" "5.23.0"
+    "@statoscope/stats-extension-compressed" "5.24.0"
+    "@statoscope/stats-extension-custom-reports" "5.24.0"
     "@statoscope/types" "5.22.0"
-    "@statoscope/webpack-model" "5.23.0"
-    "@statoscope/webpack-stats-extension-compressed" "5.23.0"
-    "@statoscope/webpack-stats-extension-package-info" "5.23.0"
-    "@statoscope/webpack-ui" "5.23.0"
+    "@statoscope/webpack-model" "5.24.0"
+    "@statoscope/webpack-stats-extension-compressed" "5.24.0"
+    "@statoscope/webpack-stats-extension-package-info" "5.24.0"
+    "@statoscope/webpack-ui" "5.24.0"
     open "^8.4.0"
 
-"@statoscope/webpack-stats-extension-compressed@5.23.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/webpack-stats-extension-compressed/-/webpack-stats-extension-compressed-5.23.0.tgz#972f27c6f6beb249c92b6aae9eb9f2292a57ad33"
-  integrity sha512-eexc4fOLnpQWmG+BubWOppvBaPhDOgZ1gXw8c+9WJVZyG3/Um4G3MVsokaocAakXgZm4s1C60dj963mN5V0QeQ==
+"@statoscope/webpack-stats-extension-compressed@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/webpack-stats-extension-compressed/-/webpack-stats-extension-compressed-5.24.0.tgz#fb33fa83d22e584a9b281f69b28bca453b44e386"
+  integrity sha512-yJyYo/TC393MZcA/txnd/37WubSdGNpVAncFlifVtJoGgsD9GrqltN8aUiaVPBDy/r4N4qP9+8T6OQ/Ha4J4DA==
   dependencies:
     "@statoscope/stats" "5.14.1"
-    "@statoscope/stats-extension-compressed" "5.23.0"
-    "@statoscope/webpack-model" "5.23.0"
+    "@statoscope/stats-extension-compressed" "5.24.0"
+    "@statoscope/webpack-model" "5.24.0"
 
-"@statoscope/webpack-stats-extension-package-info@5.23.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/webpack-stats-extension-package-info/-/webpack-stats-extension-package-info-5.23.0.tgz#f718568c8de46c5eb4324449579e7e5ef98fffc4"
-  integrity sha512-uY+ArAZeWfXa47vhcEHcOm2fPy77PV9eYjGYCdn57fA7pmAGcusw+rw0CHcFCeA/fRsUc1czOwoxrpLUfABGJA==
+"@statoscope/webpack-stats-extension-package-info@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/webpack-stats-extension-package-info/-/webpack-stats-extension-package-info-5.24.0.tgz#4d78974dc9739162c2f9e89c01ccd31ddcb300e6"
+  integrity sha512-AXtYSbvyyFdgn1H/bnE2gu0oEhKBiHbeZA/gCJM+hEWOwGWnz61+qiPxYj2QnOnXN8XmjHho3jf0Gd4eW3dJfw==
   dependencies:
     "@statoscope/stats" "5.14.1"
-    "@statoscope/stats-extension-package-info" "5.23.0"
-    "@statoscope/webpack-model" "5.23.0"
+    "@statoscope/stats-extension-package-info" "5.24.0"
+    "@statoscope/webpack-model" "5.24.0"
 
-"@statoscope/webpack-ui@5.23.0":
-  version "5.23.0"
-  resolved "https://registry.yarnpkg.com/@statoscope/webpack-ui/-/webpack-ui-5.23.0.tgz#0425388c32ef71ef5b9f574ce157d5283c94333e"
-  integrity sha512-4pvEPOin/wlv8WZjbh2mrr2ynMyzv6cMhStKQiC/sApgiyOoVUTlqKWm1AaKkteb8uzlZmj442zhwlNBjG1nww==
+"@statoscope/webpack-ui@5.24.0":
+  version "5.24.0"
+  resolved "https://registry.yarnpkg.com/@statoscope/webpack-ui/-/webpack-ui-5.24.0.tgz#7a2d6af6384073ae2254feb2b067e2780b76b06c"
+  integrity sha512-tqNH1O7WE8dVa2WknmmM4j7mYD6mna3TKRLRYmiAwg6W/RICVAxXwZy1v9uKN9+pfa6By0hI3mWiYS7V1seh2w==
   dependencies:
     "@statoscope/types" "5.22.0"
-    highcharts "^10.2.0"
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
@@ -2657,9 +2655,9 @@
     "@types/sinon" "*"
 
 "@types/sinon@*":
-  version "10.0.12"
-  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-10.0.12.tgz#fb7009ea71f313a9da4644ba73b94e44d6b84f7f"
-  integrity sha512-uWf4QJ4oky/GckJ1MYQxU52cgVDcXwBhDkpvLbi4EKoLPqLE4MOH6T/ttM33l3hi0oZ882G6oIzWv/oupRYSxQ==
+  version "10.0.13"
+  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-10.0.13.tgz#60a7a87a70d9372d0b7b38cc03e825f46981fb83"
+  integrity sha512-UVjDqJblVNQYvVNUsj0PuYYw0ELRmgt1Nt5Vk0pT5f16ROGfcKJY8o1HVuMOJOpD727RrGB9EGvoaTQE5tgxZQ==
   dependencies:
     "@types/sinonjs__fake-timers" "*"
 
@@ -3040,9 +3038,9 @@ acorn@^7.1.0, acorn@^7.1.1:
   integrity sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
 
 acorn@^8.2.4, acorn@^8.4.1, acorn@^8.5.0:
-  version "8.7.1"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.7.1.tgz#0197122c843d1bf6d0a5e83220a788f278f63c30"
-  integrity sha512-Xx54uLJQZ19lKygFXOWsscKUbsBZW0CPykPhVQdhIeIwrbPmJzqeASDInc8nKBnp/JT6igTs82qPXz069H8I/A==
+  version "8.8.0"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.8.0.tgz#88c0187620435c7f6015803f5539dae05a9dbea8"
+  integrity sha512-QOxyigPVrpZ2GXT+PFyZTl6TtOFc5egxHIP9IlQ+RbupQuX4RkT/Bee4/kQuC02Xkzg84JcT7oLYtDIQxp+v7w==
 
 adm-zip@^0.4.16:
   version "0.4.16"
@@ -3103,7 +3101,7 @@ ajv@^6.0.1, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.12.3, ajv@^6.12.5, ajv@^6.5.0, ajv@
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-ajv@^8.0.0, ajv@^8.11.0, ajv@^8.8.0:
+ajv@^8.0.0, ajv@^8.8.0:
   version "8.11.0"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-8.11.0.tgz#977e91dd96ca669f54a11e23e378e33b884a565f"
   integrity sha512-wGgprdCvMalC0BztXvitD2hC04YffAvtsUn93JbGXYLAtCUO4xd17mCCZQxUOItiBwZvJScWo8NIvQMQ71rdpg==
@@ -3421,7 +3419,7 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
 
-axe-core@^4.4.2:
+axe-core@^4.4.3:
   version "4.4.3"
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.4.3.tgz#11c74d23d5013c0fa5d183796729bc3482bd2f6f"
   integrity sha512-32+ub6kkdhhWick/UjvEwRchgoetXqTK14INLqbGm5U2TzBkBNF3nQtLYm8ovxSkQWArjEQvftCKryjZaATu3w==
@@ -4512,9 +4510,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000844, caniuse-lite@^1.0.30001366:
-  version "1.0.30001367"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001367.tgz#2b97fe472e8fa29c78c5970615d7cd2ee414108a"
-  integrity sha512-XDgbeOHfifWV3GEES2B8rtsrADx4Jf+juKX2SICJcaUhjYBO3bR96kvEIHa15VU6ohtOhBZuPGGYGbXMRn0NCw==
+  version "1.0.30001368"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001368.tgz#c5c06381c6051cd863c45021475434e81936f713"
+  integrity sha512-wgfRYa9DenEomLG/SdWgQxpIyvdtH3NW8Vq+tB6AwR9e56iOIcu1im5F/wNdDf04XlKHXqIx4N8Jo0PemeBenQ==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -5620,9 +5618,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.3.47, electron-to-chromium@^1.4.188:
-  version "1.4.195"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.195.tgz#139b2d95a42a3f17df217589723a1deac71d1473"
-  integrity sha512-vefjEh0sk871xNmR5whJf9TEngX+KTKS3hOHpjoMpauKkwlGwtMz1H8IaIjAT/GNnX0TbGwAdmVoXCAzXf+PPg==
+  version "1.4.199"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.199.tgz#e0384fde79fdda89880e8be58196a9153e04db3b"
+  integrity sha512-WIGME0Cs7oob3mxsJwHbeWkH0tYkIE/sjkJ8ML2BYmuRcjhRl/q5kVDXG7W9LOOKwzPU5M0LBlXRq9rlSgnNlg==
 
 elliptic@6.5.4, elliptic@^6.4.0, elliptic@^6.5.2, elliptic@^6.5.3, elliptic@^6.5.4:
   version "6.5.4"
@@ -5945,20 +5943,20 @@ eslint-plugin-import@~2.14.0:
     resolve "^1.6.0"
 
 eslint-plugin-jsx-a11y@^6.2.3:
-  version "6.6.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsx-a11y/-/eslint-plugin-jsx-a11y-6.6.0.tgz#2c5ac12e013eb98337b9aa261c3b355275cc6415"
-  integrity sha512-kTeLuIzpNhXL2CwLlc8AHI0aFRwWHcg483yepO9VQiHzM9bZwJdzTkzBszbuPrbgGmq2rlX/FaT2fJQsjUSHsw==
+  version "6.6.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsx-a11y/-/eslint-plugin-jsx-a11y-6.6.1.tgz#93736fc91b83fdc38cc8d115deedfc3091aef1ff"
+  integrity sha512-sXgFVNHiWffBq23uiS/JaP6eVR622DqwB4yTzKvGZGcPq6/yZ3WmOZfuBks/vHWo9GaFOqC2ZK4i6+C35knx7Q==
   dependencies:
-    "@babel/runtime" "^7.18.3"
+    "@babel/runtime" "^7.18.9"
     aria-query "^4.2.2"
     array-includes "^3.1.5"
     ast-types-flow "^0.0.7"
-    axe-core "^4.4.2"
+    axe-core "^4.4.3"
     axobject-query "^2.2.0"
     damerau-levenshtein "^1.0.8"
     emoji-regex "^9.2.2"
     has "^1.0.3"
-    jsx-ast-utils "^3.3.1"
+    jsx-ast-utils "^3.3.2"
     language-tags "^1.0.5"
     minimatch "^3.1.2"
     semver "^6.3.0"
@@ -7677,11 +7675,6 @@ heap@0.2.6:
   resolved "https://registry.yarnpkg.com/heap/-/heap-0.2.6.tgz#087e1f10b046932fc8594dd9e6d378afc9d1e5ac"
   integrity sha512-MzzWcnfB1e4EG2vHi3dXHoBupmuXNZzx6pY6HldVS55JKKBoq3xOyzfSaZRkJp37HIhEYC78knabHff3zc4dQQ==
 
-highcharts@^10.2.0:
-  version "10.2.0"
-  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-10.2.0.tgz#646b1c80fb4add9e35e5813bd87419ccdf1fc6b7"
-  integrity sha512-MvLo4dzR2Vo7Y85dsqJ07uabBXSSIRKRRdW4l9IGP55h2jYWNm/m9JBszVVxySH5Lda6g+Ins9NdGppZJpjNCA==
-
 hmac-drbg@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -9107,7 +9100,7 @@ jsx-ast-utils@^2.0.1:
     array-includes "^3.1.1"
     object.assign "^4.1.0"
 
-"jsx-ast-utils@^2.4.1 || ^3.0.0", jsx-ast-utils@^3.3.1:
+"jsx-ast-utils@^2.4.1 || ^3.0.0", jsx-ast-utils@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/jsx-ast-utils/-/jsx-ast-utils-3.3.2.tgz#afe5efe4332cd3515c065072bd4d6b0aa22152bd"
   integrity sha512-4ZCADZHRkno244xlNnn4AOG6sRQ7iBZ5BbgZ4vW4y5IZw7cVUD1PPeblm1xx/nfmMxPdt/LHsXZW8z/j58+l9Q==

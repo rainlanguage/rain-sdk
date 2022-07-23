@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { ethers } from 'hardhat';
 import { BigNumber } from 'ethers';
 import { expectAsyncError, ONE, Tier, Time } from './utils';
-import { StateConfig, RainJSVM, OpFn, FnPtrs, VM } from '../src';
+import { StateConfig, RainJSVM, OpJSVM, FnPtrsJSVM, VM } from '../src';
 import {
   op,
   paddedUInt32,
@@ -17,10 +17,10 @@ import {
 
 describe('SDK - RainJSVM', () => {
   it('should perform correctly with custom opcode function', async () => {
-    const customBlockNumber: OpFn = (state, operand, data) => {
+    const customBlockNumber: OpJSVM = (state, operand, data) => {
       state.stack.push(BigNumber.from(data.blockNumber));
     };
-    const applyOpFn: FnPtrs = {};
+    const applyOpFn: FnPtrsJSVM = {};
     applyOpFn[VM.Opcodes.BLOCK_NUMBER] = customBlockNumber;
 
     const script: StateConfig = {

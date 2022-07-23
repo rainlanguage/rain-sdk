@@ -5,7 +5,7 @@ import { OrderBook__factory, ReserveTokenTest } from '../typechain';
 import { 
   OrderBook,
   OrderConfig,
-  BountyConfig,
+  ClearConfig,
   DepositConfig,
   WithdrawConfig,
   ClearStateChange 
@@ -68,11 +68,17 @@ describe('SDK - OrderBook', async function () {
       vAskOutputMax,
       vAskPrice,
     ]);
+
+
     const askOrderConfig: OrderConfig = {
-      inputToken: tokenA.address,
-      inputVaultId: aliceInputVault,
-      outputToken: tokenB.address,
-      outputVaultId: aliceOutputVault,
+      validInputs: [{
+        token: tokenA.address,
+        vaultId: aliceInputVault
+      }],
+      validOutputs: [{
+        token: tokenB.address,
+        vaultId: aliceOutputVault,
+      }],
       tracking: "0x00",
       vmStateConfig: {
         sources: [askSource],
@@ -104,10 +110,14 @@ describe('SDK - OrderBook', async function () {
       vBidPrice,
     ]);
     const bidOrderConfig: OrderConfig = {
-      inputToken: tokenB.address,
-      inputVaultId: bobInputVault,
-      outputToken: tokenA.address,
-      outputVaultId: bobOutputVault,
+      validInputs: [{
+        token: tokenB.address,
+        vaultId: bobInputVault,
+      }],
+      validOutputs: [{
+        token: tokenA.address,
+        vaultId: bobOutputVault,
+      }],
       tracking: "0x00",
       vmStateConfig: {
         sources: [bidSource],
@@ -218,10 +228,14 @@ describe('SDK - OrderBook', async function () {
       vAskPrice,
     ]);
     const askOrderConfig: OrderConfig = {
-      inputToken: tokenA.address,
-      inputVaultId: aliceInputVault,
-      outputToken: tokenB.address,
-      outputVaultId: aliceOutputVault,
+      validInputs: [{
+        token: tokenA.address,
+        vaultId: aliceInputVault,
+      }],
+      validOutputs: [{
+        token: tokenB.address,
+        vaultId: aliceOutputVault,
+      }],
       tracking: "0x00",
       vmStateConfig: {
         sources: [askSource],
@@ -359,10 +373,16 @@ describe('SDK - OrderBook', async function () {
       vAskPrice,
     ]);
     const askOrderConfig: OrderConfig = {
-      inputToken: tokenA.address,
-      inputVaultId: aliceInputVault,
-      outputToken: tokenB.address,
-      outputVaultId: aliceOutputVault,
+      validInputs: [{
+              token: tokenA.address,
+      vaultId: aliceInputVault,
+      }],
+      validOutputs: [{
+              token: tokenB.address,
+      vaultId: aliceOutputVault,
+      }],
+
+
       tracking: "0x00",
       vmStateConfig: {
         sources: [askSource],
@@ -395,10 +415,16 @@ describe('SDK - OrderBook', async function () {
       vBidPrice,
     ]);
     const bidOrderConfig: OrderConfig = {
-      inputToken: tokenB.address,
-      inputVaultId: bobInputVault,
-      outputToken: tokenA.address,
-      outputVaultId: bobOutputVault,
+      validInputs: [{
+              token: tokenB.address,
+      vaultId: bobInputVault,
+      }],
+      validOutputs: [{
+              token: tokenA.address,
+      vaultId: bobOutputVault,
+      }],
+
+
       tracking: "0x00",
       vmStateConfig: {
         sources: [bidSource],
@@ -476,9 +502,13 @@ describe('SDK - OrderBook', async function () {
 
     // BOUNTY BOT CLEARS THE ORDER
 
-    const bountyConfig: BountyConfig = {
-      aVaultId: bountyBotVaultA,
-      bVaultId: bountyBotVaultB,
+    const bountyConfig: ClearConfig = {
+      aInputIndex: 0,
+      aOutputIndex: 0,
+      bInputIndex: 0,
+      bOutputIndex: 0,
+      aBountyVaultId: bountyBotVaultA,
+      bBountyVaultId: bountyBotVaultB,
     };
 
     const txClearOrder = await orderBook
@@ -489,7 +519,7 @@ describe('SDK - OrderBook', async function () {
       sender: clearSender,
       a_: clearA_,
       b_: clearB_,
-      bountyConfig: clearBountyConfig,
+      clearConfig: clearBountyConfig,
     } = (await getEventArgs(
       txClearOrder,
       "Clear",
@@ -530,4 +560,3 @@ describe('SDK - OrderBook', async function () {
   });
 
 });
-

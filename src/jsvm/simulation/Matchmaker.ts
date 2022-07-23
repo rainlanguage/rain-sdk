@@ -1,31 +1,8 @@
-import { BigNumber } from "ethers";
-import { VM } from "../../classes/vm";
 import { OrderbookJSVM } from "./../OrderbookJSVM";
 import { OrderbookSimulation } from "./OrderbookSimulation";
-import { paddedUInt160, paddedUInt256, parseUnits } from "../../utils";
-import { FixedPrice, IncDecPrice } from "./../../contracts/script-generators/saleScriptGenerator";
-import { 
-  order,
-  erc20s,
-  eighteenZeros,
-  bountyConfig
-} from "../types";
+import { parseUnits } from "../../utils";
+import { SOrder, eighteenZeros, ReserveBook } from "../types";
 
-
-/**
- * @public
- * Interface for matchmaker forcasting a script
- */
-export interface forcast {
-  [orderHash: string]: {
-    minP: BigNumber,
-    maxP: BigNumber,
-    minOut: BigNumber,
-    maxOut: BigNumber,
-    minIn:BigNumber,
-    maxIn: BigNumber
-  }
-}
 
 /**
  * @public 
@@ -35,9 +12,9 @@ export class MatchMaker extends OrderbookSimulation {
 
   /**
    * @public
-   * The forcast property of the matchmaker
+   * The ReserveBook property of the matchmaker
    */
-  public orderForcast: forcast = {};
+  public reservebook: ReserveBook = {};
 
   /**
    * @public
@@ -53,7 +30,8 @@ export class MatchMaker extends OrderbookSimulation {
    * 
    * @returns void
    */
-  public async addOrder(order: order): Promise<void> {
+  public async addOrder(order: SOrder): Promise<void> {
+
     super.addOrder(order);
     await this.orderEval(order)
   };
@@ -65,7 +43,7 @@ export class MatchMaker extends OrderbookSimulation {
   //   units: number,
   //   tokenDecimals: number = 18
   // ): Promise<void> {
-  //   let vaultBalanceFlag = this.vaults[sender][tokenAddress].vaultId[vaultId].isZero() ? true : false;
+  //   let vaultBalanceFlag = this.vaults[sender][tokenAddress][vaultId].isZero() ? true : false;
   //   super.deposit(sender, tokenAddress, vaultId, units, tokenDecimals);
   //   for (let i = 0; i < Object.keys(this.orders).length; i++) {
   //     if (
@@ -81,37 +59,35 @@ export class MatchMaker extends OrderbookSimulation {
 
   /**
    * @public
-   * Method to evaluate and forcast the order's script
+   * Method to evaluate and ReserveBook the order's script
    * 
    * @param order - the order to be evaluated
    * 
    * @returns void 
    */
-  public async orderEval(order: order, timestamp?: number, blockNumber?: number) {
+  public async orderEval(order: SOrder, timestamp?: number, blockNumber?: number) {
     this.script = order.vmConfig;
     const jsvm = new OrderbookJSVM(this.script, {applyOpFn: this.OpFns});
-    const result1 = await jsvm.run({context: [order.orderHash], timestamp, blockNumber});
 
-    const out1 = result1[0];
+    const result1 = await jsvm.run({
+      context: [order.orderHash],
+      timestamp, blockNumber
+    });
     const p1 = result1[1];
-    const in1 = out1.mul(p1).div(eighteenZeros);
 
     let _timestamp = timestamp ? timestamp + 3600 : 3600;
     let _blockNumber = blockNumber ? blockNumber + 1800 : 1800;
 
-    const result2 = await jsvm.run({context: [order.orderHash], timestamp: _timestamp, blockNumber: _blockNumber})
-
-    const out2 = result2[0];
+    const result2 = await jsvm.run({
+      context: [order.orderHash],
+      timestamp: _timestamp,
+      blockNumber: _blockNumber
+    })
     const p2 = result2[1];
-    const in2 = out2.mul(p2).div(eighteenZeros);
 
-    this.orderForcast[order.orderHash] = {
+    this.reservebook[order.orderHash] = {
       minP: p2.gt(p1) ? p1 : p2,
       maxP: p2.gt(p1) ? p2 : p1,
-      minOut: out2.gt(out1) ? out1 : out2,
-      maxOut: out2.gt(out1) ? out2 : out1,
-      minIn: in2.gt(in1) ? in1 : in2,
-      maxIn: in2.gt(in1) ? in2 : in1,
     }
   }
 
@@ -119,38 +95,51 @@ export class MatchMaker extends OrderbookSimulation {
    * @public
    * The main method to perform matchmaking and find matches among orders
    * 
-   * @param bountyConfig - the BountyConfig of this matchmaker class
-   * 
-   * @returns 
+   * @param bounty - the Bounty Vault IDs
    */
-  public async makeMatch(bountyConfig: bountyConfig) : Promise<{orderA: string, orderB: string}[]> {
+  public async makeMatch(bounty: {aBounty: string, bBounty: string}) : Promise<{orderA: string, orderB: string}[]> {
 
-    const orderHashs = Object.keys(this.orders);
+    const orderHashes = Object.keys(this.orders);
     let result = [];
 
-    if (orderHashs.length > 1) {
-      for(let i = 0; i <orderHashs.length; i++) {
-        if (
-            !this.vaults[this.orders[orderHashs[i]].owner][this.orders[orderHashs[i]].outputToken]
-            .vaultId[this.orders[orderHashs[i]].outputVaultId].isZero()
-          ) {
-          for (let j = 0; j < orderHashs.length; j++) {
-            if (
-              this.orders[orderHashs[i]].outputToken === this.orders[orderHashs[j]].inputToken && 
-              this.orders[orderHashs[i]].inputToken === this.orders[orderHashs[j]].outputToken
+    if (orderHashes.length > 1) {
+      for(let oh1 in orderHashes) {
+        for (let i = 0; i < this.orders[orderHashes[oh1]].validOutputs.length; i++) {
+          if (
+              !this.vaults[this.orders[orderHashes[oh1]].owner][
+                this.orders[orderHashes[oh1]].validOutputs[i].token
+              ][this.orders[orderHashes[oh1]].validOutputs[i].vaultId].isZero()
             ) {
-              if (
-                (this.orderForcast[orderHashs[i]].minP.mul(this.orderForcast[orderHashs[j]].maxP)
-                .div(eighteenZeros)).lte(parseUnits((1).toString())) ||
-                (this.orderForcast[orderHashs[i]].maxP.mul(this.orderForcast[orderHashs[j]].minP)
-                .div(eighteenZeros)).lte(parseUnits((1).toString()))
-              ) {
-                await this.clear(
-                  this.orders[orderHashs[i]],
-                  this.orders[orderHashs[j]], 
-                  bountyConfig
-                )
-                result.push({orderA: orderHashs[i], orderB: orderHashs[j]})
+            for (let oh2 in orderHashes) {
+              for (let j = 0; j < this.orders[orderHashes[oh2]].validInputs.length; j++) {
+                if (this.orders[orderHashes[oh1]].validOutputs[i].token === this.orders[orderHashes[oh2]].validInputs[j].token) {
+                  for (let k = 0; k < this.orders[orderHashes[oh1]].validInputs.length; k++) {
+                    for (let l = 0; l < this.orders[orderHashes[oh2]].validOutputs.length; l++) {
+                      if (this.orders[orderHashes[oh1]].validInputs[k].token === this.orders[orderHashes[oh2]].validOutputs[l].token) {
+                        if (
+                          (this.reservebook[orderHashes[oh1]].minP.mul(this.reservebook[orderHashes[oh2]].maxP)
+                          .div(eighteenZeros)).lte(parseUnits((1).toString())) ||
+                          (this.reservebook[orderHashes[oh1]].maxP.mul(this.reservebook[orderHashes[oh2]].minP)
+                          .div(eighteenZeros)).lte(parseUnits((1).toString()))
+                        ) {
+                          await this.clear(
+                            this.orders[orderHashes[oh1]],
+                            this.orders[orderHashes[oh2]], 
+                            {
+                              aOutputIndex: i,
+                              aInputIndex: k,
+                              bOutputIndex: l,
+                              bInputIndex: j,
+                              aBountyVaultId: bounty.aBounty,
+                              bBountyVaultId: bounty.bBounty,
+                            }
+                          )
+                          result.push({orderA: orderHashes[oh1], orderB: orderHashes[oh2]})
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -159,229 +148,8 @@ export class MatchMaker extends OrderbookSimulation {
     }
     return result;
   }
+  
 }
 
 
 
-////////// ---------------------| Demo |------------------------ *** Demo *** -----------------------| Demo |---------------------- \\\\\\\\\\
-//run the demo locally to see the results of a orderbook matchmaking simulation
-
-// a function for benchmarking
-var timer = function(name: string) {
-  var start = new Date();
-  return {
-    stop: function() {
-      var end  = new Date();
-      var time = end.getTime() - start.getTime();
-      return {name, time}
-    }
-  }
-};
-
-//simulating some addresses
-let sender1 = paddedUInt160("0x11111");
-let sender2 = paddedUInt160("0x22222");
-let sender3 = paddedUInt160("0x33333");
-let sender4 = paddedUInt160("0x44444");
-let sender6 = paddedUInt160("0x66666");
-let orderbook = paddedUInt160("0x55555");
-
-const token1 = paddedUInt160("0x1")
-const token2 = paddedUInt160("0x2")
-const token3 = paddedUInt160("0x3")
-//simulating some erc20 tokens
-let tokens: erc20s = {
-  [token1]: {
-    totalSupply: parseUnits((1000).toString()),
-    decimals: 18,
-    balanceOf: {
-      [sender1]: parseUnits((500).toString()),
-      [sender2]: parseUnits((100).toString()),
-      [sender3]: parseUnits((200).toString()),
-      [sender4]: parseUnits((100).toString()),
-      [orderbook]: parseUnits((0).toString()),
-    }
-  },
-  [token2]: {
-    totalSupply: parseUnits((2000).toString()),
-    decimals: 18,
-    balanceOf: {
-      [sender1]: parseUnits((200).toString()),
-      [sender2]: parseUnits((150).toString()),
-      [sender3]: parseUnits((350).toString()),
-      [sender4]: parseUnits((220).toString()),
-      [orderbook]: parseUnits((0).toString()),
-    }
-  },
-  [token3]: {
-    totalSupply: parseUnits((500).toString()),
-    decimals: 18,
-    balanceOf: {
-      [sender1]: parseUnits((20).toString()),
-      [sender2]: parseUnits((100).toString()),
-      [sender3]: parseUnits((50).toString()),
-      [sender4]: parseUnits((130).toString()),
-      [orderbook]: parseUnits((0).toString()),
-    }
-  },
-}
-
-// some scripts for orders
-const scriptA = VM.pair(new FixedPrice(4), new FixedPrice(2));
-const scriptB = VM.pair(new FixedPrice(10), new FixedPrice(0.4));
-const scriptC = VM.pair(new FixedPrice(2), new IncDecPrice(0.1, 8, 1, 900));
-
-// simulating some orders usinf the data above
-const orderHash1 = paddedUInt256("0x1abc")
-const vaultId101 = paddedUInt256("0x0101")
-const vaultId201 = paddedUInt256("0x0201")
-
-const orderHash2 = paddedUInt256("0x2abc")
-const vaultId202 = paddedUInt256("0x0202")
-const vaultId302 = paddedUInt256("0x0302")
-
-const orderHash3 = paddedUInt256("0x3abc")
-const vaultId203 = paddedUInt256("0x0203")
-const vaultId103 = paddedUInt256("0x0103")
-
-const orderHash4 = paddedUInt256("0x4abc")
-const vaultId304 = paddedUInt256("0x0304")
-const vaultId204 = paddedUInt256("0x0204")
-
-const order1 : order = {
-  orderHash: orderHash1,
-  owner: sender1,
-  inputToken: token1,
-  outputToken: token2,
-  inputVaultId: vaultId101,
-  outputVaultId: vaultId201,
-  vmConfig: scriptA
-};
-const order2 : order = {
-  orderHash: orderHash2,
-  owner: sender2,
-  inputToken: token2,
-  outputToken: token3,
-  inputVaultId: vaultId202,
-  outputVaultId: vaultId302,
-  vmConfig: scriptC
-};
-const order3 : order = {
-  orderHash: orderHash3,
-  owner: sender3,
-  inputToken: token2,
-  outputToken: token1,
-  inputVaultId: vaultId203,
-  outputVaultId: vaultId103,
-  vmConfig: scriptB
-};
-const order4 : order = {
-  orderHash: orderHash4,
-  owner: sender4,
-  inputToken: token3,
-  outputToken: token2,
-  inputVaultId: vaultId304,
-  outputVaultId: vaultId204,
-  vmConfig: scriptB
-};
-
-// bounty config for performing the matchmaking
-const bountyConfig1: bountyConfig = {
-  aVaultId: paddedUInt256("0x88"),
-  bVaultId: paddedUInt256("0x99")
-}
-
-// simulating an orderbook cycle
-async function bot() {
-  try{
-    const matchmaker = new MatchMaker(orderbook, sender6);
-    matchmaker.timestamp = 1;
-
-    matchmaker.addAssets(tokens);
-    matchmaker.setSender(sender6);
-
-    console.log("checking sender1 balance of token 0x2:")
-    console.log("sender1 token0x2 balance before adding order and depositing:  " + matchmaker.erc20s[token2].balanceOf[sender1].div(eighteenZeros).toNumber());
-
-    console.log("---------------------------------------")
-    console.log("adding orders")
-    await matchmaker.addOrder(order1);
-    await matchmaker.addOrder(order3);
-    await matchmaker.addOrder(order2);
-    await matchmaker.addOrder(order4);
-
-    console.log("---------------------------------------")
-    console.log("checking output valut balances of sener1 and sender3")
-    console.log("sender1 outputValt balance before depositing:  " + matchmaker.vaults[sender1][token2].vaultId[vaultId201].div("100000000000000").toNumber()/10000)
-    console.log("sender3 outputValt balance before depositing:  " + matchmaker.vaults[sender3][token1].vaultId[vaultId103].div("100000000000000").toNumber()/10000)
-    console.log("sender2 outputValt balance before depositing:  " + matchmaker.vaults[sender2][token3].vaultId[vaultId302].div("100000000000000").toNumber()/10000)
-    console.log("sender4 outputValt balance before depositing:  " + matchmaker.vaults[sender4][token2].vaultId[vaultId204].div("100000000000000").toNumber()/10000)
-    
-    console.log("---------------------------------------")
-    console.log("depositing 30 tokens for order1 and 40 tokens for order3")
-    matchmaker.deposit(sender1, token2, vaultId201, 30);
-    matchmaker.deposit(sender3, token1, vaultId103, 40);
-    matchmaker.deposit(sender2, token3, vaultId302, 70);
-    matchmaker.deposit(sender4, token2, vaultId204, 60);
-
-    console.log("---------------------------------------")
-    console.log("checking the balances of sender1 and sender3 output vaults")
-
-    console.log("sender1 outputValt balance after depositing:  " + matchmaker.vaults[sender1][token2].vaultId[vaultId201].div("100000000000000").toNumber()/10000)
-    console.log("sender3 outputValt balance after depositing:  " + matchmaker.vaults[sender3][token1].vaultId[vaultId103].div("100000000000000").toNumber()/10000)
-    console.log("sender2 outputValt balance after depositing:  " + matchmaker.vaults[sender2][token3].vaultId[vaultId302].div("100000000000000").toNumber()/10000)
-    console.log("sender4 outputValt balance after depositing:  " + matchmaker.vaults[sender4][token2].vaultId[vaultId204].div("100000000000000").toNumber()/10000)
-
-    console.log("---------------------------------------")
-    console.log("checking sender1 balance of token 0x2")
-    console.log("sender1 token0x2 balance after dpositing:   " + matchmaker.erc20s[token2].balanceOf[sender1].div(eighteenZeros).toNumber())
-
-    console.log("---------------------------------------")
-    console.log("performing the match")
-
-    var t = timer("benchmark")
-    await matchmaker.makeMatch(bountyConfig1);
-    let result = t.stop()
-
-    console.log("---------------------------------------")
-    console.log("checking output balances of sender1's and sender3's output vaults")
-    console.log("sender1 outputValt balance after matching:  " + matchmaker.vaults[sender1][token2].vaultId[vaultId201].div("100000000000000").toNumber()/10000)
-    console.log("sender3 outputValt balance after matching:  " + matchmaker.vaults[sender3][token1].vaultId[vaultId103].div("100000000000000").toNumber()/10000)
-    console.log("sender2 outputValt balance after matching:  " + matchmaker.vaults[sender2][token3].vaultId[vaultId302].div("100000000000000").toNumber()/10000)
-    console.log("sender4 outputValt balance after matching:  " + matchmaker.vaults[sender4][token2].vaultId[vaultId204].div("100000000000000").toNumber()/10000)
-
-    console.log("---------------------------------------")
-    console.log("checking input balances of sender1's and sender3's output vaults")
-    console.log("sender1 inputValt balance after matching:  " + matchmaker.vaults[sender1][token1].vaultId[vaultId101].div("100000000000000").toNumber()/10000)
-    console.log("sender3 inputValt balance after matching:  " + matchmaker.vaults[sender3][token2].vaultId[vaultId203].div("100000000000000").toNumber()/10000)
-    console.log("sender2 inputValt balance after matching:  " + matchmaker.vaults[sender2][token2].vaultId[vaultId202].div("100000000000000").toNumber()/10000)
-    console.log("sender4 inputValt balance after matching:  " + matchmaker.vaults[sender4][token3].vaultId[vaultId304].div("100000000000000").toNumber()/10000)
-
-    console.log("---------------------------------------")
-    console.log("checking total bounty balance")
-    console.log("total bounties collected of token0x2:  " + Object.values(matchmaker.vaults[sender6][token2].vaultId).reduce((e, m) => e.add(m))
-    .div("100000000000000").toNumber()/10000)
-    console.log("total bounties collected of token0x1:  " + Object.values(matchmaker.vaults[sender6][token1].vaultId).reduce((e, m) => e.add(m))
-    .div("100000000000000").toNumber()/10000)
-    console.log("total bounties collected of token0x3:  " + Object.values(matchmaker.vaults[sender6][token3].vaultId).reduce((e, m) => e.add(m))
-    .div("100000000000000").toNumber()/10000)
-    // console.log("bounty aOutput of token0x2 Vault0x88 balance:  " + matchmaker.vaults[sender6][token2].vaultId[paddedUInt256("0x88")].div("10000000000000000").toNumber()/100)
-    // console.log("bounty bOutput of token0x1 Vault0x99 balance:  " + matchmaker.vaults[sender6][token1].vaultId[paddedUInt256("0x99")].div("10000000000000000").toNumber()/100)
-    // console.log("bounty aOutput of token0x1 Vault0x88 balance:  " + matchmaker.vaults[sender6][token1].vaultId[paddedUInt256("0x88")].div("10000000000000000").toNumber()/100)
-    // console.log("bounty bOutput of token0x2 Vault0x99 balance:  " + matchmaker.vaults[sender6][token2].vaultId[paddedUInt256("0x99")].div("10000000000000000").toNumber()/100)
-
-    // second matchmaking round
-    // increasing the timestamp for second matchmaking
-    // matchmaker.timestamp = 1700
-
-    // let result2 = await matchmaker.makeMatch();
-    // console.log(result2);
-
-    console.log("---------------------------------------")
-    console.log(result.name + " of this matchmaking round: " + result.time + " ms")
-  }
-  catch(err){
-    console.log(err)
-  }
-}
-bot()

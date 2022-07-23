@@ -50,10 +50,10 @@ await EmissionsERC20.isChild(signer, newEmission.address);
 |  [connect](./emissionserc20.md#connect-property) | `(signer: Signer) => EmissionsERC20` | Conncect to this EmissionsERC20 contract with another signer<br></br>*Overrides [ITierV2.connect](./itierv2.md#connect-property)* |
 |  [decimals](./emissionserc20.md#decimals-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the number of decimals used to get its user representation. (It is always 18 for this contract type) |
 |  [decreaseAllowance](./emissionserc20.md#decreaseAllowance-property) | `(spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Automatically decreases the allowance granted to `spender` for this token.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
-|  [fnPtrs](./emissionserc20.md#fnPtrs-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [increaseAllowance](./emissionserc20.md#increaseAllowance-property) | `(spender: string, addedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>` | Automically increases the allowance granted to `spender` for this token.<br></br>This is an alternative to `approve()` that can be used as a mitigation for problems described in https://github.com/ethereum/EIPs/issues/20\#issuecomment-263524729. |
 |  [levels](./itierv2.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [ITierV2.levels](./itierv2.md#levels-property)* |
 |  [name](./emissionserc20.md#name-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the name of the token. |
+|  [packedFunctionPointers](./emissionserc20.md#packedFunctionPointers-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [report](./itierv2.md#report-property) | `(account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [ITierV2.report](./itierv2.md#report-property)* |
 |  [reportTimeForTier](./itierv2.md#reportTimeForTier-property) | `(account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | Same as report but only returns the time for a single tier. Often the implementing contract can calculate a single tier more efficiently than all 8 tiers. If the consumer only needs one or a few tiers it MAY be much cheaper to request only those tiers individually.<br></br>*Inherited from [ITierV2.reportTimeForTier](./itierv2.md#reportTimeForTier-property)* |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
@@ -236,18 +236,6 @@ This is an alternative to `approve()` that can be used as a mitigation for probl
 readonly decreaseAllowance: (spender: string, subtractedValue: BigNumberish, overrides?: TxOverrides) => Promise<ContractTransaction>;
 ```
 
-<a id="fnPtrs-property"></a>
-
-### fnPtrs
-
-Pointers to opcode functions, necessary for being able to read the packedBytes
-
-<b>Signature:</b>
-
-```typescript
-readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
-```
-
 <a id="increaseAllowance-property"></a>
 
 ### increaseAllowance
@@ -272,6 +260,18 @@ Returns the name of the token.
 
 ```typescript
 readonly name: (overrides?: ReadTxOverrides) => Promise<string>;
+```
+
+<a id="packedFunctionPointers-property"></a>
+
+### packedFunctionPointers
+
+Pointers to opcode functions, necessary for being able to read the packedBytes
+
+<b>Signature:</b>
+
+```typescript
+readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 ```
 
 <a id="storageOpcodesRange-property"></a>

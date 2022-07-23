@@ -50,9 +50,9 @@ await existingSale.buy(config_)
 |  [claimFees](./sale.md#claimFees-property) | `(recipient: string, overrides?: TxOverrides) => Promise<ContractTransaction>` | After a sale ends in success all fees collected for a recipient can be cleared. If the raise is active or fails then fees cannot be claimed as they are set aside in case of refund. A failed raise implies that all buyers should immediately refund and zero fees claimed. |
 |  [connect](./sale.md#connect-property) | `(signer: Signer) => Sale` | Conncect to this Sale contract with another signer<br></br>*Overrides [RainContract.connect](./raincontract.md#connect-property)* |
 |  [end](./sale.md#end-property) | `(overrides?: TxOverrides) => Promise<ContractTransaction>` | End the sale (move from active to success or fail). This is also done automatically inline with each `buy` call so is optional for anon to call outside of a purchase. - `canLive` MUST return true and sale status must be either `Active`<!-- -->. |
-|  [fnPtrs](./sale.md#fnPtrs-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [getRedeemable](./sale.md#getRedeemable-property) | `(signer?: Signer) => Promise<RedeemableERC20>` | Obtain the instance redeemable token from this sale. |
 |  [getReserve](./sale.md#getReserve-property) | `(signer?: Signer) => Promise<ERC20>` | Obtain the instance of the reserve from this sale as a generic ERC20 Token |
+|  [packedFunctionPointers](./sale.md#packedFunctionPointers-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [refund](./sale.md#refund-property) | `(receipt: Receipt, overrides?: TxOverrides) => Promise<ContractTransaction>` | Rollback a buy given its receipt. Ignoring gas (which cannot be refunded) the refund process rolls back all state changes caused by a buy, other than the receipt id increment. Refunds are limited by the global cooldown to mitigate rapid buy/refund cycling that could cause volatile price curves or other unwanted side effects for other sale participants. Cooldowns are bypassed if the sale ends and is a failure. |
 |  [reserve](./sale.md#reserve-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Returns the address of the token that sale prices are denominated in. MUST NOT change during the lifecycle of the sale contract. |
 |  [saleStatus](./sale.md#saleStatus-property) | `(overrides?: ReadTxOverrides) => Promise<number>` | Returns the current `SaleStatus` of the sale. Represents a linear progression of the sale through its major lifecycle events. |
@@ -194,18 +194,6 @@ End the sale (move from active to success or fail). This is also done automatica
 readonly end: (overrides?: TxOverrides) => Promise<ContractTransaction>;
 ```
 
-<a id="fnPtrs-property"></a>
-
-### fnPtrs
-
-Pointers to opcode functions, necessary for being able to read the packedBytes
-
-<b>Signature:</b>
-
-```typescript
-readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
-```
-
 <a id="getRedeemable-property"></a>
 
 ### getRedeemable
@@ -228,6 +216,18 @@ Obtain the instance of the reserve from this sale as a generic ERC20 Token
 
 ```typescript
 readonly getReserve: (signer?: Signer) => Promise<ERC20>;
+```
+
+<a id="packedFunctionPointers-property"></a>
+
+### packedFunctionPointers
+
+Pointers to opcode functions, necessary for being able to read the packedBytes
+
+<b>Signature:</b>
+
+```typescript
+readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 ```
 
 <a id="refund-property"></a>

@@ -55,12 +55,13 @@ const alwaysTier = await CombineTier.getAlwaysTier(signer);
 |  --- | --- | --- |
 |  [address](./raincontract.md#address-property) | `string` | The contract address of the instance.<br></br>*Inherited from [RainContract.address](./raincontract.md#address-property)* |
 |  [connect](./combinetier.md#connect-property) | `(signer: Signer) => CombineTier` | Conncect to this CombineTier contract with another signer<br></br>*Overrides [ITierV2.connect](./itierv2.md#connect-property)* |
-|  [fnPtrs](./combinetier.md#fnPtrs-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [levels](./itierv2.md#levels-property) | `typeof Tier` | All the contract tier levels availables in all ITier contracts.<br></br>*Inherited from [ITierV2.levels](./itierv2.md#levels-property)* |
+|  [packedFunctionPointers](./combinetier.md#packedFunctionPointers-property) | `(overrides?: ReadTxOverrides) => Promise<string>` | Pointers to opcode functions, necessary for being able to read the packedBytes |
 |  [report](./itierv2.md#report-property) | `(account: string, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | A tier report is a `uint256` that contains each of the block numbers each tier has been held continously since as a `uint32`<!-- -->.<br></br>*Inherited from [ITierV2.report](./itierv2.md#report-property)* |
 |  [reportTimeForTier](./itierv2.md#reportTimeForTier-property) | `(account: string, tier: BigNumberish, context: BigNumberish[], overrides?: ReadTxOverrides) => Promise<BigNumber>` | Same as report but only returns the time for a single tier. Often the implementing contract can calculate a single tier more efficiently than all 8 tiers. If the consumer only needs one or a few tiers it MAY be much cheaper to request only those tiers individually.<br></br>*Inherited from [ITierV2.reportTimeForTier](./itierv2.md#reportTimeForTier-property)* |
 |  [signer](./raincontract.md#signer-property) | `Signer` | The ethers signer that is connected to the instance.<br></br>*Inherited from [RainContract.signer](./raincontract.md#signer-property)* |
 |  [storageOpcodesRange](./combinetier.md#storageOpcodesRange-property) | `(overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>` | Returns the pointer and length for combineTier's storage opcodes |
+|  [supportsInterface](./combinetier.md#supportsInterface-property) | `(interfaceId_: BytesLike, overrides?: ReadTxOverrides) => Promise<boolean>` |  |
 
 ## Static Methods
 
@@ -176,16 +177,16 @@ Conncect to this CombineTier contract with another signer
 readonly connect: (signer: Signer) => CombineTier;
 ```
 
-<a id="fnPtrs-property"></a>
+<a id="packedFunctionPointers-property"></a>
 
-### fnPtrs
+### packedFunctionPointers
 
 Pointers to opcode functions, necessary for being able to read the packedBytes
 
 <b>Signature:</b>
 
 ```typescript
-readonly fnPtrs: (overrides?: ReadTxOverrides) => Promise<string>;
+readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 ```
 
 <a id="storageOpcodesRange-property"></a>
@@ -198,4 +199,15 @@ Returns the pointer and length for combineTier's storage opcodes
 
 ```typescript
 readonly storageOpcodesRange: (overrides?: ReadTxOverrides) => Promise<StorageOpcodesRange>;
+```
+
+<a id="supportsInterface-property"></a>
+
+### supportsInterface
+
+
+<b>Signature:</b>
+
+```typescript
+readonly supportsInterface: (interfaceId_: BytesLike, overrides?: ReadTxOverrides) => Promise<boolean>;
 ```

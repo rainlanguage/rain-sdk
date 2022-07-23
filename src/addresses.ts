@@ -2,7 +2,7 @@
  * @public
  * Type for index sugbraph endpoints by chain ID.
  */
-export type SubgraphBook = {
+ export type SubgraphBook = {
   [key: number]: string;
 };
 
@@ -24,6 +24,7 @@ export type Addresses = {
   alwaysTier: string;
   stakeFactory: string;
   orderBook: string;
+  autoApproveFactory: string;
 };
 
 const addressBook = [
@@ -45,6 +46,7 @@ const addressBook = [
       verifyTierFactory: '',
       stakeFactory: '',
       orderBook: '',
+      autoApproveFactory: '',
     },
   },
   {
@@ -65,6 +67,7 @@ const addressBook = [
       verifyTierFactory: '',
       stakeFactory: '',
       orderBook: '',
+      autoApproveFactory: '',
     },
   },
   {
@@ -85,6 +88,7 @@ const addressBook = [
       verifyTierFactory: '',
       stakeFactory: '',
       orderBook: '',
+      autoApproveFactory: '',
     },
   },
   {
@@ -105,6 +109,7 @@ const addressBook = [
       verifyTierFactory: '',
       stakeFactory: '',
       orderBook: '',
+      autoApproveFactory: '',
     },
   },
   {
@@ -125,6 +130,7 @@ const addressBook = [
       verifyTierFactory: '',
       stakeFactory: '',
       orderBook: '',
+      autoApproveFactory: '',
     },
   },
   {
@@ -145,6 +151,7 @@ const addressBook = [
       saleFactory: '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6',
       stakeFactory: '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318',
       orderBook: '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e',
+      autoApproveFactory: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82',
     },
   },
   {
@@ -165,6 +172,7 @@ const addressBook = [
       verifyTierFactory: '',
       stakeFactory: '',
       orderBook: '',
+      autoApproveFactory: '',
     },
   },
   {
@@ -185,6 +193,7 @@ const addressBook = [
       verifyTierFactory: '0xAf6D4770E78D2d6ad8675666E251933649A8467e',
       stakeFactory: '0x96031f3ba3C57B5a5ea6f7581b61bCf0a9cC51b3',
       orderBook: '0xb8BADe9783a815512A67B86e5fE967e9B861E102',
+      autoApproveFactory: '',
     },
   },
 ];

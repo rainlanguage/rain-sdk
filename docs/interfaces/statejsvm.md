@@ -16,7 +16,7 @@ interface StateJSVM
 |  [argumentsStack](./statejsvm.md#argumentsStack-property) | `BigNumber[]` | Used only for zipmap opcode |
 |  [constants](./statejsvm.md#constants-property) | `BigNumber[]` | The property to store the RainVM script constants. |
 |  [sources](./statejsvm.md#sources-property) | `Uint8Array[]` | The property to store the RainVM script sources. |
-|  [stack](./statejsvm.md#stack-property) | `BigNumber[]` | The RainJS's stack. |
+|  [stack](./statejsvm.md#stack-property) | `BigNumber[]` | The RainJSVM's stack. |
 
 ## Property Details
 
@@ -60,7 +60,7 @@ readonly sources: Uint8Array[];
 
 ### stack
 
-The RainJS's stack.
+The RainJSVM's stack.
 
 <b>Signature:</b>
 

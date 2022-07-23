@@ -2,16 +2,13 @@ import { RainJSVM } from "../RainJSVM";
 import { BigNumber, ethers } from "ethers";
 import { Tier } from "../../classes/iTierV2";
 import { StateConfig, VM } from "../../classes/vm";
+import { paddedUInt160, paddedUInt256 } from "../../utils";
 import { 
-  paddedUInt160, 
-  paddedUInt256,
-} from "../../utils";
-import { 
-  FnPtrs,
-  erc20s,
-  itiers,
-  erc721s,
-  erc1155s,
+  FnPtrsJSVM,
+  SERC20s,
+  SITiers,
+  SERC721s,
+  SERC1155s,
   StateJSVM,
 } from "../types";
 
@@ -32,25 +29,25 @@ export class vmSimulation {
    * A property of type erc20s that act like a storage for simulation and stores the erc20 token data.
    * this is needed for IERC20 related opcodes @see erc20s and @see erc20
    */
-  public erc20s: erc20s = {};
+  public erc20s: SERC20s = {};
  
   /**
    * A property of type erc721s that act like a storage for simulation and stores the erc721 token data.
    * this is needed for IERC721 related opcodes @see erc721s and @see erc721
    */
-  public erc721s: erc721s = {};
+  public erc721s: SERC721s = {};
  
   /**
    * A property of type erc1155s that act like a storage for simulation and stores the erc1155 token data.
    * this is needed for IERC1155 related opcodes @see erc1155s and @see erc1155
    */
-  public erc1155s: erc1155s = {};
+  public erc1155s: SERC1155s = {};
  
   /**
    * A property of type itiers that act like a storage for simulation of Rain tier contracts.
    * this is needed for ITIERV2_REPORT and ITIERV2_REPORT_TIME_FOR_TIER opcodes. @see itiers
    */
-  public iTiers: itiers = {};
+  public iTiers: SITiers = {};
  
   /**
    * The contract address of this simulation that the simulation is done for. this is needed for THIS_ADDRESS opcode 
@@ -76,9 +73,9 @@ export class vmSimulation {
   public blockNumber?: number;
 
   /**
-   * Opcodes functions body for simulation that use the class properties/types. @see FnPtrs and @see OpcodeFN
+   * Opcodes functions body for simulation that use the class properties/types. @see FnPtrsJSVM and @see OpJSVM
    */
-  protected OpFns: FnPtrs = {
+  protected OpFns: FnPtrsJSVM = {
 
     [VM.Opcodes.BLOCK_NUMBER]: (state: StateJSVM, operand: number, data?: any) => {
       if (data && data.blockNumber !== undefined) {
@@ -372,7 +369,7 @@ export class vmSimulation {
    * @param erc721s - An object of type erc721s
    * @param erc1155s - An object of type erc1155s
    */
-  public addAssets(erc20s?: erc20s, erc721s?: erc721s, erc1155s?: erc1155s) {
+  public addAssets(erc20s?: SERC20s, erc721s?: SERC721s, erc1155s?: SERC1155s) {
     if (erc20s) {
       for (let i = 0; i < Object.keys(erc20s).length; i++) {
         if (Object.keys(this.erc20s).includes(Object.keys(erc20s)[i])) {
@@ -404,7 +401,7 @@ export class vmSimulation {
    * 
    * @param iTiers - An Object of itiers type
    */
-  public addITiers (iTiers: itiers) {
+  public addITiers (iTiers: SITiers) {
     for (let i = 0; i < Object.keys(iTiers).length; i++) {
       if (Object.keys(this.iTiers).includes(Object.keys(iTiers)[i])) {
         delete this.iTiers[Object.keys(iTiers)[i]]
