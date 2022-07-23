@@ -1695,11 +1695,9 @@ export class VM {
     tierConfig: StateConfig,
   ) : StateConfig {
 
-    return VM.isZero(
-      VM.isEqual(
-        tierConfig,
-        VM.constant(ethers.constants.MaxUint256)
-      )
+    return VM.lt(
+      tierConfig,
+      VM.constant(ethers.constants.MaxUint256)
     )
   }
 
