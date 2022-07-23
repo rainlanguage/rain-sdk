@@ -230,7 +230,7 @@ const subgraphBook: SubgraphBook = {
   /**
    * Mumbai chain
    */
-  80001: '',
+  80001: 'https://api.thegraph.com/subgraphs/name/beehive-innovation/rain-protocol-mumbai-v3',
 };
 
 /**
