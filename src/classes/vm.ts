@@ -13,6 +13,7 @@ import {
   arrayify,
   parseUnits,
 } from '../utils';
+import { CombineTierGenerator } from '../contracts/script-generators/combineTierScriptGenerator';
 
 /**
  * @public
@@ -558,7 +559,7 @@ export class VM {
    */
   public static multi(configs: StateConfig[]) : StateConfig {
 
-    if (configs.length > 2) {
+    if (configs.length > 1) {
       let _result: StateConfig = configs[0];
 
       for (let i = 1; i < configs.length; i++) {
@@ -1725,3 +1726,11 @@ export class VM {
   }
 
 }
+
+const rule1 = VM.and([
+  VM.beforeAfterTime(1, "lt"),
+  VM.hasAnyTier(
+    new CombineTierGenerator("jhgiggi")
+  )
+]);
+console.log(rule1)
