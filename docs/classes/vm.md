@@ -19,28 +19,28 @@ class VM
 
 |  Method | Description |
 |  --- | --- |
-|  [addTogether(configs)](./vm.md#addTogether-method-static-1) | Method to add multiple scripts together |
-|  [and(configs)](./vm.md#and-method-static-1) | Method to and multiple scripts together ie EVERY |
+|  [addTogether(configs, stackReassignment)](./vm.md#addTogether-method-static-1) | Method to add multiple scripts together |
+|  [and(configs, stackReassignment)](./vm.md#and-method-static-1) | Method to and multiple scripts together ie EVERY |
 |  [beforeAfterBlock(blockNumber, type: "gt" \| "lt" \| "gte" \| "lte")](./vm.md#beforeAfterBlock-method-static-1) | Method to create a simple block number based rule |
 |  [beforeAfterTime(timestamp, type: "gt" \| "lt" \| "gte" \| "lte")](./vm.md#beforeAfterTime-method-static-1) | Method to create a simple time based rule |
 |  [combiner(config1, config2, options)](./vm.md#combiner-method-static-1) | Combines 2 individual VM scripts |
 |  [constant(value)](./vm.md#constant-method-static-1) | Methdo to create a simple signle value script, ie CONTANT |
 |  [createVMSources(OPerands)](./vm.md#createVMSources-method-static-1) | Create a VM sources to be ready to use in any call just providing the combination desired. |
 |  [getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id)](./vm.md#getAsset-method-static-1) | A method to generate the StateConfig out of EVM assets' opcodes |
-|  [gt(config1, config2)](./vm.md#gt-method-static-1) | Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not |
-|  [gte(config1, config2)](./vm.md#gte-method-static-1) | Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not |
-|  [hasAnyTier(tierConfig)](./vm.md#hasAnyTier-method-static-1) | Method to check if an address has any tier status or not, i.e if is in tier contract or not |
-|  [hasMinTier(tierConfig, tier)](./vm.md#hasMinTier-method-static-1) | Method to check if an address has at least the "TIER" status |
-|  [ifelse(condition, ifStatement, elseStatement)](./vm.md#ifelse-method-static-1) | Method to create an if/else script |
-|  [isEqual(config1, config2)](./vm.md#isEqual-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
+|  [gt(config1, config2, stackReassignment)](./vm.md#gt-method-static-1) | Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not |
+|  [gte(config1, config2, stackReassignment)](./vm.md#gte-method-static-1) | Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not |
+|  [hasAnyTier(tierConfig, stackReassignment)](./vm.md#hasAnyTier-method-static-1) | Method to check if an address has any tier status or not, i.e if is in tier contract or not |
+|  [hasMinTier(tierConfig, tier, stackReassignment)](./vm.md#hasMinTier-method-static-1) | Method to check if an address has at least the "TIER" status |
+|  [ifelse(condition, ifStatement, elseStatement, stackReassignment)](./vm.md#ifelse-method-static-1) | Method to create an if/else script |
+|  [isEqual(config1, config2, stackReassignment)](./vm.md#isEqual-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [isZero(config)](./vm.md#isZero-method-static-1) | Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not |
-|  [lt(config1, config2)](./vm.md#lt-method-static-1) | Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not |
-|  [lte(config1, config2)](./vm.md#lte-method-static-1) | Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not |
-|  [max(configs)](./vm.md#max-method-static-1) | Method to get maximum of multiple scripts |
-|  [min(configs)](./vm.md#min-method-static-1) | Method to get minimum of multiple scripts |
+|  [lt(config1, config2, stackReassignment)](./vm.md#lt-method-static-1) | Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not |
+|  [lte(config1, config2, stackReassignment)](./vm.md#lte-method-static-1) | Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not |
+|  [max(configs, stackReassignment)](./vm.md#max-method-static-1) | Method to get maximum of multiple scripts |
+|  [min(configs, stackReassignment)](./vm.md#min-method-static-1) | Method to get minimum of multiple scripts |
 |  [multi(configs, stackReassignment)](./vm.md#multi-method-static-1) | A method to combine multiple StateConfigs together each on top of the other at the first item in final sources. |
-|  [mulTogether(configs)](./vm.md#mulTogether-method-static-1) | Method to multiply multiple scripts together |
-|  [or(configs)](./vm.md#or-method-static-1) | Method to or multiple scripts together ie ANY |
+|  [mulTogether(configs, stackReassignment)](./vm.md#mulTogether-method-static-1) | Method to multiply multiple scripts together |
+|  [or(configs, stackReassignment)](./vm.md#or-method-static-1) | Method to or multiple scripts together ie ANY |
 |  [pair(amountConfig, priceConfig, stackReassignment)](./vm.md#pair-method-static-1) | method to create paired(amount-price) StateConfig, which is used for sale, orderbook, etc |
 |  [setDiscountForTiers(config, tierAddress, tierDiscount, options)](./vm.md#setDiscountForTiers-method-static-1) | Deducts percentage off of the result of a VM script based on a tier contract. |
 |  [setMultiplierForTiers(config, tierAddress, tierMultiplier, options)](./vm.md#setMultiplierForTiers-method-static-1) | Multiply the result of a VM script based on a tier contract. |
@@ -66,14 +66,14 @@ static Opcodes: typeof AllStandardOps;
 
 <a id="addTogether-method-static-1"></a>
 
-### addTogether(configs)
+### addTogether(configs, stackReassignment)
 
 Method to add multiple scripts together
 
 <b>Signature:</b>
 
 ```typescript
-static addTogether(configs: StateConfig[]): StateConfig;
+static addTogether(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -81,6 +81,7 @@ static addTogether(configs: StateConfig[]): StateConfig;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  configs | `StateConfig[]` | an array of configs to add |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -90,14 +91,14 @@ a
 
 <a id="and-method-static-1"></a>
 
-### and(configs)
+### and(configs, stackReassignment)
 
 Method to and multiple scripts together ie EVERY
 
 <b>Signature:</b>
 
 ```typescript
-static and(configs: StateConfig[]): StateConfig;
+static and(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -105,6 +106,7 @@ static and(configs: StateConfig[]): StateConfig;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  configs | `StateConfig[]` | an array of configs to and |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -270,14 +272,14 @@ a VM script
 
 <a id="gt-method-static-1"></a>
 
-### gt(config1, config2)
+### gt(config1, config2, stackReassignment)
 
 Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not
 
 <b>Signature:</b>
 
 ```typescript
-static gt(config1: StateConfig, config2: StateConfig): StateConfig;
+static gt(config1: StateConfig, config2: StateConfig, stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -286,6 +288,7 @@ static gt(config1: StateConfig, config2: StateConfig): StateConfig;
 |  --- | --- | --- |
 |  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
 |  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -295,14 +298,14 @@ a
 
 <a id="gte-method-static-1"></a>
 
-### gte(config1, config2)
+### gte(config1, config2, stackReassignment)
 
 Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not
 
 <b>Signature:</b>
 
 ```typescript
-static gte(config1: StateConfig, config2: StateConfig): StateConfig;
+static gte(config1: StateConfig, config2: StateConfig, stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -311,6 +314,7 @@ static gte(config1: StateConfig, config2: StateConfig): StateConfig;
 |  --- | --- | --- |
 |  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
 |  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -320,14 +324,14 @@ a
 
 <a id="hasAnyTier-method-static-1"></a>
 
-### hasAnyTier(tierConfig)
+### hasAnyTier(tierConfig, stackReassignment)
 
 Method to check if an address has any tier status or not, i.e if is in tier contract or not
 
 <b>Signature:</b>
 
 ```typescript
-static hasAnyTier(tierConfig: StateConfig): StateConfig;
+static hasAnyTier(tierConfig: StateConfig, stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -335,6 +339,7 @@ static hasAnyTier(tierConfig: StateConfig): StateConfig;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  tierConfig | [StateConfig](../interfaces/stateconfig.md) | the tier report config |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -344,14 +349,14 @@ a VM script
 
 <a id="hasMinTier-method-static-1"></a>
 
-### hasMinTier(tierConfig, tier)
+### hasMinTier(tierConfig, tier, stackReassignment)
 
 Method to check if an address has at least the "TIER" status
 
 <b>Signature:</b>
 
 ```typescript
-static hasMinTier(tierConfig: StateConfig, tier: Tier): StateConfig;
+static hasMinTier(tierConfig: StateConfig, tier: Tier, stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -360,6 +365,7 @@ static hasMinTier(tierConfig: StateConfig, tier: Tier): StateConfig;
 |  --- | --- | --- |
 |  tierConfig | [StateConfig](../interfaces/stateconfig.md) | the tier report config |
 |  tier | [Tier](../enums/tier.md) | the minimum tier needed to be held |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -369,14 +375,14 @@ a VM script
 
 <a id="ifelse-method-static-1"></a>
 
-### ifelse(condition, ifStatement, elseStatement)
+### ifelse(condition, ifStatement, elseStatement, stackReassignment)
 
 Method to create an if/else script
 
 <b>Signature:</b>
 
 ```typescript
-static ifelse(condition: StateConfig, ifStatement: StateConfig, elseStatement: StateConfig): StateConfig;
+static ifelse(condition: StateConfig, ifStatement: StateConfig, elseStatement: StateConfig, stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -386,6 +392,7 @@ static ifelse(condition: StateConfig, ifStatement: StateConfig, elseStatement: S
 |  condition | [StateConfig](../interfaces/stateconfig.md) | the condition script ie the if check statement |
 |  ifStatement | [StateConfig](../interfaces/stateconfig.md) | the script(statement) if the check passes |
 |  elseStatement | [StateConfig](../interfaces/stateconfig.md) | the script(statement) if the check fails |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -395,14 +402,14 @@ a
 
 <a id="isEqual-method-static-1"></a>
 
-### isEqual(config1, config2)
+### isEqual(config1, config2, stackReassignment)
 
 Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not
 
 <b>Signature:</b>
 
 ```typescript
-static isEqual(config1: StateConfig, config2: StateConfig): StateConfig;
+static isEqual(config1: StateConfig, config2: StateConfig, stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -411,6 +418,7 @@ static isEqual(config1: StateConfig, config2: StateConfig): StateConfig;
 |  --- | --- | --- |
 |  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
 |  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -444,14 +452,14 @@ a
 
 <a id="lt-method-static-1"></a>
 
-### lt(config1, config2)
+### lt(config1, config2, stackReassignment)
 
 Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not
 
 <b>Signature:</b>
 
 ```typescript
-static lt(config1: StateConfig, config2: StateConfig): StateConfig;
+static lt(config1: StateConfig, config2: StateConfig, stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -460,6 +468,7 @@ static lt(config1: StateConfig, config2: StateConfig): StateConfig;
 |  --- | --- | --- |
 |  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
 |  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -469,14 +478,14 @@ a
 
 <a id="lte-method-static-1"></a>
 
-### lte(config1, config2)
+### lte(config1, config2, stackReassignment)
 
 Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not
 
 <b>Signature:</b>
 
 ```typescript
-static lte(config1: StateConfig, config2: StateConfig): StateConfig;
+static lte(config1: StateConfig, config2: StateConfig, stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -485,6 +494,7 @@ static lte(config1: StateConfig, config2: StateConfig): StateConfig;
 |  --- | --- | --- |
 |  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
 |  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -494,14 +504,14 @@ a
 
 <a id="max-method-static-1"></a>
 
-### max(configs)
+### max(configs, stackReassignment)
 
 Method to get maximum of multiple scripts
 
 <b>Signature:</b>
 
 ```typescript
-static max(configs: StateConfig[]): StateConfig;
+static max(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -509,6 +519,7 @@ static max(configs: StateConfig[]): StateConfig;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  configs | `StateConfig[]` | an array of configs to get maximum of |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -518,14 +529,14 @@ a
 
 <a id="min-method-static-1"></a>
 
-### min(configs)
+### min(configs, stackReassignment)
 
 Method to get minimum of multiple scripts
 
 <b>Signature:</b>
 
 ```typescript
-static min(configs: StateConfig[]): StateConfig;
+static min(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -533,6 +544,7 @@ static min(configs: StateConfig[]): StateConfig;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  configs | `StateConfig[]` | an array of configs to get minimum of |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -567,14 +579,14 @@ a
 
 <a id="mulTogether-method-static-1"></a>
 
-### mulTogether(configs)
+### mulTogether(configs, stackReassignment)
 
 Method to multiply multiple scripts together
 
 <b>Signature:</b>
 
 ```typescript
-static mulTogether(configs: StateConfig[]): StateConfig;
+static mulTogether(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -582,6 +594,7 @@ static mulTogether(configs: StateConfig[]): StateConfig;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  configs | `StateConfig[]` | an array of configs to multiply |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -591,14 +604,14 @@ a
 
 <a id="or-method-static-1"></a>
 
-### or(configs)
+### or(configs, stackReassignment)
 
 Method to or multiple scripts together ie ANY
 
 <b>Signature:</b>
 
 ```typescript
-static or(configs: StateConfig[]): StateConfig;
+static or(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -606,6 +619,7 @@ static or(configs: StateConfig[]): StateConfig;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  configs | `StateConfig[]` | an array of configs to or |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 

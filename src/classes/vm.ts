@@ -1144,11 +1144,14 @@ export class VM {
    * Method to multiply multiple scripts together
    * 
    * @param configs - an array of configs to multiply
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * 
    * @returns a @see StateConfig 
    */
-  public static mulTogether(configs: StateConfig[]): StateConfig { 
-    let result_ = VM.multi(configs)
+  public static mulTogether(configs: StateConfig[], stackReassignment: boolean = true): StateConfig { 
+    let result_ = VM.multi(configs, stackReassignment)
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.MUL, configs.length)
@@ -1161,11 +1164,13 @@ export class VM {
    * Method to add multiple scripts together
    * 
    * @param configs - an array of configs to add 
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig 
    */
-  public static addTogether(configs: StateConfig[]): StateConfig {
-    let result_ = VM.multi(configs)
+  public static addTogether(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.multi(configs, stackReassignment)
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.ADD, configs.length)
@@ -1178,11 +1183,13 @@ export class VM {
    * Method to get maximum of multiple scripts
    * 
    * @param configs - an array of configs to get maximum of 
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig 
    */
-  public static max(configs: StateConfig[]): StateConfig {
-    let result_ = VM.multi(configs)
+  public static max(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.multi(configs, stackReassignment)
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.MAX, configs.length)
@@ -1195,11 +1202,13 @@ export class VM {
    * Method to get minimum of multiple scripts
    * 
    * @param configs - an array of configs to get minimum of  
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig 
    */
-  public static min(configs: StateConfig[]): StateConfig {
-    let result_ = VM.multi(configs)
+  public static min(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.multi(configs, stackReassignment)
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.MIN, configs.length)
@@ -1212,11 +1221,13 @@ export class VM {
    * Method to and multiple scripts together ie EVERY
    * 
    * @param configs - an array of configs to and
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
    */
-  public static and(configs: StateConfig[]): StateConfig {
-    let result_ = VM.multi(configs)
+  public static and(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.multi(configs, stackReassignment)
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.EVERY, configs.length)
@@ -1229,11 +1240,13 @@ export class VM {
    * Method to or multiple scripts together ie ANY
    * 
    * @param configs - an array of configs to or
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
    */
-  public static or(configs: StateConfig[]): StateConfig {
-    let result_ = VM.multi(configs)
+  public static or(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.multi(configs, stackReassignment)
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.ANY, configs.length)
@@ -1248,16 +1261,19 @@ export class VM {
    * @param condition - the condition script ie the if check statement
    * @param ifStatement - the script(statement) if the check passes
    * @param elseStatement - the script(statement) if the check fails
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig 
    */
   public static ifelse(
     condition: StateConfig,
     ifStatement: StateConfig,
-    elseStatement: StateConfig
+    elseStatement: StateConfig,
+    stackReassignment: boolean = true
   ): StateConfig {
 
-    let result_ = VM.multi([condition, ifStatement, elseStatement])
+    let result_ = VM.multi([condition, ifStatement, elseStatement], stackReassignment)
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.EAGER_IF)
@@ -1305,11 +1321,13 @@ export class VM {
    * 
    * @param config1 - first script
    * @param config2 - second script
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
    */
-  public static isEqual(config1: StateConfig, config2: StateConfig): StateConfig {
-    let result_ = VM.pair(config1, config2);
+  public static isEqual(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.pair(config1, config2, stackReassignment);
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.EQUAL_TO)
@@ -1323,11 +1341,13 @@ export class VM {
    * 
    * @param config1 - first script
    * @param config2 - second script
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
    */
-  public static gt(config1: StateConfig, config2: StateConfig): StateConfig {
-    let result_ = VM.pair(config1, config2);
+  public static gt(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.pair(config1, config2, stackReassignment);
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.GREATER_THAN)
@@ -1341,11 +1361,13 @@ export class VM {
    * 
    * @param config1 - first script
    * @param config2 - second script
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
    */
-  public static lt(config1: StateConfig, config2: StateConfig): StateConfig {
-    let result_ = VM.pair(config1, config2);
+  public static lt(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.pair(config1, config2, stackReassignment);
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.LESS_THAN)
@@ -1359,11 +1381,13 @@ export class VM {
    * 
    * @param config1 - first script
    * @param config2 - second script 
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
    */
-  public static gte(config1: StateConfig, config2: StateConfig): StateConfig {
-    let result_ = VM.pair(config1, config2);
+  public static gte(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.pair(config1, config2, stackReassignment);
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.LESS_THAN),
@@ -1378,11 +1402,13 @@ export class VM {
    * 
    * @param config1 - first script
    * @param config2 - second script
-   * 
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
    */
-  public static lte(config1: StateConfig, config2: StateConfig): StateConfig {
-    let result_ = VM.pair(config1, config2);
+  public static lte(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.pair(config1, config2, stackReassignment);
     result_.sources[0] = concat([
       result_.sources[0],
       op(VM.Opcodes.GREATER_THAN),
@@ -1701,15 +1727,20 @@ export class VM {
    * Method to check if an address has any tier status or not, i.e if is in tier contract or not
    * 
    * @param tierConfig - the tier report config @see CombineTierGenerator
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a VM script @see StateConfig
    */
   public static hasAnyTier(
     tierConfig: StateConfig,
+    stackReassignment: boolean = true
   ) : StateConfig {
 
     return VM.lt(
       tierConfig,
-      VM.constant(ethers.constants.MaxUint256)
+      VM.constant(ethers.constants.MaxUint256),
+      stackReassignment
     )
   }
 
@@ -1718,11 +1749,15 @@ export class VM {
    * 
    * @param tierConfig - the tier report config @see CombineTierGenerator
    * @param tier - the minimum tier needed to be held
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a VM script @see StateConfig
    */
   public static hasMinTier(
     tierConfig: StateConfig,
-    tier: Tier
+    tier: Tier,
+    stackReassignment: boolean = true
   ) : StateConfig {
 
     const reportCheck = paddedUInt256(
@@ -1731,7 +1766,10 @@ export class VM {
       paddedUInt32("0").repeat(tier)
     )
 
-    return VM.gte(tierConfig, VM.constant(reportCheck))
+    return VM.gte(tierConfig, VM.constant(reportCheck), stackReassignment)
   }
 
 }
+const x = [7,2,6,1,5]
+x.sort()
+console.log(x)
