@@ -9,8 +9,8 @@ Options for instantiating RainJSVM
 type CallOptions = {
     signer?: Signer;
     contract?: string | Contract;
-    applyOpFn?: FnPtrs;
-    storageOpFn?: FnPtrs;
+    applyOpFn?: FnPtrsJSVM;
+    storageOpFn?: FnPtrsJSVM;
     opMeta?: Map<number, IOpMeta>;
 };
 ```

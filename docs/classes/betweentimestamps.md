@@ -91,7 +91,7 @@ please note that this method should not be used with applyExtraTime as they are 
 <b>Signature:</b>
 
 ```typescript
-afterMinimumRaise(minimumRaise: number, reserveTokenDecimals?: number): this;
+afterMinimumRaise(minimumRaise: number, reserveTokenDecimals?: number): BetweenTimestamps;
 ```
 
 #### Parameters
@@ -103,9 +103,9 @@ afterMinimumRaise(minimumRaise: number, reserveTokenDecimals?: number): this;
 
 <b>Returns:</b>
 
-`this`
+`BetweenTimestamps`
 
-this
+BetweenTimestamps
 
 <a id="applyExtraTime-method-1"></a>
 
@@ -118,7 +118,7 @@ Method to apply extra time to the sale duration. if the extra time criteria whic
 <b>Signature:</b>
 
 ```typescript
-applyExtraTime(extraTime: number, extraTimeAmount: number, reserveTokenDecimals?: number): this;
+applyExtraTime(extraTime: number, extraTimeAmount: number, reserveTokenDecimals?: number): BetweenTimestamps;
 ```
 
 #### Parameters
@@ -131,7 +131,7 @@ applyExtraTime(extraTime: number, extraTimeAmount: number, reserveTokenDecimals?
 
 <b>Returns:</b>
 
-`this`
+`BetweenTimestamps`
 
-this
+BetweenTimestamps
 

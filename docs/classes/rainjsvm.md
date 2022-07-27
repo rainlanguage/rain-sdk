@@ -13,18 +13,18 @@ class RainJSVM
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrs](../interfaces/fnptrs.md) | It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJSVM opcode functions should not change after an instance has be created. |
+|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJSVM opcode functions should not change after an instance has be created. |
 |  [constant](./rainjsvm.md#constant-property) | `(operand: number, data?: any) => void` |  |
 |  [context](./rainjsvm.md#context-property) | `(operand: number, data?: any) => void` |  |
 |  [ContextRange](./rainjsvm.md#ContextRange-property) | `number` | Length of the valid context argument accessible by eval |
 |  [debug](./rainjsvm.md#debug-property) | `(operand: number, data?: any) => void` |  |
-|  [fnPtrs](./rainjsvm.md#fnPtrs-property) | [FnPtrs](../interfaces/fnptrs.md) | key/value pair of opcodes and their functions for all standard opcodes |
+|  [fnPtrs](./rainjsvm.md#fnPtrs-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | key/value pair of opcodes and their functions for all standard opcodes |
 |  [lastState](./rainjsvm.md#lastState-property) | `BigNumber[]` | The result state of the executed Rainjs. |
 |  [self](./rainjsvm.md#self-property) | `string` | The contract address of the instance of this class used for THIS\_ADDRESS opcode |
 |  [signer](./rainjsvm.md#signer-property) | `Signer` | An ethers Signer. |
 |  [stack](./rainjsvm.md#stack-property) | `(operand: number, data?: any) => void` |  |
 |  [storage](./rainjsvm.md#storage-property) | `(operand: number, data?: any) => Promise<void>` |  |
-|  [StorageOps](./rainjsvm.md#StorageOps-property) | [FnPtrs](../interfaces/fnptrs.md) | Object that contains the STORAGE opcode functions (i.e. local opcodes) |
+|  [StorageOps](./rainjsvm.md#StorageOps-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | Object that contains the STORAGE opcode functions (i.e. local opcodes) |
 |  [StorageRange](./rainjsvm.md#StorageRange-property) | `number` | Range of available storage variables accessible by eval |
 |  [zipmap](./rainjsvm.md#zipmap-property) | `(operand: number, data?: any) => Promise<void>` |  |
 
@@ -53,7 +53,7 @@ It is a property for overriding the opcodes. Need to ba passed at the time of co
 <b>Signature:</b>
 
 ```typescript
-readonly applyOpFn?: FnPtrs;
+readonly applyOpFn?: FnPtrsJSVM;
 ```
 
 <a id="constant-property"></a>
@@ -109,7 +109,7 @@ key/value pair of opcodes and their functions for all standard opcodes
 <b>Signature:</b>
 
 ```typescript
-protected readonly fnPtrs: FnPtrs;
+protected readonly fnPtrs: FnPtrsJSVM;
 ```
 
 <a id="lastState-property"></a>
@@ -179,7 +179,7 @@ Object that contains the STORAGE opcode functions (i.e. local opcodes)
 <b>Signature:</b>
 
 ```typescript
-protected readonly StorageOps?: FnPtrs;
+protected readonly StorageOps?: FnPtrsJSVM;
 ```
 
 <a id="StorageRange-property"></a>
@@ -213,7 +213,7 @@ get zipmap(): (operand: number, data?: any) => Promise<void>;
 <b>Signature:</b>
 
 ```typescript
-static opsFromOpMeta(_opmeta: Map<number, import("../vm/OpMeta").IOpMeta>): FnPtrs;
+static opsFromOpMeta(_opmeta: Map<number, import("../vm/OpMeta").IOpMeta>): FnPtrsJSVM;
 ```
 
 #### Parameters
@@ -224,7 +224,7 @@ static opsFromOpMeta(_opmeta: Map<number, import("../vm/OpMeta").IOpMeta>): FnPt
 
 <b>Returns:</b>
 
-`FnPtrs`
+`FnPtrsJSVM`
 
 ## Method Details
 

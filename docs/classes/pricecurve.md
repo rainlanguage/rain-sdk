@@ -75,7 +75,7 @@ applyExtraTimeDiscount(endTimestamp: number, extraTimeDiscountThreshold: number,
 
 `PriceCurve`
 
-this
+PriceCurve
 
 <a id="applyTierDiscount-method-1"></a>
 
@@ -104,5 +104,5 @@ applyTierDiscount(tierAddress: string, tierDiscount: number[], options?: {
 
 `PriceCurve`
 
-this
+PriceCurve
 

@@ -524,27 +524,34 @@ export class VM {
    *
    * @param amountConfig - amount's StateConfig, the config sitting at top and returning the first value
    * @param priceConfig - price's StateConfig, the config sitting at bottom and returning the second value
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to 
+   * their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to
+   * any value outside of their own script scope (other scripts that are being combined) this way the STACK opcode 
+   * operand will stay untouched when scripts combine
    *
    * @returns a @see StatecConfig
    */
   public static pair(
     amountConfig: StateConfig,
-    priceConfig: StateConfig
+    priceConfig: StateConfig,
+    stackReassignment: boolean = true
   ): StateConfig {
-
-    for (let i = 0; i < priceConfig.sources.length; i++) {
-      let _stackOpcodeModify = arrayify(
-        priceConfig.sources[i],
-        {allowMissingPrefix: true}
-      );
-      for (let j = 0; j < _stackOpcodeModify.length; j++) {
-        if (_stackOpcodeModify[j] === 1) {
-          _stackOpcodeModify[j + 1]++;
+    if (stackReassignment) {
+      for (let i = 0; i < priceConfig.sources.length; i++) {
+        let _stackOpcodeModify = arrayify(
+          priceConfig.sources[i],
+          {allowMissingPrefix: true}
+        );
+        for (let j = 0; j < _stackOpcodeModify.length; j++) {
+          if (_stackOpcodeModify[j] === 1) {
+            _stackOpcodeModify[j + 1]++;
+          }
+          j++;
         }
-        j++;
+        priceConfig.sources[i] = _stackOpcodeModify;
       }
-      priceConfig.sources[i] = _stackOpcodeModify;
     }
+
     return VM.combiner(amountConfig, priceConfig);
   }
 
@@ -552,28 +559,33 @@ export class VM {
    * A method to combine multiple StateConfigs together each on top of the other at the first item in final sources.
    * 
    * @param configs - An array of StateConfigs to combine together and its lengths should be more than 2
-   * (can use VM.pair() method for combining 2 configs - @see pair)
+   * (can use VM.pair() method for combining 2 configs - @see pair
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * 
    * @returns a @see StateConfig
    */
-  public static multi(configs: StateConfig[]) : StateConfig {
+  public static multi(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
 
     if (configs.length > 1) {
       let _result: StateConfig = configs[0];
 
       for (let i = 1; i < configs.length; i++) {
-        for (let j = 0; j < configs[i].sources.length; j++) {
-          let _stackOpcodeModify = arrayify(
-            configs[i].sources[j],
-            {allowMissingPrefix: true}
-          );
-          for (let k = 0; k < _stackOpcodeModify.length; k++) {
-            if (_stackOpcodeModify[k] === 1) {
-              _stackOpcodeModify[k + 1] = _stackOpcodeModify[k + 1] + i;
+        if (stackReassignment) {
+          for (let j = 0; j < configs[i].sources.length; j++) {
+            let _stackOpcodeModify = arrayify(
+              configs[i].sources[j],
+              {allowMissingPrefix: true}
+            );
+            for (let k = 0; k < _stackOpcodeModify.length; k++) {
+              if (_stackOpcodeModify[k] === 1) {
+                _stackOpcodeModify[k + 1] = _stackOpcodeModify[k + 1] + i;
+              }
+              k++;
             }
-            k++;
+            configs[i].sources[j] = _stackOpcodeModify;
           }
-          configs[i].sources[j] = _stackOpcodeModify;
         }
         _result = VM.combiner(_result, configs[i])
       }

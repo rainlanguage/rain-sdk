@@ -29,6 +29,7 @@ export * from './jsvm/SaleJSVM';
 export * from './jsvm/types';
 
 export * from './jsvm/lib/FixedPointMath';
+export * from './jsvm/lib/Math';
 export * from './jsvm/lib/SaturatingMath';
 export * from './jsvm/lib/TierReport';
 export * from './jsvm/lib/TierwiseCombine';

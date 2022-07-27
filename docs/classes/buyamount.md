@@ -87,5 +87,5 @@ applyWalletCap(mode: BuyCapMode, options?: {
 
 `BuyAmount`
 
-this
+BuyAmount
 

@@ -20,7 +20,7 @@ interface IOpMeta extends Record<string, any>
 |  [description](./iopmeta.md#description-property) | `string` |  |
 |  [enum](./iopmeta.md#enum-property) | `number` |  |
 |  [input](./iopmeta.md#input-property) | `string` |  |
-|  [jsvmfn](./iopmeta.md#jsvmfn-property) | [OpFn](./opfn.md) |  |
+|  [jsvmfn](./iopmeta.md#jsvmfn-property) | [OpJSVM](./opjsvm.md) |  |
 |  [name](./iopmeta.md#name-property) | `string` |  |
 |  [pops](./iopmeta.md#pops-property) | `(opcode: number, operand: number) => number` |  |
 |  [pushes](./iopmeta.md#pushes-property) | `(opcode: number, operand: number) => number` |  |
@@ -64,7 +64,7 @@ input: string;
 <b>Signature:</b>
 
 ```typescript
-jsvmfn: OpFn;
+jsvmfn: OpJSVM;
 ```
 
 <a id="name-property"></a>

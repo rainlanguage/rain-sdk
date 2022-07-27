@@ -38,10 +38,10 @@ class VM
 |  [lte(config1, config2)](./vm.md#lte-method-static-1) | Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [max(configs)](./vm.md#max-method-static-1) | Method to get maximum of multiple scripts |
 |  [min(configs)](./vm.md#min-method-static-1) | Method to get minimum of multiple scripts |
-|  [multi(configs)](./vm.md#multi-method-static-1) | A method to combine multiple StateConfigs together each on top of the other at the first item in final sources. |
+|  [multi(configs, stackReassignment)](./vm.md#multi-method-static-1) | A method to combine multiple StateConfigs together each on top of the other at the first item in final sources. |
 |  [mulTogether(configs)](./vm.md#mulTogether-method-static-1) | Method to multiply multiple scripts together |
 |  [or(configs)](./vm.md#or-method-static-1) | Method to or multiple scripts together ie ANY |
-|  [pair(amountConfig, priceConfig)](./vm.md#pair-method-static-1) | method to create paired(amount-price) StateConfig, which is used for sale, orderbook, etc |
+|  [pair(amountConfig, priceConfig, stackReassignment)](./vm.md#pair-method-static-1) | method to create paired(amount-price) StateConfig, which is used for sale, orderbook, etc |
 |  [setDiscountForTiers(config, tierAddress, tierDiscount, options)](./vm.md#setDiscountForTiers-method-static-1) | Deducts percentage off of the result of a VM script based on a tier contract. |
 |  [setMultiplierForTiers(config, tierAddress, tierMultiplier, options)](./vm.md#setMultiplierForTiers-method-static-1) | Multiply the result of a VM script based on a tier contract. |
 |  [setOwnership(config, ownerAddress, options)](./vm.md#setOwnership-method-static-1) | Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default. |
@@ -542,14 +542,14 @@ a
 
 <a id="multi-method-static-1"></a>
 
-### multi(configs)
+### multi(configs, stackReassignment)
 
 A method to combine multiple StateConfigs together each on top of the other at the first item in final sources.
 
 <b>Signature:</b>
 
 ```typescript
-static multi(configs: StateConfig[]): StateConfig;
+static multi(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -557,6 +557,7 @@ static multi(configs: StateConfig[]): StateConfig;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  configs | `StateConfig[]` | An array of StateConfigs to combine together and its lengths should be more than 2 (can use VM.pair() method for combining 2 configs - |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 
@@ -614,14 +615,14 @@ a
 
 <a id="pair-method-static-1"></a>
 
-### pair(amountConfig, priceConfig)
+### pair(amountConfig, priceConfig, stackReassignment)
 
 method to create paired(amount-price) StateConfig, which is used for sale, orderbook, etc
 
 <b>Signature:</b>
 
 ```typescript
-static pair(amountConfig: StateConfig, priceConfig: StateConfig): StateConfig;
+static pair(amountConfig: StateConfig, priceConfig: StateConfig, stackReassignment?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -630,6 +631,7 @@ static pair(amountConfig: StateConfig, priceConfig: StateConfig): StateConfig;
 |  --- | --- | --- |
 |  amountConfig | [StateConfig](../interfaces/stateconfig.md) | amount's StateConfig, the config sitting at top and returning the first value |
 |  priceConfig | [StateConfig](../interfaces/stateconfig.md) | price's StateConfig, the config sitting at bottom and returning the second value |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (other scripts that are being combined) this way the STACK opcode operand will stay untouched when scripts combine |
 
 <b>Returns:</b>
 

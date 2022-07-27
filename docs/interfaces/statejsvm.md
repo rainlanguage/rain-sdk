@@ -13,23 +13,23 @@ interface StateJSVM
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [argumentsStack](./statejsvm.md#argumentsStack-property) | `BigNumber[]` | Used only for zipmap opcode |
+|  [argStack](./statejsvm.md#argStack-property) | `BigNumber[]` | Used only for zipmap opcode arguments |
 |  [constants](./statejsvm.md#constants-property) | `BigNumber[]` | The property to store the RainVM script constants. |
 |  [sources](./statejsvm.md#sources-property) | `Uint8Array[]` | The property to store the RainVM script sources. |
 |  [stack](./statejsvm.md#stack-property) | `BigNumber[]` | The RainJSVM's stack. |
 
 ## Property Details
 
-<a id="argumentsStack-property"></a>
+<a id="argStack-property"></a>
 
-### argumentsStack
+### argStack
 
-Used only for zipmap opcode
+Used only for zipmap opcode arguments
 
 <b>Signature:</b>
 
 ```typescript
-readonly argumentsStack: BigNumber[];
+readonly argStack: BigNumber[];
 ```
 
 <a id="constants-property"></a>

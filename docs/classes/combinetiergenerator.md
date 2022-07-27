@@ -79,7 +79,7 @@ combineWith(reporter: string | StateConfig, logic: selectLteLogic, mode: selectL
 
 `CombineTierGenerator`
 
-this
+CombineTierGenerator
 
 <a id="differenceFrom-method-1"></a>
 
@@ -104,7 +104,7 @@ differenceFrom(reporter: string | StateConfig, accountOrSender?: boolean): this;
 
 `this`
 
-this
+CombineTierGenerator
 
 <a id="isTierHeldFor-method-1"></a>
 
@@ -115,20 +115,20 @@ Creats a holding time ALWAYS/NEVER tier script for a Combinetier contract out of
 <b>Signature:</b>
 
 ```typescript
-isTierHeldFor(duration: number | number[]): CombineTierGenerator;
+isTierHeldFor(duration: number[]): CombineTierGenerator;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  duration | `number \| number[]` | A number or an array of numbers represting the duration in timestamp a given tier must be held to get ALWAYS report or else it gets NEVER report. |
+|  duration | `number[]` | An array of numbers represting the duration in timestamp a given tier must be held to get ALWAYS report or else it gets NEVER report. |
 
 <b>Returns:</b>
 
 `CombineTierGenerator`
 
-this
+CombineTierGenerator
 
 <a id="updateReport-method-1"></a>
 
@@ -154,5 +154,5 @@ updateReport(startTier: Tier, endTier: Tier, number?: number): CombineTierGenera
 
 `CombineTierGenerator`
 
-this
+CombineTierGenerator
 

@@ -1,16 +1,16 @@
 
-# Interface FnPtrs
+# Interface FnPtrsJSVM
 
 An interface for creating a key/value pair of opcodes functions to override.
 
 <b>Signature:</b>
 
 ```typescript
-interface FnPtrs extends Record<number, OpFn> 
+interface FnPtrsJSVM extends Record<number, OpJSVM> 
 ```
 
 ## Implements Interfaces
 
-- <b>FnPtrs</b>
+- <b>FnPtrsJSVM</b>
     - Record
 
