@@ -1770,6 +1770,3 @@ export class VM {
   }
 
 }
-const x = [7,2,6,1,5]
-x.sort()
-console.log(x)
