@@ -181,7 +181,7 @@ export class CombineTierGenerator {
     accountOrSender?: boolean,
     number?: number
   ): CombineTierGenerator {
-    const _buttom = new CombineTierGenerator(reporter, {accountOrSender})
+    const _buttom = new CombineTierGenerator(reporter, {accountOrSender, hasReportForSingleTier: true})
 
     const _combiner: StateConfig = {
       constants: number ? [number] : [],
@@ -190,11 +190,15 @@ export class CombineTierGenerator {
           number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_TIMESTAMP),
           op(VM.Opcodes.SELECT_LTE, selectLte(logic, mode, 2)),
         ]),
+        concat([
+          number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.SELECT_LTE, selectLte(logic, mode, 2)),
+        ]),
       ],
     };
 
-    let _result: StateConfig = VM.combiner(_buttom, _combiner);
-    _result = VM.combiner(this, _result);
+    let _result: StateConfig = VM.combiner(_buttom, _combiner, {numberOfSources: 2});
+    _result = VM.combiner(this, _result, {numberOfSources: 2});
 
     this.constants = _result.constants;
     this.sources = _result.sources;
