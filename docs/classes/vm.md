@@ -26,7 +26,7 @@ class VM
 |  [combiner(config1, config2, options)](./vm.md#combiner-method-static-1) | Combines 2 individual VM scripts |
 |  [constant(value)](./vm.md#constant-method-static-1) | Methdo to create a simple signle value script, ie CONTANT |
 |  [createVMSources(OPerands)](./vm.md#createVMSources-method-static-1) | Create a VM sources to be ready to use in any call just providing the combination desired. |
-|  [getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id)](./vm.md#getAsset-method-static-1) | A method to generate the StateConfig out of EVM assets' opcodes |
+|  [getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id, delegatedCall)](./vm.md#getAsset-method-static-1) | A method to generate the StateConfig out of EVM assets' opcodes |
 |  [gt(config1, config2, stackReassignment)](./vm.md#gt-method-static-1) | Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not |
 |  [gte(config1, config2, stackReassignment)](./vm.md#gte-method-static-1) | Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [hasAnyTier(tierConfig, stackReassignment)](./vm.md#hasAnyTier-method-static-1) | Method to check if an address has any tier status or not, i.e if is in tier contract or not |
@@ -247,14 +247,14 @@ A source
 
 <a id="getAsset-method-static-1"></a>
 
-### getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id)
+### getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id, delegatedCall)
 
 A method to generate the StateConfig out of EVM assets' opcodes
 
 <b>Signature:</b>
 
 ```typescript
-static getAsset(type: "erc20-balance-of" | "erc20-total-supply" | "snapshot-balance-of" | "snapshot-total-supply" | "erc721-balance-of" | "erc721-owner-of" | "erc1155-balance-of" | "erc1155-balance-of-batch", address: string[], id?: BigNumber[]): StateConfig;
+static getAsset(type: "erc20-balance-of" | "erc20-total-supply" | "snapshot-balance-of" | "snapshot-total-supply" | "erc721-balance-of" | "erc721-owner-of" | "erc1155-balance-of" | "erc1155-balance-of-batch", address: string[], id?: BigNumber[], delegatedCall?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -264,6 +264,7 @@ static getAsset(type: "erc20-balance-of" | "erc20-total-supply" | "snapshot-bala
 |  type | `"erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch"` | the type of the asset script |
 |  address | `string[]` | an array of address(es) of the asset(s) contract(s), only IERC20-Balance-of-Batch uses more than 1 address |
 |  id | `BigNumber[]` | an array of id(s) of either tokenId(s) or snapshotId(s) , only IERC20-Balance-of-Batch uses more than 1 id |
+|  delegatedCall | `boolean` | (optional) if true CONTEXT opcode will be used and if false SENDER opcode will be used |
 
 <b>Returns:</b>
 

@@ -30,8 +30,8 @@ export class CombineTierGenerator {
    * Constructor for this class
    *
    * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
-   * @param optioins - (optional) used for additional configuration of the script
-   *    - (param) accountOrSender - (optional) Used to determine if this script is being used for combinetier contract 
+   * @param options - (optional) used for additional configuration of the script
+   *    - (param) delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
    * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    *    - (param) hasReportForSingleTier - (optional) Used to determine if this script needs to have a second
    *        script used for getting the ITIERV2_TIME_FOR_TIER for a combineTier contract reportTimeForTier, default is false
@@ -41,7 +41,7 @@ export class CombineTierGenerator {
   constructor(
     reporter: string | StateConfig,
     options?: {
-      accountOrSender?: boolean,
+      delegatedReport?: boolean,
       hasReportForSingleTier?: boolean,
       dynamicTierContext?: boolean,
       staticTierContext?: BigNumber[]
@@ -105,7 +105,7 @@ export class CombineTierGenerator {
       sources: [
         concat([
           op(VM.Opcodes.THIS_ADDRESS),
-          options?.accountOrSender ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER, 0),
+          options?.delegatedReport ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER, 0),
           op(VM.Opcodes.ITIERV2_REPORT),
           op(VM.Opcodes.CONSTANT, 0),
           op(VM.Opcodes.ZIPMAP, callSize(1, 3, 1)),
@@ -128,7 +128,7 @@ export class CombineTierGenerator {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            options?.accountOrSender ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER, 0),
+            options?.delegatedReport ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER, 0),
             CONTEXT_.sources,
             op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
           ])
@@ -168,7 +168,7 @@ export class CombineTierGenerator {
    * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
    * @param logic - selectLte logic
    * @param mode - selectLte mode
-   * @param accountOrSender - (optional) Used to determine if this script is being used for combinetier contract 
+   * @param delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
    * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    * @param number - (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK_TIMESTAMP
    *
@@ -178,10 +178,10 @@ export class CombineTierGenerator {
     reporter: string | StateConfig,
     logic: selectLteLogic,
     mode: selectLteMode,
-    accountOrSender?: boolean,
+    delegatedReport?: boolean,
     number?: number
   ): CombineTierGenerator {
-    const _buttom = new CombineTierGenerator(reporter, {accountOrSender, hasReportForSingleTier: true})
+    const _buttom = new CombineTierGenerator(reporter, {delegatedReport, hasReportForSingleTier: true})
 
     const _combiner: StateConfig = {
       constants: number ? [number] : [],
@@ -245,13 +245,13 @@ export class CombineTierGenerator {
    * Saturating difference between 2 reports
    *
    * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
-   * @param accountOrSender - (optional) Used to determine if this script is being used for combinetier contract 
+   * @param delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
    * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    *
    * @returns CombineTierGenerator
    */
-  public differenceFrom(reporter: string | StateConfig, accountOrSender?: boolean): this {
-    const _buttom = new CombineTierGenerator(reporter, {accountOrSender})
+  public differenceFrom(reporter: string | StateConfig, delegatedReport?: boolean): this {
+    const _buttom = new CombineTierGenerator(reporter, {delegatedReport})
 
     const _differ: StateConfig = {
       constants: [],
@@ -358,14 +358,14 @@ export class BuildReport extends CombineTierGenerator {
    * @param number - (optional) A number or an array of numbers represting the report at each tier,
    * if not passed, BLOCK_TIMESTAMP will be used to creat the report of each tier which would result in 
    * a dynamic report when the script is executed by combineTier contract report function
-   * @param accountOrSender - (optional) Used to determine if this script is being used for combinetier contract 
+   * @param delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
    * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    * @param hasReportForSingleTier - (optional) Used to determine if this script needs to be combined with another
    *  script used for getting the ITIERV2_TIME_FOR_TIER, default is false
    */
   constructor(
     number?: number | number[],
-    accountOrSender?: boolean,
+    delegatedReport?: boolean,
     hasReportForSingleTier?: boolean,
     ) {
     let _result: StateConfig;
@@ -452,7 +452,7 @@ export class BuildReport extends CombineTierGenerator {
         ],
       };
     }
-    super(_result, {hasReportForSingleTier, accountOrSender});
+    super(_result, {hasReportForSingleTier, delegatedReport});
   }
 };
 
@@ -524,7 +524,7 @@ export class ERC20BalanceTier extends CombineTierGenerator {
         op(VM.Opcodes.MUL, 2),
       ])
     ];
-    super({constants, sources}, {hasReportForSingleTier: true, accountOrSender: true});
+    super({constants, sources}, {hasReportForSingleTier: true, delegatedReport: true});
   }
 };
 
@@ -594,7 +594,7 @@ export class ERC20BalanceTier extends CombineTierGenerator {
         op(VM.Opcodes.MUL, 2),
       ])
     ];
-    super({constants, sources}, {hasReportForSingleTier: true, accountOrSender: true});
+    super({constants, sources}, {hasReportForSingleTier: true, delegatedReport: true});
   }
 }
 
@@ -668,6 +668,6 @@ export class ERC20BalanceTier extends CombineTierGenerator {
         op(VM.Opcodes.MUL, 2),
       ])
     ];
-    super({constants, sources}, {hasReportForSingleTier: true, accountOrSender: true});
+    super({constants, sources}, {hasReportForSingleTier: true, delegatedReport: true});
   }
 }

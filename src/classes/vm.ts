@@ -1603,6 +1603,7 @@ export class VM {
    * @param type - the type of the asset script
    * @param address - an array of address(es) of the asset(s) contract(s), only IERC20-Balance-of-Batch uses more than 1 address
    * @param id - an array of id(s) of either tokenId(s) or snapshotId(s) , only IERC20-Balance-of-Batch uses more than 1 id
+   * @param delegatedCall - (optional) if true CONTEXT opcode will be used and if false SENDER opcode will be used
    * 
    * @returns a VM script @see StateConfig
    */
@@ -1617,7 +1618,8 @@ export class VM {
       "erc1155-balance-of" |
       "erc1155-balance-of-batch",
     address: string[],
-    id?: BigNumber[]
+    id?: BigNumber[],
+    delegatedCall: boolean = false
   ) : StateConfig {
 
     if (type === "erc20-balance-of" && address[0]) {
@@ -1626,7 +1628,7 @@ export class VM {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.SENDER),
+            delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0),
             op(VM.Opcodes.IERC20_BALANCE_OF),
           ])
         ]
@@ -1649,7 +1651,7 @@ export class VM {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.SENDER),
+            delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0),
             op(VM.Opcodes.CONSTANT, 1),
             op(VM.Opcodes.IERC20_SNAPSHOT_BALANCE_OF_AT)
           ])
@@ -1674,7 +1676,7 @@ export class VM {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.SENDER),
+            delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0),
             op(VM.Opcodes.IERC721_BALANCE_OF)
           ])
         ]
@@ -1698,7 +1700,7 @@ export class VM {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            op(VM.Opcodes.SENDER),
+            delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0),
             op(VM.Opcodes.CONSTANT, 1),
             op(VM.Opcodes.IERC1155_BALANCE_OF)
           ])
@@ -1711,7 +1713,7 @@ export class VM {
       for (i; i < address.length; i++) {
         sources.push(op(VM.Opcodes.CONSTANT, i))
       };
-      sources.push(op(VM.Opcodes.SENDER));
+      sources.push(delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0));
       for (i; i < address.length * 2; i++) {
         sources.push(op(VM.Opcodes.CONSTANT, i))
       };
