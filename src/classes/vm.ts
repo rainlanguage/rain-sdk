@@ -1769,4 +1769,18 @@ export class VM {
     return VM.gte(tierConfig, VM.constant(reportCheck), stackReassignment)
   }
 
+  /**
+   * @public
+   * Method to create a simple STACK opcode script
+   * 
+   * @param operand - stack operand
+   * @returns a VM script @see StateConfig
+   */
+  public static stack(operand: number): StateConfig {
+    return {
+      constants: [],
+      sources: [concat([op(VM.Opcodes.STACK, operand)])]
+    }
+  }
+
 }

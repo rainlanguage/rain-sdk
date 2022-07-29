@@ -47,6 +47,7 @@ class VM
 |  [setOwnership(config, ownerAddress, options)](./vm.md#setOwnership-method-static-1) | Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default. |
 |  [setTimers(configs, times, inBlockNumber)](./vm.md#setTimers-method-static-1) | A method to merge multiple (more than 1) scripts to be executed based on time slices. |
 |  [setValueForTiers(config, tierAddress, tierValues, ascending, options)](./vm.md#setValueForTiers-method-static-1) | Produce different values from the result of a VM script based on a tier contract. |
+|  [stack(operand)](./vm.md#stack-method-static-1) | Method to create a simple STACK opcode script |
 
 ## Static Property Details
 
@@ -799,6 +800,30 @@ static setValueForTiers(config: StateConfig, tierAddress: string, tierValues: nu
 |  tierValues | `number[]` | an array of 8 items - the value (6 decimals max) of each tier are the 8 items of the array. |
 |  ascending | `boolean` | true if the tierValues (argument above) are ascending and false if descending from tier 1 to 8 |
 |  options | <pre>{&#010;    index?: number;&#010;    tierActivation?: (string \| number)[];&#010;    tierContext?: BigNumber[];&#010;    finalDecimals?: number;&#010;}</pre> | used for additional configuraions: - (param) index to identify which sources item in config.sources the TierValues applies to, if not specified, it will be 0. - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the different value, e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the respective value. (used for stake tier contract) - (param) tierContext an array of values mostly used for stake tier contracts. - (param) finalDecimals produce the final values in this fixed decimals - 0 by deafult |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
+
+<a id="stack-method-static-1"></a>
+
+### stack(operand)
+
+Method to create a simple STACK opcode script
+
+<b>Signature:</b>
+
+```typescript
+static stack(operand: number): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  operand | `number` | stack operand |
 
 <b>Returns:</b>
 

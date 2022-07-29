@@ -35,34 +35,56 @@ export class CombineTierGenerator {
    * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    *    - (param) hasReportForSingleTier - (optional) Used to determine if this script needs to have a second
    *        script used for getting the ITIERV2_TIME_FOR_TIER for a combineTier contract reportTimeForTier, default is false
-   *    - (param) tierContext - (optional) an array of 8 values used as Stake thresholds or in general as REPORT opcodes context
+   *    - (optional) dynamicTierContext - (optional) true if tier context will be passed at runtime to the report function
+   *    - (param) staticTierContext - (optional) an array of 8 values used as Stake thresholds or in general as REPORT opcodes context
    */
   constructor(
     reporter: string | StateConfig,
     options?: {
       accountOrSender?: boolean,
-      hasReportForSingleTier?: boolean, 
-      tierContext?: BigNumber[]
+      hasReportForSingleTier?: boolean,
+      dynamicTierContext?: boolean,
+      staticTierContext?: BigNumber[]
     }
   ) {
-    const CONTEXT_ = options?.tierContext && typeof reporter === "string"
-    ? {
-        constants: options.tierContext,
-        sources: concat([
-          op(VM.Opcodes.CONSTANT, 1),
-          op(VM.Opcodes.CONSTANT, 2),
-          op(VM.Opcodes.CONSTANT, 3),
-          op(VM.Opcodes.CONSTANT, 4),
-          op(VM.Opcodes.CONSTANT, 5),
-          op(VM.Opcodes.CONSTANT, 6),
-          op(VM.Opcodes.CONSTANT, 7),
-          op(VM.Opcodes.CONSTANT, 8),
-        ])
-    }
-    : {
+    const CONTEXT_ = 
+      typeof reporter === "string"
+      ? options?.dynamicTierContext
+      ? {
+        constants: [],
+          sources: concat([
+            op(VM.Opcodes.CONTEXT, 2),
+            op(VM.Opcodes.CONTEXT, 3),
+            op(VM.Opcodes.CONTEXT, 4),
+            op(VM.Opcodes.CONTEXT, 5),
+            op(VM.Opcodes.CONTEXT, 6),
+            op(VM.Opcodes.CONTEXT, 7),
+            op(VM.Opcodes.CONTEXT, 8),
+            op(VM.Opcodes.CONTEXT, 9),
+          ])
+      }
+      : options?.staticTierContext && options?.staticTierContext.length === 8
+      ? {
+          constants: options.staticTierContext,
+          sources: concat([
+            op(VM.Opcodes.CONSTANT, 1),
+            op(VM.Opcodes.CONSTANT, 2),
+            op(VM.Opcodes.CONSTANT, 3),
+            op(VM.Opcodes.CONSTANT, 4),
+            op(VM.Opcodes.CONSTANT, 5),
+            op(VM.Opcodes.CONSTANT, 6),
+            op(VM.Opcodes.CONSTANT, 7),
+            op(VM.Opcodes.CONSTANT, 8),
+          ])
+      }
+      : {
         constants: [],
         sources: concat([])
-    }
+      }
+      : {
+          constants: [],
+          sources: concat([])
+      }
 
     let report_: StateConfig;
 
@@ -117,7 +139,23 @@ export class CombineTierGenerator {
       report_ = reporter;
     }
 
-    report_ = options?.hasReportForSingleTier ? VM.combiner(report_, singleReport_, {numberOfSources: 0}) : report_;
+    report_ = options?.hasReportForSingleTier 
+    ? typeof reporter == 'string'
+    ? {
+      constants: report_.constants,
+      sources: [
+        ...report_.sources,
+        concat([
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.CONTEXT, 0),
+          op(VM.Opcodes.CONTEXT, 1),
+          CONTEXT_.sources,
+          op(VM.Opcodes.ITIERV2_REPORT_TIME_FOR_TIER, CONTEXT_.constants.length),
+        ])
+      ]
+    }
+    : VM.combiner(report_, singleReport_, {numberOfSources: 0})
+    : report_;
 
     this.constants = report_.constants;
     this.sources = report_.sources;

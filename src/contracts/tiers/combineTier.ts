@@ -100,8 +100,8 @@ export class CombineTier extends ITierV2 {
     super(address, signer);
 
     this.storageOpcodesRange = _combineTier.storageOpcodesRange;
-  this.packedFunctionPointers = _combineTier.packedFunctionPointers;
-  this.supportsInterface = _combineTier.supportsInterface;
+    this.packedFunctionPointers = _combineTier.packedFunctionPointers;
+    this.supportsInterface = _combineTier.supportsInterface;
   }
 
   /**

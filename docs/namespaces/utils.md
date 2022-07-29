@@ -25,12 +25,14 @@
 
 |  Variable | Description |
 |  --- | --- |
+|  [areEqualConfigs](./utils/variables/areequalconfigs.md) | Checks 2 StateConfig objects to see if they are equal or not |
 |  [arrayify](./utils/variables/arrayify.md) | ethers arrayify |
 |  [arrToReport](./utils/variables/arrtoreport.md) | Convert an array of 8 BigNumberish values to 8 32bit values packed in a HexString uint256 i.e. Report |
 |  [bytify](./utils/variables/bytify.md) | Converts a value to raw bytes representation. Assumes `value` is less than or equal to 1 byte, unless a desired `bytesLength` is specified. |
 |  [concat](./utils/variables/concat.md) | ethers concat |
 |  [hexlify](./utils/variables/hexlify.md) | ethers hexlify |
 |  [hexZeroPad](./utils/variables/hexzeropad.md) | ethers hexZeroPad |
+|  [isTier](./utils/variables/istier.md) | Check if a contract is a valid ITierV2 contract or not |
 |  [op](./utils/variables/op.md) | Converts an opcode and operand to bytes, and returns their concatenation. |
 |  [paddedUInt128](./utils/variables/paddeduint128.md) | Utility function to produce 128 bits size hexString |
 |  [paddedUInt160](./utils/variables/paddeduint160.md) | Utility function that transforms a BigNumberish to an ether address (40 char length hexString) |
