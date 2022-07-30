@@ -317,7 +317,7 @@ export class IncDecPrice extends PriceCurve {
     concat([
       op(VM.Opcodes.BLOCK_TIMESTAMP),
       op(VM.Opcodes.CONSTANT, 3),
-      op(VM.Opcodes.SUB, 2),
+      op(VM.Opcodes.SATURATING_SUB, 2),
       op(VM.Opcodes.CONSTANT, 2),
       op(VM.Opcodes.MUL, 2),
       op(VM.Opcodes.CONSTANT, 0),

@@ -32,6 +32,7 @@ class VM
 |  [hasAnyTier(tierConfig, stackReassignment)](./vm.md#hasAnyTier-method-static-1) | Method to check if an address has any tier status or not, i.e if is in tier contract or not |
 |  [hasMinTier(tierConfig, tier, stackReassignment)](./vm.md#hasMinTier-method-static-1) | Method to check if an address has at least the "TIER" status |
 |  [ifelse(condition, ifStatement, elseStatement, stackReassignment)](./vm.md#ifelse-method-static-1) | Method to create an if/else script |
+|  [incdec(startValue, endValue, startTimestamp, endTimestamp)](./vm.md#incdec-method-static-1) | Create a new raw linear Increasing or Decreasing value StateConfig. |
 |  [input(operand)](./vm.md#input-method-static-1) | Method to create a simple CONTEXT opcode script |
 |  [isEqual(config1, config2, stackReassignment)](./vm.md#isEqual-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [isZero(config)](./vm.md#isZero-method-static-1) | Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not |
@@ -402,6 +403,39 @@ static ifelse(condition: StateConfig, ifStatement: StateConfig, elseStatement: S
 `StateConfig`
 
 a
+
+<a id="incdec-method-static-1"></a>
+
+### incdec(startValue, endValue, startTimestamp, endTimestamp)
+
+Create a new raw linear Increasing or Decreasing value StateConfig.
+
+<b>Signature:</b>
+
+```typescript
+static incdec(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, endTimestamp: number): {
+        constants: (number | BigNumber)[];
+        sources: Uint8Array[];
+    };
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  startValue | `BigNumber` | The starting value |
+|  endValue | `BigNumber` | The ending value |
+|  startTimestamp | `number` | Start timestamp |
+|  endTimestamp | `number` | End timestamp |
+
+<b>Returns:</b>
+
+`{
+        constants: (number | BigNumber)[];
+        sources: Uint8Array[];
+    }`
+
+a VM StateConfig
 
 <a id="input-method-static-1"></a>
 
