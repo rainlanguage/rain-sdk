@@ -700,14 +700,14 @@ export class VM {
     const TierDiscount = paddedUInt256(
       BigNumber.from(
         '0x' +
-          paddedUInt32(100 - tierDiscount[7]) +
-          paddedUInt32(100 - tierDiscount[6]) +
-          paddedUInt32(100 - tierDiscount[5]) +
-          paddedUInt32(100 - tierDiscount[4]) +
-          paddedUInt32(100 - tierDiscount[3]) +
-          paddedUInt32(100 - tierDiscount[2]) +
-          paddedUInt32(100 - tierDiscount[1]) +
-          paddedUInt32(100 - tierDiscount[0])
+          paddedUInt32(Math.floor(100 - tierDiscount[7])) +
+          paddedUInt32(Math.floor(100 - tierDiscount[6])) +
+          paddedUInt32(Math.floor(100 - tierDiscount[5])) +
+          paddedUInt32(Math.floor(100 - tierDiscount[4])) +
+          paddedUInt32(Math.floor(100 - tierDiscount[3])) +
+          paddedUInt32(Math.floor(100 - tierDiscount[2])) +
+          paddedUInt32(Math.floor(100 - tierDiscount[1])) +
+          paddedUInt32(Math.floor(100 - tierDiscount[0]))
       )
     );
 
@@ -1807,7 +1807,7 @@ export class VM {
    * @param endValue - The ending value
    * @param startTimestamp - Start timestamp
    * @param endTimestamp - End timestamp
-   * @returns a VM StateConfig
+   * @returns a @see StateConfig
    */
    public static dec(
     startValue: BigNumber,
@@ -1849,7 +1849,7 @@ export class VM {
    * @param endValue - The ending value
    * @param startTimestamp - Start timestamp
    * @param endTimestamp - End timestamp
-   * @returns a VM StateConfig
+   * @returns a @see StateConfig
    */
    public static inc(
     startValue: BigNumber,
@@ -1881,6 +1881,70 @@ export class VM {
         ])
       ],
     });
+  }
+
+  /**
+   * @public
+   * Method to apply discount on a StateConfig based on a condition passing
+   * 
+   * @param config - The StateConfig to apply discount on
+   * @param condition - The condition of StateConfig type
+   * @param discount - discount percentage (between 0 - 99 and 2 decimals max)
+   * @returns a @see StateConfig
+   */
+  public static setDisccount(config: StateConfig, condition: StateConfig, discount: number): StateConfig {
+    if ( discount >= 0 && discount <= 99 ) {
+      const _discount = Math.floor(10000 - (100 * discount));
+      const _discounter: StateConfig = VM.pair(
+        condition,
+        {
+          constants: [_discount, 10000],
+          sources: [
+            concat([
+              op(VM.Opcodes.CONSTANT, 0),
+              op(VM.Opcodes.CONSTANT, 1),
+              op(VM.Opcodes.EAGER_IF),
+              op(VM.Opcodes.MUL, 2),
+              op(VM.Opcodes.CONSTANT, 1),
+              op(VM.Opcodes.DIV, 2),
+            ])
+          ]
+        }
+      );
+  
+      return VM.pair(config, _discounter, false);
+    }
+    else throw new Error(`Invalid discount`)
+  }
+
+  /**
+   * @public
+   * Method to apply multiplier to a StateConfig based on a condition passing
+   * 
+   * @param config - The StateConfig to apply multiplier to
+   * @param condition - The condition of StateConfig type
+   * @param multiplier - multulpier (2 decimals max) 
+   */
+  public static setMultiplier(config: StateConfig, condition: StateConfig, multiplier: number): StateConfig {
+    const _multiply = Math.floor(100 * multiplier);
+    const _multiplier: StateConfig = VM.pair(
+      condition,
+      {
+        constants: [_multiply, 100],
+        sources: [
+          concat([
+            op(VM.Opcodes.CONSTANT, 0),
+            op(VM.Opcodes.CONSTANT, 1),
+            op(VM.Opcodes.EAGER_IF),
+            op(VM.Opcodes.MUL, 2),
+            op(VM.Opcodes.CONSTANT, 1),
+            op(VM.Opcodes.DIV, 2),
+          ])
+        ]
+      }
+    );
+
+    return VM.pair(config, _multiplier, false);
   }
 
 }

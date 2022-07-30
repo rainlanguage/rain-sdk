@@ -9,28 +9,82 @@ import { areEqualConfigs, op } from "../../utils";
  * Type for price/quantity scripts modifier based on a tier report
  */
 export interface modifier {
-  mode: "discounter" | "multiplier",
-  tierAddress: string,
-  tierModifierValues: number[],
-  tierActivation?: (string | number)[],
-  tierContext?: BigNumber[]
+  /**
+   * Determines the modifier's mode
+   */
+  mode: "tier_discounts" | "tier_multipliers" | "tier_values" | "discount" | "multiplier",
+  /**
+   * the condition of the modifier, either a tier contract address for tier modifier or a boolean StateConfig for none tier modifier
+   */
+  condition: string | StateConfig,
+  /**
+   * The modifing value(s)
+   */
+  values: number[],
+  /**
+   * Optional properties for specific modifier's mode
+   */
+  options?: {
+    /** 
+     * context for tier report of tier based modifiers
+     */
+    tierContext?: BigNumber[],
+    /**
+     * used specifically in "tier_values" modifier to pick max value if true and min value if false
+     */
+    pickMax?: boolean
+  }
 }
 
 /**
  * @public
- * Type for a currency scripts used in Rulebuilder class
+ * Type for a currency scripts used in RuleBuilder class
  */
 export interface vmCurrency {
-  qRules: StateConfig[],
+  /**
+   * Default quantity StateConfig of this currency
+   */
+  defaultQuantity: StateConfig,
+  /**
+   * Default price StateConfig of this currency
+   */
+  defaultPrice: StateConfig,
+  /**
+   * Array of conditions for conditional quantities
+   */
+  quantityConditions: StateConfig[],
+  /**
+   * Array of conditional quantities
+   */
   quantities: StateConfig[],
-  pRules: StateConfig[],
+  /**
+   * Array of conditions for conditional prices
+   */
+  priceConditions: StateConfig[],
+  /**
+   * Array of conditional prices
+   */
   prices: StateConfig[],
-  pModifiers: {
+  /**
+   * Quantities modifiers, modifier on a single sub-quantity StateConfig
+   */
+  quantityModifiers: {
     [index: number]: modifier,
   },
-  qModifiers: {
+  /**
+   * Prices modifiers, modifier on a single sub-price StateConfig
+   */
+  priceModifiers: {
     [index: number]: modifier,
   },
+  /**
+   * Top quantity modifier, modifier on all sub-quantities
+   */
+  quantityTopModifier?: modifier,
+  /**
+   * Top price modifier, modifier on all sub-prices
+   */
+  priceTopModifier?: modifier,
 }
 
 /**
@@ -49,35 +103,38 @@ export class RuleBuilder {
   public static multiCurrency(currencies: vmCurrency[]): StateConfig {
 
     let rules_: StateConfig = {constants: [], sources: []};
-    let quantities_: StateConfig[] = [];
-    let prices_: StateConfig[] = [];
+    let currencies_: StateConfig[] = [];
     let count = 0; 
 
     for (let i = 0; i < currencies.length; i++) {
+      let quantities_: StateConfig = {constants: [], sources: [concat([])]};
+      let prices_: StateConfig= {constants: [], sources: [concat([])]};
+
       if (
         currencies[i].quantities.length === currencies[i].prices.length &&
-        currencies[i].qRules.length === currencies[i].pRules.length &&
-        currencies[i].prices.length === currencies[i].pRules.length
+        currencies[i].quantityConditions.length === currencies[i].priceConditions.length &&
+        currencies[i].prices.length === currencies[i].priceConditions.length
       ) {
-        for (let j = 0; j < currencies[i].qRules.length; j++) {
+        for (let j = 0; j < currencies[i].quantityConditions.length; j++) {
           rules_ = VM.pair(
             rules_,
-            areEqualConfigs(currencies[i].qRules[j], currencies[i].pRules[j],)
+            areEqualConfigs(currencies[i].quantityConditions[j], currencies[i].priceConditions[j],)
             ? VM.pair(
-              currencies[i].qRules[j],
-              VM.stack(count * 2)
+              currencies[i].quantityConditions[j],
+              VM.stack(count * 2),
+              false
             )
             : VM.pair(
-              currencies[i].qRules[j], 
-              currencies[i].pRules[j],
+              currencies[i].quantityConditions[j], 
+              currencies[i].priceConditions[j],
               false
             ),
             false
           );
 
-          quantities_[i] = VM.pair(
-            quantities_[i],
-            currencies[i].qModifiers[j] 
+          quantities_ = VM.pair(
+            quantities_,
+            currencies[i].quantityModifiers[j] 
             ? RuleBuilder.applyModifier(
                 VM.mulTogether([
                   VM.stack(count * 2),
@@ -85,7 +142,7 @@ export class RuleBuilder {
                 ],
                 false
               ),
-              currencies[i].qModifiers[j]
+              currencies[i].quantityModifiers[j]
             )
             : VM.mulTogether([
                 VM.stack(count * 2),
@@ -96,9 +153,9 @@ export class RuleBuilder {
             false
           );
 
-          prices_[i] = VM.pair(
-            prices_[i],
-            currencies[i].pModifiers[j] 
+          prices_ = VM.pair(
+            prices_,
+            currencies[i].priceModifiers[j] 
             ? RuleBuilder.applyModifier(
                 VM.mulTogether([
                   VM.stack((count * 2) + 1),
@@ -106,7 +163,7 @@ export class RuleBuilder {
                 ],
                 false
               ),
-              currencies[i].pModifiers[j]
+              currencies[i].priceModifiers[j]
             )
             : VM.mulTogether([
                 VM.stack((count * 2) + 1),
@@ -118,40 +175,37 @@ export class RuleBuilder {
           );
 
           if (j + 1 === currencies[i].quantities.length) {
-            quantities_[i].sources[0] = concat([
-              quantities_[i].sources[0],
-              op(VM.Opcodes.MAX, currencies[i].quantities.length)
-            ])
-            prices_[i].sources[0] = concat([
-              prices_[i].sources[0],
-              (op(VM.Opcodes.MIN, currencies[i].quantities.length))
-            ]) 
-          }
+            quantities_ = VM.pair(quantities_, currencies[i].defaultQuantity, false);
+            prices_ = VM.pair(prices_, currencies[i].defaultPrice, false);
 
-          if (currencies[i].qModifiers[currencies[i].quantities.length]) {
-            quantities_[i] = RuleBuilder.applyModifier(
-              quantities_[i],
-              currencies[i].qModifiers[currencies[i].quantities.length]
-            )
-          }
-          if (currencies[i].pModifiers[currencies[i].prices.length]) {
-            prices_[i] = RuleBuilder.applyModifier(
-              prices_[i],
-              currencies[i].pModifiers[currencies[i].prices.length]
-            )
+            quantities_.sources[0] = concat([
+              quantities_.sources[0],
+              op(VM.Opcodes.MAX, currencies[i].quantities.length + 1)
+            ])
+            prices_.sources[0] = concat([
+              prices_.sources[0],
+              op(VM.Opcodes.MIN, currencies[i].quantities.length + 1)
+            ])
           }
           count++;
         }
+        if (currencies[i].quantityTopModifier !== undefined) {
+          quantities_ = RuleBuilder.applyModifier(
+            quantities_,
+            currencies[i].quantityTopModifier!
+          )
+        }
+        if (currencies[i].priceTopModifier !== undefined) {
+          prices_ = RuleBuilder.applyModifier(
+            prices_,
+            currencies[i].priceTopModifier!
+          )
+        }
+        currencies_.push(VM.pair(quantities_, prices_, false));
       }
     }
       
-    return VM.multi([
-        rules_,
-        VM.multi(quantities_, false),
-        VM.multi(prices_, false)
-      ],
-      false
-    );
+    return VM.multi([rules_, ...currencies_], false);
   }
 
   /**
@@ -169,27 +223,64 @@ export class RuleBuilder {
    * Method to apply modifier to price/quantity scripts for the RuleBuilder main methods 
    */
   private static applyModifier(config: StateConfig, modifier: modifier): StateConfig {
-    if (modifier.mode === "multiplier") return VM.setDiscountForTiers(
+
+    if (
+      modifier.mode === "tier_multipliers" && 
+      typeof modifier.condition === "string" && 
+      modifier.values.length === 8
+    ) return VM.setDiscountForTiers(
       config,
-      modifier.tierAddress,
-      modifier.tierModifierValues,
-      {
-        tierActivation: modifier.tierActivation,
-        tierContext: modifier.tierContext
-      }
+      modifier.condition,
+      modifier.values,
+      { tierContext: modifier.options?.tierContext }
     )
-    else if (modifier.mode === "discounter") return VM.setDiscountForTiers(
+
+    else if (
+      modifier.mode === "tier_discounts" && 
+      typeof modifier.condition === "string" && 
+      modifier.values.length === 8
+    ) return VM.setDiscountForTiers(
       config,
-      modifier.tierAddress,
-      modifier.tierModifierValues,
-      {
-        tierActivation: modifier.tierActivation,
-        tierContext: modifier.tierContext
-      }
+      modifier.condition,
+      modifier.values,
+      { tierContext: modifier.options?.tierContext }
     )
+
+    else if (
+      modifier.mode === "tier_values" && 
+      typeof modifier.condition === "string" && 
+      modifier.values.length === 8 && 
+      modifier.options?.pickMax !== undefined
+    ) return VM.setValueForTiers(
+      config,
+      modifier.condition,
+      modifier.values,
+      modifier.options.pickMax,
+      { tierContext: modifier.options?.tierContext }
+    )
+
+    else if (
+      modifier.mode === "discount" && 
+      typeof modifier.condition !== "string" && 
+      modifier.values.length !== 0
+    ) return VM.setDisccount(
+      config,
+      modifier.condition,
+      modifier.values[0]
+    )
+
+    else if (
+      modifier.mode === "multiplier" && 
+      typeof modifier.condition !== "string" && 
+      modifier.values.length !== 0
+    ) return VM.setMultiplier(
+      config,
+      modifier.condition,
+      modifier.values[0]
+    )
+
     else throw new Error("Invalid Arguments");
   }
-
 }
 
 

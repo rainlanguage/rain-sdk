@@ -45,7 +45,9 @@ class VM
 |  [mulTogether(configs, stackReassignment)](./vm.md#mulTogether-method-static-1) | Method to multiply multiple scripts together |
 |  [or(configs, stackReassignment)](./vm.md#or-method-static-1) | Method to or multiple scripts together ie ANY |
 |  [pair(amountConfig, priceConfig, stackReassignment)](./vm.md#pair-method-static-1) | method to create paired(amount-price) StateConfig, which is used for sale, orderbook, etc |
+|  [setDisccount(config, condition, discount)](./vm.md#setDisccount-method-static-1) | Method to apply discount on a StateConfig based on a condition passing |
 |  [setDiscountForTiers(config, tierAddress, tierDiscount, options)](./vm.md#setDiscountForTiers-method-static-1) | Deducts percentage off of the result of a VM script based on a tier contract. |
+|  [setMultiplier(config, condition, multiplier)](./vm.md#setMultiplier-method-static-1) | Method to apply multiplier to a StateConfig based on a condition passing |
 |  [setMultiplierForTiers(config, tierAddress, tierMultiplier, options)](./vm.md#setMultiplierForTiers-method-static-1) | Multiply the result of a VM script based on a tier contract. |
 |  [setOwnership(config, ownerAddress, options)](./vm.md#setOwnership-method-static-1) | Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default. |
 |  [setTimers(configs, times, inBlockNumber)](./vm.md#setTimers-method-static-1) | A method to merge multiple (more than 1) scripts to be executed based on time slices. |
@@ -279,7 +281,7 @@ static dec(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, e
         sources: Uint8Array[];
     }`
 
-a VM StateConfig
+a
 
 <a id="getAsset-method-static-1"></a>
 
@@ -469,7 +471,7 @@ static inc(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, e
         sources: Uint8Array[];
     }`
 
-a VM StateConfig
+a
 
 <a id="input-method-static-1"></a>
 
@@ -748,6 +750,32 @@ static pair(amountConfig: StateConfig, priceConfig: StateConfig, stackReassignme
 
 a
 
+<a id="setDisccount-method-static-1"></a>
+
+### setDisccount(config, condition, discount)
+
+Method to apply discount on a StateConfig based on a condition passing
+
+<b>Signature:</b>
+
+```typescript
+static setDisccount(config: StateConfig, condition: StateConfig, discount: number): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | The StateConfig to apply discount on |
+|  condition | [StateConfig](../interfaces/stateconfig.md) | The condition of StateConfig type |
+|  discount | `number` | discount percentage (between 0 - 99 and 2 decimals max) |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
 <a id="setDiscountForTiers-method-static-1"></a>
 
 ### setDiscountForTiers(config, tierAddress, tierDiscount, options)
@@ -778,6 +806,30 @@ static setDiscountForTiers(config: StateConfig, tierAddress: string, tierDiscoun
 `StateConfig`
 
 a VM script
+
+<a id="setMultiplier-method-static-1"></a>
+
+### setMultiplier(config, condition, multiplier)
+
+Method to apply multiplier to a StateConfig based on a condition passing
+
+<b>Signature:</b>
+
+```typescript
+static setMultiplier(config: StateConfig, condition: StateConfig, multiplier: number): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | The StateConfig to apply multiplier to |
+|  condition | [StateConfig](../interfaces/stateconfig.md) | The condition of StateConfig type |
+|  multiplier | `number` | multulpier (2 decimals max) |
+
+<b>Returns:</b>
+
+`StateConfig`
 
 <a id="setMultiplierForTiers-method-static-1"></a>
 
