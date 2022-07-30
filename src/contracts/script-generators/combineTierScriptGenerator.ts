@@ -168,6 +168,8 @@ export class CombineTierGenerator {
    * @param reporter - either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired)
    * @param logic - selectLte logic
    * @param mode - selectLte mode
+   * @param hasReportForSingleTier - (optional) Used to determine if this script needs to have a second
+   * script used for getting the ITIERV2_TIME_FOR_TIER for a combineTier contract reportTimeForTier, default is false
    * @param delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
    * or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    * @param number - (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK_TIMESTAMP
@@ -178,10 +180,11 @@ export class CombineTierGenerator {
     reporter: string | StateConfig,
     logic: selectLteLogic,
     mode: selectLteMode,
+    hasReportForSingleTier: boolean = false,
     delegatedReport?: boolean,
     number?: number
   ): CombineTierGenerator {
-    const _buttom = new CombineTierGenerator(reporter, {delegatedReport, hasReportForSingleTier: true})
+    const _buttom = new CombineTierGenerator(reporter, {delegatedReport, hasReportForSingleTier})
 
     const _combiner: StateConfig = {
       constants: number ? [number] : [],
@@ -189,16 +192,19 @@ export class CombineTierGenerator {
         concat([
           number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_TIMESTAMP),
           op(VM.Opcodes.SELECT_LTE, selectLte(logic, mode, 2)),
-        ]),
-        concat([
-          number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.SELECT_LTE, selectLte(logic, mode, 2)),
-        ]),
+        ])
       ],
     };
 
-    let _result: StateConfig = VM.combiner(_buttom, _combiner, {numberOfSources: 2});
-    _result = VM.combiner(this, _result, {numberOfSources: 2});
+    if (hasReportForSingleTier) _combiner.sources.push(
+      concat([
+        number ? op(VM.Opcodes.CONSTANT, 0) : op(VM.Opcodes.BLOCK_TIMESTAMP),
+        op(VM.Opcodes.SELECT_LTE, selectLte(logic, mode, 2)),
+      ])
+    )
+
+    let _result: StateConfig = VM.combiner(_buttom, _combiner, {numberOfSources: hasReportForSingleTier ? 2 : 1});
+    _result = VM.combiner(this, _result, {numberOfSources: hasReportForSingleTier ? 2 : 1});
 
     this.constants = _result.constants;
     this.sources = _result.sources;

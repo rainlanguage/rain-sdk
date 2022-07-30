@@ -24,7 +24,7 @@ new CombineTier(a tierAddress or a StateConfig)
 
 |  Method | Description |
 |  --- | --- |
-|  [combineWith(reporter, logic, mode, delegatedReport, number)](./combinetiergenerator.md#combineWith-method-1) | Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode |
+|  [combineWith(reporter, logic, mode, hasReportForSingleTier, delegatedReport, number)](./combinetiergenerator.md#combineWith-method-1) | Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode |
 |  [differenceFrom(reporter, delegatedReport)](./combinetiergenerator.md#differenceFrom-method-1) | Saturating difference between 2 reports |
 |  [isTierHeldFor(duration)](./combinetiergenerator.md#isTierHeldFor-method-1) | Creats a holding time ALWAYS/NEVER tier script for a Combinetier contract out of a Stake contract. |
 |  [updateReport(startTier, endTier, number)](./combinetiergenerator.md#updateReport-method-1) | Method to update a report at given tier range (can be any range between 0 to 8) |
@@ -55,14 +55,14 @@ sources: BytesLike[];
 
 <a id="combineWith-method-1"></a>
 
-### combineWith(reporter, logic, mode, delegatedReport, number)
+### combineWith(reporter, logic, mode, hasReportForSingleTier, delegatedReport, number)
 
 Combines 2 tier report with selectLte with its logic and mode, and can be chained for multiple reports each with their own logic and mode
 
 <b>Signature:</b>
 
 ```typescript
-combineWith(reporter: string | StateConfig, logic: selectLteLogic, mode: selectLteMode, delegatedReport?: boolean, number?: number): CombineTierGenerator;
+combineWith(reporter: string | StateConfig, logic: selectLteLogic, mode: selectLteMode, hasReportForSingleTier?: boolean, delegatedReport?: boolean, number?: number): CombineTierGenerator;
 ```
 
 #### Parameters
@@ -72,6 +72,7 @@ combineWith(reporter: string | StateConfig, logic: selectLteLogic, mode: selectL
 |  reporter | `string \| StateConfig` | either a tier contract address or a StateConfig of REPROT script (or any other form of StateConfig desired) |
 |  logic | `selectLteLogic` | selectLte logic |
 |  mode | `selectLteMode` | selectLte mode |
+|  hasReportForSingleTier | `boolean` | (optional) Used to determine if this script needs to have a second script used for getting the ITIERV2\_TIME\_FOR\_TIER for a combineTier contract reportTimeForTier, default is false |
 |  delegatedReport | `boolean` | (optional) Used to determine if this script is being used for combinetier contract or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT\[0\] |
 |  number | `number` | (optional) if passed it would be the number to compare reports against, if not passed reports will be compared against BLOCK\_TIMESTAMP |
 
