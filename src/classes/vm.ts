@@ -1801,7 +1801,7 @@ export class VM {
 
   /**
    * @public
-   * Create a new raw linear Increasing or Decreasing value StateConfig.
+   * Create a new raw linear decreasing value StateConfig.
    *
    * @param startValue - The starting value
    * @param endValue - The ending value
@@ -1809,17 +1809,14 @@ export class VM {
    * @param endTimestamp - End timestamp
    * @returns a VM StateConfig
    */
-   public static incdec(
+   public static dec(
     startValue: BigNumber,
     endValue: BigNumber,
     startTimestamp: number,
     endTimestamp: number
   ) {
-    const isInc = endValue >= startValue ? true : false;
     let raiseDuration = endTimestamp - startTimestamp;
-    let valueChange = isInc
-      ? (endValue.sub(startValue)).div(raiseDuration)
-      : (startValue.sub(endValue)).div(raiseDuration);
+    let valueChange = (startValue.sub(endValue)).div(raiseDuration);
 
     return ({
       constants: [
@@ -1836,7 +1833,49 @@ export class VM {
           op(VM.Opcodes.CONSTANT, 2),
           op(VM.Opcodes.MUL, 2),
           op(VM.Opcodes.CONSTANT, 0),
-          isInc ? op(VM.Opcodes.ADD, 2) : op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.MIN, 2),
+        ])
+      ],
+    });
+  }
+
+  /**
+   * @public
+   * Create a new raw linear increasing value StateConfig.
+   *
+   * @param startValue - The starting value
+   * @param endValue - The ending value
+   * @param startTimestamp - Start timestamp
+   * @param endTimestamp - End timestamp
+   * @returns a VM StateConfig
+   */
+   public static inc(
+    startValue: BigNumber,
+    endValue: BigNumber,
+    startTimestamp: number,
+    endTimestamp: number
+  ) {
+    let raiseDuration = endTimestamp - startTimestamp;
+    let valueChange = (endValue.sub(startValue)).div(raiseDuration);
+
+    return ({
+      constants: [
+        startValue,
+        endValue,
+        valueChange,
+        startTimestamp,
+      ],
+      sources: [
+        concat([
+          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.CONSTANT, 3),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.MUL, 2),
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.ADD, 2),
           op(VM.Opcodes.CONSTANT, 1),
           op(VM.Opcodes.MIN, 2),
         ])

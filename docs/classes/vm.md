@@ -26,13 +26,14 @@ class VM
 |  [combiner(config1, config2, options)](./vm.md#combiner-method-static-1) | Combines 2 individual VM scripts |
 |  [constant(value)](./vm.md#constant-method-static-1) | Methdo to create a simple signle value script, ie CONTANT |
 |  [createVMSources(OPerands)](./vm.md#createVMSources-method-static-1) | Create a VM sources to be ready to use in any call just providing the combination desired. |
+|  [dec(startValue, endValue, startTimestamp, endTimestamp)](./vm.md#dec-method-static-1) | Create a new raw linear decreasing value StateConfig. |
 |  [getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id, delegatedCall)](./vm.md#getAsset-method-static-1) | A method to generate the StateConfig out of EVM assets' opcodes |
 |  [gt(config1, config2, stackReassignment)](./vm.md#gt-method-static-1) | Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not |
 |  [gte(config1, config2, stackReassignment)](./vm.md#gte-method-static-1) | Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [hasAnyTier(tierConfig, stackReassignment)](./vm.md#hasAnyTier-method-static-1) | Method to check if an address has any tier status or not, i.e if is in tier contract or not |
 |  [hasMinTier(tierConfig, tier, stackReassignment)](./vm.md#hasMinTier-method-static-1) | Method to check if an address has at least the "TIER" status |
 |  [ifelse(condition, ifStatement, elseStatement, stackReassignment)](./vm.md#ifelse-method-static-1) | Method to create an if/else script |
-|  [incdec(startValue, endValue, startTimestamp, endTimestamp)](./vm.md#incdec-method-static-1) | Create a new raw linear Increasing or Decreasing value StateConfig. |
+|  [inc(startValue, endValue, startTimestamp, endTimestamp)](./vm.md#inc-method-static-1) | Create a new raw linear increasing value StateConfig. |
 |  [input(operand)](./vm.md#input-method-static-1) | Method to create a simple CONTEXT opcode script |
 |  [isEqual(config1, config2, stackReassignment)](./vm.md#isEqual-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [isZero(config)](./vm.md#isZero-method-static-1) | Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not |
@@ -247,6 +248,39 @@ static createVMSources(OPerands: (OPerand | Uint8Array)[]): [Uint8Array];
 
 A source
 
+<a id="dec-method-static-1"></a>
+
+### dec(startValue, endValue, startTimestamp, endTimestamp)
+
+Create a new raw linear decreasing value StateConfig.
+
+<b>Signature:</b>
+
+```typescript
+static dec(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, endTimestamp: number): {
+        constants: (number | BigNumber)[];
+        sources: Uint8Array[];
+    };
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  startValue | `BigNumber` | The starting value |
+|  endValue | `BigNumber` | The ending value |
+|  startTimestamp | `number` | Start timestamp |
+|  endTimestamp | `number` | End timestamp |
+
+<b>Returns:</b>
+
+`{
+        constants: (number | BigNumber)[];
+        sources: Uint8Array[];
+    }`
+
+a VM StateConfig
+
 <a id="getAsset-method-static-1"></a>
 
 ### getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id, delegatedCall)
@@ -404,16 +438,16 @@ static ifelse(condition: StateConfig, ifStatement: StateConfig, elseStatement: S
 
 a
 
-<a id="incdec-method-static-1"></a>
+<a id="inc-method-static-1"></a>
 
-### incdec(startValue, endValue, startTimestamp, endTimestamp)
+### inc(startValue, endValue, startTimestamp, endTimestamp)
 
-Create a new raw linear Increasing or Decreasing value StateConfig.
+Create a new raw linear increasing value StateConfig.
 
 <b>Signature:</b>
 
 ```typescript
-static incdec(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, endTimestamp: number): {
+static inc(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, endTimestamp: number): {
         constants: (number | BigNumber)[];
         sources: Uint8Array[];
     };
