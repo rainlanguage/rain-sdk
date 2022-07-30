@@ -39,6 +39,7 @@
 |  [RainJSVM](./classes/rainjsvm.md) | - The javascript version of the RainVM, basically does the same job RainVM does but off-chain. |
 |  [RedeemableERC20](./classes/redeemableerc20.md) | A class for calling methods on a RedeemableERC20. |
 |  [RedeemableERC20ClaimEscrow](./classes/redeemableerc20claimescrow.md) | A class for calling methods on a RedeemableERC20ClaimEscrow. |
+|  [RuleBuilder](./classes/rulebuilder.md) | Class with methods to generate a rule-based StateConfig |
 |  [Sale](./classes/sale.md) | A class for deploying and calling methods on a Sale. |
 |  [SaleJSVM](./classes/salejsvm.md) | - The javascript version of SaleVM which inherits RainJSVM with local Sale opcodes. |
 |  [SaleSimulation](./classes/salesimulation.md) | A class for creating a simulation environment for simulating a Sale contract off-chain using JSVM. |
@@ -127,6 +128,7 @@
 |  [Evidence](./interfaces/evidence.md) | Structure of arbitrary evidence to support any action taken. Priviledged roles are expected to provide evidence just as applicants as an audit trail will be preserved permanently in the logs. |
 |  [FnPtrsJSVM](./interfaces/fnptrsjsvm.md) | An interface for creating a key/value pair of opcodes functions to override. |
 |  [IOpMeta](./interfaces/iopmeta.md) |  |
+|  [modifier](./interfaces/modifier.md) | Type for price/quantity scripts modifier based on a tier report |
 |  [NoticeStruct](./interfaces/noticestruct.md) |  |
 |  [OpJSVM](./interfaces/opjsvm.md) | An interface/type of JSVM opcodes' function's body |
 |  [ReadTxOverrides](./interfaces/readtxoverrides.md) | More read about `ReadTxOverrides` that comes from CallOverrides of ethers |
@@ -157,6 +159,7 @@
 |  [TxOverrides](./interfaces/txoverrides.md) | More read about `TxOverrides` that comes from Overrides of ethers |
 |  [VerifyDeployArgs](./interfaces/verifydeployargs.md) | Config to initialize a Verify contract with. |
 |  [VerifyState](./interfaces/verifystate.md) | Records the block a verify session reaches each status. If a status is not reached it is left as UNINITIALIZED, i.e. 0xFFFFFFFF. Most accounts will never be banned so most accounts will never reach every status, which is a good thing. |
+|  [vmCurrency](./interfaces/vmcurrency.md) | Type for a currency scripts used in RuleBuilder class |
 
 ## Namespaces
 
