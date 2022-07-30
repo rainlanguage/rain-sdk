@@ -32,6 +32,7 @@ class VM
 |  [hasAnyTier(tierConfig, stackReassignment)](./vm.md#hasAnyTier-method-static-1) | Method to check if an address has any tier status or not, i.e if is in tier contract or not |
 |  [hasMinTier(tierConfig, tier, stackReassignment)](./vm.md#hasMinTier-method-static-1) | Method to check if an address has at least the "TIER" status |
 |  [ifelse(condition, ifStatement, elseStatement, stackReassignment)](./vm.md#ifelse-method-static-1) | Method to create an if/else script |
+|  [input(operand)](./vm.md#input-method-static-1) | Method to create a simple CONTEXT opcode script |
 |  [isEqual(config1, config2, stackReassignment)](./vm.md#isEqual-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [isZero(config)](./vm.md#isZero-method-static-1) | Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not |
 |  [lt(config1, config2, stackReassignment)](./vm.md#lt-method-static-1) | Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not |
@@ -401,6 +402,30 @@ static ifelse(condition: StateConfig, ifStatement: StateConfig, elseStatement: S
 `StateConfig`
 
 a
+
+<a id="input-method-static-1"></a>
+
+### input(operand)
+
+Method to create a simple CONTEXT opcode script
+
+<b>Signature:</b>
+
+```typescript
+static input(operand: number): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  operand | `number` | context operand |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a VM script
 
 <a id="isEqual-method-static-1"></a>
 

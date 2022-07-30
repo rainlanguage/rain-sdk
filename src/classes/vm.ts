@@ -1785,4 +1785,18 @@ export class VM {
     }
   }
 
+    /**
+   * @public
+   * Method to create a simple CONTEXT opcode script
+   * 
+   * @param operand - context operand
+   * @returns a VM script @see StateConfig
+   */
+  public static input(operand: number): StateConfig {
+    return {
+      constants: [],
+      sources: [concat([op(VM.Opcodes.CONTEXT, operand)])]
+    }
+  }
+
 }
