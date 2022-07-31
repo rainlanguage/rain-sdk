@@ -11,7 +11,6 @@ import {
   selectLteLogic,
   callSize,
   arrayify,
-  parseUnits,
 } from '../utils';
 
 /**
@@ -682,6 +681,8 @@ export class VM {
    *    - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the discount,
    *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the discount.(used for stake tier contract)
    *    - (param) tierContext an array of values mostly used for stake tier contracts.
+   *    - (param) delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
+   *       or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    *
    * @returns a VM script @see StateConfig
    */
@@ -692,10 +693,12 @@ export class VM {
     options?: {
       index?: number,
       tierActivation?: (string | number)[],
-      tierContext?: BigNumber[]
+      tierContext?: BigNumber[],
+      delegatedReport?: boolean,
     }
   ): StateConfig {
     const Index = options?.index ? options.index : 0;
+    const delegated = options?.delegatedReport !== undefined ? options.delegatedReport : false;
 
     const TierDiscount = paddedUInt256(
       BigNumber.from(
@@ -739,7 +742,7 @@ export class VM {
         op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(0, 8)),
         op(VM.Opcodes.CONSTANT, 2),
         op(VM.Opcodes.CONSTANT, 1),
-        op(VM.Opcodes.SENDER),
+        delegated ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
         CONTEXT_.sources,
         op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
         op(VM.Opcodes.BLOCK_TIMESTAMP),
@@ -763,7 +766,7 @@ export class VM {
         op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(0, 8)),
         op(VM.Opcodes.CONSTANT, 1),
-        op(VM.Opcodes.SENDER),
+        delegated ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
         CONTEXT_.sources,
         op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
         op(VM.Opcodes.SATURATING_DIFF),
@@ -849,6 +852,8 @@ export class VM {
    *    - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the multiplier,
    *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the multiplier.(used for stake tier contract)
    *    - (param) tierContext an array of values mostly used for stake tier contracts.
+   *    - (param) delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
+   *       or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    *
    * @returns a VM script @see StateConfig
    */
@@ -859,10 +864,12 @@ export class VM {
     options?: {
       index?: number,
       tierActivation?: (string | number)[],
-      tierContext?: BigNumber[]
+      tierContext?: BigNumber[],
+      delegatedReport?: boolean,
     }
   ): StateConfig {
     const Index = options?.index ? options.index : 0;
+    const delegated = options?.delegatedReport !== undefined ? options.delegatedReport : false;
 
     const TierMultiplier = paddedUInt256(
       BigNumber.from(
@@ -902,7 +909,7 @@ export class VM {
       concat([
         op(VM.Opcodes.CONSTANT, 2),
         op(VM.Opcodes.CONSTANT, 1),
-        op(VM.Opcodes.SENDER),
+        delegated ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
         CONTEXT_.sources,
         op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
         op(VM.Opcodes.BLOCK_TIMESTAMP),
@@ -925,7 +932,7 @@ export class VM {
         op(VM.Opcodes.BLOCK_TIMESTAMP),
         op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(0, 8)),
         op(VM.Opcodes.CONSTANT, 1),
-        op(VM.Opcodes.SENDER),
+        delegated ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
         CONTEXT_.sources,
         op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
         op(VM.Opcodes.SATURATING_DIFF),
@@ -1418,184 +1425,176 @@ export class VM {
     return result_;
   }
 
-  /**
-   * Produce different values from the result of a VM script based on a tier contract.
-   *
-   * @param config - the main VM script
-   * @param tierAddress - the contract address of the tier contract.
-   * @param tierValues - an array of 8 items - the value (6 decimals max) of each tier are the 8 items of the array.
-   * @param ascending - true if the tierValues (argument above) are ascending and false if descending from tier 1 to 8
-   * @param options - used for additional configuraions:
-   *    - (param) index to identify which sources item in config.sources the TierValues applies to, if not specified, it will be 0.
-   *    - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the different value,
-   *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the respective value. (used for stake tier contract)
-   *    - (param) tierContext an array of values mostly used for stake tier contracts.
-   *    - (param) finalDecimals produce the final values in this fixed decimals - 0 by deafult 
-   *
-   * @returns a VM script @see StateConfig
-   */
-   public static setValueForTiers(
-    config: StateConfig,
-    tierAddress: string,
-    tierValues: number[],
-    ascending: boolean,
-    options?: {
-      index?: number,
-      tierActivation?: (string | number)[],
-      tierContext?: BigNumber[],
-      finalDecimals?: number
-    }
-  ): StateConfig {
-    const Index = options?.index ? options.index : 0;
-    const Decimals = ("1").padEnd(
-      (options?.finalDecimals ? options.finalDecimals - 6 >= 0 ? options.finalDecimals - 6 : 6 - options.finalDecimals : 0),
-      "0"
-    );
+  // /**
+  //  * Produce different values from the result of a VM script based on a tier contract.
+  //  *
+  //  * @param tierAddress - the contract address of the tier contract.
+  //  * @param tierValues - an array of 8 items - the value (6 decimals max) of each tier are the 8 items of the array.
+  //  * @param options - used for additional configuraions:
+  //  *    - (param) index to identify which sources item in config.sources the TierValues applies to, if not specified, it will be 0.
+  //  *    - (param) tierActivation An array of numbers, representing the amount of timestamps each tier must hold in order to get the different value,
+  //  *       e.g. the first item in array is 100 mean tier 1 needs to be held at least 100 timestamps to get the respective value. (used for stake tier contract)
+  //  *    - (param) tierContext an array of values mostly used for stake tier contracts.
+  //  *    - (param) finalDecimals produce the final values in this fixed decimals - 0 by deafult
+  //  *    - (param) delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
+  //  *       or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
+  //  *
+  //  * @returns a VM script @see StateConfig
+  //  */
+  //  public static setValueForTiers(
+  //   tierAddress: string,
+  //   tierValues: BigNumber[],
+  //   options?: {
+  //     index?: number,
+  //     tierActivation?: (string | number)[],
+  //     tierContext?: BigNumber[],
+  //     finalDecimals?: number,
+  //     delegatedReport?: boolean
+  //   }
+  // ): StateConfig {
+  //   const Index = options?.index ? options.index : 0;
+  //   const delegated = options?.delegatedReport !== undefined ? options.delegatedReport : false;
+  //   const Decimals = ("1").padEnd((options?.finalDecimals ? options.finalDecimals : 0), "0");
 
-    const TierValues = paddedUInt256(
-      BigNumber.from(
-        '0x' +
-          paddedUInt32(parseUnits(tierValues[7].toString(), 6)) +
-          paddedUInt32(parseUnits(tierValues[6].toString(), 6)) +
-          paddedUInt32(parseUnits(tierValues[5].toString(), 6)) +
-          paddedUInt32(parseUnits(tierValues[4].toString(), 6)) +
-          paddedUInt32(parseUnits(tierValues[3].toString(), 6)) +
-          paddedUInt32(parseUnits(tierValues[2].toString(), 6)) +
-          paddedUInt32(parseUnits(tierValues[1].toString(), 6)) +
-          paddedUInt32(parseUnits(tierValues[0].toString(), 6))
-      )
-    );
+  //   const TierValues = paddedUInt256(
+  //     BigNumber.from(
+  //       '0x' +
+  //         paddedUInt32(tierValues[7]) +
+  //         paddedUInt32(tierValues[6]) +
+  //         paddedUInt32(tierValues[5]) +
+  //         paddedUInt32(tierValues[4]) +
+  //         paddedUInt32(tierValues[3]) +
+  //         paddedUInt32(tierValues[2]) +
+  //         paddedUInt32(tierValues[1]) +
+  //         paddedUInt32(tierValues[0])
+  //     )
+  //   );
 
     
-    const CONTEXT_ = options?.tierContext && options.tierContext.length === 8
-    ? {
-        constants: options.tierContext,
-        sources: concat([
-          op(VM.Opcodes.CONSTANT, 7),
-          op(VM.Opcodes.CONSTANT, 8),
-          op(VM.Opcodes.CONSTANT, 9),
-          op(VM.Opcodes.CONSTANT, 10),
-          op(VM.Opcodes.CONSTANT, 11),
-          op(VM.Opcodes.CONSTANT, 12),
-          op(VM.Opcodes.CONSTANT, 13),
-          op(VM.Opcodes.CONSTANT, 14),
-        ])
-      }
-    : {
-      constants: [],
-      sources: concat([])
-    }
+  //   const CONTEXT_ = options?.tierContext && options.tierContext.length === 8
+  //   ? {
+  //       constants: options.tierContext,
+  //       sources: concat([
+  //         op(VM.Opcodes.CONSTANT, 7),
+  //         op(VM.Opcodes.CONSTANT, 8),
+  //         op(VM.Opcodes.CONSTANT, 9),
+  //         op(VM.Opcodes.CONSTANT, 10),
+  //         op(VM.Opcodes.CONSTANT, 11),
+  //         op(VM.Opcodes.CONSTANT, 12),
+  //         op(VM.Opcodes.CONSTANT, 13),
+  //         op(VM.Opcodes.CONSTANT, 14),
+  //       ])
+  //     }
+  //   : {
+  //     constants: [],
+  //     sources: concat([])
+  //   }
 
-    const TIER_BASED_VAL = () =>
-      concat([
-        op(VM.Opcodes.CONSTANT, 2),
-        op(VM.Opcodes.CONSTANT, 1),
-        op(VM.Opcodes.SENDER),
-        CONTEXT_.sources,
-        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
-        op(VM.Opcodes.BLOCK_TIMESTAMP),
-        op(
-          VM.Opcodes.SELECT_LTE,
-          selectLte(selectLteLogic.every, selectLteMode.first, 2)
-        ),
-      ]);
-    const TIER_BASED_VAL_ZIPMAP = (valSize: number) =>
-      concat([
-        op(VM.Opcodes.ZIPMAP, callSize(1, 3, valSize)),
-        ascending ? op(VM.Opcodes.MAX, 8) : op(VM.Opcodes.MIN, 8),
-        op(VM.Opcodes.CONSTANT, 5),
-        options?.finalDecimals 
-          ? options?.finalDecimals - 6 >= 0 
-            ? op(VM.Opcodes.MUL, 2) 
-            : op(VM.Opcodes.DIV, 2) 
-          : op(VM.Opcodes.MUL, 2),
-        ascending ? op(VM.Opcodes.MAX, 2) : op(VM.Opcodes.MIN, 2),
-      ]);
-    const ACTIVATION_TIME = () =>
-      concat([
-        op(VM.Opcodes.CONSTANT, 0),
-        op(VM.Opcodes.BLOCK_TIMESTAMP),
-        op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(0, 8)),
-        op(VM.Opcodes.CONSTANT, 1),
-        op(VM.Opcodes.SENDER),
-        CONTEXT_.sources,
-        op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
-        op(VM.Opcodes.SATURATING_DIFF),
-        op(VM.Opcodes.CONSTANT, 6),
-      ]);
-    const TIER_BASED_VAL_FN = (i: number) =>
-      concat([
-        op(VM.Opcodes.CONSTANT, i),
-        op(VM.Opcodes.CONSTANT, 4),
-        op(VM.Opcodes.LESS_THAN),
-        op(VM.Opcodes.CONSTANT, i),
-        op(VM.Opcodes.CONSTANT, 3),
-        op(VM.Opcodes.EAGER_IF),
-      ]);
-    const ACTIVATION_TIME_FN = () =>
-      concat([
-        op(VM.Opcodes.CONSTANT, 16),
-        op(VM.Opcodes.CONSTANT, 17),
-        op(VM.Opcodes.LESS_THAN),
-        op(VM.Opcodes.CONSTANT, 3),
-      ]);
+  //   const TIER_BASED_VAL = () =>
+  //     concat([
+  //       op(VM.Opcodes.CONSTANT, 2),
+  //       op(VM.Opcodes.CONSTANT, 1),
+  //       delegated ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
+  //       CONTEXT_.sources,
+  //       op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
+  //       op(VM.Opcodes.BLOCK_TIMESTAMP),
+  //       op(
+  //         VM.Opcodes.SELECT_LTE,
+  //         selectLte(selectLteLogic.every, selectLteMode.first, 2)
+  //       ),
+  //     ]);
+  //   const TIER_BASED_VAL_ZIPMAP = (valSize: number) =>
+  //     concat([
+  //       op(VM.Opcodes.ZIPMAP, callSize(1, 3, valSize)),
+  //       op(VM.Opcodes.ADD, 8),
+  //       op(VM.Opcodes.CONSTANT, 5), 
+  //       op(VM.Opcodes.MUL, 2),
+  //     ]);
+  //   const ACTIVATION_TIME = () =>
+  //     concat([
+  //       op(VM.Opcodes.CONSTANT, 0),
+  //       op(VM.Opcodes.BLOCK_TIMESTAMP),
+  //       op(VM.Opcodes.UPDATE_TIMES_FOR_TIER_RANGE, tierRange(0, 8)),
+  //       op(VM.Opcodes.CONSTANT, 1),
+  //       delegated ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
+  //       CONTEXT_.sources,
+  //       op(VM.Opcodes.ITIERV2_REPORT, CONTEXT_.constants.length),
+  //       op(VM.Opcodes.SATURATING_DIFF),
+  //       op(VM.Opcodes.CONSTANT, 6),
+  //     ]);
+  //   const TIER_BASED_VAL_FN = (i: number) =>
+  //     concat([
+  //       op(VM.Opcodes.CONSTANT, i),
+  //       op(VM.Opcodes.CONSTANT, 4),
+  //       op(VM.Opcodes.LESS_THAN),
+  //       op(VM.Opcodes.CONSTANT, i),
+  //       op(VM.Opcodes.CONSTANT, 3),
+  //       op(VM.Opcodes.EAGER_IF),
+  //     ]);
+  //   const ACTIVATION_TIME_FN = () =>
+  //     concat([
+  //       op(VM.Opcodes.CONSTANT, 16),
+  //       op(VM.Opcodes.CONSTANT, 17),
+  //       op(VM.Opcodes.LESS_THAN),
+  //       op(VM.Opcodes.CONSTANT, 3),
+  //     ]);
 
-    const _tierValuesConfig: StateConfig = 
-      options?.tierActivation && options.tierActivation.length === 8
-      ? {
-          constants: [
-            ethers.constants.MaxUint256,
-            tierAddress,
-            TierValues,
-            ascending ? '0' : '0xffffffff',
-            '0xffffffff',
-            Decimals,
-            paddedUInt256(
-              BigNumber.from(
-                '0x' +
-                  paddedUInt32(options.tierActivation[7]) +
-                  paddedUInt32(options.tierActivation[6]) +
-                  paddedUInt32(options.tierActivation[5]) +
-                  paddedUInt32(options.tierActivation[4]) +
-                  paddedUInt32(options.tierActivation[3]) +
-                  paddedUInt32(options.tierActivation[2]) +
-                  paddedUInt32(options.tierActivation[1]) +
-                  paddedUInt32(options.tierActivation[0])
-              )
-            ),
-            ...CONTEXT_.constants,
-          ],
-          sources: [
-            concat([
-              TIER_BASED_VAL(),
-              ACTIVATION_TIME(),
-              TIER_BASED_VAL_ZIPMAP(2),
-            ]),
-            concat([
-              ACTIVATION_TIME_FN(),
-              TIER_BASED_VAL_FN(7 + CONTEXT_.constants.length),
-              op(VM.Opcodes.EAGER_IF),
-            ]),
-          ],
-        }
-      : {
-          constants: [
-            ethers.constants.MaxUint256,
-            tierAddress,
-            TierValues,
-            ascending ? '0' : '0xffffffff',
-            '0xffffffff',
-            Decimals,
-            ...CONTEXT_.constants
-          ],
-          sources: [
-            concat([TIER_BASED_VAL(), TIER_BASED_VAL_ZIPMAP(0)]),
-            TIER_BASED_VAL_FN(6 + CONTEXT_.constants.length),
-          ],
-        };
+  //   const _tierValuesConfig: StateConfig = 
+  //     options?.tierActivation && options.tierActivation.length === 8
+  //     ? {
+  //         constants: [
+  //           ethers.constants.MaxUint256,
+  //           tierAddress,
+  //           TierValues,
+  //           ascending ? '0' : '0xffffffff',
+  //           '0xffffffff',
+  //           Decimals,
+  //           paddedUInt256(
+  //             BigNumber.from(
+  //               '0x' +
+  //                 paddedUInt32(options.tierActivation[7]) +
+  //                 paddedUInt32(options.tierActivation[6]) +
+  //                 paddedUInt32(options.tierActivation[5]) +
+  //                 paddedUInt32(options.tierActivation[4]) +
+  //                 paddedUInt32(options.tierActivation[3]) +
+  //                 paddedUInt32(options.tierActivation[2]) +
+  //                 paddedUInt32(options.tierActivation[1]) +
+  //                 paddedUInt32(options.tierActivation[0])
+  //             )
+  //           ),
+  //           ...CONTEXT_.constants,
+  //         ],
+  //         sources: [
+  //           concat([
+  //             TIER_BASED_VAL(),
+  //             ACTIVATION_TIME(),
+  //             TIER_BASED_VAL_ZIPMAP(2),
+  //           ]),
+  //           concat([
+  //             ACTIVATION_TIME_FN(),
+  //             TIER_BASED_VAL_FN(7 + CONTEXT_.constants.length),
+  //             op(VM.Opcodes.EAGER_IF),
+  //           ]),
+  //         ],
+  //       }
+  //     : {
+  //         constants: [
+  //           ethers.constants.MaxUint256,
+  //           tierAddress,
+  //           TierValues,
+  //           ascending ? '0' : '0xffffffff',
+  //           '0xffffffff',
+  //           Decimals,
+  //           ...CONTEXT_.constants
+  //         ],
+  //         sources: [
+  //           concat([TIER_BASED_VAL(), TIER_BASED_VAL_ZIPMAP(0)]),
+  //           TIER_BASED_VAL_FN(6 + CONTEXT_.constants.length),
+  //         ],
+  //       };
 
-    return VM.combiner(config, _tierValuesConfig, { index: Index });
-  }
+  //   return VM.combiner(config, _tierValuesConfig, { index: Index });
+  // }
 
   /**
    * A method to generate the StateConfig out of EVM assets' opcodes
