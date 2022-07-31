@@ -12,7 +12,7 @@ export interface modifier {
   /**
    * Determines the modifier's mode
    */
-  mode: "tier_discounts" | "tier_multipliers" | "tier_values" | "discount" | "multiplier",
+  mode: "tier_discounts" | "tier_multipliers" | "discount" | "multiplier",
   /**
    * the condition of the modifier, either a tier contract address for tier modifier or a boolean StateConfig for none tier modifier
    */
@@ -30,9 +30,9 @@ export interface modifier {
      */
     tierContext?: BigNumber[],
     /**
-     * used specifically in "tier_values" modifier to pick max value if true and min value if false
+     * Used in tier modifiers to determins if the delegated reported is available or not, i.e use SENDER if false and CONTEXT[0] if true
      */
-    pickMax?: boolean
+    delegatedReport?: boolean
   }
 }
 
@@ -232,7 +232,10 @@ export class RuleBuilder {
       config,
       modifier.condition,
       modifier.values,
-      { tierContext: modifier.options?.tierContext }
+      { 
+        tierContext: modifier.options?.tierContext,
+        delegatedReport: modifier.options?.delegatedReport
+      }
     )
 
     else if (
@@ -243,20 +246,10 @@ export class RuleBuilder {
       config,
       modifier.condition,
       modifier.values,
-      { tierContext: modifier.options?.tierContext }
-    )
-
-    else if (
-      modifier.mode === "tier_values" && 
-      typeof modifier.condition === "string" && 
-      modifier.values.length === 8 && 
-      modifier.options?.pickMax !== undefined
-    ) return VM.setValueForTiers(
-      config,
-      modifier.condition,
-      modifier.values,
-      modifier.options.pickMax,
-      { tierContext: modifier.options?.tierContext }
+      { 
+        tierContext: modifier.options?.tierContext,
+        delegatedReport: modifier.options?.delegatedReport
+      }
     )
 
     else if (

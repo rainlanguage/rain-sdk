@@ -14,8 +14,8 @@ interface modifier
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [condition](./modifier.md#condition-property) | `string \| StateConfig` | the condition of the modifier, either a tier contract address for tier modifier or a boolean StateConfig for none tier modifier |
-|  [mode](./modifier.md#mode-property) | `"tier_discounts" \| "tier_multipliers" \| "tier_values" \| "discount" \| "multiplier"` | Determines the modifier's mode |
-|  [options](./modifier.md#options-property) | <pre>{&#010;    tierContext?: BigNumber[];&#010;    pickMax?: boolean;&#010;}</pre> | Optional properties for specific modifier's mode |
+|  [mode](./modifier.md#mode-property) | `"tier_discounts" \| "tier_multipliers" \| "discount" \| "multiplier"` | Determines the modifier's mode |
+|  [options](./modifier.md#options-property) | <pre>{&#010;    tierContext?: BigNumber[];&#010;    delegatedReport?: boolean;&#010;}</pre> | Optional properties for specific modifier's mode |
 |  [values](./modifier.md#values-property) | `number[]` | The modifing value(s) |
 
 ## Property Details
@@ -41,7 +41,7 @@ Determines the modifier's mode
 <b>Signature:</b>
 
 ```typescript
-mode: "tier_discounts" | "tier_multipliers" | "tier_values" | "discount" | "multiplier";
+mode: "tier_discounts" | "tier_multipliers" | "discount" | "multiplier";
 ```
 
 <a id="options-property"></a>
@@ -55,7 +55,7 @@ Optional properties for specific modifier's mode
 ```typescript
 options?: {
         tierContext?: BigNumber[];
-        pickMax?: boolean;
+        delegatedReport?: boolean;
     };
 ```
 
