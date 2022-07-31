@@ -12,7 +12,7 @@ export interface modifier {
   /**
    * Determines the modifier's mode
    */
-  mode: "tier_discounts" | "tier_multipliers" | "discount" | "multiplier",
+  mode: "tier-discounts" | "tier-multipliers" | "discount" | "multiplier",
   /**
    * the condition of the modifier, either a tier contract address for tier modifier or a boolean StateConfig for none tier modifier
    */
@@ -225,7 +225,7 @@ export class RuleBuilder {
   private static applyModifier(config: StateConfig, modifier: modifier): StateConfig {
 
     if (
-      modifier.mode === "tier_multipliers" && 
+      modifier.mode === "tier-multipliers" && 
       typeof modifier.condition === "string" && 
       modifier.values.length === 8
     ) return VM.setDiscountForTiers(
@@ -239,7 +239,7 @@ export class RuleBuilder {
     )
 
     else if (
-      modifier.mode === "tier_discounts" && 
+      modifier.mode === "tier-discounts" && 
       typeof modifier.condition === "string" && 
       modifier.values.length === 8
     ) return VM.setDiscountForTiers(
@@ -275,5 +275,3 @@ export class RuleBuilder {
     else throw new Error("Invalid Arguments");
   }
 }
-
-
