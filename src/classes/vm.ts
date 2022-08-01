@@ -1904,29 +1904,31 @@ export class VM {
    *
    * @param startValue - The starting value
    * @param endValue - The ending value
-   * @param startTimestamp - Start timestamp
-   * @param endTimestamp - End timestamp
+   * @param startPoint - Starting point, either timestamp or block number
+   * @param endPoint - Ending point, either timestamp or block number
+   * @param byBlock - Whether increasing by block or timestamp, pass true to be based on block
    * @returns a @see StateConfig
    */
    public static dec(
     startValue: BigNumber,
     endValue: BigNumber,
-    startTimestamp: number,
-    endTimestamp: number
-  ) {
-    let raiseDuration = endTimestamp - startTimestamp;
-    let valueChange = (startValue.sub(endValue)).div(raiseDuration);
+    startPoint: number,
+    endPoint: number,
+    byBlock: boolean = false
+  ): StateConfig {
+    let duration = endPoint - startPoint;
+    let valueChange = (startValue.sub(endValue)).div(duration);
 
     return ({
       constants: [
         startValue,
         endValue,
         valueChange,
-        startTimestamp,
+        startPoint,
       ],
       sources: [
         concat([
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          byBlock ? op(VM.Opcodes.BLOCK_NUMBER) : op(VM.Opcodes.BLOCK_TIMESTAMP),
           op(VM.Opcodes.CONSTANT, 3),
           op(VM.Opcodes.SATURATING_SUB, 2),
           op(VM.Opcodes.CONSTANT, 2),
@@ -1946,29 +1948,31 @@ export class VM {
    *
    * @param startValue - The starting value
    * @param endValue - The ending value
-   * @param startTimestamp - Start timestamp
-   * @param endTimestamp - End timestamp
+   * @param startPoint - Starting point, either timestamp or block number
+   * @param endPoint - Ending point, either timestamp or block number
+   * @param byBlock - Whether increasing by block or timestamp, pass true to be based on block
    * @returns a @see StateConfig
    */
    public static inc(
     startValue: BigNumber,
     endValue: BigNumber,
-    startTimestamp: number,
-    endTimestamp: number
-  ) {
-    let raiseDuration = endTimestamp - startTimestamp;
-    let valueChange = (endValue.sub(startValue)).div(raiseDuration);
+    startPoint: number,
+    endPoint: number,
+    byBlock: boolean = false
+  ): StateConfig {
+    let duration = endPoint - startPoint;
+    let valueChange = (endValue.sub(startValue)).div(duration);
 
     return ({
       constants: [
         startValue,
         endValue,
         valueChange,
-        startTimestamp,
+        startPoint,
       ],
       sources: [
         concat([
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
+          byBlock ? op(VM.Opcodes.BLOCK_NUMBER) : op(VM.Opcodes.BLOCK_TIMESTAMP),
           op(VM.Opcodes.CONSTANT, 3),
           op(VM.Opcodes.SATURATING_SUB, 2),
           op(VM.Opcodes.CONSTANT, 2),

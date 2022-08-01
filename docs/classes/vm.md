@@ -28,7 +28,7 @@ class VM
 |  [combiner(config1, config2, options)](./vm.md#combiner-method-static-1) | Combines 2 individual VM scripts |
 |  [constant(value)](./vm.md#constant-method-static-1) | Methdo to create a simple signle value script, ie CONTANT |
 |  [createVMSources(OPerands)](./vm.md#createVMSources-method-static-1) | Create a VM sources to be ready to use in any call just providing the combination desired. |
-|  [dec(startValue, endValue, startTimestamp, endTimestamp)](./vm.md#dec-method-static-1) | Create a new raw linear decreasing value StateConfig. |
+|  [dec(startValue, endValue, startPoint, endPoint, byBlock)](./vm.md#dec-method-static-1) | Create a new raw linear decreasing value StateConfig. |
 |  [eq(config1, config2, stackReassignment)](./vm.md#eq-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id, delegatedCall)](./vm.md#getAsset-method-static-1) | A method to generate the StateConfig out of EVM assets' opcodes |
 |  [gt(config1, config2, stackReassignment)](./vm.md#gt-method-static-1) | Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not |
@@ -36,7 +36,7 @@ class VM
 |  [hasAnyTier(tierConfig, stackReassignment)](./vm.md#hasAnyTier-method-static-1) | Method to check if an address has any tier status or not, i.e if is in tier contract or not |
 |  [hasMinTier(tierConfig, tier, stackReassignment)](./vm.md#hasMinTier-method-static-1) | Method to check if an address has at least the "TIER" status |
 |  [ifelse(condition, ifStatement, elseStatement, stackReassignment)](./vm.md#ifelse-method-static-1) | Method to create an if/else script |
-|  [inc(startValue, endValue, startTimestamp, endTimestamp)](./vm.md#inc-method-static-1) | Create a new raw linear increasing value StateConfig. |
+|  [inc(startValue, endValue, startPoint, endPoint, byBlock)](./vm.md#inc-method-static-1) | Create a new raw linear increasing value StateConfig. |
 |  [input(operand)](./vm.md#input-method-static-1) | Method to create a simple CONTEXT opcode script |
 |  [lt(config1, config2, stackReassignment)](./vm.md#lt-method-static-1) | Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not |
 |  [lte(config1, config2, stackReassignment)](./vm.md#lte-method-static-1) | Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not |
@@ -257,17 +257,14 @@ A source
 
 <a id="dec-method-static-1"></a>
 
-### dec(startValue, endValue, startTimestamp, endTimestamp)
+### dec(startValue, endValue, startPoint, endPoint, byBlock)
 
 Create a new raw linear decreasing value StateConfig.
 
 <b>Signature:</b>
 
 ```typescript
-static dec(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, endTimestamp: number): {
-        constants: (number | BigNumber)[];
-        sources: Uint8Array[];
-    };
+static dec(startValue: BigNumber, endValue: BigNumber, startPoint: number, endPoint: number, byBlock?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -276,15 +273,13 @@ static dec(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, e
 |  --- | --- | --- |
 |  startValue | `BigNumber` | The starting value |
 |  endValue | `BigNumber` | The ending value |
-|  startTimestamp | `number` | Start timestamp |
-|  endTimestamp | `number` | End timestamp |
+|  startPoint | `number` | Starting point, either timestamp or block number |
+|  endPoint | `number` | Ending point, either timestamp or block number |
+|  byBlock | `boolean` | Whether increasing by block or timestamp, pass true to be based on block |
 
 <b>Returns:</b>
 
-`{
-        constants: (number | BigNumber)[];
-        sources: Uint8Array[];
-    }`
+`StateConfig`
 
 a
 
@@ -473,17 +468,14 @@ a
 
 <a id="inc-method-static-1"></a>
 
-### inc(startValue, endValue, startTimestamp, endTimestamp)
+### inc(startValue, endValue, startPoint, endPoint, byBlock)
 
 Create a new raw linear increasing value StateConfig.
 
 <b>Signature:</b>
 
 ```typescript
-static inc(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, endTimestamp: number): {
-        constants: (number | BigNumber)[];
-        sources: Uint8Array[];
-    };
+static inc(startValue: BigNumber, endValue: BigNumber, startPoint: number, endPoint: number, byBlock?: boolean): StateConfig;
 ```
 
 #### Parameters
@@ -492,15 +484,13 @@ static inc(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, e
 |  --- | --- | --- |
 |  startValue | `BigNumber` | The starting value |
 |  endValue | `BigNumber` | The ending value |
-|  startTimestamp | `number` | Start timestamp |
-|  endTimestamp | `number` | End timestamp |
+|  startPoint | `number` | Starting point, either timestamp or block number |
+|  endPoint | `number` | Ending point, either timestamp or block number |
+|  byBlock | `boolean` | Whether increasing by block or timestamp, pass true to be based on block |
 
 <b>Returns:</b>
 
-`{
-        constants: (number | BigNumber)[];
-        sources: Uint8Array[];
-    }`
+`StateConfig`
 
 a
 
