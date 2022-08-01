@@ -79,12 +79,13 @@ export class ITierV2 extends FactoryContract {
    * @param signer - The signer to get connected to the instance
    * @returns A new instance of ITierV2 contract from the address with Signer
    */
-   constructor(address: string, signer: Signer) {
+  constructor(address: string, signer: Signer) {
+    super(address, signer);
+
     ITierV2.checkAddress(address);
 
-    super(address, signer);
     const _iTierV2 = ITierV2__factory.connect(address, signer);
-    
+
     this.report = _iTierV2.report;
     this.reportTimeForTier = _iTierV2.reportTimeForTier;
   }
