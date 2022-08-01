@@ -80,10 +80,9 @@ export class Verify extends FactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
-    super(address, signer);
-
     Verify.checkAddress(address);
 
+    super(address, signer);
     const _verify = Verify__factory.connect(address, signer);
 
     this.callback = _verify.callback;

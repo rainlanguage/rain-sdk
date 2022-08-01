@@ -38,12 +38,11 @@ export class Stake extends ITierV2 {
    * @returns A new Stake instance
    */
   constructor(address: string, signer: Signer) {
-    super(address, signer);
-
     Stake.checkAddress(address);
 
+    super(address, signer);
     const _stake = Stake__factory.connect(address, signer);
-
+    
     this.allowance = _stake.allowance;
     this.approve = _stake.approve;
     this.balanceOf = _stake.balanceOf;

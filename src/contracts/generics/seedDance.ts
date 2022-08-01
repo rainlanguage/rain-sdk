@@ -35,10 +35,9 @@ export class SeedDance extends RainContract {
    * @returns A new SeedDance instance
    */
   constructor(address: string, signer: Signer) {
-    super(address, signer);
-
     SeedDance.checkAddress(address);
 
+    super(address, signer);
     const _seedDance = SeedDance__factory.connect(address, signer);
 
     this.canRevealUntil = _seedDance.canRevealUntil
