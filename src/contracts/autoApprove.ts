@@ -49,10 +49,11 @@ export class AutoApprove extends FactoryContract {
    * @returns A new AutoApprove instance
    *
    */
-   constructor(address: string, signer: Signer) {
+  constructor(address: string, signer: Signer) {
+    super(address, signer);
+
     AutoApprove.checkAddress(address);
 
-    super(address, signer);
     const _autoApprove = AutoApprove__factory.connect(address, signer);
 
     this.afterAdd = _autoApprove.afterAdd;
@@ -143,7 +144,7 @@ export class AutoApprove extends FactoryContract {
   /**
    * @public
    */
-  public readonly afterApprove :(
+  public readonly afterApprove: (
     approver_: string,
     evidences_: EvidenceConfig[],
     overrides?: TxOverrides & { from?: string | Promise<string> }
@@ -197,13 +198,13 @@ export class AutoApprove extends FactoryContract {
     overrides?: ReadTxOverrides
   ) => Promise<StorageOpcodesRange>;
 
-   /**
-   * Pointers to opcode functions, necessary for being able to read the packedBytes
-   * 
-   * @param overrides - @see ReadTxOverrides
-   * @returns the opcode functions pointers
-   */
-   public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
+  /**
+  * Pointers to opcode functions, necessary for being able to read the packedBytes
+  * 
+  * @param overrides - @see ReadTxOverrides
+  * @returns the opcode functions pointers
+  */
+  public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 }
 
 /**

@@ -58,9 +58,10 @@ export class OrderBook extends RainContract {
    * @returns A new OrderBook instance
    */
   constructor(address: string, signer: Signer) {
+    super(address, signer);
+
     OrderBook.checkAddress(address);
 
-    super(address, signer);
     const _orderBook = OrderBook__factory.connect(address, signer);
 
     this.addOrder = _orderBook.addOrder;
@@ -69,7 +70,7 @@ export class OrderBook extends RainContract {
     this.removeOrder = _orderBook.removeOrder;
     this.storageOpcodesRange = _orderBook.storageOpcodesRange;
     this.withdraw = _orderBook.withdraw;
-  this.packedFunctionPointers = _orderBook.packedFunctionPointers;
+    this.packedFunctionPointers = _orderBook.packedFunctionPointers;
   }
 
   /**
@@ -191,13 +192,13 @@ export class OrderBook extends RainContract {
     overrides?: ReadTxOverrides
   ) => Promise<StorageOpcodesRange>;
 
-   /**
-   * Pointers to opcode functions, necessary for being able to read the packedBytes
-   * 
-   * @param overrides - @see ReadTxOverrides
-   * @returns the opcode functions pointers
-   */
-   public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
+  /**
+  * Pointers to opcode functions, necessary for being able to read the packedBytes
+  * 
+  * @param overrides - @see ReadTxOverrides
+  * @returns the opcode functions pointers
+  */
+  public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 }
 
 /**
@@ -263,7 +264,7 @@ export type WithdrawConfig = {
  * @public
  * Type for clear vaultIds used when in @see clear when clearing 2 orders that will collect the bounties into its vaults
  */
- export type ClearConfig = {
+export type ClearConfig = {
   aInputIndex: BigNumberish;
   aOutputIndex: BigNumberish;
   bInputIndex: BigNumberish;

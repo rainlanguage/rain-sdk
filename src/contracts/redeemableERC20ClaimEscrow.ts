@@ -62,9 +62,10 @@ export class RedeemableERC20ClaimEscrow extends RainContract {
     tokenAddress: string,
     signer: Signer
   ) {
+    super(address, signer);
+
     RedeemableERC20ClaimEscrow.checkAddress(address);
 
-    super(address, signer);
     const _claimEsrow = RedeemableERC20ClaimEscrow__factory.connect(
       address,
       signer

@@ -93,9 +93,10 @@ export class Sale extends FactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
+    super(address, signer);
+
     Sale.checkAddress(address);
 
-    super(address, signer);
     const _sale = Sale__factory.connect(address, signer);
 
     this.buy = _sale.buy;
@@ -111,7 +112,7 @@ export class Sale extends FactoryContract {
     this.token = _sale.token;
     this.packedFunctionPointers = _sale.packedFunctionPointers;
     this.storageOpcodesRange = _sale.storageOpcodesRange;
-  this.packedFunctionPointers = _sale.packedFunctionPointers;
+    this.packedFunctionPointers = _sale.packedFunctionPointers;
   }
 
   /**

@@ -77,11 +77,12 @@ export class EmissionsERC20 extends ITierV2 {
    *
    */
   constructor(address: string, signer: Signer) {
+    super(address, signer);
+
     EmissionsERC20.checkAddress(address);
 
-    super(address, signer);
     const _emission = EmissionsERC20__factory.connect(address, signer);
-    
+
     this.allowDelegatedClaims = _emission.allowDelegatedClaims;
     this.allowance = _emission.allowance;
     this.approve = _emission.approve;
@@ -97,7 +98,7 @@ export class EmissionsERC20 extends ITierV2 {
     this.transfer = _emission.transfer;
     this.transferFrom = _emission.transferFrom;
     this.storageOpcodesRange = _emission.storageOpcodesRange;
-  this.packedFunctionPointers = _emission.packedFunctionPointers;
+    this.packedFunctionPointers = _emission.packedFunctionPointers;
   }
 
   /**
@@ -374,7 +375,7 @@ export class EmissionsERC20 extends ITierV2 {
    * @param overrides - @see ReadTxOverrides
    * @returns the opcode functions pointers
    */
-   public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
+  public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 }
 
 /**

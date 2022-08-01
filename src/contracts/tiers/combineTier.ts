@@ -94,10 +94,11 @@ export class CombineTier extends ITierV2 {
    * @returns A new combineTier instance
    */
   constructor(address: string, signer: Signer) {
+    super(address, signer);
+
     CombineTier.checkAddress(address);
 
     const _combineTier = CombineTier__factory.connect(address, signer);
-    super(address, signer);
 
     this.storageOpcodesRange = _combineTier.storageOpcodesRange;
     this.packedFunctionPointers = _combineTier.packedFunctionPointers;
@@ -196,12 +197,12 @@ export class CombineTier extends ITierV2 {
    * @param overrides - @see ReadTxOverrides
    * @returns the opcode functions pointers
    */
-   public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
+  public readonly packedFunctionPointers: (overrides?: ReadTxOverrides) => Promise<string>;
 
   /**
    * @public
    */
-   public readonly supportsInterface: (interfaceId_: BytesLike, overrides?: ReadTxOverrides) => Promise<boolean>;
+  public readonly supportsInterface: (interfaceId_: BytesLike, overrides?: ReadTxOverrides) => Promise<boolean>;
 
   /**
    * @public
@@ -224,7 +225,7 @@ export class CombineTier extends ITierV2 {
    * @param tokenId - (optional) the tokenId used if the type of the BalanceTier is ERC1155
    * @returns A new combineTier instance
    */
-  public static deployBalanceTier = async(    
+  public static deployBalanceTier = async (
     address: string,
     type: "erc20" | "erc721" | "erc1155",
     levels: (number | string)[],
@@ -242,7 +243,7 @@ export class CombineTier extends ITierV2 {
     if (type === "erc721") {
       _balanceTierConfig = new ERC721BalanceTier(levels, address)
     }
-    if ( type === "erc1155" && tokenId) {
+    if (type === "erc1155" && tokenId) {
       _balanceTierConfig = new ERC1155BalanceTier(levels, tokenId, address)
     }
     const deplyArg: CombineTierDeployArgs = {

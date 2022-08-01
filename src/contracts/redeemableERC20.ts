@@ -50,8 +50,8 @@ export class RedeemableERC20 extends FactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
-    RedeemableERC20.checkAddress(address);
     super(address, signer);
+    RedeemableERC20.checkAddress(address);
     const _redeemable = RedeemableERC20__factory.connect(address, signer);
 
     this.allowance = _redeemable.allowance;
