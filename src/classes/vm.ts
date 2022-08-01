@@ -282,8 +282,6 @@ export enum Debug {
 }
 
 /**
- * @public
- *
  * Parameter that will use to converted to the source.
  *
  * Use an opcode and operand (optional)
@@ -292,8 +290,13 @@ export type OPerand = [number, (number | BytesLike | utils.Hexable)?];
 
 /**
  * @public
- *
- * //TODO: Add doc
+ * The main class cointaining the methods for constructing and making VM scripts.
+ * 
+ * @remarks
+ * Please note that all methods (except combiner, pair and multi) in this class assume
+ * that 'config'(s) parameter passed to them are in fact resolved to one value. Meaning
+ * that each config passed to the methods will not result in more than one value in the
+ * VM stack. This is essential point to pay attention to when using this class's methods
  */
 export class VM {
   /**
@@ -351,8 +354,8 @@ export class VM {
   ): StateConfig {
     const NumberOfSources =
       options?.numberOfSources !== undefined ? options.numberOfSources : 1;
-    let sourceModify1;
-    let sourceModify2;
+    let sourceModify1: Uint8Array[] = [];
+    let sourceModify2: Uint8Array[] = [];
 
     const constants = [...config1.constants, ...config2.constants];
     let sources: BytesLike[];
@@ -370,112 +373,104 @@ export class VM {
 
     if (NumberOfSources === 0) {
       for (let i = 0; i < config1.sources.length; i++) {
-        sourceModify1 = arrayify(config1.sources[i], {
+        sourceModify1[i] = arrayify(config1.sources[i], {
           allowMissingPrefix: true,
         });
-        for (let j = 0; j < sourceModify1.length; j++) {
-          if (sourceModify1[j] === 0) {
-            if (sourceModify1[j + 1] >= config1.constants.length) {
-              sourceModify1[j + 1] += config2.constants.length;
+        for (let j = 0; j < sourceModify1[i].length; j++) {
+          if (sourceModify1[i][j] === 0) {
+            if (sourceModify1[i][j + 1] >= config1.constants.length) {
+              sourceModify1[i][j + 1] += config2.constants.length;
             }
           }
-          if (sourceModify1[j] === 4) {
-            sourceModify1[j + 1]++;
+          if (sourceModify1[i][j] === 4) {
+            sourceModify1[i][j + 1]++;
           }
           j++;
         }
-        config1.sources[i] = sourceModify1;
       }
       for (let i = 0; i < config2.sources.length; i++) {
-        sourceModify2 = arrayify(config2.sources[i], {
+        sourceModify2[i] = arrayify(config2.sources[i], {
           allowMissingPrefix: true,
         });
-        for (let j = 0; j < sourceModify2.length; j++) {
-          if (sourceModify2[j] === 0) {
-            if (sourceModify2[j + 1] < config2.constants.length) {
-              sourceModify2[j + 1] += config1.constants.length;
+        for (let j = 0; j < sourceModify2[i].length; j++) {
+          if (sourceModify2[i][j] === 0) {
+            if (sourceModify2[i][j + 1] < config2.constants.length) {
+              sourceModify2[i][j + 1] += config1.constants.length;
             } else {
-              sourceModify2[j + 1] += argCount + config1.constants.length;
+              sourceModify2[i][j + 1] += argCount + config1.constants.length;
             }
           }
-          if (sourceModify2[j] === 4) {
-            sourceModify2[j + 1] += config1.sources.length;
+          if (sourceModify2[i][j] === 4) {
+            sourceModify2[i][j + 1] += config1.sources.length;
           }
           j++;
         }
-        config2.sources[i] = sourceModify2;
       }
 
       sources = [
-        config1.sources[0],
-        config2.sources[0],
-        ...config1.sources.splice(1),
-        ...config2.sources.splice(1),
+        sourceModify1[0],
+        sourceModify2[0],
+        ...sourceModify1.splice(1),
+        ...sourceModify2.splice(1),
       ];
     } else {
       const Index = options?.index ? options.index : 0;
 
       for (let i = 0; i < config1.sources.length; i++) {
-        sourceModify1 = arrayify(config1.sources[i], {
+        sourceModify1[i] = arrayify(config1.sources[i], {
           allowMissingPrefix: true,
         });
-        for (let j = 0; j < sourceModify1.length; j++) {
-          if (sourceModify1[j] === 0) {
-            if (sourceModify1[j + 1] >= config1.constants.length) {
-              sourceModify1[j + 1] += config2.constants.length;
+        for (let j = 0; j < sourceModify1[i].length; j++) {
+          if (sourceModify1[i][j] === 0) {
+            if (sourceModify1[i][j + 1] >= config1.constants.length) {
+              sourceModify1[i][j + 1] += config2.constants.length;
             }
           }
           j++;
         }
-        config1.sources[i] = sourceModify1;
       }
       for (let i = 0; i < config2.sources.length; i++) {
-        sourceModify2 = arrayify(config2.sources[i], {
+        sourceModify2[i] = arrayify(config2.sources[i], {
           allowMissingPrefix: true,
         });
-        for (let j = 0; j < sourceModify2.length; j++) {
-          if (sourceModify2[j] === 0) {
-            if (sourceModify2[j + 1] < config2.constants.length) {
-              sourceModify2[j + 1] += config1.constants.length;
+        for (let j = 0; j < sourceModify2[i].length; j++) {
+          if (sourceModify2[i][j] === 0) {
+            if (sourceModify2[i][j + 1] < config2.constants.length) {
+              sourceModify2[i][j + 1] += config1.constants.length;
             } else {
-              sourceModify2[j + 1] += config1.constants.length + argCount;
+              sourceModify2[i][j + 1] += config1.constants.length + argCount;
             }
           }
-          if (sourceModify2[j] === 4) {
+          if (sourceModify2[i][j] === 4) {
             const srcIndexIncrement = config1.sources.length - NumberOfSources;
-            const srcIndex = sourceModify2[j + 1] & 7;
-            sourceModify2[j + 1] =
+            const srcIndex = sourceModify2[i][j + 1] & 7;
+            sourceModify2[i][j + 1] =
               srcIndex < NumberOfSources
-                ? sourceModify2[j + 1] + Index
-                : sourceModify2[j + 1] + srcIndexIncrement;
+                ? sourceModify2[i][j + 1] + Index
+                : sourceModify2[i][j + 1] + srcIndexIncrement;
           }
           j++;
         }
-        config2.sources[i] = sourceModify2;
       }
-
       if (options?.position && options.position.length === NumberOfSources) {
         for (let i = 0; i < NumberOfSources; i++) {
-          const sourceModify = arrayify(config1.sources[Index + i], {
-            allowMissingPrefix: true,
-          });
-          config1.sources[Index + i] = concat([
-            sourceModify.subarray(0, options.position[i] * 2),
-            config2.sources[i],
-            sourceModify.subarray(options.position[i] * 2),
+          sourceModify1[Index + i] = concat([
+            sourceModify1[Index + i].subarray(0, options.position[i] * 2),
+            sourceModify2[i],
+            sourceModify1[Index + i].subarray(options.position[i] * 2),
           ]);
         }
       } else {
         for (let i = 0; i < NumberOfSources; i++) {
-          config1.sources[Index + i] = concat([
-            config1.sources[Index + i],
-            config2.sources[i],
+          sourceModify1[Index + i] = concat([
+            sourceModify1[Index + i],
+            sourceModify2[i],
           ]);
         }
       }
 
-      config2.sources.splice(0, NumberOfSources);
-      sources = [...config1.sources, ...config2.sources];
+      sourceModify2.splice(0, NumberOfSources);
+      sources = [...sourceModify1, ...sourceModify2];
     }
 
     let offset = 0;
@@ -1225,44 +1220,6 @@ export class VM {
   }
 
   /**
-   * Method to and multiple scripts together ie EVERY
-   * 
-   * @param configs - an array of configs to and
-   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
-   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
-   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
-   */
-  public static and(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
-    let result_ = VM.multi(configs, stackReassignment)
-    result_.sources[0] = concat([
-      result_.sources[0],
-      op(VM.Opcodes.EVERY, configs.length)
-    ])
-
-    return result_;
-  }
-
-  /**
-   * Method to or multiple scripts together ie ANY
-   * 
-   * @param configs - an array of configs to or
-   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
-   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
-   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
-   */
-  public static or(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
-    let result_ = VM.multi(configs, stackReassignment)
-    result_.sources[0] = concat([
-      result_.sources[0],
-      op(VM.Opcodes.ANY, configs.length)
-    ])
-
-    return result_;
-  }
-
-  /**
    * Method to create an if/else script
    * 
    * @param condition - the condition script ie the if check statement
@@ -1314,13 +1271,156 @@ export class VM {
    * 
    * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
    */
-  public static isZero(config: StateConfig): StateConfig {
+  public static not(config: StateConfig): StateConfig {
     config.sources[0] = concat([
       config.sources[0],
       op(VM.Opcodes.ISZERO)
     ])
 
     return config;
+  }
+
+  /**
+   * Method to and multiple scripts together ie EVERY
+   * 
+   * @param configs - an array of configs to and
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
+   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   */
+  public static and(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.multi(configs, stackReassignment)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EVERY, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to or multiple scripts together ie ANY
+   * 
+   * @param configs - an array of configs to or
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
+   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   */
+  public static or(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.multi(configs, stackReassignment)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.ANY, configs.length)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to nand multiple scripts together
+   * 
+   * @param configs - an array of configs to nand
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
+   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   */
+  public static nand(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.multi(configs, stackReassignment)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.EVERY, configs.length),
+      op(VM.Opcodes.ISZERO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to nor multiple scripts together
+   * 
+   * @param configs - an array of configs to nor
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
+   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   */
+  public static nor(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    let result_ = VM.multi(configs, stackReassignment)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.ANY, configs.length),
+      op(VM.Opcodes.ISZERO)
+    ])
+
+    return result_;
+  }
+
+  /**
+   * Method to xor multiple scripts together
+   * 
+   * @remarks
+   * This method when used in a contract will be gas intensive specially the configs or number of them are larg already
+   * 
+   * @param configs - an array of configs to xor
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
+   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   */
+  public static xor(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    const and: StateConfig = {constants: [], sources: [concat([op(VM.Opcodes.EVERY, configs.length)])]};
+    const nor: StateConfig = {
+      constants: [],
+      sources: [
+        concat([
+          op(VM.Opcodes.ANY, configs.length),
+          op(VM.Opcodes.ISZERO)
+        ])
+      ]
+    };
+    let result_ = VM.multi([...configs, and, ...configs, nor], stackReassignment)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.ANY, 2),
+      op(VM.Opcodes.ISZERO),
+    ]);
+
+    return result_;
+  }
+
+  /**
+   * Method to xnor multiple scripts together
+   * 
+   * @remarks
+   * This method when used in a contract will be gas intensive specially the configs or number of them are larg already
+   * 
+   * @param configs - an array of configs to xnor
+   * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
+   * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
+   * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
+   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   */
+   public static xnor(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
+    const and: StateConfig = {constants: [], sources: [concat([op(VM.Opcodes.EVERY, configs.length)])]};
+    const nor: StateConfig = {
+      constants: [],
+      sources: [
+        concat([
+          op(VM.Opcodes.ANY, configs.length),
+          op(VM.Opcodes.ISZERO)
+        ])
+      ]
+    };
+    let result_ = VM.multi([...configs, and, ...configs, nor], stackReassignment)
+    result_.sources[0] = concat([
+      result_.sources[0],
+      op(VM.Opcodes.ANY, 2)
+    ]);
+
+    return result_;
   }
 
   /**
@@ -1333,7 +1433,7 @@ export class VM {
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
    */
-  public static isEqual(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
+  public static eq(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
     let result_ = VM.pair(config1, config2, stackReassignment);
     result_.sources[0] = concat([
       result_.sources[0],

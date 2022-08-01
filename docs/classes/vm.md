@@ -1,7 +1,9 @@
 
 # Class VM
 
-//TODO: Add doc
+The main class cointaining the methods for constructing and making VM scripts.
+
+Please note that all methods (except combiner, pair and multi) in this class assume that 'config'(s) parameter passed to them are in fact resolved to one value. Meaning that each config passed to the methods will not result in more than one value in the VM stack. This is essential point to pay attention to when using this class's methods
 
 <b>Signature:</b>
 
@@ -27,6 +29,7 @@ class VM
 |  [constant(value)](./vm.md#constant-method-static-1) | Methdo to create a simple signle value script, ie CONTANT |
 |  [createVMSources(OPerands)](./vm.md#createVMSources-method-static-1) | Create a VM sources to be ready to use in any call just providing the combination desired. |
 |  [dec(startValue, endValue, startTimestamp, endTimestamp)](./vm.md#dec-method-static-1) | Create a new raw linear decreasing value StateConfig. |
+|  [eq(config1, config2, stackReassignment)](./vm.md#eq-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id, delegatedCall)](./vm.md#getAsset-method-static-1) | A method to generate the StateConfig out of EVM assets' opcodes |
 |  [gt(config1, config2, stackReassignment)](./vm.md#gt-method-static-1) | Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not |
 |  [gte(config1, config2, stackReassignment)](./vm.md#gte-method-static-1) | Method to check if a script is greater than or equal to another script or not. will return 1 if is true and 0 if it is not |
@@ -35,14 +38,15 @@ class VM
 |  [ifelse(condition, ifStatement, elseStatement, stackReassignment)](./vm.md#ifelse-method-static-1) | Method to create an if/else script |
 |  [inc(startValue, endValue, startTimestamp, endTimestamp)](./vm.md#inc-method-static-1) | Create a new raw linear increasing value StateConfig. |
 |  [input(operand)](./vm.md#input-method-static-1) | Method to create a simple CONTEXT opcode script |
-|  [isEqual(config1, config2, stackReassignment)](./vm.md#isEqual-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
-|  [isZero(config)](./vm.md#isZero-method-static-1) | Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not |
 |  [lt(config1, config2, stackReassignment)](./vm.md#lt-method-static-1) | Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not |
 |  [lte(config1, config2, stackReassignment)](./vm.md#lte-method-static-1) | Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [max(configs, stackReassignment)](./vm.md#max-method-static-1) | Method to get maximum of multiple scripts |
 |  [min(configs, stackReassignment)](./vm.md#min-method-static-1) | Method to get minimum of multiple scripts |
 |  [multi(configs, stackReassignment)](./vm.md#multi-method-static-1) | A method to combine multiple StateConfigs together each on top of the other at the first item in final sources. |
 |  [mulTogether(configs, stackReassignment)](./vm.md#mulTogether-method-static-1) | Method to multiply multiple scripts together |
+|  [nand(configs, stackReassignment)](./vm.md#nand-method-static-1) | Method to nand multiple scripts together |
+|  [nor(configs, stackReassignment)](./vm.md#nor-method-static-1) | Method to nor multiple scripts together |
+|  [not(config)](./vm.md#not-method-static-1) | Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not |
 |  [or(configs, stackReassignment)](./vm.md#or-method-static-1) | Method to or multiple scripts together ie ANY |
 |  [pair(amountConfig, priceConfig, stackReassignment)](./vm.md#pair-method-static-1) | method to create paired(amount-price) StateConfig, which is used for sale, orderbook, etc |
 |  [setDisccount(config, condition, discount)](./vm.md#setDisccount-method-static-1) | Method to apply discount on a StateConfig based on a condition passing |
@@ -52,6 +56,8 @@ class VM
 |  [setOwnership(config, ownerAddress, options)](./vm.md#setOwnership-method-static-1) | Make an address the owner of a VM Script - checks the sender address against the owner address and if it passes the final result will be determined by the main VM script and if it fails it will be 0 by default. |
 |  [setTimers(configs, times, inBlockNumber)](./vm.md#setTimers-method-static-1) | A method to merge multiple (more than 1) scripts to be executed based on time slices. |
 |  [stack(operand)](./vm.md#stack-method-static-1) | Method to create a simple STACK opcode script |
+|  [xnor(configs, stackReassignment)](./vm.md#xnor-method-static-1) | Method to xnor multiple scripts together |
+|  [xor(configs, stackReassignment)](./vm.md#xor-method-static-1) | Method to xor multiple scripts together |
 
 ## Static Property Details
 
@@ -282,6 +288,32 @@ static dec(startValue: BigNumber, endValue: BigNumber, startTimestamp: number, e
 
 a
 
+<a id="eq-method-static-1"></a>
+
+### eq(config1, config2, stackReassignment)
+
+Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not
+
+<b>Signature:</b>
+
+```typescript
+static eq(config1: StateConfig, config2: StateConfig, stackReassignment?: boolean): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
+|  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
 <a id="getAsset-method-static-1"></a>
 
 ### getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id, delegatedCall)
@@ -496,56 +528,6 @@ static input(operand: number): StateConfig;
 
 a VM script
 
-<a id="isEqual-method-static-1"></a>
-
-### isEqual(config1, config2, stackReassignment)
-
-Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not
-
-<b>Signature:</b>
-
-```typescript
-static isEqual(config1: StateConfig, config2: StateConfig, stackReassignment?: boolean): StateConfig;
-```
-
-#### Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  config1 | [StateConfig](../interfaces/stateconfig.md) | first script |
-|  config2 | [StateConfig](../interfaces/stateconfig.md) | second script |
-|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
-
-<b>Returns:</b>
-
-`StateConfig`
-
-a
-
-<a id="isZero-method-static-1"></a>
-
-### isZero(config)
-
-Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not
-
-<b>Signature:</b>
-
-```typescript
-static isZero(config: StateConfig): StateConfig;
-```
-
-#### Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  config | [StateConfig](../interfaces/stateconfig.md) | the script to check |
-
-<b>Returns:</b>
-
-`StateConfig`
-
-a
-
 <a id="lt-method-static-1"></a>
 
 ### lt(config1, config2, stackReassignment)
@@ -691,6 +673,80 @@ static mulTogether(configs: StateConfig[], stackReassignment?: boolean): StateCo
 |  --- | --- | --- |
 |  configs | `StateConfig[]` | an array of configs to multiply |
 |  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="nand-method-static-1"></a>
+
+### nand(configs, stackReassignment)
+
+Method to nand multiple scripts together
+
+<b>Signature:</b>
+
+```typescript
+static nand(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to nand |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="nor-method-static-1"></a>
+
+### nor(configs, stackReassignment)
+
+Method to nor multiple scripts together
+
+<b>Signature:</b>
+
+```typescript
+static nor(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to nor |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="not-method-static-1"></a>
+
+### not(config)
+
+Method to check if a script is zero or not. will return 1 if is zero and 0 if it is not
+
+<b>Signature:</b>
+
+```typescript
+static not(config: StateConfig): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  config | [StateConfig](../interfaces/stateconfig.md) | the script to check |
 
 <b>Returns:</b>
 
@@ -944,4 +1000,58 @@ static stack(operand: number): StateConfig;
 `StateConfig`
 
 a VM script
+
+<a id="xnor-method-static-1"></a>
+
+### xnor(configs, stackReassignment)
+
+Method to xnor multiple scripts together
+
+This method when used in a contract will be gas intensive specially the configs or number of them are larg already
+
+<b>Signature:</b>
+
+```typescript
+static xnor(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to xnor |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
+
+<a id="xor-method-static-1"></a>
+
+### xor(configs, stackReassignment)
+
+Method to xor multiple scripts together
+
+This method when used in a contract will be gas intensive specially the configs or number of them are larg already
+
+<b>Signature:</b>
+
+```typescript
+static xor(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  configs | `StateConfig[]` | an array of configs to xor |
+|  stackReassignment | `boolean` | (optional) pass false if STACK opcode operands dont need to be reassigned to their new relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a
 

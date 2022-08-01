@@ -50,7 +50,7 @@
 |  [Verify](./classes/verify.md) | A class for deploying and calling methods on a Verify. |
 |  [VerifyTier](./classes/verifytier.md) | A class for deploying and calling methods on a VerifyTier.<br></br>A contract that is `VerifyTier` expects to derive tiers from the time the account was approved by the underlying `Verify` contract. The approval block numbers defer to `State.since` returned from `Verify.state`<!-- -->. |
 |  [vLBP](./classes/vlbp.md) | - A sub-class of PriceCurve for creating an vLBP i.e virtual LBP sale type. |
-|  [VM](./classes/vm.md) | //TODO: Add doc |
+|  [VM](./classes/vm.md) | The main class cointaining the methods for constructing and making VM scripts. |
 |  [vmSimulation](./classes/vmsimulation.md) | A class for creating a simulation environment for running pure RainVM off-chain using JSVM. |
 
 ## Enumerations
