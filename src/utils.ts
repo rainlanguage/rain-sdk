@@ -484,15 +484,15 @@ export const areEqualConfigs = (config1: StateConfig, config2: StateConfig): boo
 export const isTier = async(tierAddress: string, signer: Signer) => {
   if (ethers.utils.isAddress(tierAddress)) {
     try{
-        const iTier = new ITierV2(tierAddress, signer)
-        await iTier.report(await signer.getAddress(), []);
-				return true;
-      }
-      catch(err){
-        return false;
-      }
+			const iTier = new ITierV2(tierAddress, signer)
+			await iTier.report(await signer.getAddress(), []);
+			return true;
     }
-    else {
+    catch(err){
       return false;
     }
   }
+  else {
+    return false;
+	}
+}

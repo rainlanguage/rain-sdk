@@ -39,7 +39,7 @@
 |  [RainJSVM](./classes/rainjsvm.md) | - The javascript version of the RainVM, basically does the same job RainVM does but off-chain. |
 |  [RedeemableERC20](./classes/redeemableerc20.md) | A class for calling methods on a RedeemableERC20. |
 |  [RedeemableERC20ClaimEscrow](./classes/redeemableerc20claimescrow.md) | A class for calling methods on a RedeemableERC20ClaimEscrow. |
-|  [RuleBuilder](./classes/rulebuilder.md) | Class with methods to generate a rule-based StateConfig |
+|  [RuleBuilder](./classes/rulebuilder.md) | Class with methods to generate a multi-currency rule-based StateConfig |
 |  [Sale](./classes/sale.md) | A class for deploying and calling methods on a Sale. |
 |  [SaleJSVM](./classes/salejsvm.md) | - The javascript version of SaleVM which inherits RainJSVM with local Sale opcodes. |
 |  [SaleSimulation](./classes/salesimulation.md) | A class for creating a simulation environment for simulating a Sale contract off-chain using JSVM. |
@@ -128,7 +128,6 @@
 |  [Evidence](./interfaces/evidence.md) | Structure of arbitrary evidence to support any action taken. Priviledged roles are expected to provide evidence just as applicants as an audit trail will be preserved permanently in the logs. |
 |  [FnPtrsJSVM](./interfaces/fnptrsjsvm.md) | An interface for creating a key/value pair of opcodes functions to override. |
 |  [IOpMeta](./interfaces/iopmeta.md) |  |
-|  [modifier](./interfaces/modifier.md) | Type for price/quantity scripts modifier based on a tier report |
 |  [NoticeStruct](./interfaces/noticestruct.md) |  |
 |  [OpJSVM](./interfaces/opjsvm.md) | An interface/type of JSVM opcodes' function's body |
 |  [ReadTxOverrides](./interfaces/readtxoverrides.md) | More read about `ReadTxOverrides` that comes from CallOverrides of ethers |
@@ -159,7 +158,6 @@
 |  [TxOverrides](./interfaces/txoverrides.md) | More read about `TxOverrides` that comes from Overrides of ethers |
 |  [VerifyDeployArgs](./interfaces/verifydeployargs.md) | Config to initialize a Verify contract with. |
 |  [VerifyState](./interfaces/verifystate.md) | Records the block a verify session reaches each status. If a status is not reached it is left as UNINITIALIZED, i.e. 0xFFFFFFFF. Most accounts will never be banned so most accounts will never reach every status, which is a good thing. |
-|  [vmCurrency](./interfaces/vmcurrency.md) | Type for a currency scripts used in RuleBuilder class |
 
 ## Namespaces
 
@@ -174,6 +172,7 @@
 |  [eighteenZeros](./variables/eighteenzeros.md) | 18 decimals or i.e "DECIMALS" - used for fixed point match |
 |  [fixedPointDiv](./variables/fixedpointdiv.md) |  |
 |  [fixedPointMul](./variables/fixedpointmul.md) |  |
+|  [lib](./variables/lib.md) | Key/value paired library to get the corresponding StateConfigs from RuleBuilder types by Rulebuilder class methods |
 |  [max](./variables/max.md) | calculate the maximum among array of BigNumbers |
 |  [min](./variables/min.md) | calculate the minimum among array of BigNumbers |
 |  [OpMeta](./variables/opmeta.md) |  |
@@ -193,24 +192,43 @@
 |  Type Alias | Description |
 |  --- | --- |
 |  [Addresses](./types/addresses.md) | Type for all the addresses stored in the Book. |
+|  [Asset](./types/asset.md) | Type for getting specific evm tokens or user wallet token balances |
 |  [AutoApproveOps](./types/autoapproveops.md) | Type for the opcodes availables in a AutoApprove instance. |
+|  [Block](./types/block.md) | Type for block number based rules |
+|  [BuyUnits](./types/buyunits.md) | Type for current user buy units i.e. user input |
 |  [CallOptions](./types/calloptions.md) | Options for instantiating RainJSVM |
 |  [ClearConfig](./types/clearconfig.md) | Type for clear vaultIds used when in |
 |  [ClearStateChange](./types/clearstatechange.md) | Type for changes in state of an orderbook vaults after an successful clear |
 |  [CombineTierDeployArgs](./types/combinetierdeployargs.md) | The argument of the CombineTier. The StateConfig will be deployed as a pointer under VM State Pointer. |
+|  [Condition](./types/condition.md) | Type for conditions which is a comparison between structs which results in a boolean StateConfig |
+|  [ConditionGroup](./types/conditiongroup.md) | Type for a single or multiple conditions which are combined together with the valid logical operators which results in a a boolean StateConfig |
 |  [Config](./types/config.md) | Specific the configuration of the generation method |
+|  [Currency](./types/currency.md) | Type of a single currency, the main parameter used in RuleBuilder to build the StateConfig |
+|  [Default](./types/default.md) | The default block, i.e. default quantity and price |
 |  [DepositConfig](./types/depositconfig.md) | Type for depositing some token amount into a vault used in |
 |  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
 |  [EvidenceConfig](./types/evidenceconfig.md) |  |
+|  [Filter](./types/filter.md) | A filtering utility type for StructTypeLib |
 |  [IOConfig](./types/ioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
+|  [Math\_2](./types/math_2.md) | Type for mathematical folmulas or constant values |
+|  [Modifier](./types/modifier.md) | Type for price/quantity modifier based on a tier report or a Rule |
+|  [ModifierType](./types/modifiertype.md) | Valid Modifier types |
 |  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |
+|  [Operator](./types/operator.md) | All the valid logical operators used for comparison of previous types |
 |  [Order](./types/order.md) | Type for an order containing all that is required in an order. An Order is an |
 |  [OrderBookOpcodes](./types/orderbookopcodes.md) | Type for the opcodes availables in a OrderBook instance. |
 |  [OrderConfig](./types/orderconfig.md) | A type for an order configuration without any specific owner |
 |  [PrettifyConfig](./types/prettifyconfig.md) | Specific the configuration of the Prettify method. |
+|  [Price](./types/price.md) | Price type |
+|  [Quantity](./types/quantity.md) | Quantity type |
+|  [Rule](./types/rule.md) | A single Rule block, i.e. an if/then block that contains conditions of prices and quantities and its actions which are price and quantity |
 |  [SIOConfig](./types/sioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
 |  [StakeDeployArgs](./types/stakedeployargs.md) | A type for deploying a new stake contract which contains everything required for deployment.<br></br>'token' is the main token addtess. 'initialRatio' is the initial conversion ratio between the stake token and main token. 'name' of the stake token. 'symbol' of the stake token |
+|  [Struct](./types/struct.md) | The smallest building block of RuleBuilder that contains the type and its valid arguments or a StateConfig |
+|  [StructTypeLib](./types/structtypelib.md) | A key/type pair for all the valid Struct types |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
+|  [Tiers](./types/tiers.md) | Type for Rain tier contractsreport check |
+|  [Time](./types/time.md) | Type for times based rules |
 |  [TimeBoundConfig](./types/timeboundconfig.md) |  |
 |  [WithdrawConfig](./types/withdrawconfig.md) | Type for withdrawing some token amount from a vault used in |
 

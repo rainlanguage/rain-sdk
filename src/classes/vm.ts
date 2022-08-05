@@ -10,7 +10,7 @@ import {
   selectLteMode,
   selectLteLogic,
   callSize,
-  arrayify,
+  arrayify
 } from '../utils';
 
 /**
@@ -282,6 +282,7 @@ export enum Debug {
 }
 
 /**
+ * @public
  * Parameter that will use to converted to the source.
  *
  * Use an opcode and operand (optional)
@@ -305,6 +306,7 @@ export class VM {
   public static Opcodes = AllStandardOps;
 
   /**
+   * @public
    * Create a VM sources to be ready to use in any call just providing the combination desired.
    *
    * @param OPerands - All the configuration with the opcodes and operands. If any combination
@@ -1071,33 +1073,33 @@ export class VM {
     timestamp: number,
     type: "gt" | "lt" | "gte" | "lte"
   ): StateConfig {
-      let src = new Uint8Array();
+      const time: StateConfig = {
+        constants: [],
+        sources: [concat([op(VM.Opcodes.BLOCK_TIMESTAMP)])]
+      }
+      const val: StateConfig = {
+        constants: [timestamp],
+        sources: [concat([op(VM.Opcodes.CONSTANT, 0)])]
+      }
+      let result_: StateConfig = {
+        constants: [],
+        sources: []
+      };
 
       if (type === "gte") {
-        timestamp = timestamp === 0 ? 0 : timestamp - 1;
-        src = op(VM.Opcodes.GREATER_THAN)
+        result_ = VM.gte(time, val)
       }
       if (type === "lte") {
-        timestamp++;
-        src = op(VM.Opcodes.LESS_THAN)
+        result_ = VM.lte(time, val)
       }
       if (type === "lt") {
-        src = op(VM.Opcodes.LESS_THAN)
+        result_ = VM.lt(time, val)
       }
       if (type === "gt") {
-        src = op(VM.Opcodes.GREATER_THAN)
+        result_ = VM.gt(time, val)
       }
 
-      return {
-      constants: [timestamp],
-      sources: [
-        concat([
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANT, 0),
-          src
-        ])
-      ]
-    };
+      return result_;
   }
 
 
@@ -1113,33 +1115,33 @@ export class VM {
     blockNumber: number,
     type: "gt" | "lt" | "gte" | "lte"  
     ): StateConfig {
-      let src = new Uint8Array();
+      const time: StateConfig = {
+        constants: [],
+        sources: [concat([op(VM.Opcodes.BLOCK_NUMBER)])]
+      }
+      const val: StateConfig = {
+        constants: [blockNumber],
+        sources: [concat([op(VM.Opcodes.CONSTANT, 0)])]
+      }
+      let result_: StateConfig = {
+        constants: [],
+        sources: []
+      };
 
       if (type === "gte") {
-        blockNumber = blockNumber === 0 ? 0 : blockNumber - 1;
-        src = op(VM.Opcodes.GREATER_THAN)
+        result_ = VM.gte(time, val)
       }
       if (type === "lte") {
-        blockNumber++;
-        src = op(VM.Opcodes.LESS_THAN)
+        result_ = VM.lte(time, val)
       }
       if (type === "lt") {
-        src = op(VM.Opcodes.LESS_THAN)
+        result_ = VM.lt(time, val)
       }
       if (type === "gt") {
-        src = op(VM.Opcodes.GREATER_THAN)
+        result_ = VM.gt(time, val)
       }
 
-      return {
-      constants: [blockNumber],
-      sources: [
-        concat([
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANT, 0),
-          src
-        ])
-      ]
-    };
+      return result_;
   }
 
   /**
@@ -1727,7 +1729,7 @@ export class VM {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0),
+            delegatedCall ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
             op(VM.Opcodes.IERC20_BALANCE_OF),
           ])
         ]
@@ -1750,7 +1752,7 @@ export class VM {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0),
+            delegatedCall ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
             op(VM.Opcodes.CONSTANT, 1),
             op(VM.Opcodes.IERC20_SNAPSHOT_BALANCE_OF_AT)
           ])
@@ -1775,7 +1777,7 @@ export class VM {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0),
+            delegatedCall ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
             op(VM.Opcodes.IERC721_BALANCE_OF)
           ])
         ]
@@ -1799,7 +1801,7 @@ export class VM {
         sources: [
           concat([
             op(VM.Opcodes.CONSTANT, 0),
-            delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0),
+            delegatedCall ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER),
             op(VM.Opcodes.CONSTANT, 1),
             op(VM.Opcodes.IERC1155_BALANCE_OF)
           ])
@@ -1812,7 +1814,7 @@ export class VM {
       for (i; i < address.length; i++) {
         sources.push(op(VM.Opcodes.CONSTANT, i))
       };
-      sources.push(delegatedCall ? op(VM.Opcodes.SENDER) : op(VM.Opcodes.CONTEXT, 0));
+      sources.push(delegatedCall ? op(VM.Opcodes.CONTEXT, 0) : op(VM.Opcodes.SENDER));
       for (i; i < address.length * 2; i++) {
         sources.push(op(VM.Opcodes.CONSTANT, i))
       };
@@ -1863,11 +1865,11 @@ export class VM {
 
     const reportCheck = paddedUInt256(
       "0x" +
-      paddedUInt32("0xffffffff").repeat(8 - tier) +
-      paddedUInt32("0").repeat(tier)
+      paddedUInt32("0xffffffff").repeat(8 - tier + 1) +
+      paddedUInt32("0").repeat(tier - 1)
     )
 
-    return VM.gte(tierConfig, VM.constant(reportCheck), stackReassignment)
+    return VM.lt(tierConfig, VM.constant(reportCheck), stackReassignment)
   }
 
   /**

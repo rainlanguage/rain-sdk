@@ -21,7 +21,10 @@ export * from './contracts/autoApprove';
 export * from './contracts/script-generators/saleScriptGenerator';
 export * from './contracts/script-generators/combineTierScriptGenerator';
 export * from './contracts/script-generators/emissionsERC20ScriptGenerator';
-export * from './contracts/script-generators/ruleBuilder';
+
+export * from './rule-builder/ruleBuilder';
+export * from './rule-builder/lib';
+export * from './rule-builder/types';
 
 export * from './jsvm/RainJSVM';
 export * from './jsvm/CombineTierJSVM';
