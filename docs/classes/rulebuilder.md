@@ -16,16 +16,16 @@ class RuleBuilder
 // to import:
 import { RuleBuilder } from "rain-sdk"
 
-// to from the multi-currency rule-based StateConfig:
+// to get the multi-currency rule-based StateConfig:
 const vmStateConfig = new RuleBuilder([currency1, currency2, ...])
 
-// to from a single condition's StateConfig of a single Rule:
+// to get a single condition's StateConfig of a single Rule:
 const conditions = RuleBuilder.getConditionConfig(condition)
 
-// to from a ConditionGroup StateConfig:
+// to get a ConditionGroup StateConfig:
 const rule = RuleBuilder.getConditionGroup(conditionGroup)
 
-//to from a single price or quantity StateConfig:
+//to get a single price or quantity StateConfig:
 const quantity = RuleBuilder.getQPConfig(quantity)
 const price = RuleBuilder.getQPConfig(price)
 
