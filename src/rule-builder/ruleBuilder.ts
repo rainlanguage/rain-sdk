@@ -21,16 +21,16 @@ import {
  * // to import:
  * import { RuleBuilder } from "rain-sdk"
  *
- * // to build the multi-currency rule-based StateConfig:
+ * // to from the multi-currency rule-based StateConfig:
  * const vmStateConfig = new RuleBuilder([currency1, currency2, ...])
  *
- * // to build a single condition's StateConfig of a single Rule:
+ * // to from a single condition's StateConfig of a single Rule:
  * const conditions = RuleBuilder.getConditionConfig(condition)
  *
- * // to build a ConditionGroup StateConfig:
+ * // to from a ConditionGroup StateConfig:
  * const rule = RuleBuilder.getConditionGroup(conditionGroup)
  *
- * //to build a single price or quantity StateConfig:
+ * //to from a single price or quantity StateConfig:
  * const quantity = RuleBuilder.getQPConfig(quantity)
  * const price = RuleBuilder.getQPConfig(price)
  * ```
@@ -46,7 +46,7 @@ export class RuleBuilder {
    * @param currencies - Array of Currency
    */
   constructor(public readonly currencies: Currency[]) {
-    const vm_ = RuleBuilder.build(currencies);
+    const vm_ = RuleBuilder.from(currencies);
     this.constants = vm_.constants;
     this.sources = vm_.sources;
   }
@@ -58,7 +58,7 @@ export class RuleBuilder {
    * @param currencies - An array of Currency objects
    * @returns StateConfig
    */
-  public static build(currencies: Currency[]): StateConfig {
+  public static from(currencies: Currency[]): StateConfig {
     let rules_: StateConfig[] = [];
     let thens_: StateConfig[] = [];
     let count = 0;
@@ -122,17 +122,6 @@ export class RuleBuilder {
     }
 
     return VM.multi([...rules_, ...thens_], false);
-  }
-
-  /**
-   * @public
-   * Method to generate a single currency rule-based StateConfig
-   *
-   * @param currency - A Currency object
-   * @returns StateConfig
-   */
-  public static singleBuild(currency: Currency): StateConfig {
-    return this.build([currency]);
   }
 
   /**

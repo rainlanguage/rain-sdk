@@ -49,7 +49,8 @@ pkgs.stdenv.mkDerivation {
  name = "shell";
  buildInputs = [
   pkgs.yarn
-  pkgs.nodejs-14_x
+  pkgs.nodePackages.npm
+  pkgs.nodejs-16_x
   copy-contracts
   generate-typechain
   copy-typechain

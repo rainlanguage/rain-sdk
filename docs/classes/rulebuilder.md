@@ -16,16 +16,16 @@ class RuleBuilder
 // to import:
 import { RuleBuilder } from "rain-sdk"
 
-// to build the multi-currency rule-based StateConfig:
+// to from the multi-currency rule-based StateConfig:
 const vmStateConfig = new RuleBuilder([currency1, currency2, ...])
 
-// to build a single condition's StateConfig of a single Rule:
+// to from a single condition's StateConfig of a single Rule:
 const conditions = RuleBuilder.getConditionConfig(condition)
 
-// to build a ConditionGroup StateConfig:
+// to from a ConditionGroup StateConfig:
 const rule = RuleBuilder.getConditionGroup(conditionGroup)
 
-//to build a single price or quantity StateConfig:
+//to from a single price or quantity StateConfig:
 const quantity = RuleBuilder.getQPConfig(quantity)
 const price = RuleBuilder.getQPConfig(price)
 
@@ -44,11 +44,10 @@ const price = RuleBuilder.getQPConfig(price)
 |  Method | Description |
 |  --- | --- |
 |  [applyModifier(config, modifier)](./rulebuilder.md#applyModifier-method-static-1) | Method to generate a single currency rule-based StateConfig |
-|  [build(currencies)](./rulebuilder.md#build-method-static-1) | Method to generate a multi currency rule-based StateConfig |
+|  [from(currencies)](./rulebuilder.md#from-method-static-1) | Method to generate a multi currency rule-based StateConfig |
 |  [getConditionConfig(condition)](./rulebuilder.md#getConditionConfig-method-static-1) | Method to get the conditions' StateConfig of a ConditionGroup seperately |
 |  [getConditionGroupConfig(conditionGroup)](./rulebuilder.md#getConditionGroupConfig-method-static-1) | Method to get the a ConditionGroup StateConfig |
 |  [getQPConfig(qp)](./rulebuilder.md#getQPConfig-method-static-1) | Method to get the price or quantity StateConfig |
-|  [singleBuild(currency)](./rulebuilder.md#singleBuild-method-static-1) | Method to generate a single currency rule-based StateConfig |
 
 ## Property Details
 
@@ -109,16 +108,16 @@ static applyModifier(config: StateConfig, modifier: Modifier): StateConfig;
 
 StateConfig
 
-<a id="build-method-static-1"></a>
+<a id="from-method-static-1"></a>
 
-### build(currencies)
+### from(currencies)
 
 Method to generate a multi currency rule-based StateConfig
 
 <b>Signature:</b>
 
 ```typescript
-static build(currencies: Currency[]): StateConfig;
+static from(currencies: Currency[]): StateConfig;
 ```
 
 #### Parameters
@@ -198,30 +197,6 @@ static getQPConfig(qp: Price | Quantity): StateConfig;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  qp | `Price \| Quantity` |  |
-
-<b>Returns:</b>
-
-`StateConfig`
-
-StateConfig
-
-<a id="singleBuild-method-static-1"></a>
-
-### singleBuild(currency)
-
-Method to generate a single currency rule-based StateConfig
-
-<b>Signature:</b>
-
-```typescript
-static singleBuild(currency: Currency): StateConfig;
-```
-
-#### Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  currency | [Currency](../types/currency.md) | A Currency object |
 
 <b>Returns:</b>
 
