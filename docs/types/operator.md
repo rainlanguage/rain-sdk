@@ -1,7 +1,7 @@
 
 # Type Operator
 
-All the valid logical operators used for comparison of previous types
+All the valid logical operators used for comparison of Struct and/or StateConfig objects
 
 <b>Signature:</b>
 

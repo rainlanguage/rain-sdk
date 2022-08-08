@@ -29,6 +29,7 @@ class VM
 |  [constant(value)](./vm.md#constant-method-static-1) | Methdo to create a simple signle value script, ie CONTANT |
 |  [createVMSources(OPerands)](./vm.md#createVMSources-method-static-1) | Create a VM sources to be ready to use in any call just providing the combination desired. |
 |  [dec(startValue, endValue, startPoint, endPoint, byBlock)](./vm.md#dec-method-static-1) | Create a new raw linear decreasing value StateConfig. |
+|  [decBy(startValue, startPoint, margin, periodLength, endValue, byBlock)](./vm.md#decBy-method-static-1) | Create a new raw linear decreasing value StateConfig decreasing by a margin over each period. |
 |  [eq(config1, config2, stackReassignment)](./vm.md#eq-method-static-1) | Method to check if a script is equal to another script or not. will return 1 if is true and 0 if it is not |
 |  [getAsset(type: "erc20-balance-of" \| "erc20-total-supply" \| "snapshot-balance-of" \| "snapshot-total-supply" \| "erc721-balance-of" \| "erc721-owner-of" \| "erc1155-balance-of" \| "erc1155-balance-of-batch", address, id, delegatedCall)](./vm.md#getAsset-method-static-1) | A method to generate the StateConfig out of EVM assets' opcodes |
 |  [gt(config1, config2, stackReassignment)](./vm.md#gt-method-static-1) | Method to check if a script is greater than another script or not. will return 1 if is true and 0 if it is not |
@@ -37,6 +38,7 @@ class VM
 |  [hasMinTier(tierConfig, tier, stackReassignment)](./vm.md#hasMinTier-method-static-1) | Method to check if an address has at least the "TIER" status |
 |  [ifelse(condition, ifStatement, elseStatement, stackReassignment)](./vm.md#ifelse-method-static-1) | Method to create an if/else script |
 |  [inc(startValue, endValue, startPoint, endPoint, byBlock)](./vm.md#inc-method-static-1) | Create a new raw linear increasing value StateConfig. |
+|  [incBy(startValue, startPoint, margin, periodLength, endValue, byBlock)](./vm.md#incBy-method-static-1) | Create a new raw linear increasing value StateConfig increasing by a margin over each period. |
 |  [input(operand)](./vm.md#input-method-static-1) | Method to create a simple CONTEXT opcode script |
 |  [lt(config1, config2, stackReassignment)](./vm.md#lt-method-static-1) | Method to check if a script is less than another script or not. will return 1 if is true and 0 if it is not |
 |  [lte(config1, config2, stackReassignment)](./vm.md#lte-method-static-1) | Method to check if a script is less than or equal to another script or not. will return 1 if is true and 0 if it is not |
@@ -98,7 +100,7 @@ static addTogether(configs: StateConfig[], stackReassignment?: boolean): StateCo
 
 `StateConfig`
 
-a
+a StateConfig
 
 <a id="and-method-static-1"></a>
 
@@ -123,7 +125,7 @@ static and(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="beforeAfterBlock-method-static-1"></a>
 
@@ -148,7 +150,7 @@ static beforeAfterBlock(blockNumber: number, type: "gt" | "lt" | "gte" | "lte"):
 
 `StateConfig`
 
-A
+A StateConfig
 
 <a id="beforeAfterTime-method-static-1"></a>
 
@@ -173,7 +175,7 @@ static beforeAfterTime(timestamp: number, type: "gt" | "lt" | "gte" | "lte"): St
 
 `StateConfig`
 
-A
+A StateConfig
 
 <a id="combiner-method-static-1"></a>
 
@@ -205,7 +207,7 @@ static combiner(config1: StateConfig, config2: StateConfig, options?: {
 
 `StateConfig`
 
-combined VM script.
+combined VM script (StateConfig)
 
 <a id="constant-method-static-1"></a>
 
@@ -229,7 +231,7 @@ static constant(value: BigNumberish): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig
 
 <a id="createVMSources-method-static-1"></a>
 
@@ -281,7 +283,36 @@ static dec(startValue: BigNumber, endValue: BigNumber, startPoint: number, endPo
 
 `StateConfig`
 
-a
+a StateConfig
+
+<a id="decBy-method-static-1"></a>
+
+### decBy(startValue, startPoint, margin, periodLength, endValue, byBlock)
+
+Create a new raw linear decreasing value StateConfig decreasing by a margin over each period.
+
+<b>Signature:</b>
+
+```typescript
+static decBy(startValue: BigNumber, startPoint: number, margin: BigNumber, periodLength: number, endValue?: number, byBlock?: boolean): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  startValue | `BigNumber` | The starting value |
+|  startPoint | `number` | Starting point, either timestamp or block number |
+|  margin | `BigNumber` | The amount to decrease by each period passing |
+|  periodLength | `number` | The length of each period |
+|  endValue | `number` | Ending point, either timestamp or block number |
+|  byBlock | `boolean` | Whether decreasing by block or timestamp, pass true to be based on block |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a StateConfig
 
 <a id="eq-method-static-1"></a>
 
@@ -307,7 +338,7 @@ static eq(config1: StateConfig, config2: StateConfig, stackReassignment?: boolea
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="getAsset-method-static-1"></a>
 
@@ -334,7 +365,7 @@ static getAsset(type: "erc20-balance-of" | "erc20-total-supply" | "snapshot-bala
 
 `StateConfig`
 
-a VM script
+a StateConfig
 
 <a id="gt-method-static-1"></a>
 
@@ -360,7 +391,7 @@ static gt(config1: StateConfig, config2: StateConfig, stackReassignment?: boolea
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="gte-method-static-1"></a>
 
@@ -386,7 +417,7 @@ static gte(config1: StateConfig, config2: StateConfig, stackReassignment?: boole
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="hasAnyTier-method-static-1"></a>
 
@@ -411,7 +442,7 @@ static hasAnyTier(tierConfig: StateConfig, stackReassignment?: boolean): StateCo
 
 `StateConfig`
 
-a VM script
+a StateConfig
 
 <a id="hasMinTier-method-static-1"></a>
 
@@ -437,7 +468,7 @@ static hasMinTier(tierConfig: StateConfig, tier: Tier, stackReassignment?: boole
 
 `StateConfig`
 
-a VM script
+a StateConfig
 
 <a id="ifelse-method-static-1"></a>
 
@@ -464,7 +495,7 @@ static ifelse(condition: StateConfig, ifStatement: StateConfig, elseStatement: S
 
 `StateConfig`
 
-a
+a StateConfig
 
 <a id="inc-method-static-1"></a>
 
@@ -492,7 +523,36 @@ static inc(startValue: BigNumber, endValue: BigNumber, startPoint: number, endPo
 
 `StateConfig`
 
-a
+a StateConfig
+
+<a id="incBy-method-static-1"></a>
+
+### incBy(startValue, startPoint, margin, periodLength, endValue, byBlock)
+
+Create a new raw linear increasing value StateConfig increasing by a margin over each period.
+
+<b>Signature:</b>
+
+```typescript
+static incBy(startValue: BigNumber, startPoint: number, margin: BigNumber, periodLength: number, endValue?: number, byBlock?: boolean): StateConfig;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  startValue | `BigNumber` | The starting value |
+|  startPoint | `number` | Starting point, either timestamp or block number |
+|  margin | `BigNumber` | The amount to increase by each period passing |
+|  periodLength | `number` | The length of each period |
+|  endValue | `number` | Ending point, either timestamp or block number |
+|  byBlock | `boolean` | Whether increasing by block or timestamp, pass true to be based on block |
+
+<b>Returns:</b>
+
+`StateConfig`
+
+a StateConfig
 
 <a id="input-method-static-1"></a>
 
@@ -516,7 +576,7 @@ static input(operand: number): StateConfig;
 
 `StateConfig`
 
-a VM script
+a StateConfig
 
 <a id="lt-method-static-1"></a>
 
@@ -542,7 +602,7 @@ static lt(config1: StateConfig, config2: StateConfig, stackReassignment?: boolea
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="lte-method-static-1"></a>
 
@@ -568,7 +628,7 @@ static lte(config1: StateConfig, config2: StateConfig, stackReassignment?: boole
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="max-method-static-1"></a>
 
@@ -593,7 +653,7 @@ static max(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig
 
 <a id="min-method-static-1"></a>
 
@@ -618,7 +678,7 @@ static min(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig
 
 <a id="multi-method-static-1"></a>
 
@@ -643,7 +703,7 @@ static multi(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig
 
 <a id="mulTogether-method-static-1"></a>
 
@@ -668,7 +728,7 @@ static mulTogether(configs: StateConfig[], stackReassignment?: boolean): StateCo
 
 `StateConfig`
 
-a
+a StateConfig
 
 <a id="nand-method-static-1"></a>
 
@@ -693,7 +753,7 @@ static nand(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="nor-method-static-1"></a>
 
@@ -718,7 +778,7 @@ static nor(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="not-method-static-1"></a>
 
@@ -742,7 +802,7 @@ static not(config: StateConfig): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="or-method-static-1"></a>
 
@@ -767,7 +827,7 @@ static or(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="pair-method-static-1"></a>
 
@@ -793,7 +853,7 @@ static pair(amountConfig: StateConfig, priceConfig: StateConfig, stackReassignme
 
 `StateConfig`
 
-a
+a StatecConfig
 
 <a id="setDisccount-method-static-1"></a>
 
@@ -819,7 +879,7 @@ static setDisccount(config: StateConfig, condition: StateConfig, discount: numbe
 
 `StateConfig`
 
-a
+a StateConfig
 
 <a id="setDiscountForTiers-method-static-1"></a>
 
@@ -851,7 +911,7 @@ static setDiscountForTiers(config: StateConfig, tierAddress: string, tierDiscoun
 
 `StateConfig`
 
-a VM script
+a StateConfig
 
 <a id="setMultiplier-method-static-1"></a>
 
@@ -876,6 +936,8 @@ static setMultiplier(config: StateConfig, condition: StateConfig, multiplier: nu
 <b>Returns:</b>
 
 `StateConfig`
+
+a StateConfig
 
 <a id="setMultiplierForTiers-method-static-1"></a>
 
@@ -907,7 +969,7 @@ static setMultiplierForTiers(config: StateConfig, tierAddress: string, tierMulti
 
 `StateConfig`
 
-a VM script
+a StateConfig
 
 <a id="setOwnership-method-static-1"></a>
 
@@ -939,7 +1001,7 @@ static setOwnership(config: StateConfig, ownerAddress: string, options?: {
 
 `StateConfig`
 
-a VM script.
+a StateConfig
 
 <a id="setTimers-method-static-1"></a>
 
@@ -965,7 +1027,7 @@ static setTimers(configs: StateConfig[], times: number[], inBlockNumber?: boolea
 
 `StateConfig`
 
-a VM script
+a StateConfig
 
 <a id="stack-method-static-1"></a>
 
@@ -989,7 +1051,7 @@ static stack(operand: number): StateConfig;
 
 `StateConfig`
 
-a VM script
+a StateConfig
 
 <a id="xnor-method-static-1"></a>
 
@@ -1016,7 +1078,7 @@ static xnor(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 
 <a id="xor-method-static-1"></a>
 
@@ -1043,5 +1105,5 @@ static xor(configs: StateConfig[], stackReassignment?: boolean): StateConfig;
 
 `StateConfig`
 
-a
+a StateConfig in VM boolean format (true non-zero, false zero)
 

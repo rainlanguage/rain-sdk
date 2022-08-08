@@ -61,7 +61,13 @@ export class RuleBuilder {
   public static from(currencies: Currency[]): StateConfig {
     let rules_: StateConfig[] = [];
     let thens_: StateConfig[] = [];
+    let dps_: StateConfig[] = [];
     let count = 0;
+    let totalCount = 0;
+
+    for (const currency of currencies) {
+      totalCount += currency.rules.length * 2;
+    }
 
     for (let i = 0; i < currencies.length; i++) {
       let qs_: StateConfig[] = [];
@@ -91,16 +97,20 @@ export class RuleBuilder {
           )
         );
         ps_.push(
-          VM.mulTogether(
-            [VM.stack(count * 2 + 1), this.getQPConfig(rule.price)],
+          VM.ifelse(
+            VM.stack((count * 2) + 1),
+            this.getQPConfig(rule.price),
+            VM.stack(totalCount + i),
             false
           )
         );
         count++;
       }
-      
+
+      dps_.push(this.getQPConfig(currencies[i].default.price));
+
       qs_.push(this.getQPConfig(currencies[i].default.quantity));
-      ps_.push(this.getQPConfig(currencies[i].default.price));
+      ps_.push(VM.stack(totalCount + i));
 
       q_ = (VM[currencies[i].pick.quantities](qs_, false));
       p_ = (VM[currencies[i].pick.prices](ps_, false));
@@ -121,7 +131,7 @@ export class RuleBuilder {
       }
     }
 
-    return VM.multi([...rules_, ...thens_], false);
+    return VM.multi([...rules_, ...dps_, ...thens_], false);
   }
 
   /**
@@ -131,59 +141,66 @@ export class RuleBuilder {
    * @returns Array of StateConfig
    */
   public static getConditionConfig(condition: Condition): StateConfig {
-    let condition_: StateConfig;
 
-    if ('subject' in condition.struct) {
-      if (condition.operator === 'true') {
-        condition_ = lib[condition.struct.subject](condition.struct.args);
-      } 
-      else if (condition.operator === 'not') {
-        condition_ = VM[condition.operator](
-          lib[condition.struct.subject](condition.struct.args)
-        );
-      } 
-      else {
-        if ('subject' in condition.struct2!) {
-          condition_ = VM[condition.operator](
-            lib[condition.struct.subject](condition.struct.args),
-            lib[condition.struct2!.subject](condition.struct2.args),
-            false
-          );
-        } 
-        else {
-          condition_ = VM[condition.operator](
-            lib[condition.struct.subject](condition.struct.args),
-            condition.struct2!,
-            false
-          );
-        }
-      }
-    } 
-    else {
-      if (condition.operator === 'true') {
-        condition_ = condition.struct;
-      } 
-      else if (condition.operator === 'not') {
-        condition_ = VM[condition.operator](condition.struct);
-      } 
-      else {
-        if ('subject' in condition.struct2!) {
-          condition_ = VM[condition.operator](
-            condition.struct,
-            lib[condition.struct2!.subject](condition.struct2.args),
-            false
-          );
-        } 
-        else {
-          condition_ = VM[condition.operator](
-            condition.struct,
-            condition.struct2!,
-            false
-          );
-        }
-      }
+    if (condition === 'always' || condition === 'never') {
+      return lib[condition]();
     }
-    return condition_;
+    else if ('constants' && 'sources' in condition) {
+      return condition;
+    }
+    else if ('struct' in condition) {
+      if ('subject' in condition.struct) {
+        if (condition.operator === 'true') {
+          return lib[condition.struct.subject](condition.struct.args);
+        } 
+        else if (condition.operator === 'not') {
+          return VM[condition.operator](
+            lib[condition.struct.subject](condition.struct.args)
+          );
+        } 
+        else {
+          if ('subject' in condition.struct2!) {
+            return VM[condition.operator](
+              lib[condition.struct.subject](condition.struct.args),
+              lib[condition.struct2!.subject](condition.struct2.args),
+              false
+            );
+          } 
+          else {
+            return VM[condition.operator](
+              lib[condition.struct.subject](condition.struct.args),
+              condition.struct2!,
+              false
+            );
+          }
+        }
+      }
+      else {
+        if (condition.operator === 'true') {
+          return condition.struct;
+        } 
+        else if (condition.operator === 'not') {
+          return VM[condition.operator](condition.struct);
+        } 
+        else {
+          if ('subject' in condition.struct2!) {
+            return VM[condition.operator](
+              condition.struct,
+              lib[condition.struct2!.subject](condition.struct2.args),
+              false
+            );
+          } 
+          else {
+            return VM[condition.operator](
+              condition.struct,
+              condition.struct2!,
+              false
+            );
+          }
+        }
+      } 
+    }
+    else throw new Error('Invalid argument');
   }
 
   /**
@@ -192,28 +209,41 @@ export class RuleBuilder {
    * @param conditionGroup - The ConditionGroup object
    * @returns StateConfig
    */
-  public static getConditionGroupConfig(
-    conditionGroup: ConditionGroup
-  ): StateConfig {
+  public static getConditionGroupConfig(conditionGroup: ConditionGroup): StateConfig {
     let group_: StateConfig[] = [];
-    for (const item of conditionGroup.conditions) {
-      if ('conditions' in item) {
-        group_.push(this.getConditionGroupConfig(item));
+
+    if (conditionGroup === 'always' || conditionGroup === 'never') {
+      return lib[conditionGroup]();
+    }
+    else if ('constants' && 'sources' in conditionGroup) {
+      return conditionGroup;
+    }
+    else if ('conditions' in conditionGroup) {
+      for (const item of conditionGroup.conditions) {
+        if (item === 'always' || item === 'never') {
+          return lib[item]();
+        }
+        else if ('constants' && 'sources' in item) {
+          return item;
+        }
+        else if ('conditions' in item) {
+          group_.push(this.getConditionGroupConfig(item));
+        } 
+        else {
+          group_.push(this.getConditionConfig(item));
+        }
+      }
+      if (conditionGroup.operator === 'true') {
+        return group_[0];
+      } 
+      else if (conditionGroup.operator === 'not') {
+        return VM[conditionGroup.operator](group_[0]);
       } 
       else {
-        group_.push(this.getConditionConfig(item));
+        return VM[conditionGroup.operator](group_, false);
       }
     }
-
-    if (conditionGroup.operator === 'true') {
-      return group_[0];
-    } 
-    else if (conditionGroup.operator === 'not') {
-      return VM[conditionGroup.operator](group_[0]);
-    } 
-    else {
-      return VM[conditionGroup.operator](group_, false);
-    }
+    else throw new Error('Invalid argument');
   }
 
   /**

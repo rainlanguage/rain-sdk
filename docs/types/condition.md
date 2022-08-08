@@ -10,5 +10,5 @@ type Condition = {
     struct: Struct;
     operator: Extract<Operator, 'true' | 'not' | 'eq' | 'gt' | 'lt' | 'gte' | 'lte'>;
     struct2?: Struct;
-};
+} | Always | Never | StateConfig;
 ```

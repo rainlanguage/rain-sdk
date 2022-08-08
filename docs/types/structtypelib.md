@@ -7,7 +7,7 @@ A key/type pair for all the valid Struct types
 
 ```typescript
 type StructTypeLib = {
-    'buy-units': {
+    'input': {
         index: number;
     };
     'before-time': {
@@ -94,6 +94,34 @@ type StructTypeLib = {
         endValue: BigNumber;
         startBlock: number;
         endBlock: number;
+    };
+    'increasing-by-time-period': {
+        startValue: BigNumber;
+        startTimestamp: number;
+        margin: BigNumber;
+        periodLength: number;
+        endValue?: number;
+    };
+    'decreasing-by-time-period': {
+        startValue: BigNumber;
+        startTimestamp: number;
+        margin: BigNumber;
+        periodLength: number;
+        endValue?: number;
+    };
+    'increasing-by-block-period': {
+        startValue: BigNumber;
+        startBlock: number;
+        margin: BigNumber;
+        periodLength: number;
+        endValue?: number;
+    };
+    'decreasing-by-block-period': {
+        startValue: BigNumber;
+        startBlock: number;
+        margin: BigNumber;
+        periodLength: number;
+        endValue?: number;
     };
 };
 ```

@@ -343,7 +343,7 @@ export class VM {
    *    - (param) - numberOfSources - for specifying how many sources item to combine.
    *    - (param) position - An array representing the positions of config1 script where config2 sources
    *       will be merged at; position, array length must be equal to 'numberOfSources' or else it will be ignored.
-   * @returns combined VM script. @see StateConfig
+   * @returns combined VM script (StateConfig)
    */
   public static combiner(
     config1: StateConfig,
@@ -525,7 +525,7 @@ export class VM {
    * any value outside of their own script scope (other scripts that are being combined) this way the STACK opcode 
    * operand will stay untouched when scripts combine
    *
-   * @returns a @see StatecConfig
+   * @returns a StatecConfig
    */
   public static pair(
     amountConfig: StateConfig,
@@ -560,7 +560,7 @@ export class VM {
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * 
-   * @returns a @see StateConfig
+   * @returns a StateConfig
    */
   public static multi(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
 
@@ -605,7 +605,7 @@ export class VM {
    *       will be merged at; position, array length must be equal to 'numberOfSources' or else it will be ignored.
    *    - (param) notOwnerVar - the value or the script that will be executed if the owner check fails, if not specified 0 will be applied.
    *
-   * @returns a VM script. @see StateConfig
+   * @returns a StateConfig
    */
   public static setOwnership(
     config: StateConfig,
@@ -681,7 +681,7 @@ export class VM {
    *    - (param) delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
    *       or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    *
-   * @returns a VM script @see StateConfig
+   * @returns a StateConfig
    */
   public static setDiscountForTiers(
     config: StateConfig,
@@ -852,7 +852,7 @@ export class VM {
    *    - (param) delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
    *       or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
    *
-   * @returns a VM script @see StateConfig
+   * @returns a StateConfig
    */
   public static setMultiplierForTiers(
     config: StateConfig,
@@ -1015,7 +1015,7 @@ export class VM {
    * its length should be number of configs - 1.
    * @param inBlockNumber - (optional) false by default which means the time slices will be based on TIMESTAMP, pass true to base it on BLOCK_NUMBER
    *
-   * @returns a VM script @see StateConfig
+   * @returns a StateConfig
    */
   public static setTimers(
     configs: StateConfig[],
@@ -1067,7 +1067,7 @@ export class VM {
    * @param timestamp - the timestamp to set the rule for
    * @param type - type of the check, meaning current timestamp to be gt, gte, lt, lte than the "timestamp"
    * 
-   * @returns A @see StateConfig
+   * @returns A StateConfig
    */
   public static beforeAfterTime(
     timestamp: number,
@@ -1109,7 +1109,7 @@ export class VM {
    * @param blockNumber - the block number to set the rule for
    * @param type - type of the check, meaning current block number to be gt, gte, lt, lte than the "blockNumber"
    * 
-   * @returns A @see StateConfig
+   * @returns A StateConfig
    */
   public static beforeAfterBlock(
     blockNumber: number,
@@ -1152,7 +1152,7 @@ export class VM {
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
    * 
-   * @returns a @see StateConfig 
+   * @returns a StateConfig 
    */
   public static mulTogether(configs: StateConfig[], stackReassignment: boolean = true): StateConfig { 
     let result_ = VM.multi(configs, stackReassignment)
@@ -1171,7 +1171,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig 
+   * @returns a StateConfig 
    */
   public static addTogether(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
     let result_ = VM.multi(configs, stackReassignment)
@@ -1190,7 +1190,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig 
+   * @returns a StateConfig 
    */
   public static max(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
     let result_ = VM.multi(configs, stackReassignment)
@@ -1209,7 +1209,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig 
+   * @returns a StateConfig 
    */
   public static min(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
     let result_ = VM.multi(configs, stackReassignment)
@@ -1230,7 +1230,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig 
+   * @returns a StateConfig 
    */
   public static ifelse(
     condition: StateConfig,
@@ -1253,7 +1253,7 @@ export class VM {
    * 
    * @param value - the value
    * 
-   * @returns a @see StateConfig 
+   * @returns a StateConfig 
    */
   public static constant(value: BigNumberish): StateConfig {
     if (!(value instanceof BigNumber)) {
@@ -1271,7 +1271,7 @@ export class VM {
    * 
    * @param config - the script to check
    * 
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static not(config: StateConfig): StateConfig {
     config.sources[0] = concat([
@@ -1289,7 +1289,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static and(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
     let result_ = VM.multi(configs, stackReassignment)
@@ -1308,7 +1308,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static or(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
     let result_ = VM.multi(configs, stackReassignment)
@@ -1327,7 +1327,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static nand(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
     let result_ = VM.multi(configs, stackReassignment)
@@ -1347,7 +1347,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static nor(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
     let result_ = VM.multi(configs, stackReassignment)
@@ -1370,7 +1370,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static xor(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
     const and: StateConfig = {constants: [], sources: [concat([op(VM.Opcodes.EVERY, configs.length)])]};
@@ -1403,7 +1403,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
    public static xnor(configs: StateConfig[], stackReassignment: boolean = true): StateConfig {
     const and: StateConfig = {constants: [], sources: [concat([op(VM.Opcodes.EVERY, configs.length)])]};
@@ -1433,7 +1433,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static eq(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
     let result_ = VM.pair(config1, config2, stackReassignment);
@@ -1453,7 +1453,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static gt(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
     let result_ = VM.pair(config1, config2, stackReassignment);
@@ -1473,7 +1473,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static lt(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
     let result_ = VM.pair(config1, config2, stackReassignment);
@@ -1493,7 +1493,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static gte(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
     let result_ = VM.pair(config1, config2, stackReassignment);
@@ -1514,7 +1514,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a @see StateConfig in VM boolean format (true non-zero, false zero)
+   * @returns a StateConfig in VM boolean format (true non-zero, false zero)
    */
   public static lte(config1: StateConfig, config2: StateConfig, stackReassignment: boolean = true): StateConfig {
     let result_ = VM.pair(config1, config2, stackReassignment);
@@ -1541,7 +1541,7 @@ export class VM {
   //  *    - (param) delegatedReport - (optional) Used to determine if this script is being used for combinetier contract 
   //  *       or standalone then it will produce the result for SENDER(false) or ACCOUNT(true) i.e CONTEXT[0]
   //  *
-  //  * @returns a VM script @see StateConfig
+  //  * @returns a StateConfig
   //  */
   //  public static setValueForTiers(
   //   tierAddress: string,
@@ -1706,7 +1706,7 @@ export class VM {
    * @param id - an array of id(s) of either tokenId(s) or snapshotId(s) , only IERC20-Balance-of-Batch uses more than 1 id
    * @param delegatedCall - (optional) if true CONTEXT opcode will be used and if false SENDER opcode will be used
    * 
-   * @returns a VM script @see StateConfig
+   * @returns a StateConfig
    */
   public static getAsset(    
     type: 
@@ -1833,7 +1833,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a VM script @see StateConfig
+   * @returns a StateConfig
    */
   public static hasAnyTier(
     tierConfig: StateConfig,
@@ -1855,7 +1855,7 @@ export class VM {
    * @param stackReassignment - (optional) pass false if STACK opcode operands dont need to be reassigned to their new 
    * relative positioins in the script. i.e. if the individual scripts' STACK opcodes are refering to any value outside of their own 
    * script scope (refering to other scripts that are being combined). this way the STACK opcode operand will stay untouched when scripts combine
-   * @returns a VM script @see StateConfig
+   * @returns a StateConfig
    */
   public static hasMinTier(
     tierConfig: StateConfig,
@@ -1877,7 +1877,7 @@ export class VM {
    * Method to create a simple STACK opcode script
    * 
    * @param operand - stack operand
-   * @returns a VM script @see StateConfig
+   * @returns a StateConfig
    */
   public static stack(operand: number): StateConfig {
     return {
@@ -1891,7 +1891,7 @@ export class VM {
    * Method to create a simple CONTEXT opcode script
    * 
    * @param operand - context operand
-   * @returns a VM script @see StateConfig
+   * @returns a StateConfig
    */
   public static input(operand: number): StateConfig {
     return {
@@ -1909,7 +1909,7 @@ export class VM {
    * @param startPoint - Starting point, either timestamp or block number
    * @param endPoint - Ending point, either timestamp or block number
    * @param byBlock - Whether increasing by block or timestamp, pass true to be based on block
-   * @returns a @see StateConfig
+   * @returns a StateConfig
    */
    public static dec(
     startValue: BigNumber,
@@ -1938,7 +1938,7 @@ export class VM {
           op(VM.Opcodes.CONSTANT, 0),
           op(VM.Opcodes.SATURATING_SUB, 2),
           op(VM.Opcodes.CONSTANT, 1),
-          op(VM.Opcodes.MIN, 2),
+          op(VM.Opcodes.MAX, 2),
         ])
       ],
     });
@@ -1953,7 +1953,7 @@ export class VM {
    * @param startPoint - Starting point, either timestamp or block number
    * @param endPoint - Ending point, either timestamp or block number
    * @param byBlock - Whether increasing by block or timestamp, pass true to be based on block
-   * @returns a @see StateConfig
+   * @returns a StateConfig
    */
    public static inc(
     startValue: BigNumber,
@@ -1995,7 +1995,7 @@ export class VM {
    * @param config - The StateConfig to apply discount on
    * @param condition - The condition of StateConfig type
    * @param discount - discount percentage (between 0 - 99 and 2 decimals max)
-   * @returns a @see StateConfig
+   * @returns a StateConfig
    */
   public static setDisccount(config: StateConfig, condition: StateConfig, discount: number): StateConfig {
     if ( discount >= 0 && discount <= 99 ) {
@@ -2028,7 +2028,8 @@ export class VM {
    * 
    * @param config - The StateConfig to apply multiplier to
    * @param condition - The condition of StateConfig type
-   * @param multiplier - multulpier (2 decimals max) 
+   * @param multiplier - multulpier (2 decimals max)
+   * @returns a StateConfig
    */
   public static setMultiplier(config: StateConfig, condition: StateConfig, multiplier: number): StateConfig {
     const _multiply = Math.floor(100 * multiplier);
@@ -2052,4 +2053,126 @@ export class VM {
     return VM.pair(config, _multiplier, false);
   }
 
+
+  /**
+   * @public
+   * Create a new raw linear increasing value StateConfig increasing by a margin over each period.
+   *
+   * @param startValue - The starting value
+   * @param startPoint - Starting point, either timestamp or block number
+   * @param margin - The amount to increase by each period passing
+   * @param periodLength - The length of each period
+   * @param endValue - Ending point, either timestamp or block number
+   * @param byBlock - Whether increasing by block or timestamp, pass true to be based on block
+   * @returns a StateConfig
+   */
+  public static incBy(
+    startValue: BigNumber,
+    startPoint: number,
+    margin: BigNumber,
+    periodLength: number,
+    endValue?: number,
+    byBlock: boolean = false,
+  ): StateConfig {
+    const constants_ = endValue
+    ? [
+      startValue,
+      startPoint,
+      margin,
+      periodLength,
+      endValue
+    ]
+    : [
+      startValue,
+      startPoint,
+      margin,
+      periodLength
+    ]
+
+    const end_ = endValue
+    ? [
+      op(VM.Opcodes.CONSTANT, 4),
+      op(VM.Opcodes.MIN, 2)
+    ]
+    : [];
+
+    return ({
+      constants: constants_,
+      sources: [
+        concat([
+          byBlock ? op(VM.Opcodes.BLOCK_NUMBER) : op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.CONSTANT, 3),
+          op(VM.Opcodes.DIV, 2),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.MUL, 2),
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.ADD, 2),
+          ...end_
+        ])
+      ],
+    });
+  }
+
+  /**
+   * @public
+   * Create a new raw linear decreasing value StateConfig decreasing by a margin over each period.
+   *
+   * @param startValue - The starting value
+   * @param startPoint - Starting point, either timestamp or block number
+   * @param margin - The amount to decrease by each period passing
+   * @param periodLength - The length of each period
+   * @param endValue - Ending point, either timestamp or block number
+   * @param byBlock - Whether decreasing by block or timestamp, pass true to be based on block
+   * @returns a StateConfig
+   */
+  public static decBy(
+    startValue: BigNumber,
+    startPoint: number,
+    margin: BigNumber,
+    periodLength: number,
+    endValue?: number,
+    byBlock: boolean = false,
+  ): StateConfig {
+    const constants_ = endValue
+    ? [
+      startValue,
+      startPoint,
+      margin,
+      periodLength,
+      endValue
+    ]
+    : [
+      startValue,
+      startPoint,
+      margin,
+      periodLength
+    ]
+
+    const end_ = endValue
+    ? [
+      op(VM.Opcodes.CONSTANT, 4),
+      op(VM.Opcodes.MAX, 2)
+    ]
+    : [];
+
+    return ({
+      constants: constants_,
+      sources: [
+        concat([
+          byBlock ? op(VM.Opcodes.BLOCK_NUMBER) : op(VM.Opcodes.BLOCK_TIMESTAMP),
+          op(VM.Opcodes.CONSTANT, 1),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          op(VM.Opcodes.CONSTANT, 3),
+          op(VM.Opcodes.DIV, 2),
+          op(VM.Opcodes.CONSTANT, 2),
+          op(VM.Opcodes.MUL, 2),
+          op(VM.Opcodes.CONSTANT, 0),
+          op(VM.Opcodes.SATURATING_SUB, 2),
+          ...end_
+        ])
+      ],
+    });
+  }
 }

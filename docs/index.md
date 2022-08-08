@@ -192,10 +192,8 @@
 |  Type Alias | Description |
 |  --- | --- |
 |  [Addresses](./types/addresses.md) | Type for all the addresses stored in the Book. |
-|  [Asset](./types/asset.md) | Type for getting specific evm tokens or user wallet token balances |
+|  [Always](./types/always.md) | Type to get an always true condition |
 |  [AutoApproveOps](./types/autoapproveops.md) | Type for the opcodes availables in a AutoApprove instance. |
-|  [Block](./types/block.md) | Type for block number based rules |
-|  [BuyUnits](./types/buyunits.md) | Type for current user buy units i.e. user input |
 |  [CallOptions](./types/calloptions.md) | Options for instantiating RainJSVM |
 |  [ClearConfig](./types/clearconfig.md) | Type for clear vaultIds used when in |
 |  [ClearStateChange](./types/clearstatechange.md) | Type for changes in state of an orderbook vaults after an successful clear |
@@ -210,11 +208,11 @@
 |  [EvidenceConfig](./types/evidenceconfig.md) |  |
 |  [Filter](./types/filter.md) | A filtering utility type for StructTypeLib |
 |  [IOConfig](./types/ioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
-|  [Math\_2](./types/math_2.md) | Type for mathematical folmulas or constant values |
 |  [Modifier](./types/modifier.md) | Type for price/quantity modifier based on a tier report or a Rule |
 |  [ModifierType](./types/modifiertype.md) | Valid Modifier types |
+|  [Never](./types/never.md) | Type to get an always false condition |
 |  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |
-|  [Operator](./types/operator.md) | All the valid logical operators used for comparison of previous types |
+|  [Operator](./types/operator.md) | All the valid logical operators used for comparison of Struct and/or StateConfig objects |
 |  [Order](./types/order.md) | Type for an order containing all that is required in an order. An Order is an |
 |  [OrderBookOpcodes](./types/orderbookopcodes.md) | Type for the opcodes availables in a OrderBook instance. |
 |  [OrderConfig](./types/orderconfig.md) | A type for an order configuration without any specific owner |
@@ -227,8 +225,6 @@
 |  [Struct](./types/struct.md) | The smallest building block of RuleBuilder that contains the type and its valid arguments or a StateConfig |
 |  [StructTypeLib](./types/structtypelib.md) | A key/type pair for all the valid Struct types |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
-|  [Tiers](./types/tiers.md) | Type for Rain tier contractsreport check |
-|  [Time](./types/time.md) | Type for times based rules |
 |  [TimeBoundConfig](./types/timeboundconfig.md) |  |
 |  [WithdrawConfig](./types/withdrawconfig.md) | Type for withdrawing some token amount from a vault used in |
 
