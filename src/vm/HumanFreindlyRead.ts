@@ -9,20 +9,23 @@ import { OrderbookContext, OrderbookStorage } from '../contracts/orderBook';
 import { SaleContext, SaleStorage } from '../contracts/sale';
 import {
   arrayify,
+  concat,
   extractFromMap,
+  op,
   paddedUInt256,
+  selectLte,
   selectLteLogic,
   selectLteMode,
 } from '../utils';
-import { OpMeta } from './OpMeta';
+import { IOpMeta, OpMeta } from './OpMeta';
 
-interface opMeta {
-  enum: number;
-  name: string;
-  input: string;
-}
+// interface opMeta {
+//   enum: number;
+//   name: string;
+//   name: string;
+// }
 
-interface OpInfo extends opMeta {
+interface OpInfo extends IOpMeta {
   operand: number;
 }
 
@@ -95,9 +98,9 @@ export type PrettifyConfig = {
   length?: number;
 };
 
-const newOpMeta: opMeta[] = Array.from(
-  extractFromMap(OpMeta, ["name", "enum", "input"]).values()
-);
+// const newOpMeta = Array.from(
+//   extractFromMap(OpMeta, []).values()
+// );
 
 /**
  * @public
@@ -112,9 +115,20 @@ const newOpMeta: opMeta[] = Array.from(
  * feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
  */
 export class HumanFriendlyRead {
-  private static opMeta: opMeta[] = newOpMeta;
+  private static opMeta: IOpMeta[];
   private static _context: string | undefined;
   private static _pretty: boolean;
+
+  /**
+   * 
+   * @param opmeta 
+   * @returns 
+   */
+  public static set(opmeta: typeof OpMeta): any {
+    this.opMeta = Array.from(
+      extractFromMap(opmeta, []).values()
+    );
+  }
 
   /**
    * Obtain the friendly output from an script.
@@ -233,7 +247,7 @@ export class HumanFriendlyRead {
       op = ops[i];
       i++;
 
-      if (op.input === 'constantIndex') {
+      if (op.name === 'CONSTANT') {
         if (op.operand < 128) {
           state.stack[_stackIndex] = {
             val: state.constants[op.operand],
@@ -246,13 +260,15 @@ export class HumanFriendlyRead {
           };
         }
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'blockNumber') {
-        state.stack[_stackIndex] = {
-          val: 'CURRENT_BLOCK',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'DUP') {
+      } 
+      // else if (op.name === 'blockNumber') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'CURRENT_BLOCK',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // } 
+      else if (op.name === 'STACK') {
         state.stack[op.operand].consumed = true;
         state.stack[op.operand].wasDup = true;
         const valueDup = {
@@ -261,93 +277,108 @@ export class HumanFriendlyRead {
         };
         state.stack.push(valueDup);
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'msgSender') {
-        state.stack[_stackIndex] = {
-          val: 'SENDER()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'thisAddress') {
-        state.stack[_stackIndex] = {
-          val: 'THIS_ADDRESS()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'blockTimestamp') {
-        state.stack[_stackIndex] = {
-          val: 'CURRENT_TIMESTAMP',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'SCALE18_DECIMALS') {
-        state.stack[_stackIndex] = {
-          val: 'SCALE18_DECIMALS()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'SCALE18_ONE') {
-        state.stack[_stackIndex] = {
-          val: 'SCALE18_ONE()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'NEVER') {
-        state.stack[_stackIndex] = {
-          val: 'NEVER()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'REMAINING_UNITS') {
-        state.stack[_stackIndex] = {
-          val: 'REMAINING_UNITS()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'TOTAL_RESERVE_IN') {
-        state.stack[_stackIndex] = {
-          val: 'TOTAL_RESERVE_IN()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'CURRENT_BUY_UNITS') {
-        state.stack[_stackIndex] = {
-          val: 'CURRENT_BUY_UNITS()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'TOKEN_ADDRESS') {
-        state.stack[_stackIndex] = {
-          val: 'TOKEN_ADDRESS()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'RESERVE_ADDRESS') {
-        state.stack[_stackIndex] = {
-          val: 'RESERVE_ADDRESS()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'ACCOUNT') {
-        state.stack[_stackIndex] = {
-          val: 'ACCOUNT()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'CLAIMANT_ACCOUNT') {
-        state.stack[_stackIndex] = {
-          val: 'CLAIMANT_ACCOUNT()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'CURRENT_UNITS') {
-        state.stack[_stackIndex] = {
-          val: 'CURRENT_UNITS()',
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'CONTEXT') {
+      }
+      // else if (op.name === 'msgSender') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'SENDER()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'thisAddress') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'THIS_ADDRESS()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'blockTimestamp') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'CURRENT_TIMESTAMP',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'SCALE18_DECIMALS') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'SCALE18_DECIMALS()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'SCALE18_ONE') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'SCALE18_ONE()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'NEVER') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'NEVER()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'REMAINING_UNITS') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'REMAINING_UNITS()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'TOTAL_RESERVE_IN') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'TOTAL_RESERVE_IN()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'CURRENT_BUY_UNITS') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'CURRENT_BUY_UNITS()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'TOKEN_ADDRESS') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'TOKEN_ADDRESS()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'RESERVE_ADDRESS') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'RESERVE_ADDRESS()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'ACCOUNT') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'ACCOUNT()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'CLAIMANT_ACCOUNT') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'CLAIMANT_ACCOUNT()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      // else if (op.name === 'CURRENT_UNITS') {
+      //   state.stack[_stackIndex] = {
+      //     val: 'CURRENT_UNITS()',
+      //     consumed: false,
+      //   };
+      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      // }
+      else if (op.name === 'CONTEXT') {
         //
-        let context = `CONTEXT Argument ${op.operand} passed to contract function at call`;
+        let context = `CONTEXT Argument ${op.operand} passed at contract function call`;
         let valid = true;
         if (this._context === 'sale') {
           valid = isValidContext(op.operand, SaleContext.length);
@@ -375,7 +406,8 @@ export class HumanFriendlyRead {
             `Wrong context value '${op.operand}' given for the context '${this._context}'`
           );
         }
-      } else if (op.input === 'STORAGE') {
+      }
+      else if (op.name === 'STORAGE') {
         //
         let storage = '';
         if (this._context === 'sale') {
@@ -395,10 +427,19 @@ export class HumanFriendlyRead {
           consumed: false,
         };
         state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } else if (op.input === 'takeFromStack') {
-        this.applyOp(state, op);
-      } else if (op.input === 'zipmap') {
+      }
+      else if (op.pops.name === 'zero' && op.pushes.name === 'one') {
+        state.stack[_stackIndex] = {
+          val: op.readableAlias ? op.readableAlias : op.name,
+          consumed: false,
+        };
+        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      } 
+      else if (op.name === 'ZIPMAP') {
         this.zipmap(state, op.operand);
+      } 
+      else {
+        this.applyOp(state, op);
       }
     }
 
@@ -460,7 +501,7 @@ export class HumanFriendlyRead {
     const _stackIndex = BigNumber.from(state.stackIndex).toNumber();
     let baseIndex = _stackIndex - op.operand;
     let top = _stackIndex - 1;
-    let tempString = op.name + '(';
+    let tempString = op.readableAlias ? op.readableAlias + '(' : op.name + '(';
     let cursor = baseIndex;
     let tempArr: any[];
 
@@ -482,25 +523,28 @@ export class HumanFriendlyRead {
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
       //
-    } else if (
-      op.enum === AllStandardOps.SCALE18_DIV ||
-      op.enum === AllStandardOps.SCALE18_MUL
-    ) {
-      const _stackLength = this.identifyZipmap(state.stack, 2);
+    } 
+    // else if (
+    //   // op.enum === AllStandardOps.SCALE18_DIV ||
+    //   // op.enum === AllStandardOps.SCALE18_MUL
+    //   op.pops.name === 'two'
+    // ) {
+    //   const _stackLength = this.identifyZipmap(state.stack, 2);
 
-      // At least one zipmap was found to fll all the required stack from MIN
-      if (_stackLength !== -1) {
-        baseIndex = _stackIndex - _stackLength;
-      }
-      // Since no zipmap was found, the stack could fill the the stack required
-      else {
-        baseIndex = _stackIndex - 2;
-      }
+    //   // At least one zipmap was found to fll all the required stack from MIN
+    //   if (_stackLength !== -1) {
+    //     baseIndex = _stackIndex - _stackLength;
+    //   }
+    //   // Since no zipmap was found, the stack could fill the the stack required
+    //   else {
+    //     baseIndex = _stackIndex - 2;
+    //   }
 
-      cursor = baseIndex;
-      tempArr = [state.stack[cursor].val + '*10**18'];
-      //
-    } else if (op.enum === AllStandardOps.EAGER_IF) {
+    //   cursor = baseIndex;
+    //   tempArr = [state.stack[cursor].val + '*10**18'];
+    //   //
+    // } 
+    else if (op.enum === AllStandardOps.EAGER_IF) {
       const _stackLength = this.identifyZipmap(state.stack, 3);
 
       // At least one zipmap was found to fll all the required stack from MIN
@@ -516,9 +560,10 @@ export class HumanFriendlyRead {
       tempArr = [state.stack[cursor].val];
       //
     } else if (
-      op.enum === AllStandardOps.SCALE18 ||
-      op.enum === AllStandardOps.ISZERO ||
-      op.enum === AllStandardOps.IERC20_TOTAL_SUPPLY ||
+      // op.enum === AllStandardOps.SCALE18 ||
+      // op.enum === AllStandardOps.ISZERO ||
+      // op.enum === AllStandardOps.IERC20_TOTAL_SUPPLY ||
+      op.pops.name === 'one' ||
       this.flagOp(op.enum)
     ) {
       const _stackLength = this.identifyZipmap(state.stack, 1);
@@ -537,14 +582,15 @@ export class HumanFriendlyRead {
       tempArr = [state.stack[cursor].val];
       //
     } else if (
-      op.enum === AllStandardOps.GREATER_THAN ||
-      op.enum === AllStandardOps.LESS_THAN ||
-      op.enum === AllStandardOps.EQUAL_TO ||
-      op.enum === AllStandardOps.SATURATING_DIFF ||
-      op.enum === AllStandardOps.IERC721_OWNER_OF ||
-      op.enum === AllStandardOps.IERC721_BALANCE_OF ||
-      op.enum === AllStandardOps.IERC20_BALANCE_OF ||
-      op.enum === AllStandardOps.ITIERV2_REPORT
+      // op.enum === AllStandardOps.GREATER_THAN ||
+      // op.enum === AllStandardOps.LESS_THAN ||
+      // op.enum === AllStandardOps.EQUAL_TO ||
+      // op.enum === AllStandardOps.SATURATING_DIFF ||
+      // op.enum === AllStandardOps.IERC721_OWNER_OF ||
+      // op.enum === AllStandardOps.IERC721_BALANCE_OF ||
+      // op.enum === AllStandardOps.IERC20_BALANCE_OF ||
+      // op.enum === AllStandardOps.ITIERV2_REPORT
+      op.pops.name === 'two'
     ) {
       const _stackLength = this.identifyZipmap(state.stack, 2);
 
@@ -558,7 +604,11 @@ export class HumanFriendlyRead {
       }
 
       cursor = baseIndex;
-      tempArr = [state.stack[cursor].val];
+      tempArr = 
+      op.enum === AllStandardOps.SCALE18_DIV ||
+      op.enum === AllStandardOps.SCALE18_MUL
+      ? [state.stack[cursor].val + '*10**18']
+      : [state.stack[cursor].val];
       //
     } else if (op.enum === AllStandardOps.SELECT_LTE) {
       const _stackLength = this.identifyZipmap(state.stack, 3);
@@ -576,15 +626,16 @@ export class HumanFriendlyRead {
       cursor = baseIndex;
       tempArr = [];
     } else if (
-      op.enum === AllStandardOps.MIN ||
-      op.enum === AllStandardOps.MAX ||
-      op.enum === AllStandardOps.ADD ||
-      op.enum === AllStandardOps.SUB ||
-      op.enum === AllStandardOps.MUL ||
-      op.enum === AllStandardOps.DIV ||
-      op.enum === AllStandardOps.SATURATING_ADD ||
-      op.enum === AllStandardOps.SATURATING_SUB ||
-      op.enum === AllStandardOps.SATURATING_MUL
+      // op.enum === AllStandardOps.MIN ||
+      // op.enum === AllStandardOps.MAX ||
+      // op.enum === AllStandardOps.ADD ||
+      // op.enum === AllStandardOps.SUB ||
+      // op.enum === AllStandardOps.MUL ||
+      // op.enum === AllStandardOps.DIV ||
+      // op.enum === AllStandardOps.SATURATING_ADD ||
+      // op.enum === AllStandardOps.SATURATING_SUB ||
+      // op.enum === AllStandardOps.SATURATING_MUL
+      op.pops.name === 'oprnd'
     ) {
       const operand = this.identifyZipmap(state.stack, op.operand);
 
@@ -603,8 +654,24 @@ export class HumanFriendlyRead {
       cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
     } else {
+      const _stackLength = this.identifyZipmap(state.stack, op.pops(op.enum, op.operand));
+
+      // At least one zipmap was found to fll all the required stack from MIN
+      if (_stackLength !== -1) {
+        baseIndex = _stackIndex - _stackLength;
+      }
+      // Since no zipmap was found, the stack could fill the the stack required
+      else {
+        baseIndex = _stackIndex - op.pops(op.enum, op.operand);
+      }
+
+      cursor = baseIndex;
       tempArr = [state.stack[cursor].val];
-    }
+      //
+    } 
+    // else {
+    //   tempArr = [state.stack[cursor].val];
+    // }
 
     state.stack[cursor].consumed = true;
 
@@ -775,3 +842,30 @@ function isValidContext(_operand: number, _length: number): boolean {
   if (_operand >= 0 && _operand < _length) return true;
   return false;
 }
+
+const x = {
+  ...AllStandardOps,
+  myop: AllStandardOps.length
+}
+
+const sss: StateConfig = {
+  constants: [11, 22],
+  sources: [
+    concat([
+      op(x.CONSTANT, 0),
+      op(x.STACK, 0),
+      op(x.CONSTANT, 0),
+      op(x.CONSTANT, 0),
+      op(x.SELECT_LTE, selectLte(0, 0, 3)),
+      op(x.CONSTANT, 0),
+      op(x.IERC20_TOTAL_SUPPLY),
+      op(x.ADD, 2),
+      op(x.CONSTANT, 1)
+    ])
+  ],
+}
+
+// HumanFriendlyRead.opmeta = newOpMeta;
+HumanFriendlyRead.set(OpMeta)
+
+console.log(HumanFriendlyRead.get(sss));
