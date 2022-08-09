@@ -842,30 +842,3 @@ function isValidContext(_operand: number, _length: number): boolean {
   if (_operand >= 0 && _operand < _length) return true;
   return false;
 }
-
-const x = {
-  ...AllStandardOps,
-  myop: AllStandardOps.length
-}
-
-const sss: StateConfig = {
-  constants: [11, 22],
-  sources: [
-    concat([
-      op(x.CONSTANT, 0),
-      op(x.STACK, 0),
-      op(x.CONSTANT, 0),
-      op(x.CONSTANT, 0),
-      op(x.SELECT_LTE, selectLte(0, 0, 3)),
-      op(x.CONSTANT, 0),
-      op(x.IERC20_TOTAL_SUPPLY),
-      op(x.ADD, 2),
-      op(x.CONSTANT, 1)
-    ])
-  ],
-}
-
-// HumanFriendlyRead.opmeta = newOpMeta;
-HumanFriendlyRead.set(OpMeta)
-
-console.log(HumanFriendlyRead.get(sss));
