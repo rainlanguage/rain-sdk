@@ -9,11 +9,8 @@ import { OrderbookContext, OrderbookStorage } from '../contracts/orderBook';
 import { SaleContext, SaleStorage } from '../contracts/sale';
 import {
   arrayify,
-  concat,
   extractFromMap,
-  op,
   paddedUInt256,
-  selectLte,
   selectLteLogic,
   selectLteMode,
 } from '../utils';
@@ -115,7 +112,9 @@ export type PrettifyConfig = {
  * feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
  */
 export class HumanFriendlyRead {
-  private static opMeta: IOpMeta[];
+  private static opMeta: IOpMeta[] = Array.from(
+    extractFromMap(OpMeta, []).values()
+  );;
   private static _context: string | undefined;
   private static _pretty: boolean;
 
