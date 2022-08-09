@@ -19,6 +19,7 @@ class HumanFriendlyRead
 |  --- | --- |
 |  [get(\_state, \_config)](./humanfriendlyread.md#get-method-static-1) | Obtain the friendly output from an script. |
 |  [prettify(\_text, \_config)](./humanfriendlyread.md#prettify-method-static-1) | Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis |
+|  [set(opmeta)](./humanfriendlyread.md#set-method-static-1) |  |
 
 ## Static Method Details
 
@@ -72,4 +73,25 @@ static prettify(_text: string, _config?: PrettifyConfig): string;
 `string`
 
 The pretty output
+
+<a id="set-method-static-1"></a>
+
+### set(opmeta)
+
+<b>Signature:</b>
+
+```typescript
+static set(opmeta: typeof OpMeta): any;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  opmeta | `typeof OpMeta` |  |
+
+<b>Returns:</b>
+
+`any`
+
 

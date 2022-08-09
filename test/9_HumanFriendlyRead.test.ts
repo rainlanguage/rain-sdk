@@ -1737,105 +1737,105 @@ EAGER_IF(
     expect(friendly).to.be.equals(expectOutput);
   });
 
-  it('should throw an error if the script use STORAGE op and does not provide the contact/context', async () => {
-    const [arbitrary] = await ethers.getSigners();
-    const ERC721Address = arbitrary.address;
-    const fixedPrice = '20';
-    const reserveTokenDecimals = 18;
-    const minimumRaise = ethers.BigNumber.from('150000').mul(RESERVE_ONE);
-    const initialSupply = ethers.BigNumber.from('2000').mul(ONE);
+  // it('should throw an error if the script use STORAGE op and does not provide the contact/context', async () => {
+  //   const [arbitrary] = await ethers.getSigners();
+  //   const ERC721Address = arbitrary.address;
+  //   const fixedPrice = '20';
+  //   const reserveTokenDecimals = 18;
+  //   const minimumRaise = ethers.BigNumber.from('150000').mul(RESERVE_ONE);
+  //   const initialSupply = ethers.BigNumber.from('2000').mul(ONE);
 
-    const splitTimestamp = await Time.currentTime();
-    const endTimestamp = Time.duration
-      .minutes(60)
-      .add(splitTimestamp)
-      .toNumber();
-    const dutchAuctionstartPrice = 50;
+  //   const splitTimestamp = await Time.currentTime();
+  //   const endTimestamp = Time.duration
+  //     .minutes(60)
+  //     .add(splitTimestamp)
+  //     .toNumber();
+  //   const dutchAuctionstartPrice = 50;
 
-    //1st phase constants
-    const FixedPrice = parseUnits(fixedPrice.toString(), reserveTokenDecimals); //fixed price of 1st phase
+  //   //1st phase constants
+  //   const FixedPrice = parseUnits(fixedPrice.toString(), reserveTokenDecimals); //fixed price of 1st phase
 
-    // initial calculations for dutch auction 2nd phase
-    let dutchAuctionDuration = endTimestamp - splitTimestamp;
-    let balanceReserve = minimumRaise.mul(5);
-    let initWeight = initialSupply
-      .mul(dutchAuctionstartPrice)
-      .div(balanceReserve);
-    let weightChange = initWeight.sub(1).div(dutchAuctionDuration);
+  //   // initial calculations for dutch auction 2nd phase
+  //   let dutchAuctionDuration = endTimestamp - splitTimestamp;
+  //   let balanceReserve = minimumRaise.mul(5);
+  //   let initWeight = initialSupply
+  //     .mul(dutchAuctionstartPrice)
+  //     .div(balanceReserve);
+  //   let weightChange = initWeight.sub(1).div(dutchAuctionDuration);
 
-    // 2nd phase constants
-    const ReserveBalance = parseUnits(
-      // Virtual reserve token balance
-      balanceReserve.toString(),
-      reserveTokenDecimals
-    );
+  //   // 2nd phase constants
+  //   const ReserveBalance = parseUnits(
+  //     // Virtual reserve token balance
+  //     balanceReserve.toString(),
+  //     reserveTokenDecimals
+  //   );
 
-    const InitWeight = parseUnits(initWeight.toString()); // initial weight
+  //   const InitWeight = parseUnits(initWeight.toString()); // initial weight
 
-    const WeightChange = parseUnits(
-      weightChange.toNumber().toFixed(5).toString()
-    ); // weight change per timestamp
+  //   const WeightChange = parseUnits(
+  //     weightChange.toNumber().toFixed(5).toString()
+  //   ); // weight change per timestamp
 
-    const one = parseUnits((1).toString()); // minimum possible weight
+  //   const one = parseUnits((1).toString()); // minimum possible weight
 
-    const saleConfig: StateConfig = {
-      constants: [
-        splitTimestamp, // timestamp that splits the phases
-        ERC721Address,
-        FixedPrice,
-        0,
-        ReserveBalance,
-        InitWeight,
-        WeightChange,
-        one,
-      ],
+  //   const saleConfig: StateConfig = {
+  //     constants: [
+  //       splitTimestamp, // timestamp that splits the phases
+  //       ERC721Address,
+  //       FixedPrice,
+  //       0,
+  //       ReserveBalance,
+  //       InitWeight,
+  //       WeightChange,
+  //       one,
+  //     ],
 
-      sources: [
-        concat([
-          // Amount script
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANT, 0),
-          op(VM.Opcodes.LESS_THAN),
-          op(VM.Opcodes.CONSTANT, 1),
-          op(VM.Opcodes.SENDER),
-          op(VM.Opcodes.IERC721_BALANCE_OF),
-          op(VM.Opcodes.ISZERO),
-          op(VM.Opcodes.CONSTANT, 3),
-          op(VM.Opcodes.CONTEXT, SaleContext.CurrentBuyUnits), // ie 0 as operand
-          op(VM.Opcodes.EAGER_IF),
-          op(VM.Opcodes.CONTEXT, SaleContext.CurrentBuyUnits),
-          op(VM.Opcodes.EAGER_IF),
-          // Price script
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANT, 0),
-          op(VM.Opcodes.LESS_THAN),
-          op(VM.Opcodes.CONSTANT, 2),
-          op(VM.Opcodes.STORAGE, SaleStorage.TotalReserveIn), // ie 1 as operand
-          op(VM.Opcodes.CONSTANT, 4),
-          op(VM.Opcodes.ADD, 2),
-          op(VM.Opcodes.CONSTANT, 5),
-          op(VM.Opcodes.BLOCK_TIMESTAMP),
-          op(VM.Opcodes.CONSTANT, 0),
-          op(VM.Opcodes.SATURATING_SUB, 2),
-          op(VM.Opcodes.CONSTANT, 6),
-          op(VM.Opcodes.MUL, 2),
-          op(VM.Opcodes.SATURATING_SUB, 2),
-          op(VM.Opcodes.CONSTANT, 7),
-          op(VM.Opcodes.MAX, 2),
-          op(VM.Opcodes.MUL, 2),
-          op(VM.Opcodes.STORAGE, SaleStorage.RemainingUnits), // ie 0 as operand
-          op(VM.Opcodes.DIV, 2),
-          op(VM.Opcodes.EAGER_IF),
-        ]),
-      ],
-    };
+  //     sources: [
+  //       concat([
+  //         // Amount script
+  //         op(VM.Opcodes.BLOCK_TIMESTAMP),
+  //         op(VM.Opcodes.CONSTANT, 0),
+  //         op(VM.Opcodes.LESS_THAN),
+  //         op(VM.Opcodes.CONSTANT, 1),
+  //         op(VM.Opcodes.SENDER),
+  //         op(VM.Opcodes.IERC721_BALANCE_OF),
+  //         op(VM.Opcodes.ISZERO),
+  //         op(VM.Opcodes.CONSTANT, 3),
+  //         op(VM.Opcodes.CONTEXT, SaleContext.CurrentBuyUnits), // ie 0 as operand
+  //         op(VM.Opcodes.EAGER_IF),
+  //         op(VM.Opcodes.CONTEXT, SaleContext.CurrentBuyUnits),
+  //         op(VM.Opcodes.EAGER_IF),
+  //         // Price script
+  //         op(VM.Opcodes.BLOCK_TIMESTAMP),
+  //         op(VM.Opcodes.CONSTANT, 0),
+  //         op(VM.Opcodes.LESS_THAN),
+  //         op(VM.Opcodes.CONSTANT, 2),
+  //         op(VM.Opcodes.STORAGE, SaleStorage.TotalReserveIn), // ie 1 as operand
+  //         op(VM.Opcodes.CONSTANT, 4),
+  //         op(VM.Opcodes.ADD, 2),
+  //         op(VM.Opcodes.CONSTANT, 5),
+  //         op(VM.Opcodes.BLOCK_TIMESTAMP),
+  //         op(VM.Opcodes.CONSTANT, 0),
+  //         op(VM.Opcodes.SATURATING_SUB, 2),
+  //         op(VM.Opcodes.CONSTANT, 6),
+  //         op(VM.Opcodes.MUL, 2),
+  //         op(VM.Opcodes.SATURATING_SUB, 2),
+  //         op(VM.Opcodes.CONSTANT, 7),
+  //         op(VM.Opcodes.MAX, 2),
+  //         op(VM.Opcodes.MUL, 2),
+  //         op(VM.Opcodes.STORAGE, SaleStorage.RemainingUnits), // ie 0 as operand
+  //         op(VM.Opcodes.DIV, 2),
+  //         op(VM.Opcodes.EAGER_IF),
+  //       ]),
+  //     ],
+  //   };
 
-    expect(() => {
-      HumanFriendlyRead.get(saleConfig, {
-        pretty: true,
-      });
-    }).to.throw('Not contract/context provided to get the STORAGE');
-  });
+  //   expect(() => {
+  //     HumanFriendlyRead.get(saleConfig, {
+  //       pretty: true,
+  //     });
+  //   }).to.throw('Not contract/context provided to get the STORAGE');
+  // });
 
   it('brackets prettify', async () => {
     const report = paddedUInt256(

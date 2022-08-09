@@ -19,11 +19,11 @@ interface IOpMeta extends Record<string, any>
 |  --- | --- | --- |
 |  [description](./iopmeta.md#description-property) | `string` |  |
 |  [enum](./iopmeta.md#enum-property) | `number` |  |
-|  [input](./iopmeta.md#input-property) | `string` |  |
 |  [jsvmfn](./iopmeta.md#jsvmfn-property) | [OpJSVM](./opjsvm.md) |  |
 |  [name](./iopmeta.md#name-property) | `string` |  |
 |  [pops](./iopmeta.md#pops-property) | `(opcode: number, operand: number) => number` |  |
 |  [pushes](./iopmeta.md#pushes-property) | `(opcode: number, operand: number) => number` |  |
+|  [readableAlias](./iopmeta.md#readableAlias-property) | `string` |  |
 
 ## Property Details
 
@@ -45,16 +45,6 @@ description?: string;
 
 ```typescript
 enum: number;
-```
-
-<a id="input-property"></a>
-
-### input
-
-<b>Signature:</b>
-
-```typescript
-input: string;
 ```
 
 <a id="jsvmfn-property"></a>
@@ -95,4 +85,14 @@ pops: (opcode: number, operand: number) => number;
 
 ```typescript
 pushes: (opcode: number, operand: number) => number;
+```
+
+<a id="readableAlias-property"></a>
+
+### readableAlias
+
+<b>Signature:</b>
+
+```typescript
+readableAlias?: string;
 ```

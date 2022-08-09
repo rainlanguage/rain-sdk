@@ -77,6 +77,14 @@ export type Config = {
    * Enable the prettify to the result of get
    */
   pretty?: boolean;
+  /**
+   * Providing the names for STORAGE opcodes
+   */
+  storageEnums?: string[];
+  /**
+   * Providing the names for CONTEXT opcodes
+   */
+  contextEnums?: string[];
 };
 
 /**
@@ -137,7 +145,12 @@ export class HumanFriendlyRead {
    */
   public static get(
     _state: StateConfig,
-    _config: Config = { contract: '', pretty: false }
+    _config: Config = { 
+      contract: '',
+      pretty: false,
+      storageEnums: undefined,
+      contextEnums: undefined
+    }
   ): string {
     this._context = _config?.contract?.toLowerCase();
     this._pretty = _config.pretty ? true : false;
@@ -148,7 +161,7 @@ export class HumanFriendlyRead {
       constants: _state.constants,
     };
 
-    const _result = this._eval(state, 0);
+    const _result = this._eval(state, 0, _config.storageEnums, _config.contextEnums);
     return this._pretty ? this.prettify(_result) : _result;
   }
 
@@ -215,7 +228,12 @@ export class HumanFriendlyRead {
     return _text;
   }
 
-  private static _eval = (_state: State, sourceIndex: number) => {
+  private static _eval = (
+    _state: State,
+    sourceIndex: number,
+    storageEnums?: string[],
+    contextEnums?: string[]
+  ) => {
     let i = 0;
     let op: OpInfo;
 
@@ -393,6 +411,16 @@ export class HumanFriendlyRead {
           valid = isValidContext(op.operand, OrderbookContext.length);
           context = OrderbookContext[op.operand];
         }
+        //
+        else if (contextEnums && contextEnums.length > 0) {
+          valid = true;
+          context = contextEnums[op.operand];
+        }
+        //
+        else {
+          valid = true;
+          context = `CONTEXT[${op.operand}]`;
+        }
 
         if (valid) {
           state.stack[_stackIndex] = {
@@ -417,8 +445,10 @@ export class HumanFriendlyRead {
           storage = OrderbookStorage[op.operand];
         } else if (this._context === 'combinetier') {
           storage = CombineTierStorage[op.operand];
+        } else if (storageEnums && storageEnums.length > 0) {
+          storage = storageEnums[op.operand];
         } else {
-          throw new Error('Not contract/context provided to get the STORAGE');
+          storage = `STORAGE[${op.operand}]`
         }
 
         state.stack[_stackIndex] = {

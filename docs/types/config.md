@@ -9,5 +9,7 @@ Specific the configuration of the generation method
 type Config = {
     contract?: string;
     pretty?: boolean;
+    storageEnums?: string[];
+    contextEnums?: string[];
 };
 ```
