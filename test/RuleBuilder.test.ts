@@ -175,7 +175,7 @@ describe('SDK - RuleBuilder', () => {
       }
     }
     const resultConfig = new RuleBuilder([currencyObject]);
-    console.log(resultConfig);
+
     const expectedConfig: StateConfig = {
       constants: [
         11111,
