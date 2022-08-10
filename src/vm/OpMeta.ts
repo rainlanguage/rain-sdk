@@ -88,10 +88,10 @@ import { OpERC20SnapshotTotalSupplyAt } from "../jsvm/ops/erc20/snapshot/OpERC20
         return (operand * 2) + 1;
     }
     if (opcode === AllStandardOps.ITIERV2_REPORT) {
-        return operand + 1;
+        return operand + 2;
     }
     if (opcode === AllStandardOps.ITIERV2_REPORT_TIME_FOR_TIER) {
-        return operand + 2;
+        return operand + 3;
     }
     else return NaN;
   },
@@ -114,7 +114,7 @@ export interface IOpMeta extends Record<string, any> {
   pops: (opcode: number, operand: number) => number;
   jsvmfn: OpJSVM;
   description?: string;
-  readableAlias?: string
+  alias?: string
 }
 
 /**
@@ -296,7 +296,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
       pushes: pnp.one,
       pops: pnp.zero, 
       jsvmfn: OpBlockNumber,
-      readableAlias: 'CURRENT_BLOCK'
+      alias: 'CURRENT_BLOCK'
     }
   ],
   [
@@ -308,7 +308,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
       pushes: pnp.one,
       pops: pnp.zero, 
       jsvmfn: OpCaller,
-      readableAlias: 'SENDER()'
+      alias: 'SENDER()'
     }
   ],
   [
@@ -320,7 +320,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
       pushes: pnp.one,
       pops: pnp.zero, 
       jsvmfn: OpThisAddress,
-      readableAlias: 'THIS_ADDRESS()'
+      alias: 'THIS_ADDRESS()'
     }
   ],
   [
@@ -332,7 +332,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
       pushes: pnp.one,
       pops: pnp.zero, 
       jsvmfn: OpTimestamp,
-      readableAlias: 'CURRENT_TIMESTAMP'
+      alias: 'CURRENT_TIMESTAMP'
     }
   ],
   [

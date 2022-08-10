@@ -17,15 +17,25 @@ interface IOpMeta extends Record<string, any>
 
 |  Property | Type | Description |
 |  --- | --- | --- |
+|  [alias](./iopmeta.md#alias-property) | `string` |  |
 |  [description](./iopmeta.md#description-property) | `string` |  |
 |  [enum](./iopmeta.md#enum-property) | `number` |  |
 |  [jsvmfn](./iopmeta.md#jsvmfn-property) | [OpJSVM](./opjsvm.md) |  |
 |  [name](./iopmeta.md#name-property) | `string` |  |
 |  [pops](./iopmeta.md#pops-property) | `(opcode: number, operand: number) => number` |  |
 |  [pushes](./iopmeta.md#pushes-property) | `(opcode: number, operand: number) => number` |  |
-|  [readableAlias](./iopmeta.md#readableAlias-property) | `string` |  |
 
 ## Property Details
+
+<a id="alias-property"></a>
+
+### alias
+
+<b>Signature:</b>
+
+```typescript
+alias?: string;
+```
 
 <a id="description-property"></a>
 
@@ -85,14 +95,4 @@ pops: (opcode: number, operand: number) => number;
 
 ```typescript
 pushes: (opcode: number, operand: number) => number;
-```
-
-<a id="readableAlias-property"></a>
-
-### readableAlias
-
-<b>Signature:</b>
-
-```typescript
-readableAlias?: string;
 ```

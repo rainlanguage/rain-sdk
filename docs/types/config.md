@@ -11,5 +11,7 @@ type Config = {
     pretty?: boolean;
     storageEnums?: string[];
     contextEnums?: string[];
+    aliases?: string[];
+    ruleBuilder?: boolean;
 };
 ```

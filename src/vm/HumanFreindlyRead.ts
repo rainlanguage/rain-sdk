@@ -1,66 +1,8 @@
-import { BytesLike, BigNumberish, BigNumber } from 'ethers';
+import { BytesLike, BigNumber, ethers } from 'ethers';
 import { AllStandardOps, StateConfig } from '../classes/vm';
-import { CombineTierStorage } from '../contracts/tiers/combineTier';
-import {
-  EmissionsERC20Context,
-  EmissionsERC20Storage,
-} from '../contracts/emissionsERC20';
-import { OrderbookContext, OrderbookStorage } from '../contracts/orderBook';
-import { SaleContext, SaleStorage } from '../contracts/sale';
-import {
-  arrayify,
-  extractFromMap,
-  paddedUInt256,
-  selectLteLogic,
-  selectLteMode,
-} from '../utils';
+import { arrayify, extractFromMap } from '../utils';
 import { IOpMeta, OpMeta } from './OpMeta';
 
-// interface opMeta {
-//   enum: number;
-//   name: string;
-//   name: string;
-// }
-
-interface OpInfo extends IOpMeta {
-  operand: number;
-}
-
-/**
- * State that contain the information about the script.
- */
-interface State {
-  stackIndex: BigNumberish;
-  stack: Stack[];
-  sources: BytesLike[];
-  constants: BigNumberish[];
-}
-
-/**
- * A type to indentify the status of each value in the stack
- */
-type Stack = {
-  /**
-   * Current value
-   */
-  val: any;
-  /**
-   * Flag to identify if a value was read and use it.
-   * This means that after mix with other value in stack will be deleted
-   */
-  consumed: boolean;
-  /**
-   * Flag to identify if the value was duplicate.
-   * A value that was duplicate will be considered as consumed, but still accessible in the stack.
-   * At the end, if the value was not mixed, will be discard to the final output
-   */
-  wasDup?: boolean;
-};
-
-/**
- * Type identify the pair relate to the [enum, operand]
- */
-type Pair = [number, number];
 
 /**
  * @public
@@ -85,6 +27,14 @@ export type Config = {
    * Providing the names for CONTEXT opcodes
    */
   contextEnums?: string[];
+  /**
+   * Names/Aliases for each individual item on the final stack (in order)
+   */
+  aliases?: string[];
+  /**
+   * True if the result needs to be optimized for a RuleBuilder script generator
+   */
+  ruleBuilder?: boolean;
 };
 
 /**
@@ -103,10 +53,6 @@ export type PrettifyConfig = {
   length?: number;
 };
 
-// const newOpMeta = Array.from(
-//   extractFromMap(OpMeta, []).values()
-// );
-
 /**
  * @public
  * The generator of human friendly readable source.
@@ -120,11 +66,11 @@ export type PrettifyConfig = {
  * feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
  */
 export class HumanFriendlyRead {
+
+  private static _pretty: boolean;
   private static opMeta: IOpMeta[] = Array.from(
     extractFromMap(OpMeta, []).values()
   );;
-  private static _context: string | undefined;
-  private static _pretty: boolean;
 
   /**
    * 
@@ -146,22 +92,30 @@ export class HumanFriendlyRead {
   public static get(
     _state: StateConfig,
     _config: Config = { 
-      contract: '',
       pretty: false,
       storageEnums: undefined,
-      contextEnums: undefined
+      contextEnums: undefined,
+      aliases: undefined,
+      ruleBuilder: false
     }
   ): string {
-    this._context = _config?.contract?.toLowerCase();
     this._pretty = _config.pretty ? true : false;
-    const state: State = {
-      stackIndex: 0,
-      stack: [],
-      sources: _state.sources,
-      constants: _state.constants,
-    };
+    let _constants: string[] = [];
+    let _result;
 
-    const _result = this._eval(state, 0, _config.storageEnums, _config.contextEnums);
+    for (const item of _state.constants) {
+      _constants.push(BigNumber.from(item).toHexString())
+    }
+
+    _result = this._eval(
+      _state.sources,
+      _constants,
+      _config.storageEnums,
+      _config.contextEnums,
+      _config.aliases,
+      _config.ruleBuilder
+    );
+
     return this._pretty ? this.prettify(_result) : _result;
   }
 
@@ -180,7 +134,7 @@ export class HumanFriendlyRead {
     if (!n) n = 2;
     if (!length) length = 20;
 
-    _text = _text.replace(/\s/g, '');
+    // _text = _text.replace(/\s/g, '');
     let space = ' ';
     let counter = 0;
     let skip = 0;
@@ -191,6 +145,7 @@ export class HumanFriendlyRead {
       if (
         _text[i] === '(' ||
         _text[i] === '[' ||
+        _text[i] === '{' ||
         (_text[i] === ',' && skip === 0)
       ) {
         if (
@@ -207,7 +162,7 @@ export class HumanFriendlyRead {
           skip++;
         }
       }
-      if (_text[i] === ')' || _text[i] === ']') {
+      if (_text[i] === ')' || _text[i] === ']' || _text[i] === '}') {
         if (skip === 0) {
           counter--;
           _text =
@@ -228,582 +183,147 @@ export class HumanFriendlyRead {
     return _text;
   }
 
+  /**
+   * The main workhorse of the Human Friendly Readable script that builds the whole text
+   * 
+   * @param sources - The StateConfig sources
+   * @param constants - The StateConfig constants all in hex string format
+   * @param storageEnums - (optional) names/aliases for CONTEXT opcodes
+   * @param contextEnums - (optional) names/aliases for STORAGE opcodes
+   * @param aliases - (optional) names/aliases for individual items in final results (should be passed in order)
+   * @param ruleBuilder - True if the result needs to be optimized for the RuleBuilder script generator
+   * @returns The generated human friendly readable text
+   */
   private static _eval = (
-    _state: State,
-    sourceIndex: number,
+    sources: BytesLike[],
+    constants: string[],
     storageEnums?: string[],
-    contextEnums?: string[]
-  ) => {
-    let i = 0;
-    let op: OpInfo;
+    contextEnums?: string[],
+    aliases?: string[],
+    ruleBuilder: boolean = false,
+  ): string => {
 
-    let state: State = {
-      stackIndex: 0,
-      stack: [],
-      sources: _state.sources,
-      constants: _state.constants,
-    };
+    let _stack: string[] = [];
+    let _finalStack: string[] = [];
+    let _zipmapStack: { [key: number]: string } = {};
 
-    const ops = this.pairs(state.sources[sourceIndex]).map((pair) => {
-      let opmeta = this.opMeta.find((opmeta) => opmeta.enum === pair[0]);
-      if (typeof opmeta === 'undefined') {
-        // still undefined
-        if (typeof opmeta === 'undefined') {
-          throw Error(`Unknown opcode: ${pair[0]}`);
-        }
-      }
+    for (let i = 0; i < sources.length; i++) {
+      let src = arrayify(sources[i], { allowMissingPrefix: true});
 
-      return {
-        operand: pair[1],
-        ...opmeta,
-      };
-    });
+      for (let j = 0; j < src.length; j += 2) {
 
-    while (i < ops.length) {
-      const _stackIndex = BigNumber.from(state.stackIndex).toNumber();
-      op = ops[i];
-      i++;
+        if (src[j] === AllStandardOps.CONSTANT) {
+          if (src[j + 1] < constants.length) {
+            _stack.push(
+              BigNumber.from(constants[src[j + 1]]).eq(ethers.constants.MaxUint256)
+              ? 'MaxUint256'
+              : constants[src[j + 1]]
+            )
+          }
+          else {
+            let argCount = constants.length;
+            for (let k = 0; k <= i; k++) {
+              let temp = arrayify(sources[k], { allowMissingPrefix: true});
+              if (k === i) {
+                for (let l = 0; l < j; l += 2) {
+                  if (temp[l] === AllStandardOps.ZIPMAP) {
+                    argCount += (temp[l + 1] >> 5) + 1;
+                  }
+                }
+              }
+              else {
+                for (let l = 0; l < temp.length; l += 2) {
+                  if (temp[l] === AllStandardOps.ZIPMAP) {
+                    argCount += (temp[l + 1] >> 5) + 1;
+                  }
+                }
+              }
+            }
+            _stack.push(`Argument[${src[j + 1] - argCount}]`)
+          }
+        }
+        else if (src[j] === AllStandardOps.STACK) {
+          if (ruleBuilder) {
+            _stack.push(
+              aliases && aliases[src[j + 1]] ? aliases[src[j + 1]] : `Item${src[j + 1]}`
+            )
+          }
+          else {
+            _stack.push(_stack[src[j + 1]])
+          }
+        }
+        else if (src[j] === AllStandardOps.CONTEXT) {
+          _stack.push(
+            contextEnums && (contextEnums[src[j + 1]] !== undefined || '')
+              ? contextEnums[src[j + 1]] 
+              : this.opMeta[src[j]].name + `[${src[j + 1]}]`
+          )
+        }
+        else if (src[j] === AllStandardOps.STORAGE) {
+          _stack.push(
+            storageEnums && (storageEnums[src[j + 1]] !== undefined || '')
+              ? storageEnums[src[j + 1]] 
+              : this.opMeta[src[j]].name + `[${src[j + 1]}]`
+          )
+        }
+        else if (src[j] === AllStandardOps.ZIPMAP) {
 
-      if (op.name === 'CONSTANT') {
-        if (op.operand < 128) {
-          state.stack[_stackIndex] = {
-            val: state.constants[op.operand],
-            consumed: false,
-          };
-        } else {
-          state.stack[_stackIndex] = {
-            val: '^' + (op.operand - 128),
-            consumed: false,
-          };
+          let index = src[j + 1] & 3;
+          let loopSize = 2 ** ((src[j + 1] >> 3) & 3);
+
+          _zipmapStack[index] = this.opMeta[src[j]].name
+            + `[${index}] Function`
+            + `(Loop Size: ${loopSize}, `
+            + `Arguments: [${_stack.splice(-(this.opMeta[src[j]].pops(src[j], src[j + 1]))).join(', ')}]) `
+
+          for (let k = 0; k < loopSize; k++) {
+            _stack.push(`ZIPMAP[${index}] Result[${k}]`)
+          }
         }
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } 
-      // else if (op.name === 'blockNumber') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'CURRENT_BLOCK',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // } 
-      else if (op.name === 'STACK') {
-        state.stack[op.operand].consumed = true;
-        state.stack[op.operand].wasDup = true;
-        const valueDup = {
-          val: state.stack[op.operand].val,
-          consumed: false,
-        };
-        state.stack.push(valueDup);
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      }
-      // else if (op.name === 'msgSender') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'SENDER()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'thisAddress') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'THIS_ADDRESS()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'blockTimestamp') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'CURRENT_TIMESTAMP',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'SCALE18_DECIMALS') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'SCALE18_DECIMALS()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'SCALE18_ONE') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'SCALE18_ONE()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'NEVER') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'NEVER()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'REMAINING_UNITS') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'REMAINING_UNITS()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'TOTAL_RESERVE_IN') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'TOTAL_RESERVE_IN()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'CURRENT_BUY_UNITS') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'CURRENT_BUY_UNITS()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'TOKEN_ADDRESS') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'TOKEN_ADDRESS()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'RESERVE_ADDRESS') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'RESERVE_ADDRESS()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'ACCOUNT') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'ACCOUNT()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'CLAIMANT_ACCOUNT') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'CLAIMANT_ACCOUNT()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      // else if (op.name === 'CURRENT_UNITS') {
-      //   state.stack[_stackIndex] = {
-      //     val: 'CURRENT_UNITS()',
-      //     consumed: false,
-      //   };
-      //   state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      // }
-      else if (op.name === 'CONTEXT') {
-        //
-        let context = `CONTEXT Argument ${op.operand} passed at contract function call`;
-        let valid = true;
-        if (this._context === 'sale') {
-          valid = isValidContext(op.operand, SaleContext.length);
-          context = SaleContext[op.operand];
+        else if (src[j] === AllStandardOps.SELECT_LTE) {
+          _stack.push(
+            this.opMeta[src[j]].name +
+            `(Logic: ${src[j + 1] >> 7}, Mode: ${(src[j + 1] >> 5) & 3}, ` + 
+            `Arguments: [${_stack.splice(-(this.opMeta[src[j]].pops(src[j], src[j + 1]))).join(', ')}])`
+          )
         }
-        //
-        else if (this._context === 'emissions') {
-          valid = isValidContext(op.operand, EmissionsERC20Context.length);
-          context = EmissionsERC20Context[op.operand];
+        else if (src[j] === AllStandardOps.UPDATE_TIMES_FOR_TIER_RANGE) {
+          _stack.push(
+            this.opMeta[src[j]].name +
+            `(Start Tier: ${src[j + 1] & 15}, End Tier: ${src[j + 1] >> 4}, ` + 
+            `Arguments: [${_stack.splice(-(this.opMeta[src[j]].pops(src[j], src[j + 1]))).join(', ')}])`
+          )
         }
-        //
-        else if (this._context === 'orderbook') {
-          valid = isValidContext(op.operand, OrderbookContext.length);
-          context = OrderbookContext[op.operand];
+        else if (this.opMeta[src[j]].pops.name === 'zero' && this.opMeta[src[j]].pushes.name !== 'zero') {
+          let _alias = this.opMeta[src[j]].alias
+          _stack.push(_alias ? _alias : this.opMeta[src[j]].name)
         }
-        //
-        else if (contextEnums && contextEnums.length > 0) {
-          valid = true;
-          context = contextEnums[op.operand];
-        }
-        //
         else {
-          valid = true;
-          context = `CONTEXT[${op.operand}]`;
-        }
-
-        if (valid) {
-          state.stack[_stackIndex] = {
-            val: context,
-            consumed: false,
-          };
-          state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-        } else {
-          throw new Error(
-            `Wrong context value '${op.operand}' given for the context '${this._context}'`
-          );
+          let _alias = this.opMeta[src[j]].alias
+          _stack.push(
+            _alias 
+            ? _alias + `(${_stack.splice(-(this.opMeta[src[j]].pops(src[j], src[j + 1]))).join(', ')})`
+            : this.opMeta[src[j]].name + `(${_stack.splice(-(this.opMeta[src[j]].pops(src[j], src[j + 1]))).join(', ')})`
+          )
         }
       }
-      else if (op.name === 'STORAGE') {
-        //
-        let storage = '';
-        if (this._context === 'sale') {
-          storage = SaleStorage[op.operand];
-        } else if (this._context === 'emissions') {
-          storage = EmissionsERC20Storage[op.operand];
-        } else if (this._context === 'orderbook') {
-          storage = OrderbookStorage[op.operand];
-        } else if (this._context === 'combinetier') {
-          storage = CombineTierStorage[op.operand];
-        } else if (storageEnums && storageEnums.length > 0) {
-          storage = storageEnums[op.operand];
-        } else {
-          storage = `STORAGE[${op.operand}]`
-        }
 
-        state.stack[_stackIndex] = {
-          val: storage,
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
+      for (let j = 0; j < _stack.length; j++) {
+        _stack[j] = aliases && aliases[j] 
+          ? `${aliases[j]}: {${_stack[j]}}` 
+          : `Item${j}: {${_stack[j]}}`
       }
-      else if (op.pops.name === 'zero' && op.pushes.name === 'one') {
-        state.stack[_stackIndex] = {
-          val: op.readableAlias ? op.readableAlias : op.name,
-          consumed: false,
-        };
-        state.stackIndex = BigNumber.from(_stackIndex).add(1).toNumber();
-      } 
-      else if (op.name === 'ZIPMAP') {
-        this.zipmap(state, op.operand);
-      } 
-      else {
-        this.applyOp(state, op);
+      for (let j = 0; j < Object.keys(_zipmapStack).length; j++) {
+        let index = Number(Object.keys(_zipmapStack)[j]);
+        _stack[index] = `${_zipmapStack[index]} {${_stack[index]}}`
       }
+
+      _finalStack.push(_stack.join(' '))
+      _stack = [];
     }
 
-    return state.stack
-      .filter((item) => item.consumed === false)
-      .map((item) => {
-        item.consumed = true;
-        return item.val;
-      })
-      .join(' ');
+    return _finalStack.join(' ');
   };
-
-  private static zipmap = (state: State, operand: number) => {
-    const sourceIndex = operand & 0x07;
-    const stepSize = (operand >> 3) & 0x03;
-    const valLength = (operand >> 5) & 0x07;
-    const amountValues = `${2 ** stepSize}`;
-
-    let tempString = `ZIPMAP_${amountValues}(\n`;
-
-    let tempArr = [];
-    let leng = state.stack.length - 1;
-
-    for (let i = leng - valLength; i <= leng; i++) {
-      if (stepSize > 0) {
-        const divided = this.divideArray(state.stack[i].val, stepSize);
-        const _value =
-          typeof divided === 'string'
-            ? divided
-            : JSON.stringify(Array.from(divided)).replace(/,/g, ', ');
-        tempArr.push(_value);
-      } else {
-        tempArr.push(state.stack[i].val);
-      }
-
-      state.stack[i].consumed = true;
-    }
-
-    tempArr.push(this._eval(state, sourceIndex));
-
-    tempString += tempArr.map((entry) => '    ' + entry).join(`,\n`);
-    tempString += `\n)`;
-
-    state.stackIndex = BigNumber.from(state.stackIndex).sub(valLength);
-
-    // Minus 1 becuase the zipmap is not added yet
-    const baseIndex = BigNumber.from(state.stackIndex).toNumber() - 1;
-
-    // Cleaning the stack
-    state.stack = this.cleanStack(state.stack, baseIndex);
-
-    state.stack[baseIndex] = {
-      val: tempString,
-      consumed: false,
-    };
-  };
-
-  private static applyOp = (state: State, op: OpInfo) => {
-    const _stackIndex = BigNumber.from(state.stackIndex).toNumber();
-    let baseIndex = _stackIndex - op.operand;
-    let top = _stackIndex - 1;
-    let tempString = op.readableAlias ? op.readableAlias + '(' : op.name + '(';
-    let cursor = baseIndex;
-    let tempArr: any[];
-
-    let operandFlag = false;
-    let tierRangeFlag = false;
-    let selectLteFlag = false;
-
-    if (
-      op.enum === AllStandardOps.IERC1155_BALANCE_OF_BATCH ||
-      op.enum === AllStandardOps.IERC1155_BALANCE_OF
-    ) {
-      baseIndex = _stackIndex - 1 - (op.operand + 1) * 2;
-      cursor = baseIndex;
-      tempArr = [state.stack[cursor].val];
-      //
-    } else if (op.enum === AllStandardOps.UPDATE_TIMES_FOR_TIER_RANGE) {
-      tierRangeFlag = true;
-      baseIndex = _stackIndex - 2;
-      cursor = baseIndex;
-      tempArr = [state.stack[cursor].val];
-      //
-    } 
-    // else if (
-    //   // op.enum === AllStandardOps.SCALE18_DIV ||
-    //   // op.enum === AllStandardOps.SCALE18_MUL
-    //   op.pops.name === 'two'
-    // ) {
-    //   const _stackLength = this.identifyZipmap(state.stack, 2);
-
-    //   // At least one zipmap was found to fll all the required stack from MIN
-    //   if (_stackLength !== -1) {
-    //     baseIndex = _stackIndex - _stackLength;
-    //   }
-    //   // Since no zipmap was found, the stack could fill the the stack required
-    //   else {
-    //     baseIndex = _stackIndex - 2;
-    //   }
-
-    //   cursor = baseIndex;
-    //   tempArr = [state.stack[cursor].val + '*10**18'];
-    //   //
-    // } 
-    else if (op.enum === AllStandardOps.EAGER_IF) {
-      const _stackLength = this.identifyZipmap(state.stack, 3);
-
-      // At least one zipmap was found to fll all the required stack from MIN
-      if (_stackLength !== -1) {
-        baseIndex = _stackIndex - _stackLength;
-      }
-      // Since no zipmap was found, the stack could fill the the stack required
-      else {
-        baseIndex = _stackIndex - 3;
-      }
-
-      cursor = baseIndex;
-      tempArr = [state.stack[cursor].val];
-      //
-    } else if (
-      // op.enum === AllStandardOps.SCALE18 ||
-      // op.enum === AllStandardOps.ISZERO ||
-      // op.enum === AllStandardOps.IERC20_TOTAL_SUPPLY ||
-      op.pops.name === 'one' ||
-      this.flagOp(op.enum)
-    ) {
-      const _stackLength = this.identifyZipmap(state.stack, 1);
-
-      // At least one zipmap was found to fll all the required stack from MIN
-      if (_stackLength !== -1) {
-        baseIndex = _stackIndex - _stackLength;
-      }
-      // Since no zipmap was found, the stack could fill the the stack required
-      else {
-        baseIndex = _stackIndex - 1;
-      }
-
-      operandFlag = this.flagOp(op.enum);
-      cursor = baseIndex;
-      tempArr = [state.stack[cursor].val];
-      //
-    } else if (
-      // op.enum === AllStandardOps.GREATER_THAN ||
-      // op.enum === AllStandardOps.LESS_THAN ||
-      // op.enum === AllStandardOps.EQUAL_TO ||
-      // op.enum === AllStandardOps.SATURATING_DIFF ||
-      // op.enum === AllStandardOps.IERC721_OWNER_OF ||
-      // op.enum === AllStandardOps.IERC721_BALANCE_OF ||
-      // op.enum === AllStandardOps.IERC20_BALANCE_OF ||
-      // op.enum === AllStandardOps.ITIERV2_REPORT
-      op.pops.name === 'two'
-    ) {
-      const _stackLength = this.identifyZipmap(state.stack, 2);
-
-      // At least one zipmap was found to fll all the required stack from MIN
-      if (_stackLength !== -1) {
-        baseIndex = _stackIndex - _stackLength;
-      }
-      // Since no zipmap was found, the stack could fill the the stack required
-      else {
-        baseIndex = _stackIndex - 2;
-      }
-
-      cursor = baseIndex;
-      tempArr = 
-      op.enum === AllStandardOps.SCALE18_DIV ||
-      op.enum === AllStandardOps.SCALE18_MUL
-      ? [state.stack[cursor].val + '*10**18']
-      : [state.stack[cursor].val];
-      //
-    } else if (op.enum === AllStandardOps.SELECT_LTE) {
-      const _stackLength = this.identifyZipmap(state.stack, 3);
-
-      // At least one zipmap was found to fll all the required stack from MIN
-      if (_stackLength !== -1) {
-        baseIndex = _stackIndex - _stackLength;
-      }
-      // Since no zipmap was found, the stack could fill the the stack required
-      else {
-        baseIndex = _stackIndex - 3;
-      }
-
-      selectLteFlag = true;
-      cursor = baseIndex;
-      tempArr = [];
-    } else if (
-      // op.enum === AllStandardOps.MIN ||
-      // op.enum === AllStandardOps.MAX ||
-      // op.enum === AllStandardOps.ADD ||
-      // op.enum === AllStandardOps.SUB ||
-      // op.enum === AllStandardOps.MUL ||
-      // op.enum === AllStandardOps.DIV ||
-      // op.enum === AllStandardOps.SATURATING_ADD ||
-      // op.enum === AllStandardOps.SATURATING_SUB ||
-      // op.enum === AllStandardOps.SATURATING_MUL
-      op.pops.name === 'oprnd'
-    ) {
-      const operand = this.identifyZipmap(state.stack, op.operand);
-
-      // At least one zipmap was found to fll all the required stack from MIN
-      if (operand !== -1) {
-        baseIndex = _stackIndex - operand;
-      }
-      // Since no zipmap was found, the stack could fill the the stack required
-      else if (_stackIndex >= op.operand) {
-        baseIndex = _stackIndex - op.operand;
-      }
-      // All the stack should fill the requiremnte (?)
-      else {
-        baseIndex = 0;
-      }
-      cursor = baseIndex;
-      tempArr = [state.stack[cursor].val];
-    } else {
-      const _stackLength = this.identifyZipmap(state.stack, op.pops(op.enum, op.operand));
-
-      // At least one zipmap was found to fll all the required stack from MIN
-      if (_stackLength !== -1) {
-        baseIndex = _stackIndex - _stackLength;
-      }
-      // Since no zipmap was found, the stack could fill the the stack required
-      else {
-        baseIndex = _stackIndex - op.pops(op.enum, op.operand);
-      }
-
-      cursor = baseIndex;
-      tempArr = [state.stack[cursor].val];
-      //
-    } 
-    // else {
-    //   tempArr = [state.stack[cursor].val];
-    // }
-
-    state.stack[cursor].consumed = true;
-
-    while (cursor < top || operandFlag || tierRangeFlag || selectLteFlag) {
-      cursor++;
-      if (selectLteFlag) {
-        const logic_ = op.operand >> 7;
-        const mode_ = (op.operand >> 5) & 0x3;
-        const reportsLength_ = op.operand & 0x1f;
-        let selectLteText = 'Invalid selectLte';
-        if ((logic_ === 0 || logic_ === 1) && mode_ >= 0 && mode_ <= 2) {
-          selectLteText = `${selectLteLogic[logic_]}, ${selectLteMode[mode_]}, ${reportsLength_}`;
-        }
-        tempArr.push(selectLteText);
-        selectLteFlag = false;
-        cursor -= 2;
-      } else if (operandFlag) {
-        tempArr.push(this.getSigned8(op.operand));
-        operandFlag = false;
-      } else if (tierRangeFlag) {
-        const [_start, _end] = this.tierRangeFromOp(op.operand);
-        let range = 'Invalid Range';
-        if (_end > _start) {
-          range = `(${_start}, ${_end})`;
-        } else {
-          range = `(${_end})`;
-        }
-        tempArr.push(range);
-        tierRangeFlag = false;
-        cursor--;
-      } else {
-        tempArr.push(state.stack[cursor].val);
-        state.stack[cursor].consumed = true;
-      }
-    }
-    tempString += tempArr.join(', ');
-    tempString += ')';
-    state.stack[baseIndex] = {
-      val: tempString,
-      consumed: false,
-    };
-    state.stackIndex = baseIndex + 1;
-
-    // Cleaning the stack
-    state.stack = this.cleanStack(state.stack, state.stackIndex);
-  };
-
-  private static flagOp(_a: number) {
-    const spcOpces = [AllStandardOps.SCALE_BY, AllStandardOps.SCALEN];
-    return spcOpces.includes(_a);
-  }
-
-  private static pairs = (arr: BytesLike): Pair[] => {
-    const _arr = Array.from(arrayify(arr));
-    const pairs: Pair[] = [];
-    for (let i = 0; i < arr.length; i += 2) {
-      pairs.push(_arr.slice(i, i + 2) as Pair);
-    }
-    return pairs;
-  };
-
-  private static divideArray = (
-    arr: Uint8Array | string | BigNumber,
-    times: number
-  ): (number | string)[] | string => {
-    if (arr.constructor === Uint8Array) {
-      let n = arr.length;
-      for (let i = 0; i < times; i++) {
-        n = n / 2;
-      }
-      return Array.from(arr.filter((_, i) => i % n === n - 1));
-    } else {
-      try {
-        /**
-         * If it's not an Uint8Array, then it's an possible HexString or BigNumber comming from constants.
-         * Mostly these cases should come from reports. Raise an issue on repo if you see any error.
-         */
-        BigNumber.from(arr);
-
-        const _eachLength = (32 / 2 ** times) * 2;
-        const regex = new RegExp(`.{1,${_eachLength}}`, 'g');
-        let value = paddedUInt256(BigNumber.from(arr));
-
-        return value.slice(2).match(regex)!;
-      } catch (e) {
-        // If fail, we just return the value normally as string
-        return arr.toString();
-      }
-    }
-  };
-
-  private static getSigned8(_value: number): number {
-    if ((_value & 0x80) > 0) {
-      _value = _value - 0x100;
-    }
-    return _value;
-  }
-
-  private static tierRangeFromOp(_op: number): [number, number] {
-    const startTier_ = _op & 0x0f;
-    const endTier_ = (_op >> 4) & 0x0f;
-    return [startTier_, endTier_];
-  }
 
   private static needIndent(text: string, index: number, max: number): boolean {
     const openRef = text[index];
@@ -820,54 +340,4 @@ export class HumanFriendlyRead {
     }
     return true;
   }
-
-  private static cleanStack(
-    _stack: Stack[],
-    length: number
-  ): { val: any; consumed: boolean }[] {
-    let j = 0;
-    let k = 0;
-    let _newStack: { val: any; consumed: boolean }[] = [];
-    while (j < length) {
-      if (!_stack[k].consumed || (_stack[k].consumed && _stack[k].wasDup)) {
-        _newStack[j] = _stack[k];
-        j++;
-      }
-      k++;
-    }
-    return _newStack;
-  }
-
-  private static identifyZipmap(
-    _stack: { val: any; consumed: boolean }[],
-    stackToRead: number
-  ): number {
-    if (stackToRead <= 0) {
-      return -1;
-    }
-    let zipmapCounter = 0;
-    let _stackReturn = stackToRead;
-    let i = _stack.length - 1;
-
-    while (i >= 0 && _stack.length - i <= _stackReturn) {
-      const _text: string = _stack[i].val.toString();
-      if (_text.slice(0, 6) === 'ZIPMAP') {
-        zipmapCounter++;
-        const _zipmapStack = parseInt(_text.slice(7, 8));
-        _stackReturn -= _zipmapStack;
-      }
-      i--;
-    }
-    return _stackReturn === stackToRead ? -1 : _stackReturn + zipmapCounter;
-  }
-}
-
-/**
- * Check the operand agains the length of the EnumContext to see if it's valid
- * @param _operand - Operand to check
- * @param _length - The length in the enum Context
- */
-function isValidContext(_operand: number, _length: number): boolean {
-  if (_operand >= 0 && _operand < _length) return true;
-  return false;
 }

@@ -9,8 +9,8 @@ import { StateJSVM } from "../../types";
 export function OpSelectLte(this: RainJSVM, state: StateJSVM, operand: number, data?: any) : void {
 
   const length_ = operand & 31;
-  const mode_ = (operand & 96) >> 5;
-  const logic_ = (operand & 128) >> 7;
+  const mode_ = (operand >> 5) & 3;
+  const logic_ = operand >> 7;
   const timestamp_ = state.stack.pop();
   const reports_ = state.stack.splice(-length_)
 
