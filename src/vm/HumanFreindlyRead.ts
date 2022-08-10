@@ -1,5 +1,5 @@
 import { BytesLike, BigNumber, ethers } from 'ethers';
-import { AllStandardOps, StateConfig } from '../classes/vm';
+import { AllStandardOps, StateConfig, VM } from '../classes/vm';
 import { arrayify, extractFromMap } from '../utils';
 import { IOpMeta, OpMeta } from './OpMeta';
 
@@ -306,6 +306,13 @@ export class HumanFriendlyRead {
             ? _alias + `(${_stack.splice(-(this.opMeta[src[j]].pops(src[j], src[j + 1]))).join(', ')})`
             : this.opMeta[src[j]].name + `(${_stack.splice(-(this.opMeta[src[j]].pops(src[j], src[j + 1]))).join(', ')})`
           )
+        }
+
+        if (_stack[_stack.length - 1].slice(0, 20) === 'ISZERO(GREATER_THAN(') {
+          _stack[_stack.length - 1] = 'LESS_THAN_EQUAL(' + _stack[_stack.length - 1].slice(20)
+        }
+        if (_stack[_stack.length - 1].slice(0, 17) === 'ISZERO(LESS_THAN(') {
+          _stack[_stack.length - 1] = 'GREATER_THAN_EQUAL(' + _stack[_stack.length - 1].slice(17)
         }
       }
 
