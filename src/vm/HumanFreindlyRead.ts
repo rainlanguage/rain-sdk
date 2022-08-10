@@ -206,6 +206,7 @@ export class HumanFriendlyRead {
     let _stack: string[] = [];
     let _finalStack: string[] = [];
     let _zipmapStack: { [key: number]: string } = {};
+    let useableAliases = aliases;
 
     for (let i = 0; i < sources.length; i++) {
       let src = arrayify(sources[i], { allowMissingPrefix: true});
@@ -309,8 +310,9 @@ export class HumanFriendlyRead {
       }
 
       for (let j = 0; j < _stack.length; j++) {
-        _stack[j] = aliases && aliases[j] 
-          ? `${aliases[j]}: {${_stack[j]}}` 
+        let tempAlias = useableAliases?.shift()
+        _stack[j] = tempAlias
+          ? `${tempAlias}: {${_stack[j]}}` 
           : `Item${j}: {${_stack[j]}}`
       }
       for (let j = 0; j < Object.keys(_zipmapStack).length; j++) {
