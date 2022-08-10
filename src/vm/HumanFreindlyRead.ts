@@ -1,5 +1,5 @@
 import { BytesLike, BigNumber, ethers } from 'ethers';
-import { AllStandardOps, StateConfig, VM } from '../classes/vm';
+import { AllStandardOps, StateConfig } from '../classes/vm';
 import { arrayify, extractFromMap } from '../utils';
 import { IOpMeta, OpMeta } from './OpMeta';
 
