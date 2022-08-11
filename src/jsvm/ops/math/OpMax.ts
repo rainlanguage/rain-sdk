@@ -12,10 +12,7 @@ export function OpMax(this: RainJSVM,state: StateJSVM, operand: number, data?: a
 
     if ((items_.length = operand)) {
 
-        state.stack.push(
-          max(items_)
-        );
-
+        state.stack.push(max(items_));
     } 
     else throw new Error('Undefined stack variables');
 }

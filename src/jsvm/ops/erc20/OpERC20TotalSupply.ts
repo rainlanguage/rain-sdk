@@ -7,16 +7,21 @@ import { StateJSVM } from "../../types";
 /**
  * @public 
  */
-export async function OpERC20TotalSupply(this: RainJSVM, state: StateJSVM, operand: number, data?: any): Promise<void> {
+export async function OpERC20TotalSupply(
+    this: RainJSVM,
+    state: StateJSVM,
+    operand: number,
+    data?: any
+): Promise<void> {
 
-  const item_ = state.stack.pop();
+    const item_ = state.stack.pop();
 
-  if (item_ && this.signer !== undefined) {
+    if (item_ && this.signer !== undefined) {
 
-    const erc20Address_ = paddedUInt160(item_);
-    const erc20Contract_ = new ERC20(erc20Address_, this.signer);
+        const erc20Address_ = paddedUInt160(item_);
+        const erc20Contract_ = new ERC20(erc20Address_, this.signer);
 
-    state.stack.push(await erc20Contract_.totalSupply());
-  } 
-  else throw new Error('Undefined stack variable');
+        state.stack.push(await erc20Contract_.totalSupply());
+    } 
+    else throw new Error('Undefined stack variable');
 }

@@ -8,13 +8,11 @@ import { StateJSVM } from "../../../types";
  */
 export function OpScaleBy(this: RainJSVM, state: StateJSVM, operand: number, data?: any): void {
 
-  const item_ = state.stack.pop();
+    const item_ = state.stack.pop();
 
-  if (item_ !== undefined) {
+    if (item_ !== undefined) {
 
-    state.stack.push(scaleBy(item_, operand))
-
-  }
-  else throw new Error("Undefined stack variable")
-  
+        state.stack.push(scaleBy(item_, operand))
+    }
+    else throw new Error("Undefined stack variable")
 }

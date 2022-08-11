@@ -12,9 +12,7 @@ export function OpMin(this: RainJSVM,state: StateJSVM, operand: number, data?: a
 
     if (items_.length === operand) {
 
-        state.stack.push(
-          min(items_)
-        );
+        state.stack.push(min(items_));
 
     } 
     else throw new Error('Undefined stack variables');

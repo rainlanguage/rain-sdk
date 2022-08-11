@@ -10,7 +10,7 @@ import { BigNumber } from "ethers";
  */
 export const min = (values: BigNumber[]): BigNumber => {
 
-  return values.reduce((e, m) => (e.lt(m) ? e : m))
+    return values.reduce((e, m) => (e.lt(m) ? e : m))
 }
 
 /**
@@ -21,6 +21,6 @@ export const min = (values: BigNumber[]): BigNumber => {
  * @returns the max of values in BigNumber type
  */
 export const max = (values: BigNumber[]): BigNumber => {
-  
-  return values.reduce((e, m) => (e.gt(m) ? e : m))
+    
+    return values.reduce((e, m) => (e.gt(m) ? e : m))
 }

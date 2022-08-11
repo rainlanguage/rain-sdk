@@ -8,19 +8,18 @@ import { StateJSVM } from "../../types";
  */
 export function OpSelectLte(this: RainJSVM, state: StateJSVM, operand: number, data?: any) : void {
 
-  const length_ = operand & 31;
-  const mode_ = (operand >> 5) & 3;
-  const logic_ = operand >> 7;
-  const timestamp_ = state.stack.pop();
-  const reports_ = state.stack.splice(-length_)
+    const length_ = operand & 31;
+    const mode_ = (operand >> 5) & 3;
+    const logic_ = operand >> 7;
+    const timestamp_ = state.stack.pop();
+    const reports_ = state.stack.splice(-length_)
 
-  if (timestamp_ !== undefined && reports_.length === length_) {
+    if (timestamp_ !== undefined && reports_.length === length_) {
 
-    state.stack.push(
-      selectLte(reports_, timestamp_, logic_, mode_, length_)
-    );
-    
-  }
-  else throw new Error("Undefined stack variables")
-
+        state.stack.push(
+            selectLte(reports_, timestamp_, logic_, mode_, length_)
+        );
+        
+    }
+    else throw new Error("Undefined stack variables")
 }

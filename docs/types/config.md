@@ -10,7 +10,7 @@ type Config = {
     pretty?: boolean;
     storageEnums?: string[];
     contextEnums?: string[];
-    aliases?: string[];
+    tags?: string[];
     enableTagging?: boolean;
 };
 ```
