@@ -1,6 +1,6 @@
 import { BytesLike, BigNumber, ethers } from 'ethers';
 import { AllStandardOps, StateConfig } from '../classes/vm';
-import { arrayify, extractFromMap } from '../utils';
+import { arrayify } from '../utils';
 import { IOpMeta, OpMeta } from './OpMeta';
 
 
@@ -68,9 +68,7 @@ export type PrettifyConfig = {
 export class HumanFriendlyRead {
 
   private static _pretty: boolean;
-  private static opMeta: IOpMeta[] = Array.from(
-    extractFromMap(OpMeta, []).values()
-  );;
+  private static opMeta: IOpMeta[] = Array.from(OpMeta.values());
 
   /**
    * 
@@ -78,9 +76,7 @@ export class HumanFriendlyRead {
    * @returns 
    */
   public static set(opmeta: typeof OpMeta): any {
-    this.opMeta = Array.from(
-      extractFromMap(opmeta, []).values()
-    );
+    this.opMeta = Array.from(opmeta.values());
   }
 
   /**
@@ -164,20 +160,30 @@ export class HumanFriendlyRead {
       }
       if (_text[i] === ')' || _text[i] === ']' || _text[i] === '}') {
         if (skip === 0) {
-          counter--;
-          _text =
-            _text.slice(0, i) +
-            '\n' +
-            space.repeat(counter * n) +
-            _text.slice(i);
-          i = i + counter * n + 1;
-          if (counter === 0 && (_text[i + 1] || _text[i + 1])) {
-            _text = _text.slice(0, i + 1) + '\n\n' + _text.slice(i + 1);
+          if (_text[i + 3] === '=' && _text[i + 4] === '>') {
+            counter--;
+            _text =
+              _text.slice(0, i) +
+              '\n' +
+              space.repeat(counter * n) +
+              _text.slice(i);
+            i = i + counter * n + 1;
+          }
+          else {
+            counter--;
+            _text =
+              _text.slice(0, i) +
+              '\n' +
+              space.repeat(counter * n) +
+              _text.slice(i);
+            i = i + counter * n + 1;
+            if (counter === 0 && (_text[i + 1] || _text[i + 1])) {
+              _text = _text.slice(0, i + 1) + '\n\n' + _text.slice(i + 1);
+            }
           }
         } else {
           skip--;
         }
-
       }
     }
     return _text;
@@ -222,25 +228,15 @@ export class HumanFriendlyRead {
             )
           }
           else {
-            let argCount = constants.length;
-            for (let k = 0; k <= i; k++) {
-              let temp = arrayify(sources[k], { allowMissingPrefix: true});
-              if (k === i) {
-                for (let l = 0; l < j; l += 2) {
-                  if (temp[l] === AllStandardOps.ZIPMAP) {
-                    argCount += (temp[l + 1] >> 5) + 1;
-                  }
-                }
-              }
-              else {
-                for (let l = 0; l < temp.length; l += 2) {
-                  if (temp[l] === AllStandardOps.ZIPMAP) {
-                    argCount += (temp[l + 1] >> 5) + 1;
-                  }
-                }
+            let _args: number[] = [];
+            let _offset: number;
+            for (let k = 0; k < src.length; k += 2) {
+              if (src[k] === 0 && src[k + 1] >= constants.length) {
+                _args.push(src[k + 1])
               }
             }
-            _stack.push(`Argument[${src[j + 1] - argCount}]`)
+            _offset = _args.reduce((a, b) => a <= b ? a : b)
+            _stack.push(`Argument[${src[j + 1] - _offset}]`)
           }
         }
         else if (src[j] === AllStandardOps.STACK) {
@@ -272,13 +268,14 @@ export class HumanFriendlyRead {
           let index = src[j + 1] & 3;
           let loopSize = 2 ** ((src[j + 1] >> 3) & 3);
 
-          _zipmapStack[index] = this.opMeta[src[j]].name
-            + `[${index}] Function`
+          _zipmapStack[index] = 'function '
+            + this.opMeta[src[j]].name
+            + `${index} = `
             + `(Loop Size: ${loopSize}, `
             + `Arguments: [${_stack.splice(-(this.opMeta[src[j]].pops(src[j], src[j + 1]))).join(', ')}]) `
 
           for (let k = 0; k < loopSize; k++) {
-            _stack.push(`ZIPMAP[${index}] Result[${k}]`)
+            _stack.push(`ZIPMAP${index} Result[${k + 1}]`)
           }
         }
         else if (src[j] === AllStandardOps.SELECT_LTE) {
@@ -315,20 +312,22 @@ export class HumanFriendlyRead {
           _stack[_stack.length - 1] = 'GREATER_THAN_EQUAL(' + _stack[_stack.length - 1].slice(17)
         }
       }
-
-      for (let j = 0; j < _stack.length; j++) {
-        let tempAlias = useableAliases?.shift()
-        _stack[j] = tempAlias
-          ? `${tempAlias}: {${_stack[j]}}` 
-          : `Item${j}: {${_stack[j]}}`
-      }
-      for (let j = 0; j < Object.keys(_zipmapStack).length; j++) {
-        let index = Number(Object.keys(_zipmapStack)[j]);
-        _stack[index] = `${_zipmapStack[index]} {${_stack[index]}}`
+      console.log(_stack)
+      if (!Object.keys(_zipmapStack).includes(i.toString())) {
+        for (let j = 0; j < _stack.length; j++) {
+          let tempAlias = useableAliases?.shift()
+          _stack[j] = tempAlias
+            ? `${tempAlias}: {${_stack[j]}}` 
+            : `Item${j}: {${_stack[j]}}`
+        }
       }
 
       _finalStack.push(_stack.join(' '))
       _stack = [];
+    }
+    for (let j = 0; j < Object.keys(_zipmapStack).length; j++) {
+      let index = Number(Object.keys(_zipmapStack)[j]);
+      _finalStack[index] = `${_zipmapStack[index]} => { ${_finalStack[index]} }`
     }
 
     return _finalStack.join(' ');
