@@ -11,11 +11,6 @@ import { IOpMeta, OpMeta } from './OpMeta';
  */
 export type Config = {
   /**
-   * With this we can get the context.
-   * This will be the contract name eg: sale, combineTier (It's not case-sensitive)
-   */
-  contract?: string;
-  /**
    * Enable the prettify to the result of get
    */
   pretty?: boolean;
