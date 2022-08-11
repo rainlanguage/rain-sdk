@@ -1,7 +1,7 @@
 import { lib } from './lib';
 import { BigNumberish, BytesLike } from 'ethers';
 import { StateConfig, VM } from '../classes/vm';
-import { areEqualConfigs } from '../utils';
+import { areEqualConfigs, concat } from '../utils';
 import {
   Condition,
   ConditionGroup,
@@ -107,13 +107,22 @@ export class RuleBuilder {
         count++;
       }
 
-      dps_.push(this.getQPConfig(currencies[i].default.price));
+      if (currencies[i].rules.length > 0) {
+        dps_.push(this.getQPConfig(currencies[i].default.price));
 
-      qs_.push(this.getQPConfig(currencies[i].default.quantity));
-      ps_.push(VM.stack(totalCount + i));
+        qs_.push(this.getQPConfig(currencies[i].default.quantity));
+        ps_.push(VM.stack(totalCount + i));
+  
+        q_ = (VM[currencies[i].pick.quantities](qs_, false));
+        p_ = (VM[currencies[i].pick.prices](ps_, false));
+      }
+      else {
+        rules_.push({constants: [], sources: [concat([])]});
+        dps_.push({constants: [], sources: [concat([])]});
 
-      q_ = (VM[currencies[i].pick.quantities](qs_, false));
-      p_ = (VM[currencies[i].pick.prices](ps_, false));
+        p_ = this.getQPConfig(currencies[i].default.price);
+        q_ = this.getQPConfig(currencies[i].default.quantity);
+      }
 
       let qMod = currencies[i].quantityGlobalModifier;
       let pMod = currencies[i].priceGlobalModifier;
