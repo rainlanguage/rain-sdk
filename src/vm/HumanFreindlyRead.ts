@@ -1,6 +1,6 @@
 import { BytesLike, BigNumber, ethers } from 'ethers';
 import { AllStandardOps, StateConfig } from '../classes/vm';
-import { arrayify } from '../utils';
+import { arrayify, selectLteLogic, selectLteMode } from '../utils';
 import { IOpMeta, OpMeta } from './OpMeta';
 
 
@@ -281,7 +281,7 @@ export class HumanFriendlyRead {
         else if (src[j] === AllStandardOps.SELECT_LTE) {
           _stack.push(
             this.opMeta[src[j]].name +
-            `(Logic: ${src[j + 1] >> 7}, Mode: ${(src[j + 1] >> 5) & 3}, ` + 
+            `(Logic: ${selectLteLogic[src[j + 1] >> 7]}, Mode: ${selectLteMode[(src[j + 1] >> 5) & 3]}, ` + 
             `Arguments: [${_stack.splice(-(this.opMeta[src[j]].pops(src[j], src[j + 1]))).join(', ')}])`
           )
         }
@@ -306,13 +306,17 @@ export class HumanFriendlyRead {
         }
 
         if (_stack[_stack.length - 1].slice(0, 20) === 'ISZERO(GREATER_THAN(') {
-          _stack[_stack.length - 1] = 'LESS_THAN_EQUAL(' + _stack[_stack.length - 1].slice(20)
+          _stack[_stack.length - 1] = 
+            'LESS_THAN_EQUAL(' + _stack[_stack.length - 1]
+            .slice(20, _stack[_stack.length - 1].length - 1)
         }
         if (_stack[_stack.length - 1].slice(0, 17) === 'ISZERO(LESS_THAN(') {
-          _stack[_stack.length - 1] = 'GREATER_THAN_EQUAL(' + _stack[_stack.length - 1].slice(17)
+          _stack[_stack.length - 1] = 
+            'GREATER_THAN_EQUAL(' + _stack[_stack.length - 1]
+            .slice(17, _stack[_stack.length - 1].length - 1)
         }
       }
-      console.log(_stack)
+
       if (!Object.keys(_zipmapStack).includes(i.toString())) {
         for (let j = 0; j < _stack.length; j++) {
           let tempAlias = useableAliases?.shift()

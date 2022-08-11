@@ -308,7 +308,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
       pushes: pnp.one,
       pops: pnp.zero, 
       jsvmfn: OpCaller,
-      alias: 'SENDER()'
+      alias: 'MSG_SENDER'
     }
   ],
   [
@@ -320,7 +320,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
       pushes: pnp.one,
       pops: pnp.zero, 
       jsvmfn: OpThisAddress,
-      alias: 'THIS_ADDRESS()'
+      alias: 'THIS_ADDRESS'
     }
   ],
   [
