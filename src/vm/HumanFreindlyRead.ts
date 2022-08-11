@@ -27,9 +27,9 @@ export type Config = {
    */
   aliases?: string[];
   /**
-   * True if the result needs to be optimized for a RuleBuilder script generator
+   * True if the result needs to be tagged and optimized for the RuleBuilder script generator
    */
-  ruleBuilder?: boolean;
+  enableTagging?: boolean;
 };
 
 /**
@@ -76,8 +76,8 @@ export class HumanFriendlyRead {
 
   /**
    * Obtain the friendly output from an script.
-   * @param _state - The state or script to generate the friendly version @see StateConfig
-   * @param _config - The configuration that will run the generator. @see Config
+   * @param _state - The state or script to generate the friendly version
+   * @param _config - The configuration that will run the generator
    * @returns
    */
   public static get(
@@ -87,7 +87,7 @@ export class HumanFriendlyRead {
       storageEnums: undefined,
       contextEnums: undefined,
       aliases: undefined,
-      ruleBuilder: false
+      enableTagging: false
     }
   ): string {
     this._pretty = _config.pretty ? true : false;
@@ -104,7 +104,7 @@ export class HumanFriendlyRead {
       _config.storageEnums,
       _config.contextEnums,
       _config.aliases,
-      _config.ruleBuilder
+      _config.enableTagging
     );
 
     return this._pretty ? this.prettify(_result) : _result;
@@ -192,7 +192,7 @@ export class HumanFriendlyRead {
    * @param storageEnums - (optional) names/aliases for CONTEXT opcodes
    * @param contextEnums - (optional) names/aliases for STORAGE opcodes
    * @param aliases - (optional) names/aliases for individual items in final results (should be passed in order)
-   * @param ruleBuilder - True if the result needs to be optimized for the RuleBuilder script generator
+   * @param enableTagging - True if the result needs to be tagged and optimized for the RuleBuilder script generator
    * @returns The generated human friendly readable text
    */
   private static _eval = (
@@ -201,13 +201,14 @@ export class HumanFriendlyRead {
     storageEnums?: string[],
     contextEnums?: string[],
     aliases?: string[],
-    ruleBuilder: boolean = false,
+    enableTagging: boolean = false,
   ): string => {
 
     let _stack: string[] = [];
     let _finalStack: string[] = [];
     let _zipmapStack: { [key: number]: string } = {};
     let useableAliases = aliases;
+    let counter = 0;
 
     for (let i = 0; i < sources.length; i++) {
       let src = arrayify(sources[i], { allowMissingPrefix: true});
@@ -235,7 +236,7 @@ export class HumanFriendlyRead {
           }
         }
         else if (src[j] === AllStandardOps.STACK) {
-          if (ruleBuilder) {
+          if (enableTagging) {
             _stack.push(
               aliases && aliases[src[j + 1]] ? aliases[src[j + 1]] : `Item${src[j + 1]}`
             )
@@ -312,12 +313,14 @@ export class HumanFriendlyRead {
         }
       }
 
-      if (!Object.keys(_zipmapStack).includes(i.toString())) {
+      if (enableTagging && !Object.keys(_zipmapStack).includes(i.toString())) {
         for (let j = 0; j < _stack.length; j++) {
           let tempAlias = useableAliases?.shift()
           _stack[j] = tempAlias
             ? `${tempAlias}: {${_stack[j]}}` 
-            : `Item${j}: {${_stack[j]}}`
+            : `Item${counter}: {${_stack[j]}}`
+
+          counter++;
         }
       }
 

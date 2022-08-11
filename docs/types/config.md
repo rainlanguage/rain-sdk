@@ -11,6 +11,6 @@ type Config = {
     storageEnums?: string[];
     contextEnums?: string[];
     aliases?: string[];
-    ruleBuilder?: boolean;
+    enableTagging?: boolean;
 };
 ```

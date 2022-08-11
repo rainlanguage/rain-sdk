@@ -40,7 +40,7 @@ static get(_state: StateConfig, _config?: Config): string;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  \_state | [StateConfig](../interfaces/stateconfig.md) | The state or script to generate the friendly version |
-|  \_config | [Config](../types/config.md) | The configuration that will run the generator. |
+|  \_config | [Config](../types/config.md) | The configuration that will run the generator |
 
 <b>Returns:</b>
 
