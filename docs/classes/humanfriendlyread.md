@@ -19,7 +19,7 @@ class HumanFriendlyRead
 |  --- | --- |
 |  [get(\_state, \_config)](./humanfriendlyread.md#get-method-static-1) | Obtain the friendly output from an script. |
 |  [prettify(\_text, \_config)](./humanfriendlyread.md#prettify-method-static-1) | Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis |
-|  [set(opmeta)](./humanfriendlyread.md#set-method-static-1) |  |
+|  [set(opmeta)](./humanfriendlyread.md#set-method-static-1) | Method to set the opMeta with more than AllStandardOps opcodes for this instance of the HumanFriendly Read |
 
 ## Static Method Details
 
@@ -78,6 +78,8 @@ The pretty output
 
 ### set(opmeta)
 
+Method to set the opMeta with more than AllStandardOps opcodes for this instance of the HumanFriendly Read
+
 <b>Signature:</b>
 
 ```typescript
@@ -88,10 +90,9 @@ static set(opmeta: typeof OpMeta): any;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  opmeta | `typeof OpMeta` |  |
+|  opmeta | `typeof OpMeta` | The OpMeta map object |
 
 <b>Returns:</b>
 
 `any`
-
 

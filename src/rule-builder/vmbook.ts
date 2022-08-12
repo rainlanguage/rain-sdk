@@ -1,15 +1,15 @@
 import { ethers } from 'ethers';
 import { Filter } from './types';
 import { StateConfig, VM } from '../classes/vm';
-import { BetweenTimestamps } from '../contracts/script-generators/saleScriptGenerator';
+import { BetweenBlocks, BetweenTimestamps } from '../contracts/script-generators/saleScriptGenerator';
 import { CombineTierGenerator } from '../contracts/script-generators/combineTierScriptGenerator';
 
 
 /**
  * @public
- * Key/value paired library to get the corresponding StateConfigs from RuleBuilder types by Rulebuilder class methods
+ * Key/value paired VM functions to get the corresponding StateConfigs from RuleBuilder types by Rulebuilder class methods
  */
-export const lib: Record<string, (...args: any) => StateConfig> = {
+export const vmbook: Record<string, (...args: any) => StateConfig> = {
     
     'always': () => {
         return VM.constant(ethers.constants.One)
@@ -66,13 +66,13 @@ export const lib: Record<string, (...args: any) => StateConfig> = {
         startBlock,
         endBlock,
     }: Filter<'between-blocks'>['between-blocks']['args']) => {
-        return new BetweenTimestamps(startBlock, endBlock);
+        return new BetweenBlocks(startBlock, endBlock);
     },
 
     'has-min-tier': ({
         tierAddress,
-        tierContext,
         minTier,
+        tierContext,
     }: Filter<'has-min-tier'>['has-min-tier']['args']) => {
         return VM.hasMinTier(
             new CombineTierGenerator(tierAddress, {

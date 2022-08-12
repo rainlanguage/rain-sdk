@@ -1,4 +1,4 @@
-import { lib } from './lib';
+import { vmbook } from './vmbook';
 import { BigNumberish, BytesLike } from 'ethers';
 import { StateConfig, VM } from '../classes/vm';
 import { areEqualConfigs, concat } from '../utils';
@@ -152,7 +152,7 @@ export class RuleBuilder {
     public static getConditionConfig(condition: Condition): StateConfig {
 
         if (condition === 'always' || condition === 'never') {
-            return lib[condition]();
+            return vmbook[condition]();
         }
         else if ('constants' && 'sources' in condition) {
             return condition;
@@ -160,24 +160,24 @@ export class RuleBuilder {
         else if ('struct' in condition) {
             if ('subject' in condition.struct) {
                 if (condition.operator === 'true') {
-                    return lib[condition.struct.subject](condition.struct.args);
+                    return vmbook[condition.struct.subject](condition.struct.args);
                 } 
                 else if (condition.operator === 'not') {
                     return VM[condition.operator](
-                        lib[condition.struct.subject](condition.struct.args)
+                        vmbook[condition.struct.subject](condition.struct.args)
                     );
                 } 
                 else {
                     if ('subject' in condition.struct2!) {
                         return VM[condition.operator](
-                            lib[condition.struct.subject](condition.struct.args),
-                            lib[condition.struct2!.subject](condition.struct2.args),
+                            vmbook[condition.struct.subject](condition.struct.args),
+                            vmbook[condition.struct2!.subject](condition.struct2.args),
                             false
                         );
                     } 
                     else {
                         return VM[condition.operator](
-                            lib[condition.struct.subject](condition.struct.args),
+                            vmbook[condition.struct.subject](condition.struct.args),
                             condition.struct2!,
                             false
                         );
@@ -195,7 +195,7 @@ export class RuleBuilder {
                     if ('subject' in condition.struct2!) {
                         return VM[condition.operator](
                         condition.struct,
-                        lib[condition.struct2!.subject](condition.struct2.args),
+                        vmbook[condition.struct2!.subject](condition.struct2.args),
                         false
                         );
                     } 
@@ -222,7 +222,7 @@ export class RuleBuilder {
         let group_: StateConfig[] = [];
 
         if (conditionGroup === 'always' || conditionGroup === 'never') {
-            return lib[conditionGroup]();
+            return vmbook[conditionGroup]();
         }
         else if ('constants' && 'sources' in conditionGroup) {
             return conditionGroup;
@@ -230,7 +230,7 @@ export class RuleBuilder {
         else if ('conditions' in conditionGroup) {
             for (const item of conditionGroup.conditions) {
                 if (item === 'always' || item === 'never') {
-                    return lib[item]();
+                    return vmbook[item]();
                 }
                 else if ('constants' && 'sources' in item) {
                     return item;
@@ -265,12 +265,12 @@ export class RuleBuilder {
         if ('subject' && 'args' in qp.struct) {
             if (qp.modifier !== undefined) {
                 return this.applyModifier(
-                    lib[qp.struct.subject](qp.struct.args),
+                    vmbook[qp.struct.subject](qp.struct.args),
                     qp.modifier
                 );
             } 
             else {
-                return lib[qp.struct.subject](qp.struct.args);
+                return vmbook[qp.struct.subject](qp.struct.args);
             }
         } 
         else if ('consstants' && 'sources' in qp.struct) {

@@ -23,7 +23,7 @@ export * from './contracts/script-generators/combineTierScriptGenerator';
 export * from './contracts/script-generators/emissionsERC20ScriptGenerator';
 
 export * from './rule-builder/ruleBuilder';
-export * from './rule-builder/lib';
+export * from './rule-builder/vmbook';
 export * from './rule-builder/types';
 
 export * from './jsvm/RainJSVM';

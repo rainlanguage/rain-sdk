@@ -66,9 +66,10 @@ export class HumanFriendlyRead {
     private static opMeta: IOpMeta[] = Array.from(OpMeta.values());
 
     /**
+     * @public
+     * Method to set the opMeta with more than AllStandardOps opcodes for this instance of the HumanFriendly Read
      * 
-     * @param opmeta 
-     * @returns 
+     * @param opmeta - The OpMeta map object
      */
     public static set(opmeta: typeof OpMeta): any {
         this.opMeta = Array.from(opmeta.values());

@@ -172,7 +172,6 @@
 |  [eighteenZeros](./variables/eighteenzeros.md) | 18 decimals or i.e "DECIMALS" - used for fixed point match |
 |  [fixedPointDiv](./variables/fixedpointdiv.md) |  |
 |  [fixedPointMul](./variables/fixedpointmul.md) |  |
-|  [lib](./variables/lib.md) | Key/value paired library to get the corresponding StateConfigs from RuleBuilder types by Rulebuilder class methods |
 |  [max](./variables/max.md) | calculate the maximum among array of BigNumbers |
 |  [min](./variables/min.md) | calculate the minimum among array of BigNumbers |
 |  [OpMeta](./variables/opmeta.md) |  |
@@ -186,6 +185,7 @@
 |  [scaleN](./variables/scalen.md) |  |
 |  [selectLte](./variables/selectlte.md) |  |
 |  [updateTimesForTierRange](./variables/updatetimesfortierrange.md) |  |
+|  [vmbook](./variables/vmbook.md) | Key/value paired VM functions to get the corresponding StateConfigs from RuleBuilder types by Rulebuilder class methods |
 
 ## Type Aliases
 
