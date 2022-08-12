@@ -16,7 +16,7 @@ export function OpDiv(this: RainJSVM, state: StateJSVM, operand: number, data?: 
         for (let i = 1; i < operand; i++) {
 
             _item = items_.shift();
-
+            
             if (_item !== undefined) {
 
                 _accumulator = _accumulator.div(_item);

@@ -49,7 +49,7 @@ export class SaleJSVM extends RainJSVM {
     if (options?.storageOpFn) {
       this.StorageOps = options.storageOpFn;
     }
-    };
+  };
 
   /**
    * key/value pair of STORAGE opcodes of the sale JSVM

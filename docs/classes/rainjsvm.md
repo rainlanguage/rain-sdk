@@ -13,7 +13,7 @@ class RainJSVM
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJSVM opcode functions should not change after an instance has be created. |
+|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | It is a property for overriding the opcodes. Need to be passed at the time of construction because the RainJSVM opcode functions should be immutable after an instance has be created. |
 |  [constant](./rainjsvm.md#constant-property) | `(operand: number, data?: any) => void` |  |
 |  [context](./rainjsvm.md#context-property) | `(operand: number, data?: any) => void` |  |
 |  [ContextRange](./rainjsvm.md#ContextRange-property) | `number` | Length of the valid context argument accessible by eval |
@@ -27,12 +27,6 @@ class RainJSVM
 |  [StorageOps](./rainjsvm.md#StorageOps-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | Object that contains the STORAGE opcode functions (i.e. local opcodes) |
 |  [StorageRange](./rainjsvm.md#StorageRange-property) | `number` | Range of available storage variables accessible by eval |
 |  [zipmap](./rainjsvm.md#zipmap-property) | `(operand: number, data?: any) => Promise<void>` |  |
-
-## Static Methods
-
-|  Method | Description |
-|  --- | --- |
-|  [opsFromOpMeta(\_opmeta)](./rainjsvm.md#opsFromOpMeta-method-static-1) |  |
 
 ## Methods
 
@@ -48,7 +42,7 @@ class RainJSVM
 
 ### applyOpFn
 
-It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJSVM opcode functions should not change after an instance has be created.
+It is a property for overriding the opcodes. Need to be passed at the time of construction because the RainJSVM opcode functions should be immutable after an instance has be created.
 
 <b>Signature:</b>
 
@@ -203,28 +197,6 @@ protected readonly StorageRange: number;
 ```typescript
 get zipmap(): (operand: number, data?: any) => Promise<void>;
 ```
-
-## Static Method Details
-
-<a id="opsFromOpMeta-method-static-1"></a>
-
-### opsFromOpMeta(\_opmeta)
-
-<b>Signature:</b>
-
-```typescript
-static opsFromOpMeta(_opmeta: Map<number, import("../vm/OpMeta").IOpMeta>): FnPtrsJSVM;
-```
-
-#### Parameters
-
-|  Parameter | Type | Description |
-|  --- | --- | --- |
-|  \_opmeta | `Map<number, import("../vm/OpMeta").IOpMeta>` |  |
-
-<b>Returns:</b>
-
-`FnPtrsJSVM`
 
 ## Method Details
 

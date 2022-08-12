@@ -323,7 +323,7 @@ export class IncDecPrice extends PriceCurve {
       op(VM.Opcodes.CONSTANT, 0),
       isInc ? op(VM.Opcodes.ADD, 2) : op(VM.Opcodes.SATURATING_SUB, 2),
       op(VM.Opcodes.CONSTANT, 1),
-      op(VM.Opcodes.MIN, 2),
+      isInc ? op(VM.Opcodes.MIN, 2) : op(VM.Opcodes.MAX, 2),
     ]
   );
 }

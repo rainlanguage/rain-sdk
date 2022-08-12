@@ -36,8 +36,8 @@ export class RainJSVM {
   private readonly state: StateJSVM;
 
   /**
-   * It is a property for overriding the opcodes. Need to ba passed at the time of construction
-   * because the RainJSVM opcode functions should not change after an instance has be created.
+   * It is a property for overriding the opcodes. Need to be passed at the time of construction
+   * because the RainJSVM opcode functions should be immutable after an instance has be created.
    */
   public readonly applyOpFn?: FnPtrsJSVM;
 
@@ -113,9 +113,6 @@ export class RainJSVM {
       this.StorageRange = Object.keys(options.storageOpFn).length;
     }
 
-  }
-  static opsFromOpMeta(_opmeta: Map<number, import("../vm/OpMeta").IOpMeta>): FnPtrsJSVM {
-    throw new Error('Method not implemented.');
   }
 
   /**
@@ -208,7 +205,7 @@ export class RainJSVM {
     this.lastState.push(...this.state.stack.splice(-this.state.stack.length));
 
     return this.lastState;
-    }
+  }
 
   /**
    * @public

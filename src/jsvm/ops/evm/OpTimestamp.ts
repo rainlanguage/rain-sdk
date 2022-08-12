@@ -15,7 +15,9 @@ export async function OpTimestamp(this: RainJSVM, state: StateJSVM, operand: num
 
             state.stack.push(
                 BigNumber.from(
-                    (await _provider.getBlock(await _provider.getBlockNumber())).timestamp
+                    (await _provider.getBlock(
+                        await _provider.getBlockNumber())
+                    ).timestamp
                 )
             )
         }

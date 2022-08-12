@@ -13,7 +13,7 @@ class EmissionsERC20JSVM extends RainJSVM
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | It is a property for overriding the opcodes. Need to ba passed at the time of construction because the RainJSVM opcode functions should not change after an instance has be created.<br></br>*Inherited from [RainJSVM.applyOpFn](./rainjsvm.md#applyOpFn-property)* |
+|  [applyOpFn](./rainjsvm.md#applyOpFn-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | It is a property for overriding the opcodes. Need to be passed at the time of construction because the RainJSVM opcode functions should be immutable after an instance has be created.<br></br>*Inherited from [RainJSVM.applyOpFn](./rainjsvm.md#applyOpFn-property)* |
 |  [constant](./rainjsvm.md#constant-property) | `(operand: number, data?: any) => void` | <br></br>*Inherited from [RainJSVM.constant](./rainjsvm.md#constant-property)* |
 |  [context](./rainjsvm.md#context-property) | `(operand: number, data?: any) => void` | <br></br>*Inherited from [RainJSVM.context](./rainjsvm.md#context-property)* |
 |  [ContextLength](./emissionserc20jsvm.md#ContextLength-property) | `` | EmissionsERC20JSVM valid context length |
@@ -28,12 +28,6 @@ class EmissionsERC20JSVM extends RainJSVM
 |  [StorageOps](./rainjsvm.md#StorageOps-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | Object that contains the STORAGE opcode functions (i.e. local opcodes)<br></br>*Inherited from [RainJSVM.StorageOps](./rainjsvm.md#StorageOps-property)* |
 |  [StorageRange](./emissionserc20jsvm.md#StorageRange-property) | `` | EmissionsERC20JSVM valid storage range<br></br>*Overrides [RainJSVM.StorageRange](./rainjsvm.md#StorageRange-property)* |
 |  [zipmap](./rainjsvm.md#zipmap-property) | `(operand: number, data?: any) => Promise<void>` | *Inherited from [RainJSVM.zipmap](./rainjsvm.md#zipmap-property)* |
-
-## Static Methods
-
-|  Method | Description |
-|  --- | --- |
-|  [opsFromOpMeta(\_opmeta)](./rainjsvm.md#opsFromOpMeta-method-static-1) | *Inherited from [RainJSVM.opsFromOpMeta()](./rainjsvm.md#opsFromOpMeta-method-static-1)* |
 
 ## Methods
 

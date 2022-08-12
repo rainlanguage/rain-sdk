@@ -10,7 +10,7 @@ export function OpMax(this: RainJSVM,state: StateJSVM, operand: number, data?: a
 
     const items_ = state.stack.splice(-operand);
 
-    if ((items_.length = operand)) {
+    if (items_.length === operand) {
 
         state.stack.push(max(items_));
     } 

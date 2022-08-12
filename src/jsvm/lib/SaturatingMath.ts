@@ -29,10 +29,10 @@ export const saturatingMul = (value1: BigNumber, value2: BigNumber) : BigNumber 
  * @public
  */
 export const saturatingSub = (value1: BigNumber, value2: BigNumber) : BigNumber => {
-    value1 = value1?.sub(value2);
-    value1 = value1.gt(0)
-        ? value1
-        : ethers.constants.Zero;
-
+    value1 = value1.sub(value2);
+    value1 = value1.isNegative()
+        ? ethers.constants.Zero
+        : value1
+        
     return value1;
 }
