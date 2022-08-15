@@ -1,4 +1,3 @@
-import { paddedUInt256 } from '../utils';
 import { ReadTxOverrides } from './rainContract';
 import { FactoryContract } from './factoryContract';
 import { BigNumber, BigNumberish, Signer } from 'ethers';
@@ -173,7 +172,13 @@ export class ITierV2 extends FactoryContract {
       }
     }
 
-    const parsedReport = paddedUInt256(currentTier)
+    const parsedReport = (
+      "0x" + 
+      BigNumber.from(currentTier)
+      .toHexString()
+      .substring(2)
+      .padStart(64, "0")
+    )
       .substring(2)
       .match(/.{8}/g)
       ?.reverse()

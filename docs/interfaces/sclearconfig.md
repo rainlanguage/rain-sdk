@@ -1,12 +1,12 @@
 
-# Interface SClearConfig
+# Interface sClearConfig
 
 type for bounty config
 
 <b>Signature:</b>
 
 ```typescript
-interface SClearConfig 
+interface sClearConfig 
 ```
 
 ## Properties

@@ -1,7 +1,6 @@
 import { ITierV2, Tier } from "../../../classes/iTierV2";
 import { paddedUInt160 } from "../../../utils";
-import { RainJSVM } from "../../RainJSVM";
-import { StateJSVM } from "../../types";
+import { RainJSVM, StateJSVM } from "../../RainJSVM";
 
 
 /**

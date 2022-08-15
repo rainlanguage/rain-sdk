@@ -1,19 +1,18 @@
 import { ethers } from "ethers";
 import { vmSimulation } from "./vmSimulation";
 import { OrderbookJSVM } from "../OrderbookJSVM";
+import { FnPtrsJSVM, StateJSVM } from "../RainJSVM";
 import { OrderBook } from "../../contracts/orderBook";
 import { paddedUInt160, paddedUInt256, parseUnits } from "../../utils";
 import { 
-  SOrder,
-  FnPtrsJSVM,
-  SOrders,
-  SVaults,
-  StateJSVM,
-  SClearConfig,
-  SClearedFunds,
+  sOrder,
+  sOrders,
+  sVaults,
+  sClearConfig,
+  sClearedFunds,
   eighteenZeros,
-  SClearedCounterPartyFunds
-} from "../types";
+  sClearedCounterPartyFunds
+} from "./types";
 
 
 /**
@@ -41,26 +40,26 @@ export class OrderbookSimulation extends vmSimulation {
    * @public
    * The property that stores all the data of the class's vaults @see vault
    */
-  public vaults: SVaults = {};
+  public vaults: sVaults = {};
   
   /**
    * @public
    * The property that stores all the data of the class's orders, @see orders and @see order
    */
-  public orders: SOrders = {};
+  public orders: sOrders = {};
   
   /**
    * @public
    * The property that stores all the data of an order's total cleared amount, @see clearedFunds
    */
-  public clearedFunds: SClearedFunds = {};
+  public clearedFunds: sClearedFunds = {};
   
   /**
    * @public
    * The property that stores all the data of an order's total cleared amount to a specific counterparty address
    * which needs to be in form of a string number or hex string @see clearedCounterPartyFunds
    */
-  public clearedCounterPartyFunds: SClearedCounterPartyFunds = {};
+  public clearedCounterPartyFunds: sClearedCounterPartyFunds = {};
   
   /**
    * @public
@@ -71,7 +70,7 @@ export class OrderbookSimulation extends vmSimulation {
    * @param vaults - (optinal) the initial vaults object (vaults storage)
    * @param orders  - (optional) the initial orders
    */
-  constructor(address: string, sender: string, vaults?: SVaults, orders?: SOrders) {
+  constructor(address: string, sender: string, vaults?: sVaults, orders?: sOrders) {
 
     super();
 
@@ -132,7 +131,7 @@ export class OrderbookSimulation extends vmSimulation {
    * @param order - the order to add
    * @returns void
    */
-  public addOrder(order: SOrder): void {
+  public addOrder(order: sOrder): void {
     this.orders[order.orderHash] = order;
   
     for (const ioConfig of order.validOutputs) {
@@ -187,7 +186,7 @@ export class OrderbookSimulation extends vmSimulation {
    * @param order - the order to remove
    * @returns void
    */
-  public removeOrder(order: SOrder | string): void {
+  public removeOrder(order: sOrder | string): void {
     if (typeof order === "string") {
     delete(this.orders[order])
     }
@@ -317,9 +316,9 @@ export class OrderbookSimulation extends vmSimulation {
    * @returns void
    */
   public async clear (
-    a: SOrder,
-    b: SOrder,
-    clearConfig: SClearConfig,
+    a: sOrder,
+    b: sOrder,
+    clearConfig: sClearConfig,
     timestamp?: number,
     blockNumber?: number
   ): Promise<void> {

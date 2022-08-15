@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { eighteenZeros } from "../types";
+import { eighteenZeros } from "../simulation/types";
 
 /**
  * @public 

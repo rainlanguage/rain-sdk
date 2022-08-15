@@ -1,6 +1,5 @@
-import { RainJSVM } from "../../../RainJSVM";
+import { RainJSVM, StateJSVM } from "../../../RainJSVM";
 import { scaleN } from "../../../lib/FixedPointMath";
-import { StateJSVM } from "../../../types";
 
 
 /**

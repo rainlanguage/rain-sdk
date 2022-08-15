@@ -1,12 +1,12 @@
 
-# Interface SOrder
+# Interface sOrder
 
 type for simulating and storing orderbook Order data
 
 <b>Signature:</b>
 
 ```typescript
-interface SOrder 
+interface sOrder 
 ```
 
 ## Properties
@@ -15,8 +15,8 @@ interface SOrder
 |  --- | --- | --- |
 |  [orderHash](./sorder.md#orderHash-property) | `string` |  |
 |  [owner](./sorder.md#owner-property) | `string` |  |
-|  [validInputs](./sorder.md#validInputs-property) | `SIOConfig[]` |  |
-|  [validOutputs](./sorder.md#validOutputs-property) | `SIOConfig[]` |  |
+|  [validInputs](./sorder.md#validInputs-property) | `sIOConfig[]` |  |
+|  [validOutputs](./sorder.md#validOutputs-property) | `sIOConfig[]` |  |
 |  [vmConfig](./sorder.md#vmConfig-property) | [StateConfig](./stateconfig.md) |  |
 
 ## Property Details
@@ -48,7 +48,7 @@ owner: string;
 <b>Signature:</b>
 
 ```typescript
-validInputs: SIOConfig[];
+validInputs: sIOConfig[];
 ```
 
 <a id="validOutputs-property"></a>
@@ -58,7 +58,7 @@ validInputs: SIOConfig[];
 <b>Signature:</b>
 
 ```typescript
-validOutputs: SIOConfig[];
+validOutputs: sIOConfig[];
 ```
 
 <a id="vmConfig-property"></a>

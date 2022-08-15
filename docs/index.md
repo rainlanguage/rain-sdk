@@ -137,24 +137,24 @@
 |  [SaleConfig](./interfaces/saleconfig.md) | The configuration of the sale |
 |  [SaleDeployArguments](./interfaces/saledeployarguments.md) | Arguments to deploy/create a new Sale |
 |  [SaleRedeemableERC20Config](./interfaces/saleredeemableerc20config.md) | Configuration that will have the Redeemable of the Sale |
-|  [SClearConfig](./interfaces/sclearconfig.md) | type for bounty config |
-|  [SClearedCounterPartyFunds](./interfaces/sclearedcounterpartyfunds.md) | type for simulating and storing matched order counterparty cleared funds |
-|  [SClearedFunds](./interfaces/sclearedfunds.md) | type for simulating and storing matched order cleared funds |
-|  [SERC1155](./interfaces/serc1155.md) | type for simulating and storing ERC1155 contract data |
-|  [SERC1155s](./interfaces/serc1155s.md) | type for simulating and storing multiple ERC1155 tokens |
-|  [SERC20](./interfaces/serc20.md) | type for simulating and storing ERC20token contract data |
-|  [SERC20s](./interfaces/serc20s.md) | type for simulating and storing multiple ERC20 tokens |
-|  [SERC721](./interfaces/serc721.md) | type for simulating and storing ERC721 contract data |
-|  [SERC721s](./interfaces/serc721s.md) | type for simulating and storing multiple ERC721 tokens |
-|  [SITiers](./interfaces/sitiers.md) | type for simulating and storing ITier contract data |
-|  [SOrder](./interfaces/sorder.md) | type for simulating and storing orderbook Order data |
-|  [SOrders](./interfaces/sorders.md) | type for simulating and storing multiple orderbook Orders |
-|  [SSnapshot](./interfaces/ssnapshot.md) | type for SimERC20 with snapshots |
-|  [SStore](./interfaces/sstore.md) | A simple key/value pair object used as storage in simulation classes to store the required data |
+|  [sClearConfig](./interfaces/sclearconfig.md) | type for bounty config |
+|  [sClearedCounterPartyFunds](./interfaces/sclearedcounterpartyfunds.md) | type for simulating and storing matched order counterparty cleared funds |
+|  [sClearedFunds](./interfaces/sclearedfunds.md) | type for simulating and storing matched order cleared funds |
+|  [sERC1155](./interfaces/serc1155.md) | type for simulating and storing ERC1155 contract data |
+|  [sERC1155s](./interfaces/serc1155s.md) | type for simulating and storing multiple ERC1155 tokens |
+|  [sERC20](./interfaces/serc20.md) | type for simulating and storing ERC20token contract data |
+|  [sERC20s](./interfaces/serc20s.md) | type for simulating and storing multiple ERC20 tokens |
+|  [sERC721](./interfaces/serc721.md) | type for simulating and storing ERC721 contract data |
+|  [sERC721s](./interfaces/serc721s.md) | type for simulating and storing multiple ERC721 tokens |
+|  [sITiers](./interfaces/sitiers.md) | type for simulating and storing ITier contract data |
+|  [sOrder](./interfaces/sorder.md) | type for simulating and storing orderbook Order data |
+|  [sOrders](./interfaces/sorders.md) | type for simulating and storing multiple orderbook Orders |
+|  [sSnapshot](./interfaces/ssnapshot.md) | type for SimERC20 with snapshots |
+|  [sStore](./interfaces/sstore.md) | A simple key/value pair object used as storage in simulation classes to store the required data in BigNumber format |
 |  [StateConfig](./interfaces/stateconfig.md) | Config required to build a new `State`<!-- -->. |
 |  [StateJSVM](./interfaces/statejsvm.md) | - An interface, StateJS is basically javascript version of 'State' struct in RainVM, although it doesn't need stackLength and argumentsLength to operate. It receives a regular RainVM in the constructor and initiates the stack for it and all opcodes do their operations to the stack. |
 |  [StorageOpcodesRange](./interfaces/storageopcodesrange.md) | Interface for accessible by vm storage's slots range available for a contract to be used as local opcodes. |
-|  [SVaults](./interfaces/svaults.md) | type for simulating and storing orderbook Vaults data |
+|  [sVaults](./interfaces/svaults.md) | type for simulating and storing orderbook Vaults data |
 |  [TxOverrides](./interfaces/txoverrides.md) | More read about `TxOverrides` that comes from Overrides of ethers |
 |  [VerifyDeployArgs](./interfaces/verifydeployargs.md) | Config to initialize a Verify contract with. |
 |  [VerifyState](./interfaces/verifystate.md) | Records the block a verify session reaches each status. If a status is not reached it is left as UNINITIALIZED, i.e. 0xFFFFFFFF. Most accounts will never be banned so most accounts will never reach every status, which is a good thing. |
@@ -224,7 +224,7 @@
 |  [Price](./types/price.md) | Price type |
 |  [Quantity](./types/quantity.md) | Quantity type |
 |  [Rule](./types/rule.md) | A single Rule block, i.e. an if/then block that contains conditions of prices and quantities and its actions which are price and quantity |
-|  [SIOConfig](./types/sioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
+|  [sIOConfig](./types/sioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
 |  [StakeDeployArgs](./types/stakedeployargs.md) | A type for deploying a new stake contract which contains everything required for deployment.<br></br>'token' is the main token addtess. 'initialRatio' is the initial conversion ratio between the stake token and main token. 'name' of the stake token. 'symbol' of the stake token |
 |  [Struct](./types/struct.md) | The smallest building block of RuleBuilder that contains the type and its valid arguments or a StateConfig |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |

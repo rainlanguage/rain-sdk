@@ -1,7 +1,6 @@
 import { ERC20 } from "../../../contracts/generics/erc20";
 import { paddedUInt160 } from "../../../utils";
-import { RainJSVM } from "../../RainJSVM";
-import { StateJSVM } from "../../types";
+import { RainJSVM, StateJSVM } from "../../RainJSVM";
 
 
 /**

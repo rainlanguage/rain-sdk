@@ -1,16 +1,16 @@
 
-# Interface SClearedCounterPartyFunds
+# Interface sClearedCounterPartyFunds
 
 type for simulating and storing matched order counterparty cleared funds
 
 <b>Signature:</b>
 
 ```typescript
-interface SClearedCounterPartyFunds extends Record<string, SStore> 
+interface sClearedCounterPartyFunds extends Record<string, sStore> 
 ```
 
 ## Implements Interfaces
 
-- <b>SClearedCounterPartyFunds</b>
+- <b>sClearedCounterPartyFunds</b>
     - Record
 

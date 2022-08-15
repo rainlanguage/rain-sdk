@@ -3,7 +3,8 @@ import { SaleStorage } from "../../contracts/sale";
 import { paddedUInt160 } from "../../utils";
 import { SaleJSVM } from "../SaleJSVM";
 import { vmSimulation } from "./vmSimulation";
-import { eighteenZeros, SERC20, FnPtrsJSVM, StateJSVM } from "../types";
+import { eighteenZeros, sERC20 } from "./types";
+import { FnPtrsJSVM, StateJSVM } from "../RainJSVM";
 
 
 /**
@@ -21,12 +22,12 @@ import { eighteenZeros, SERC20, FnPtrsJSVM, StateJSVM } from "../types";
   /**
    * The reedeemable token of this sale i.e rTKN which needs to a string number or hex string @see erc20
    */
-  public token: SERC20;
+  public token: sERC20;
   
   /**
    * The reserve token of this sale as an erc20 type object @see erc20
    */
-  public reserve: SERC20;
+  public reserve: sERC20;
   
   /**
    * The reserve token addres of this sale as an erc20 type object
@@ -51,8 +52,8 @@ import { eighteenZeros, SERC20, FnPtrsJSVM, StateJSVM } from "../types";
     address: string,
     tokenAddress: string,
     reserveAddress: string,
-    token: SERC20,
-    reserve: SERC20
+    token: sERC20,
+    reserve: sERC20
     ) {
     super();
     this.token = token;

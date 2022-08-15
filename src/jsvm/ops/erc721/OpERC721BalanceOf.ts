@@ -1,7 +1,6 @@
 import { ERC721 } from "../../../contracts/generics/erc721";
 import { paddedUInt160 } from "../../../utils";
-import { RainJSVM } from "../../RainJSVM";
-import { StateJSVM } from "../../types";
+import { RainJSVM, StateJSVM } from "../../RainJSVM";
 
 
 /**

@@ -1,9 +1,8 @@
 import { BigNumber } from "ethers";
 import { StateConfig } from "../classes/vm";
-import { CallOptions, RainJSVM } from "./RainJSVM";
+import { CallOptions, RainJSVM, FnPtrsJSVM, StateJSVM } from "./RainJSVM";
 import { ERC20 } from "../contracts/generics/erc20";
 import { Sale, SaleContext, SaleStorage } from "../contracts/sale";
-import { FnPtrsJSVM, StateJSVM } from "./types";
 
 
 /**

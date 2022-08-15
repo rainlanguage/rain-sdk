@@ -1,21 +1,21 @@
 
-# Interface SStore
+# Interface sStore
 
-A simple key/value pair object used as storage in simulation classes to store the required data
+A simple key/value pair object used as storage in simulation classes to store the required data in BigNumber format
 
 <b>Signature:</b>
 
 ```typescript
-interface SStore extends Record<string, BigNumber> 
+interface sStore extends Record<string, BigNumber> 
 ```
 
 ## Implements Interfaces
 
-- <b>SStore</b>
+- <b>sStore</b>
     - Record
 
 ## Implemented By
 
-- <b>SStore</b>
-    - [SClearedFunds](./sclearedfunds.md)
+- <b>sStore</b>
+    - [sClearedFunds](./sclearedfunds.md)
 

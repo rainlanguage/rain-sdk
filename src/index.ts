@@ -30,7 +30,7 @@ export * from './jsvm/RainJSVM';
 export * from './jsvm/CombineTierJSVM';
 export * from './jsvm/EmissionsERC20JSVM';
 export * from './jsvm/SaleJSVM';
-export * from './jsvm/types';
+export * from './jsvm/simulation/types';
 
 export * from './jsvm/lib/FixedPointMath';
 export * from './jsvm/lib/Math';
@@ -86,6 +86,7 @@ export * from './jsvm/simulation/OrderbookSimulation';
 export * from './jsvm/simulation/SaleSimulation';
 export * from './jsvm/simulation/Matchmaker';
 export * from './jsvm/simulation/vmSimulation';
+export * from './jsvm/simulation/types';
 
 export * from './contracts/tiers/combineTier';
 export * from './contracts/tiers/verifyTier';

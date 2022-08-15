@@ -15,20 +15,20 @@ class MatchMaker extends OrderbookSimulation
 |  --- | --- | --- |
 |  [address](./orderbooksimulation.md#address-property) | `string` | The EmissionsERC20 address of this class that the simulation is done for. this is needed for THIS\_ADDRESS opcode and updating storage types after method calls, and needs to be a string number or hex string.<br></br>*Inherited from [OrderbookSimulation.address](./orderbooksimulation.md#address-property)* |
 |  [blockNumber](./vmsimulation.md#blockNumber-property) | `number` | A property for producing block number for the class which will be used in BLOCK\_NUMBER opcode but BLOCK\_NUMBER opcode can also be passed at runtime<br></br>*Inherited from [vmSimulation.blockNumber](./vmsimulation.md#blockNumber-property)* |
-|  [clearedCounterPartyFunds](./orderbooksimulation.md#clearedCounterPartyFunds-property) | [SClearedCounterPartyFunds](../interfaces/sclearedcounterpartyfunds.md) | The property that stores all the data of an order's total cleared amount to a specific counterparty address which needs to be in form of a string number or hex string<br></br>*Inherited from [OrderbookSimulation.clearedCounterPartyFunds](./orderbooksimulation.md#clearedCounterPartyFunds-property)* |
-|  [clearedFunds](./orderbooksimulation.md#clearedFunds-property) | [SClearedFunds](../interfaces/sclearedfunds.md) | The property that stores all the data of an order's total cleared amount,<br></br>*Inherited from [OrderbookSimulation.clearedFunds](./orderbooksimulation.md#clearedFunds-property)* |
-|  [erc1155s](./vmsimulation.md#erc1155s-property) | [SERC1155s](../interfaces/serc1155s.md) | A property of type erc1155s that act like a storage for simulation and stores the erc1155 token data. this is needed for IERC1155 related opcodes<br></br>*Inherited from [vmSimulation.erc1155s](./vmsimulation.md#erc1155s-property)* |
-|  [erc20s](./vmsimulation.md#erc20s-property) | [SERC20s](../interfaces/serc20s.md) | A property of type erc20s that act like a storage for simulation and stores the erc20 token data. this is needed for IERC20 related opcodes<br></br>*Inherited from [vmSimulation.erc20s](./vmsimulation.md#erc20s-property)* |
-|  [erc721s](./vmsimulation.md#erc721s-property) | [SERC721s](../interfaces/serc721s.md) | A property of type erc721s that act like a storage for simulation and stores the erc721 token data. this is needed for IERC721 related opcodes<br></br>*Inherited from [vmSimulation.erc721s](./vmsimulation.md#erc721s-property)* |
+|  [clearedCounterPartyFunds](./orderbooksimulation.md#clearedCounterPartyFunds-property) | [sClearedCounterPartyFunds](../interfaces/sclearedcounterpartyfunds.md) | The property that stores all the data of an order's total cleared amount to a specific counterparty address which needs to be in form of a string number or hex string<br></br>*Inherited from [OrderbookSimulation.clearedCounterPartyFunds](./orderbooksimulation.md#clearedCounterPartyFunds-property)* |
+|  [clearedFunds](./orderbooksimulation.md#clearedFunds-property) | [sClearedFunds](../interfaces/sclearedfunds.md) | The property that stores all the data of an order's total cleared amount,<br></br>*Inherited from [OrderbookSimulation.clearedFunds](./orderbooksimulation.md#clearedFunds-property)* |
+|  [erc1155s](./vmsimulation.md#erc1155s-property) | [sERC1155s](../interfaces/serc1155s.md) | A property of type erc1155s that act like a storage for simulation and stores the erc1155 token data. this is needed for IERC1155 related opcodes<br></br>*Inherited from [vmSimulation.erc1155s](./vmsimulation.md#erc1155s-property)* |
+|  [erc20s](./vmsimulation.md#erc20s-property) | [sERC20s](../interfaces/serc20s.md) | A property of type erc20s that act like a storage for simulation and stores the erc20 token data. this is needed for IERC20 related opcodes<br></br>*Inherited from [vmSimulation.erc20s](./vmsimulation.md#erc20s-property)* |
+|  [erc721s](./vmsimulation.md#erc721s-property) | [sERC721s](../interfaces/serc721s.md) | A property of type erc721s that act like a storage for simulation and stores the erc721 token data. this is needed for IERC721 related opcodes<br></br>*Inherited from [vmSimulation.erc721s](./vmsimulation.md#erc721s-property)* |
 |  [foundMatches](./matchmaker.md#foundMatches-property) | <pre>{&#010;    orderA: string;&#010;    orderB: string;&#010;}[]</pre> | The type of stores all the found matches |
-|  [iTiers](./vmsimulation.md#iTiers-property) | [SITiers](../interfaces/sitiers.md) | A property of type itiers that act like a storage for simulation of Rain tier contracts. this is needed for ITIERV2\_REPORT and ITIERV2\_REPORT\_TIME\_FOR\_TIER opcodes.<br></br>*Inherited from [vmSimulation.iTiers](./vmsimulation.md#iTiers-property)* |
+|  [iTiers](./vmsimulation.md#iTiers-property) | [sITiers](../interfaces/sitiers.md) | A property of type itiers that act like a storage for simulation of Rain tier contracts. this is needed for ITIERV2\_REPORT and ITIERV2\_REPORT\_TIME\_FOR\_TIER opcodes.<br></br>*Inherited from [vmSimulation.iTiers](./vmsimulation.md#iTiers-property)* |
 |  [OpFns](./orderbooksimulation.md#OpFns-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | Local Orderbook Opcodes' functions body for simulation that uses the class properties/types.<br></br>*Inherited from [OrderbookSimulation.OpFns](./orderbooksimulation.md#OpFns-property)* |
-|  [orders](./orderbooksimulation.md#orders-property) | [SOrders](../interfaces/sorders.md) | The property that stores all the data of the class's orders,<br></br>*Inherited from [OrderbookSimulation.orders](./orderbooksimulation.md#orders-property)* |
+|  [orders](./orderbooksimulation.md#orders-property) | [sOrders](../interfaces/sorders.md) | The property that stores all the data of the class's orders,<br></br>*Inherited from [OrderbookSimulation.orders](./orderbooksimulation.md#orders-property)* |
 |  [reservebook](./matchmaker.md#reservebook-property) | [ReserveBook](../interfaces/reservebook.md) | The ReserveBook property of the matchmaker |
 |  [script](./vmsimulation.md#script-property) | [StateConfig](../interfaces/stateconfig.md) | The script to simulate<br></br>*Inherited from [vmSimulation.script](./vmsimulation.md#script-property)* |
 |  [sender](./orderbooksimulation.md#sender-property) | `string` | A sender that performs the simulation transactions. this is needed for SENDER opcode simulation, and updating storage types after method calls and needs to be a string number or hex string.<br></br>*Inherited from [OrderbookSimulation.sender](./orderbooksimulation.md#sender-property)* |
 |  [timestamp](./vmsimulation.md#timestamp-property) | `number` | A property for producing timestamp for the class which will be used in BLOCK\_TIMESTAMP opcode but BLOCK\_TIMESTAMP opcode can also be passed at runtime<br></br>*Inherited from [vmSimulation.timestamp](./vmsimulation.md#timestamp-property)* |
-|  [vaults](./orderbooksimulation.md#vaults-property) | [SVaults](../interfaces/svaults.md) | The property that stores all the data of the class's vaults<br></br>*Inherited from [OrderbookSimulation.vaults](./orderbooksimulation.md#vaults-property)* |
+|  [vaults](./orderbooksimulation.md#vaults-property) | [sVaults](../interfaces/svaults.md) | The property that stores all the data of the class's vaults<br></br>*Inherited from [OrderbookSimulation.vaults](./orderbooksimulation.md#vaults-property)* |
 
 ## Methods
 
@@ -90,14 +90,14 @@ Method that inherits from the parent class addOrder and after perfroming that wi
 <b>Signature:</b>
 
 ```typescript
-addOrder(order: SOrder): Promise<void>;
+addOrder(order: sOrder): Promise<void>;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  order | [SOrder](../interfaces/sorder.md) | the order to be added |
+|  order | [sOrder](../interfaces/sorder.md) | the order to be added |
 
 <b>Returns:</b>
 
@@ -145,14 +145,14 @@ Method to evaluate and ReserveBook the order's script
 <b>Signature:</b>
 
 ```typescript
-orderEval(order: SOrder, timestamp?: number, blockNumber?: number): Promise<void>;
+orderEval(order: sOrder, timestamp?: number, blockNumber?: number): Promise<void>;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  order | [SOrder](../interfaces/sorder.md) | the order to be evaluated |
+|  order | [sOrder](../interfaces/sorder.md) | the order to be evaluated |
 |  timestamp | `number` |  |
 |  blockNumber | `number` |  |
 

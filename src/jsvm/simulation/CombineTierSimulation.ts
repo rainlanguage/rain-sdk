@@ -1,6 +1,6 @@
 import { paddedUInt160, paddedUInt256 } from "../../utils";
 import { CombineTierJSVM } from "../CombineTierJSVM";
-import { SStore } from "../types";
+import { sStore } from "./types";
 import { vmSimulation } from "./vmSimulation";
 
 
@@ -22,7 +22,7 @@ export class CombinetierSimulation extends vmSimulation {
     /**
      * The report of each account which is compatible and can be stored in @see itiers interface as well
      */
-    public report: SStore = {};
+    public report: sStore = {};
     
     /**
      * Constructor of this class
@@ -30,7 +30,7 @@ export class CombinetierSimulation extends vmSimulation {
      * @param address - this CombineTier class adress which needs to be a string number or hex string 
      * @param reports - (optional) the initial reports object
      */
-    constructor (address: string, reports?: SStore) {
+    constructor (address: string, reports?: sStore) {
         super();
         this.address = address;
         if (reports !== undefined) {

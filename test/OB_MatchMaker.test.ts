@@ -1,5 +1,5 @@
 import { paddedUInt160, paddedUInt256, parseUnits } from "../src/utils";
-import { FixedPrice, IncDecPrice, SERC20s, SOrder, VM, MatchMaker, eighteenZeros } from "../src";
+import { FixedPrice, IncDecPrice, sERC20s, sOrder, VM, MatchMaker, eighteenZeros } from "../src";
 
 
 ////////// ---------------------| Demo |------------------------ *** Demo *** -----------------------| Demo |---------------------- \\\\\\\\\\
@@ -32,7 +32,7 @@ describe('Orderbook MatchMaker', () => {
     const token3 = paddedUInt160("0x3")
 
     //simulating some erc20 tokens
-    let tokens: SERC20s = {
+    let tokens: sERC20s = {
       [token1]: {
         totalSupply: parseUnits((1000).toString()),
         decimals: 18,
@@ -90,28 +90,28 @@ describe('Orderbook MatchMaker', () => {
     const vaultId304 = paddedUInt256("0x0304")
     const vaultId204 = paddedUInt256("0x0204")
 
-    const order1 : SOrder = {
+    const order1 : sOrder = {
       orderHash: orderHash1,
       owner: sender1,
       validInputs: [{ token: token1, vaultId: vaultId101 }],
       validOutputs: [{ token: token2, vaultId: vaultId201 }],
       vmConfig: scriptA
     };
-    const order2 : SOrder = {
+    const order2 : sOrder = {
       orderHash: orderHash2,
       owner: sender2,
       validInputs: [{ token: token2, vaultId: vaultId202 }],
       validOutputs: [{ token: token3, vaultId: vaultId302 }],
       vmConfig: scriptC
     };
-    const order3 : SOrder = {
+    const order3 : sOrder = {
       orderHash: orderHash3,
       owner: sender3,
       validInputs: [{ token: token2, vaultId: vaultId203 }],
       validOutputs: [{ token: token1, vaultId: vaultId103 }],
       vmConfig: scriptB
     };
-    const order4 : SOrder = {
+    const order4 : sOrder = {
       orderHash: orderHash4,
       owner: sender4,
       validInputs: [{ token: token3, vaultId: vaultId304 }],

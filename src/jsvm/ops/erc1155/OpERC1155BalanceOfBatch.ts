@@ -1,8 +1,7 @@
 import { BigNumber } from "ethers";
 import { ERC1155 } from "../../../contracts/generics/erc1155";
 import { paddedUInt160 } from "../../../utils";
-import { RainJSVM } from "../../RainJSVM";
-import { StateJSVM } from "../../types";
+import { RainJSVM, StateJSVM } from "../../RainJSVM";
 
 
 /**

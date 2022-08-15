@@ -1,16 +1,16 @@
 
-# Interface SERC721s
+# Interface sERC721s
 
 type for simulating and storing multiple ERC721 tokens
 
 <b>Signature:</b>
 
 ```typescript
-interface SERC721s extends Record<string, SERC721> 
+interface sERC721s extends Record<string, sERC721> 
 ```
 
 ## Implements Interfaces
 
-- <b>SERC721s</b>
+- <b>sERC721s</b>
     - Record
 

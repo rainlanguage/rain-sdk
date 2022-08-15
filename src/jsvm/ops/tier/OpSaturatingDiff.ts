@@ -1,6 +1,5 @@
-import { RainJSVM } from "../../RainJSVM";
+import { RainJSVM, StateJSVM } from "../../RainJSVM";
 import { saturatingDiff } from "../../lib/TierwiseCombine";
-import { StateJSVM } from "../../types";
 
 
 /**

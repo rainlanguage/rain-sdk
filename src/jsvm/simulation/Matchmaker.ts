@@ -1,7 +1,7 @@
 import { OrderbookJSVM } from "./../OrderbookJSVM";
 import { OrderbookSimulation } from "./OrderbookSimulation";
 import { parseUnits } from "../../utils";
-import { SOrder, eighteenZeros, ReserveBook } from "../types";
+import { sOrder, eighteenZeros, ReserveBook } from "./types";
 
 
 /**
@@ -30,7 +30,7 @@ export class MatchMaker extends OrderbookSimulation {
    * 
    * @returns void
    */
-  public async addOrder(order: SOrder): Promise<void> {
+  public async addOrder(order: sOrder): Promise<void> {
 
     super.addOrder(order);
     await this.orderEval(order)
@@ -65,7 +65,7 @@ export class MatchMaker extends OrderbookSimulation {
    * 
    * @returns void 
    */
-  public async orderEval(order: SOrder, timestamp?: number, blockNumber?: number) {
+  public async orderEval(order: sOrder, timestamp?: number, blockNumber?: number) {
     this.script = order.vmConfig;
     const jsvm = new OrderbookJSVM(this.script, {applyOpFn: this.OpFns});
 

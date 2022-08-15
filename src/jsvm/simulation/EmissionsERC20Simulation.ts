@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 import { paddedUInt160, paddedUInt256, paddedUInt32 } from "../../utils";
 import { EmissionsERC20JSVM } from "../EmissionsERC20JSVM";
-import { SStore } from "../types";
+import { sStore } from "./types";
 import { vmSimulation } from "./vmSimulation";
 
 
@@ -39,12 +39,12 @@ import { vmSimulation } from "./vmSimulation";
   /**
    * The report of each claimant which is compatible and can be stored in @see itiers interface as well
    */
-  public report: SStore = {};
+  public report: sStore = {};
   
   /**
    * The balance of emission token holders which is compatible with @see erc20 interface
    */
-  public balanceOf: SStore = {};
+  public balanceOf: sStore = {};
   
   /**
    * Constructor of this class
@@ -58,8 +58,8 @@ import { vmSimulation } from "./vmSimulation";
   constructor (
     address: string,
     sender: string,
-    reports: SStore = {},
-    balances: SStore = {},
+    reports: sStore = {},
+    balances: sStore = {},
     initialSupply: BigNumber = ethers.constants.Zero,
   ) {
     super();

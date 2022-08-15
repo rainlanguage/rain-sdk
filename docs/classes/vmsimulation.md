@@ -15,10 +15,10 @@ class vmSimulation
 |  --- | --- | --- |
 |  [address](./vmsimulation.md#address-property) | `string` | The contract address of this simulation that the simulation is done for. this is needed for THIS\_ADDRESS opcode simulation and updating storage types after method calls, and needs to be a string number or hex string. |
 |  [blockNumber](./vmsimulation.md#blockNumber-property) | `number` | A property for producing block number for the class which will be used in BLOCK\_NUMBER opcode but BLOCK\_NUMBER opcode can also be passed at runtime |
-|  [erc1155s](./vmsimulation.md#erc1155s-property) | [SERC1155s](../interfaces/serc1155s.md) | A property of type erc1155s that act like a storage for simulation and stores the erc1155 token data. this is needed for IERC1155 related opcodes |
-|  [erc20s](./vmsimulation.md#erc20s-property) | [SERC20s](../interfaces/serc20s.md) | A property of type erc20s that act like a storage for simulation and stores the erc20 token data. this is needed for IERC20 related opcodes |
-|  [erc721s](./vmsimulation.md#erc721s-property) | [SERC721s](../interfaces/serc721s.md) | A property of type erc721s that act like a storage for simulation and stores the erc721 token data. this is needed for IERC721 related opcodes |
-|  [iTiers](./vmsimulation.md#iTiers-property) | [SITiers](../interfaces/sitiers.md) | A property of type itiers that act like a storage for simulation of Rain tier contracts. this is needed for ITIERV2\_REPORT and ITIERV2\_REPORT\_TIME\_FOR\_TIER opcodes. |
+|  [erc1155s](./vmsimulation.md#erc1155s-property) | [sERC1155s](../interfaces/serc1155s.md) | A property of type erc1155s that act like a storage for simulation and stores the erc1155 token data. this is needed for IERC1155 related opcodes |
+|  [erc20s](./vmsimulation.md#erc20s-property) | [sERC20s](../interfaces/serc20s.md) | A property of type erc20s that act like a storage for simulation and stores the erc20 token data. this is needed for IERC20 related opcodes |
+|  [erc721s](./vmsimulation.md#erc721s-property) | [sERC721s](../interfaces/serc721s.md) | A property of type erc721s that act like a storage for simulation and stores the erc721 token data. this is needed for IERC721 related opcodes |
+|  [iTiers](./vmsimulation.md#iTiers-property) | [sITiers](../interfaces/sitiers.md) | A property of type itiers that act like a storage for simulation of Rain tier contracts. this is needed for ITIERV2\_REPORT and ITIERV2\_REPORT\_TIME\_FOR\_TIER opcodes. |
 |  [OpFns](./vmsimulation.md#OpFns-property) | [FnPtrsJSVM](../interfaces/fnptrsjsvm.md) | Opcodes functions body for simulation that use the class properties/types. |
 |  [script](./vmsimulation.md#script-property) | [StateConfig](../interfaces/stateconfig.md) | The script to simulate |
 |  [sender](./vmsimulation.md#sender-property) | `string` | A sender that performs the simulation transactions. this is needed for SENDER opcode simulation, and updating storage types after method calls and needs to be a string number or hex string. |
@@ -70,7 +70,7 @@ A property of type erc1155s that act like a storage for simulation and stores th
 <b>Signature:</b>
 
 ```typescript
-erc1155s: SERC1155s;
+erc1155s: sERC1155s;
 ```
 
 <a id="erc20s-property"></a>
@@ -82,7 +82,7 @@ A property of type erc20s that act like a storage for simulation and stores the 
 <b>Signature:</b>
 
 ```typescript
-erc20s: SERC20s;
+erc20s: sERC20s;
 ```
 
 <a id="erc721s-property"></a>
@@ -94,7 +94,7 @@ A property of type erc721s that act like a storage for simulation and stores the
 <b>Signature:</b>
 
 ```typescript
-erc721s: SERC721s;
+erc721s: sERC721s;
 ```
 
 <a id="iTiers-property"></a>
@@ -106,7 +106,7 @@ A property of type itiers that act like a storage for simulation of Rain tier co
 <b>Signature:</b>
 
 ```typescript
-iTiers: SITiers;
+iTiers: sITiers;
 ```
 
 <a id="OpFns-property"></a>
@@ -168,16 +168,16 @@ Method to add assets i.e erc20/721/1155 types objects
 <b>Signature:</b>
 
 ```typescript
-addAssets(erc20s?: SERC20s, erc721s?: SERC721s, erc1155s?: SERC1155s): void;
+addAssets(erc20s?: sERC20s, erc721s?: sERC721s, erc1155s?: sERC1155s): void;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  erc20s | [SERC20s](../interfaces/serc20s.md) | An object of type erc20s |
-|  erc721s | [SERC721s](../interfaces/serc721s.md) | An object of type erc721s |
-|  erc1155s | [SERC1155s](../interfaces/serc1155s.md) | An object of type erc1155s |
+|  erc20s | [sERC20s](../interfaces/serc20s.md) | An object of type erc20s |
+|  erc721s | [sERC721s](../interfaces/serc721s.md) | An object of type erc721s |
+|  erc1155s | [sERC1155s](../interfaces/serc1155s.md) | An object of type erc1155s |
 
 <b>Returns:</b>
 
@@ -192,14 +192,14 @@ Method to add tier contract types objects to the class (iTiers)
 <b>Signature:</b>
 
 ```typescript
-addITiers(iTiers: SITiers): void;
+addITiers(iTiers: sITiers): void;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  iTiers | [SITiers](../interfaces/sitiers.md) | An Object of itiers type |
+|  iTiers | [sITiers](../interfaces/sitiers.md) | An Object of itiers type |
 
 <b>Returns:</b>
 

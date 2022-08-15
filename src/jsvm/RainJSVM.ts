@@ -1,9 +1,53 @@
-import { FnPtrsJSVM, StateJSVM } from './types';
 import { StateConfig } from '../classes/vm';
 import { BigNumber, Contract, Signer } from 'ethers';
 import { arrayify, mapToRecord, paddedUInt256 } from '../utils';
 import { IOpMeta, OpMeta } from '../vm/OpMeta';
 
+
+/**
+ * @public
+ * An interface/type of JSVM opcodes' function's body
+ */
+export interface OpJSVM { 
+  (state: StateJSVM, operand: number, data?: any): void 
+}
+
+/**
+ * @public
+ * An interface for creating a key/value pair of opcodes functions to override.
+ */
+export interface FnPtrsJSVM extends Record<number, OpJSVM> {}
+ 
+/**
+ * @public - An interface, StateJS is basically javascript version of 'State' struct
+ * in RainVM, although it doesn't need stackLength and argumentsLength to operate. It
+ * receives a regular RainVM in the constructor and initiates the stack for it and all
+ * opcodes do their operations to the stack.
+ * @see State in RainVM.sol
+ *
+ */
+export interface StateJSVM {
+  /**
+   * The property to store the RainVM script constants.
+   */
+  readonly constants: BigNumber[];
+
+  /**
+   * The property to store the RainVM script sources.
+   */
+  readonly sources: Uint8Array[];
+
+  /**
+   * The RainJSVM's stack.
+   */
+  readonly stack: BigNumber[];
+
+  /**
+   * Used only for zipmap opcode arguments
+   */
+  readonly argStack: BigNumber[];
+
+}
 
 /**
  * @public

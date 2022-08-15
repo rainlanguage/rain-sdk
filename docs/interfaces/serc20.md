@@ -1,21 +1,21 @@
 
-# Interface SERC20
+# Interface sERC20
 
 type for simulating and storing ERC20token contract data
 
 <b>Signature:</b>
 
 ```typescript
-interface SERC20 
+interface sERC20 
 ```
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [balanceOf](./serc20.md#balanceOf-property) | [SStore](./sstore.md) |  |
+|  [balanceOf](./serc20.md#balanceOf-property) | [sStore](./sstore.md) |  |
 |  [decimals](./serc20.md#decimals-property) | `number` |  |
-|  [snapshots](./serc20.md#snapshots-property) | [SSnapshot](./ssnapshot.md) |  |
+|  [snapshots](./serc20.md#snapshots-property) | [sSnapshot](./ssnapshot.md) |  |
 |  [totalSupply](./serc20.md#totalSupply-property) | `BigNumber` |  |
 
 ## Property Details
@@ -27,7 +27,7 @@ interface SERC20
 <b>Signature:</b>
 
 ```typescript
-balanceOf: SStore;
+balanceOf: sStore;
 ```
 
 <a id="decimals-property"></a>
@@ -47,7 +47,7 @@ decimals: number;
 <b>Signature:</b>
 
 ```typescript
-snapshots?: SSnapshot;
+snapshots?: sSnapshot;
 ```
 
 <a id="totalSupply-property"></a>

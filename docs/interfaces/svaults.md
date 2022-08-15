@@ -1,16 +1,16 @@
 
-# Interface SVaults
+# Interface sVaults
 
 type for simulating and storing orderbook Vaults data
 
 <b>Signature:</b>
 
 ```typescript
-interface SVaults extends Record<string, Record<string, SStore>> 
+interface sVaults extends Record<string, Record<string, sStore>> 
 ```
 
 ## Implements Interfaces
 
-- <b>SVaults</b>
+- <b>sVaults</b>
     - Record
 

@@ -1,26 +1,26 @@
 
-# Interface SITiers
+# Interface sITiers
 
 type for simulating and storing ITier contract data
 
 <b>Signature:</b>
 
 ```typescript
-interface SITiers extends Record<string, {
-    report: SStore;
+interface sITiers extends Record<string, {
+    report: sStore;
 }> 
 ```
 
 ## Implements Interfaces
 
-- <b>SITiers</b>
+- <b>sITiers</b>
     - Record
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [report](./sitiers.md#report-property) | [SStore](./sstore.md) |  |
+|  [report](./sitiers.md#report-property) | [sStore](./sstore.md) |  |
 
 ## Property Details
 
@@ -31,5 +31,5 @@ interface SITiers extends Record<string, {
 <b>Signature:</b>
 
 ```typescript
-report: SStore;
+report: sStore;
 ```

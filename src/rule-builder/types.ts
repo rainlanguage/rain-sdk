@@ -614,7 +614,7 @@ export type AllStandardArgs = UnionToIntersection<Args>
  * @public
  * Type of all args properties as optional properties
  */    
- export type OptionalArgs = Partial<UnionToIntersection<Args>>
+ export type OptionalArgs = Partial<AllStandardArgs>
 
 /**
  * @public

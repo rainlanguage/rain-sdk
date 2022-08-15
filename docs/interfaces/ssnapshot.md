@@ -1,27 +1,27 @@
 
-# Interface SSnapshot
+# Interface sSnapshot
 
 type for SimERC20 with snapshots
 
 <b>Signature:</b>
 
 ```typescript
-interface SSnapshot extends Record<string, {
+interface sSnapshot extends Record<string, {
     totalSupplyAt: BigNumber;
-    balanceOfAt: SStore;
+    balanceOfAt: sStore;
 }> 
 ```
 
 ## Implements Interfaces
 
-- <b>SSnapshot</b>
+- <b>sSnapshot</b>
     - Record
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [balanceOfAt](./ssnapshot.md#balanceOfAt-property) | [SStore](./sstore.md) |  |
+|  [balanceOfAt](./ssnapshot.md#balanceOfAt-property) | [sStore](./sstore.md) |  |
 |  [totalSupplyAt](./ssnapshot.md#totalSupplyAt-property) | `BigNumber` |  |
 
 ## Property Details
@@ -33,7 +33,7 @@ interface SSnapshot extends Record<string, {
 <b>Signature:</b>
 
 ```typescript
-balanceOfAt: SStore;
+balanceOfAt: sStore;
 ```
 
 <a id="totalSupplyAt-property"></a>

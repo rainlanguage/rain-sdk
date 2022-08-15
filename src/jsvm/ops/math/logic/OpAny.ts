@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
-import { RainJSVM } from "../../../RainJSVM";
-import { StateJSVM } from "../../../types";
+import { RainJSVM, StateJSVM } from "../../../RainJSVM";
 
 
 /**

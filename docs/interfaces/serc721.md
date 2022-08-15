@@ -1,19 +1,19 @@
 
-# Interface SERC721
+# Interface sERC721
 
 type for simulating and storing ERC721 contract data
 
 <b>Signature:</b>
 
 ```typescript
-interface SERC721 extends Record<string, {
+interface sERC721 extends Record<string, {
     ownerOf: string;
 }> 
 ```
 
 ## Implements Interfaces
 
-- <b>SERC721</b>
+- <b>sERC721</b>
     - Record
 
 ## Properties

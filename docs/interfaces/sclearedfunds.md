@@ -1,17 +1,17 @@
 
-# Interface SClearedFunds
+# Interface sClearedFunds
 
 type for simulating and storing matched order cleared funds
 
 <b>Signature:</b>
 
 ```typescript
-interface SClearedFunds extends SStore 
+interface sClearedFunds extends sStore 
 ```
 
 ## Implements Interfaces
 
-- <b>SClearedFunds</b>
-    - [SStore](./sstore.md)
+- <b>sClearedFunds</b>
+    - [sStore](./sstore.md)
         - Record
 

@@ -1,6 +1,5 @@
-import { RainJSVM } from "../../../RainJSVM";
+import { RainJSVM, StateJSVM } from "../../../RainJSVM";
 import { saturatingSub } from "../../../lib/SaturatingMath";
-import { StateJSVM } from "../../../types";
 
 
 /**

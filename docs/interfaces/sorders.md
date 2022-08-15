@@ -1,16 +1,16 @@
 
-# Interface SOrders
+# Interface sOrders
 
 type for simulating and storing multiple orderbook Orders
 
 <b>Signature:</b>
 
 ```typescript
-interface SOrders extends Record<string, SOrder> 
+interface sOrders extends Record<string, sOrder> 
 ```
 
 ## Implements Interfaces
 
-- <b>SOrders</b>
+- <b>sOrders</b>
     - Record
 

@@ -1,6 +1,5 @@
-import { RainJSVM } from "../../RainJSVM";
+import { RainJSVM, StateJSVM } from "../../RainJSVM";
 import { updateTimesForTierRange } from "../../lib/TierReport";
-import { StateJSVM } from "../../types";
 
 
 /**
