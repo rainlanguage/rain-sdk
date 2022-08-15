@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { Filter } from './types';
+import { Filter, ArgsTypeBook } from './types';
 import { StateConfig, VM } from '../classes/vm';
 import { BetweenBlocks, BetweenTimestamps } from '../contracts/script-generators/saleScriptGenerator';
 import { CombineTierGenerator } from '../contracts/script-generators/combineTierScriptGenerator';
@@ -9,7 +9,7 @@ import { CombineTierGenerator } from '../contracts/script-generators/combineTier
  * @public
  * Key/value paired VM functions to get the corresponding StateConfigs from RuleBuilder types by Rulebuilder class methods
  */
-export const vmbook: Record<string, (...args: any) => StateConfig> = {
+export const vmbook: { [T in keyof ArgsTypeBook]: (args: Filter<T>[T]['args']) => StateConfig } = {
     
     'always': () => {
         return VM.constant(ethers.constants.One)

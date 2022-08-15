@@ -1,12 +1,14 @@
 
-# Type StructTypeLib
+# Type ArgsTypeBook
 
 A key/type pair for all the valid Struct types
 
 <b>Signature:</b>
 
 ```typescript
-type StructTypeLib = {
+type ArgsTypeBook = {
+    'always': {};
+    'never': {};
     'input': {
         index: number;
     };

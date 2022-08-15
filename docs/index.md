@@ -192,7 +192,10 @@
 |  Type Alias | Description |
 |  --- | --- |
 |  [Addresses](./types/addresses.md) | Type for all the addresses stored in the Book. |
+|  [AllStandardArgs](./types/allstandardargs.md) | Type of all standard args all together used for inner RuleBuilder typechecking (intersection of all args) |
 |  [Always](./types/always.md) | Type to get an always true condition |
+|  [Args](./types/args.md) | Type of a single valid Strcut's args (union of all possible args) |
+|  [ArgsTypeBook](./types/argstypebook.md) | A key/type pair for all the valid Struct types |
 |  [AutoApproveOps](./types/autoapproveops.md) | Type for the opcodes availables in a AutoApprove instance. |
 |  [CallOptions](./types/calloptions.md) | Options for instantiating RainJSVM |
 |  [ClearConfig](./types/clearconfig.md) | Type for clear vaultIds used when in |
@@ -206,13 +209,14 @@
 |  [DepositConfig](./types/depositconfig.md) | Type for depositing some token amount into a vault used in |
 |  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
 |  [EvidenceConfig](./types/evidenceconfig.md) |  |
-|  [Filter](./types/filter.md) | A filtering utility type for StructTypeLib |
+|  [Filter](./types/filter.md) | A filtering utility type for ArgsTypeBook |
 |  [IOConfig](./types/ioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
 |  [Modifier](./types/modifier.md) | Type for price/quantity modifier based on a tier report or a Rule |
 |  [ModifierType](./types/modifiertype.md) | Valid Modifier types |
 |  [Never](./types/never.md) | Type to get an always false condition |
 |  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |
 |  [Operator](./types/operator.md) | All the valid logical operators used for comparison of Struct and/or StateConfig objects |
+|  [OptionalArgs](./types/optionalargs.md) | Type of all args properties as optional properties |
 |  [Order](./types/order.md) | Type for an order containing all that is required in an order. An Order is an |
 |  [OrderBookOpcodes](./types/orderbookopcodes.md) | Type for the opcodes availables in a OrderBook instance. |
 |  [OrderConfig](./types/orderconfig.md) | A type for an order configuration without any specific owner |
@@ -223,8 +227,8 @@
 |  [SIOConfig](./types/sioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
 |  [StakeDeployArgs](./types/stakedeployargs.md) | A type for deploying a new stake contract which contains everything required for deployment.<br></br>'token' is the main token addtess. 'initialRatio' is the initial conversion ratio between the stake token and main token. 'name' of the stake token. 'symbol' of the stake token |
 |  [Struct](./types/struct.md) | The smallest building block of RuleBuilder that contains the type and its valid arguments or a StateConfig |
-|  [StructTypeLib](./types/structtypelib.md) | A key/type pair for all the valid Struct types |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
 |  [TimeBoundConfig](./types/timeboundconfig.md) |  |
+|  [UnionToIntersection](./types/uniontointersection.md) | A utility generic type to convert union to intersection |
 |  [WithdrawConfig](./types/withdrawconfig.md) | Type for withdrawing some token amount from a vault used in |
 

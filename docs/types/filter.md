@@ -1,15 +1,15 @@
 
 # Type Filter
 
-A filtering utility type for StructTypeLib
+A filtering utility type for ArgsTypeBook
 
 <b>Signature:</b>
 
 ```typescript
-type Filter<T extends keyof StructTypeLib> = {
-    [Prop in keyof StructTypeLib]: {
+type Filter<T extends keyof ArgsTypeBook> = {
+    [Prop in keyof ArgsTypeBook]: {
         subject: T;
-        args: StructTypeLib[T];
+        args: ArgsTypeBook[T];
     };
 };
 ```

@@ -196,7 +196,7 @@ static getQPConfig(qp: Price | Quantity): StateConfig;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  qp | `Price \| Quantity` |  |
+|  qp | `Price \| Quantity` | The price or quantity |
 
 <b>Returns:</b>
 

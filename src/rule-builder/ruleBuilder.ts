@@ -3,6 +3,7 @@ import { BigNumberish, BytesLike } from 'ethers';
 import { StateConfig, VM } from '../classes/vm';
 import { areEqualConfigs, concat } from '../utils';
 import {
+    AllStandardArgs,
     Condition,
     ConditionGroup,
     Currency,
@@ -152,7 +153,7 @@ export class RuleBuilder {
     public static getConditionConfig(condition: Condition): StateConfig {
 
         if (condition === 'always' || condition === 'never') {
-            return vmbook[condition]();
+            return vmbook[condition]({});
         }
         else if ('constants' && 'sources' in condition) {
             return condition;
@@ -160,24 +161,24 @@ export class RuleBuilder {
         else if ('struct' in condition) {
             if ('subject' in condition.struct) {
                 if (condition.operator === 'true') {
-                    return vmbook[condition.struct.subject](condition.struct.args);
+                    return vmbook[condition.struct.subject](condition.struct.args as AllStandardArgs);
                 } 
                 else if (condition.operator === 'not') {
                     return VM[condition.operator](
-                        vmbook[condition.struct.subject](condition.struct.args)
+                        vmbook[condition.struct.subject](condition.struct.args as AllStandardArgs)
                     );
                 } 
                 else {
                     if ('subject' in condition.struct2!) {
                         return VM[condition.operator](
-                            vmbook[condition.struct.subject](condition.struct.args),
-                            vmbook[condition.struct2!.subject](condition.struct2.args),
+                            vmbook[condition.struct.subject](condition.struct.args as AllStandardArgs),
+                            vmbook[condition.struct2!.subject](condition.struct2.args as AllStandardArgs),
                             false
                         );
                     } 
                     else {
                         return VM[condition.operator](
-                            vmbook[condition.struct.subject](condition.struct.args),
+                            vmbook[condition.struct.subject](condition.struct.args as AllStandardArgs),
                             condition.struct2!,
                             false
                         );
@@ -195,7 +196,7 @@ export class RuleBuilder {
                     if ('subject' in condition.struct2!) {
                         return VM[condition.operator](
                         condition.struct,
-                        vmbook[condition.struct2!.subject](condition.struct2.args),
+                        vmbook[condition.struct2!.subject](condition.struct2.args as AllStandardArgs),
                         false
                         );
                     } 
@@ -222,7 +223,7 @@ export class RuleBuilder {
         let group_: StateConfig[] = [];
 
         if (conditionGroup === 'always' || conditionGroup === 'never') {
-            return vmbook[conditionGroup]();
+            return vmbook[conditionGroup]({});
         }
         else if ('constants' && 'sources' in conditionGroup) {
             return conditionGroup;
@@ -230,7 +231,7 @@ export class RuleBuilder {
         else if ('conditions' in conditionGroup) {
             for (const item of conditionGroup.conditions) {
                 if (item === 'always' || item === 'never') {
-                    return vmbook[item]();
+                    return vmbook[item]({});
                 }
                 else if ('constants' && 'sources' in item) {
                     return item;
@@ -258,19 +259,19 @@ export class RuleBuilder {
     /**
      * Method to get the price or quantity StateConfig
      *
-     * @param pq - The price or quantity
+     * @param qp - The price or quantity
      * @returns StateConfig
      */
     public static getQPConfig(qp: Price | Quantity): StateConfig {
         if ('subject' && 'args' in qp.struct) {
             if (qp.modifier !== undefined) {
                 return this.applyModifier(
-                    vmbook[qp.struct.subject](qp.struct.args),
+                    vmbook[qp.struct.subject](qp.struct.args as  AllStandardArgs),
                     qp.modifier
                 );
             } 
             else {
-                return vmbook[qp.struct.subject](qp.struct.args);
+                return vmbook[qp.struct.subject](qp.struct.args as  AllStandardArgs);
             }
         } 
         else if ('consstants' && 'sources' in qp.struct) {

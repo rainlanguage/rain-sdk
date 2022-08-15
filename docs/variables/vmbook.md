@@ -6,5 +6,7 @@ Key/value paired VM functions to get the corresponding StateConfigs from RuleBui
 <b>Signature:</b>
 
 ```typescript
-vmbook: Record<string, (...args: any) => StateConfig>
+vmbook: {
+    [T in keyof ArgsTypeBook]: (args: Filter<T>[T]['args']) => StateConfig;
+}
 ```

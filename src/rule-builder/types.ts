@@ -171,7 +171,15 @@ export type Price = {
  * @public
  * A key/type pair for all the valid Struct types
  */
- export type StructTypeLib = {
+ export type ArgsTypeBook = {
+    /**
+     * Valid arguments for always type
+     */
+    'always': {},
+    /**
+     * Valid arguments for never type
+     */
+    'never': {},
     /**
      * Type for getting the passed value to contract method at call time.
      * This is completely depended on the contract's method signature
@@ -566,22 +574,47 @@ export type Price = {
 
 /**
  * @public
- * A filtering utility type for StructTypeLib
+ * A filtering utility type for ArgsTypeBook
  */
- export type Filter<T extends keyof StructTypeLib> = {
-    [Prop in keyof StructTypeLib]: { 
+export type Filter<T extends keyof ArgsTypeBook> = {
+    [Prop in keyof ArgsTypeBook]: { 
         /**
          * The type of the struct which determines the valid properties (args) and build the StageConfig out of them
-         * @see {@link StructTypeLib} 
+         * @see {@link ArgsTypeBook} 
          */
         subject: T, 
         /**
          * The valid properties of this Struct object
-         * @see {@link StructTypeLib} 
+         * @see {@link ArgsTypeBook} 
          */
-        args: StructTypeLib[T] 
+        args: ArgsTypeBook[T] 
     }
 }
+
+/**
+ * @public
+ * A utility generic type to convert union to intersection
+ */
+export type UnionToIntersection<T> = 
+    (T extends any ? (type: T) => any : never) extends (type: infer R) => any ? R : never
+
+/**
+ * @public
+ * Type of a single valid Strcut's args (union of all possible args)
+ */
+export type Args = Exclude<Struct, StateConfig>['args'];
+
+/**
+ * @public
+ * Type of all standard args all together used for inner RuleBuilder typechecking (intersection of all args)
+ */    
+export type AllStandardArgs = UnionToIntersection<Args>
+
+/**
+ * @public
+ * Type of all args properties as optional properties
+ */    
+ export type OptionalArgs = Partial<UnionToIntersection<Args>>
 
 /**
  * @public
