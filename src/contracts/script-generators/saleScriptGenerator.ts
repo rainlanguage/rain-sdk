@@ -128,7 +128,7 @@ export class PriceCurve {
     tierDiscount: number[],
     tierActivation?: (number | string)[]
   ): this {
-    const stateConfig = VM.toTierDiscounter(
+    const stateConfig = VM.setDiscountForTiers(
       this,
       tierAddress,
       tierDiscount,
@@ -218,7 +218,7 @@ export class PriceCurve {
           stackLength: 1,
           argumentsLength: 0,
         };
-        maxCapConfig = VM.toTierMultiplier(
+        maxCapConfig = VM.setMultiplierForTiers(
           maxCapConfig,
           options.tierAddress,
           options.tierMultiplier,
@@ -275,7 +275,7 @@ export class PriceCurve {
           stackLength: 1,
           argumentsLength: 0,
         };
-        bothCapConfig = VM.toTierMultiplier(
+        bothCapConfig = VM.setMultiplierForTiers(
           bothCapConfig,
           options.tierAddress,
           options.tierMultiplier,
@@ -600,7 +600,7 @@ export class SaleDurationInTimestamp {
    *
    */
   public applyOwnership(ownerAddress: string): this {
-    const stateConfig = VM.toOwnerMaker(this, ownerAddress);
+    const stateConfig = VM.setOwnership(this, ownerAddress);
     this.constants = stateConfig.constants;
     this.sources = stateConfig.sources;
     this.stackLength = stateConfig.stackLength;
@@ -755,7 +755,7 @@ export class SaleDurationInBlocks {
    *
    */
   public applyOwnership(ownerAddress: string): this {
-    const stateConfig = VM.toOwnerMaker(this, ownerAddress);
+    const stateConfig = VM.setOwnership(this, ownerAddress);
     this.constants = stateConfig.constants;
     this.sources = stateConfig.sources;
     this.stackLength = stateConfig.stackLength;
