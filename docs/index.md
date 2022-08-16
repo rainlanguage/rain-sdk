@@ -224,7 +224,7 @@
 |  [Order](./types/order.md) | Type for an order containing all that is required in an order. An Order is an |
 |  [OrderBookOpcodes](./types/orderbookopcodes.md) | Type for the opcodes availables in a OrderBook instance. |
 |  [OrderConfig](./types/orderconfig.md) | A type for an order configuration without any specific owner |
-|  [PrettifyConfig](./types/prettifyconfig.md) | Specific the configuration of the Prettify method. |
+|  [PrettifyConfig](./types/prettifyconfig.md) | Specifies the configuration of the Prettify method. |
 |  [Price](./types/price.md) | Price type |
 |  [Quantity](./types/quantity.md) | Quantity type |
 |  [Rule](./types/rule.md) | A single Rule block, i.e. an if/then block that contains conditions of prices and quantities and its actions which are price and quantity |

@@ -1,7 +1,7 @@
 
 # Type PrettifyConfig
 
-Specific the configuration of the Prettify method.
+Specifies the configuration of the Prettify method.
 
 <b>Signature:</b>
 

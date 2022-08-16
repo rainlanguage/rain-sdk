@@ -318,7 +318,7 @@ export class RainJSVM {
   
         if (this.StorageOps[operand]) {
   
-          await this.StorageOps[operand](this.state, operand, data);
+          await this.StorageOps[operand].call(this, this.state, operand, data);
         }
         else throw new Error("no or out-of-bound storage opcode")
       } 
