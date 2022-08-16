@@ -1,5 +1,5 @@
 import { vmbook } from './vmbook';
-import { BigNumberish, BytesLike } from 'ethers';
+import { BigNumber, BigNumberish, BytesLike, Contract, ethers, Signer } from 'ethers';
 import { StateConfig, VM } from '../classes/vm';
 import { areEqualConfigs, concat } from '../utils';
 import {
@@ -7,10 +7,15 @@ import {
     Condition,
     ConditionGroup,
     Currency,
+    eConditionGroup,
+    eCurrency,
+    eRule,
     Modifier,
     Price,
-    Quantity,
+    Quantity
 } from './types';
+import { FnPtrsJSVM, RainJSVM } from '../jsvm/RainJSVM';
+import { IOpMeta } from '../vm/OpMeta';
 
 
 /**
@@ -231,10 +236,10 @@ export class RuleBuilder {
         else if ('conditions' in conditionGroup) {
             for (const item of conditionGroup.conditions) {
                 if (item === 'always' || item === 'never') {
-                    return vmbook[item]({});
+                    group_.push(vmbook[item]({}));
                 }
                 else if ('constants' && 'sources' in item) {
-                    return item;
+                    group_.push(item);
                 }
                 else if ('conditions' in item) {
                     group_.push(this.getConditionGroupConfig(item));
@@ -313,4 +318,395 @@ export class RuleBuilder {
         } 
         else throw new Error('Invalid Arguments');
     }
+
+    /**
+     * @public
+     * Method to execute and evaluate the generated StateConfig by Rain JSVM from Currency object(s) and return an eCurrency 
+     * object(s) which is basically the same Currency object with result fields for each individual
+     * part of the StateConfig i.e. Quantities, Prices, Conditions etc.
+     * 
+     * @param currencies - An array of Currency object(s)
+     * @param signer - A valid ethers signer
+     * @param options - (optional) Additional arguments to be passed to the JSVM
+     * @returns An eCurrency object
+     */
+    public static async eval(
+        currencies: Currency[],
+        signer: Signer,
+        options?: {
+            /**
+             * This assets contract or its address
+             */
+            contract?: Contract | string,
+            /**
+             * Necessary context such as account, buy units, ... for JSVM to be able to run properly
+             */
+            context?: string[],
+            /**
+             * Any other potential data that needs to be provided for JSVM at runtime
+             */
+            data?: any,
+            /**
+             * The OpMeta Map object that contains all the opcodes' functions and enums and can be used 
+             * for expanding and/or providing custom/local opcodes for JSVM
+             */
+            opMeta?:  Map<number, IOpMeta>
+            /**
+             * key/value pair of custom STORAGE opcodes' functions
+             */
+            storageOpFn?: FnPtrsJSVM,
+        }
+    ): Promise<eCurrency[]> {
+
+        /**
+         * A function to get the eConditionGroup object from a ConditionGroup
+         */
+        const evalConditionGroup = async (
+            conditionGroup: ConditionGroup,
+            signer: Signer,
+            contract?: Contract | string,
+            context?: string[],
+            data?: any,
+            storageOpFn?: FnPtrsJSVM,
+            opMeta?:  Map<number, IOpMeta>
+        ): Promise<eConditionGroup> => {
+            let group_: StateConfig[] = [];
+            let obj: any = conditionGroup;
+
+            if (conditionGroup === 'always' || conditionGroup === 'never') {
+                obj = conditionGroup as eConditionGroup;
+            }
+            else if ('constants' && 'sources' in conditionGroup) {
+                const result_ = await (
+                    new RainJSVM(conditionGroup, {
+                        signer,
+                        contract,
+                        storageOpFn,
+                        opMeta
+                    })
+                )
+                .run({ context, ...data })
+
+                obj.result = result_[result_.length - 1].isZero() 
+                    ? false 
+                    : true
+            }
+            else if ('conditions' in conditionGroup) {
+                for (let i = 0; i < conditionGroup.conditions.length; i++) {
+                    const condition = conditionGroup.conditions[i];
+
+                    if (condition === 'always' || condition === 'never') {
+                        group_.push(vmbook[condition]({}))
+                    }
+                    else if ('constants' && 'sources' in condition) {
+                        group_.push(condition);
+                        const result_ = await (
+                            new RainJSVM(condition, {
+                                signer,
+                                contract,
+                                storageOpFn,
+                                opMeta
+                            })
+                        )
+                        .run({ context, ...data })
+
+                        obj.conditions[i].results = result_[result_.length - 1].isZero() 
+                            ? false 
+                            : true;
+                    }
+                    else if ('conditions' in condition) {
+                        const config_ = this.getConditionGroupConfig(condition);
+                        group_.push(config_);
+
+                        obj.conditions[i] = await evalConditionGroup(
+                            condition,
+                            signer,
+                            contract,
+                            context,
+                            data,
+                            storageOpFn,
+                            opMeta
+                        )
+                    }
+                    else {
+                        const config_ = this.getConditionConfig(condition);
+                        group_.push(config_);
+
+                        const result_ = await (
+                            new RainJSVM(config_, {
+                                signer,
+                                contract,
+                                storageOpFn,
+                                opMeta
+                            })
+                        )
+                        .run({ context, ...data })
+
+                        obj.conditions[i].result = result_[result_.length - 1].isZero() 
+                            ? false 
+                            : true;
+                    }
+                }
+                if (conditionGroup.operator === 'true') {
+                    const result_ = await (
+                        new RainJSVM(group_[0], {
+                            signer,
+                            contract,
+                            storageOpFn,
+                            opMeta
+                        })
+                    )
+                    .run({ context, ...data })
+
+                    obj.result = result_[result_.length - 1].isZero() 
+                        ? false 
+                        : true;
+                }
+                else if (conditionGroup.operator === 'not') {
+                    const result_ = await (
+                        new RainJSVM(
+                            VM[conditionGroup.operator](group_[0]), {
+                                signer,
+                                contract,
+                                storageOpFn,
+                                opMeta
+                            }
+                        )
+                    )
+                    .run({ context, ...data })
+
+                    obj.result = result_[result_.length - 1].isZero() 
+                        ? false 
+                        : true;
+                }
+                else {
+                    const result_ = await (
+                        new RainJSVM(
+                            VM[conditionGroup.operator](group_, false), {
+                                signer,
+                                contract,
+                                storageOpFn,
+                                opMeta
+                            }
+                        )
+                    )
+                    .run({ context, ...data })
+
+                    obj.result = result_[result_.length - 1].isZero() 
+                        ? false 
+                        : true;
+                }
+            }
+            return obj as eConditionGroup
+        }
+
+        let eCurrencyObj: eCurrency[] = [];
+        let q_: BigNumber[] = [];
+        let p_: BigNumber[] = [];
+
+        for (let i = 0; i < currencies.length; i++) {
+            let eRules: eRule[] = [];
+
+            for (let j = 0; j < currencies[i].rules.length; j++) {
+                const rule = currencies[i].rules[j];
+                let temp: BigNumber[];
+
+                temp = await (
+                    new RainJSVM(
+                        this.getQPConfig(rule.quantity), { 
+                            signer,
+                            contract: options?.contract,
+                            opMeta: options?.opMeta,
+                            storageOpFn: options?.storageOpFn
+                        }
+                    )
+                )
+                .run({
+                    context: options?.context,
+                    ...options?.data
+                });
+                const qResult_ = temp[temp.length - 1];
+
+                temp = await (
+                    new RainJSVM(
+                        this.getQPConfig(rule.price), { 
+                            signer,
+                            contract: options?.contract,
+                            opMeta: options?.opMeta,
+                            storageOpFn: options?.storageOpFn
+                        }
+                    )
+                )
+                .run({
+                    context: options?.context,
+                    ...options?.data
+                });
+                const pResult_ = temp[temp.length - 1];
+
+                temp = await (
+                    new RainJSVM(
+                        this.getQPConfig(currencies[i].default.price), {
+                            signer,
+                            contract: options?.contract,
+                            opMeta: options?.opMeta,
+                            storageOpFn: options?.storageOpFn
+                        }
+                    )
+                )
+                .run({
+                    context: options?.context,
+                    ...options?.data
+                });
+                const pDefault_ = temp[temp.length - 1];
+
+                const quantityConditions = await evalConditionGroup(
+                    rule.quantityConditions,
+                    signer,
+                    options?.contract,
+                    options?.context,
+                    options?.data,
+                    options?.storageOpFn,
+                    options?.opMeta
+                );
+                const priceConditions = await evalConditionGroup(
+                    rule.priceConditions,
+                    signer,
+                    options?.contract,
+                    options?.context,
+                    options?.data,
+                    options?.storageOpFn,
+                    options?.opMeta
+                );
+
+                eRules.push({
+                    quantityConditions,
+                    priceConditions,
+                    quantity: rule.quantity,
+                    price: rule.price,
+                    result: {
+                        quantity: quantityConditions === 'always'
+                            ? qResult_
+                            : quantityConditions === 'never'
+                            ? ethers.constants.Zero
+                            : quantityConditions.result
+                            ? qResult_
+                            : ethers.constants.Zero,
+
+                        price: priceConditions === 'always'
+                            ? pResult_
+                            : priceConditions === 'never'
+                            ? pDefault_
+                            : priceConditions.result
+                            ? pResult_
+                            : pDefault_,
+                    }
+                })
+
+                q_.push(eRules[j].result.quantity);
+                p_.push(eRules[j].result.price);
+            }
+
+            eCurrencyObj[i] = {
+                rules: eRules,
+                default: currencies[i].default,
+                pick: currencies[i].pick,
+                result: {
+                    quantity: q_.reduce(
+                        (a, b) => eCurrencyObj[i].pick.quantities === 'max' 
+                            ? a.gte(b) ? a : b 
+                            : a.lte(b) ? a : b
+                    ),
+                    price: p_.reduce(
+                        (a, b) => eCurrencyObj[i].pick.prices === 'max' 
+                            ? a.gte(b) ? a : b 
+                            : a.lte(b) ? a : b
+                    )
+                }
+            }
+
+            const qModifier = currencies[i].quantityGlobalModifier;
+            const pModifier = currencies[i].priceGlobalModifier;
+
+            if (qModifier) {
+                eCurrencyObj[i].quantityGlobalModifier = currencies[i].quantityGlobalModifier;
+                if (qModifier.condition === 'always') {
+                    if (qModifier.type === 'multiplier') {
+                        eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                            .mul(Math.floor(qModifier.values * 100))
+                            .div(100)
+                    }
+                    else {
+                        eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                            .mul(Math.floor(qModifier.values * 10000))
+                            .div(10000)
+                    }
+                }
+                if (qModifier.condition !== 'never') {
+                    if (
+                        ((await evalConditionGroup(
+                            qModifier.condition,
+                            signer,
+                            options?.contract,
+                            options?.context,
+                            options?.data,
+                            options?.storageOpFn,
+                            options?.opMeta
+                        )) as Exclude<eConditionGroup, 'always' | 'never'>).result
+                    ) {
+                        if (qModifier.type === 'multiplier') {
+                            eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                                .mul(Math.floor(qModifier.values * 100))
+                                .div(100)
+                        }
+                        else {
+                            eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                                .mul(Math.floor(qModifier.values * 10000))
+                                .div(10000)
+                        }
+                    }
+                }
+            }
+            if (pModifier) {
+                eCurrencyObj[i].priceGlobalModifier = currencies[i].priceGlobalModifier;
+                if (pModifier.condition === 'always') {
+                    if (pModifier.type === 'multiplier') {
+                        eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                            .mul(Math.floor(pModifier.values * 100))
+                            .div(100)
+                    }
+                    else {
+                        eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                            .mul(Math.floor(pModifier.values * 10000))
+                            .div(10000)
+                    }
+                }
+                if (pModifier.condition !== 'never') {
+                    if (
+                        ((await evalConditionGroup(
+                            pModifier.condition,
+                            signer,
+                            options?.contract,
+                            options?.context,
+                            options?.data,
+                            options?.storageOpFn,
+                            options?.opMeta
+                        )) as Exclude<eConditionGroup, 'always' | 'never'>).result
+                    ) {
+                        if (pModifier.type === 'multiplier') {
+                            eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                                .mul(Math.floor(pModifier.values * 100))
+                                .div(100)
+                        }
+                        else {
+                            eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                                .mul(Math.floor(pModifier.values * 10000))
+                                .div(10000)
+                        }
+                    }
+                }
+            }
+        }
+        return eCurrencyObj;
+    }
+
 }

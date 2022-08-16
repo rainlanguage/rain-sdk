@@ -89,8 +89,8 @@ export type Rule = {
  * The default block, i.e. default quantity and price
  */
 export type Default = {
-    quantity: Quantity;
-    price: Price;
+    quantity: Omit<Quantity, 'modifier'>;
+    price: Omit<Price, 'modifier'>;
 };
 
 /**
@@ -647,3 +647,55 @@ export type Struct =
     | Filter<'decreasing-by-time-period'>['decreasing-by-time-period']
     | Filter<'increasing-by-block-period'>['increasing-by-block-period']
     | Filter<'decreasing-by-block-period'>['decreasing-by-block-period'];
+
+/**
+ * @public
+ * Type of a evaluated Condition with JSVM, which is the same as Condition with a result property
+ */
+export type eCondition = (Exclude<Condition, Always | Never> & { result: boolean }) | Always | Never
+
+/**
+ * @public
+ * Type of a evaluated ConditionGroup with JSVM, which is the same as ConditionGroup with a result property
+ */
+export type eConditionGroup = (({
+    conditions: (eCondition | eConditionGroup)[];
+    operator: Exclude<
+        Operator,
+        'min' | 'max' | 'eq' | 'gt' | 'lt' | 'lte' | 'gte'
+    >;
+} | StateConfig) & { result: boolean }) | Always | Never
+
+/**
+ * @public
+ * Type of a evaluated Rule with JSVM, which is the same as Rule with a result property
+ */
+export type eRule = {
+    quantityConditions: eConditionGroup;
+    priceConditions: eConditionGroup;
+    quantity: Quantity;
+    price: Price;
+    result: {
+        quantity: BigNumber,
+        price: BigNumber
+    }
+}
+
+/**
+ * @public
+ * Type of a evaluated Currency with JSVM, which is the same as Currency with a result property
+ */
+export type eCurrency = {
+    rules: eRule[];
+    default: Default;
+    quantityGlobalModifier?: Modifier;
+    priceGlobalModifier?: Modifier;
+    pick: {
+        quantities: Extract<Operator, 'min' | 'max'>;
+        prices: Extract<Operator, 'min' | 'max'>;
+    };
+    result: {
+        quantity: BigNumber,
+        price: BigNumber
+    }
+}

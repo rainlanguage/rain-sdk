@@ -7,7 +7,7 @@ The default block, i.e. default quantity and price
 
 ```typescript
 type Default = {
-    quantity: Quantity;
-    price: Price;
+    quantity: Omit<Quantity, 'modifier'>;
+    price: Omit<Price, 'modifier'>;
 };
 ```

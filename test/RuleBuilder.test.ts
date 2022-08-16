@@ -1,8 +1,9 @@
+import { ethers } from "hardhat"
 import { assert } from "chai";
 import { Tier } from "./utils";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { RuleBuilder, StateConfig, VM } from "../src";
-import { Currency } from "../src/rule-builder/types";
+import { Currency, eCurrency } from "../src/rule-builder/types";
 import { areEqualConfigs, concat, op, paddedUInt32 } from "../src/utils";
 
 
@@ -747,6 +748,176 @@ describe('SDK - RuleBuilder', () => {
     assert(
       areEqualConfigs(resultConfig, expectedConfig),
       `RuleBuilder did not generate correct StateConfig`
+    );
+  });
+
+  it('should correctly execute the JSVM for a Currency object and return the evaluted Currency object', async () => {
+    const signer = (await ethers.getSigners())[0];
+    const currencyObject: Currency = {
+      rules: [
+        {
+          quantityConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true'
+              }
+            ],
+            operator: 'true'
+          },
+          priceConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true'
+              }
+            ],
+            operator: 'true'
+          },
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(1)
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(5)
+              }
+            }
+          }
+        },
+      ],
+      default: {
+        quantity: {
+          struct: {
+            subject: 'constant',
+            args: {
+              value: ethers.constants.Zero
+            }
+          }
+        },
+        price: {
+          struct: {
+            subject: 'constant',
+            args: {
+              value: BigNumber.from(7)
+            }
+          }
+        }
+      },
+      pick: {
+        quantities: 'max',
+        prices: 'min'
+      }
+    };
+
+    const expectedObject: eCurrency[] = [{
+      rules: [
+        {
+          quantityConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'true',
+            result: true
+          },
+          priceConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'true',
+            result: true
+          },
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(1)
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(5)
+              }
+            }
+          },
+          result: {
+            quantity: BigNumber.from(1),
+            price: BigNumber.from(5)
+          }
+        }
+      ],
+      default: {
+        quantity: {
+          struct: {
+            subject: 'constant',
+            args: {
+              value: ethers.constants.Zero
+            }
+          }
+        },
+        price: {
+          struct: {
+            subject: 'constant',
+            args: {
+              value: BigNumber.from(7)
+            }
+          }
+        }
+      },
+      pick: {
+        quantities: 'max',
+        prices: 'min'
+      },
+      result: {
+        quantity: BigNumber.from(1),
+        price: BigNumber.from(5) 
+      }
+    }];
+
+    const resultObject = await RuleBuilder.eval([currencyObject], signer);
+
+    assert(
+      JSON.stringify(expectedObject) === JSON.stringify(resultObject),
+      `Result Currency object is not correct
+        expected: ${JSON.stringify(expectedObject)}
+        got: ${JSON.stringify(resultObject)}`
     );
   });
 });

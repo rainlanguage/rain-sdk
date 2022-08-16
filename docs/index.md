@@ -207,7 +207,11 @@
 |  [Currency](./types/currency.md) | Type of a single currency, the main parameter used in RuleBuilder to build the StateConfig |
 |  [Default](./types/default.md) | The default block, i.e. default quantity and price |
 |  [DepositConfig](./types/depositconfig.md) | Type for depositing some token amount into a vault used in |
+|  [eCondition](./types/econdition.md) | Type of a evaluated Condition with JSVM, which is the same as Condition with a result property |
+|  [eConditionGroup](./types/econditiongroup.md) | Type of a evaluated ConditionGroup with JSVM, which is the same as ConditionGroup with a result property |
+|  [eCurrency](./types/ecurrency.md) | Type of a evaluated Currency with JSVM, which is the same as Currency with a result property |
 |  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
+|  [eRule](./types/erule.md) | Type of a evaluated Rule with JSVM, which is the same as Rule with a result property |
 |  [EvidenceConfig](./types/evidenceconfig.md) |  |
 |  [Filter](./types/filter.md) | A filtering utility type for ArgsTypeBook |
 |  [IOConfig](./types/ioconfig.md) | token the address of the desired token vaultId corresponding token vault id |

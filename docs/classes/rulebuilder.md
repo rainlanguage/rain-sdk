@@ -44,6 +44,7 @@ const price = RuleBuilder.getQPConfig(price)
 |  Method | Description |
 |  --- | --- |
 |  [applyModifier(config, modifier)](./rulebuilder.md#applyModifier-method-static-1) | Method to generate a single currency rule-based StateConfig |
+|  [eval(currencies, signer, options)](./rulebuilder.md#eval-method-static-1) | Method to execute and evaluate the generated StateConfig by Rain JSVM from Currency object(s) and return an eCurrency object(s) which is basically the same Currency object with result fields for each individual part of the StateConfig i.e. Quantities, Prices, Conditions etc. |
 |  [from(currencies)](./rulebuilder.md#from-method-static-1) | Method to generate a multi currency rule-based StateConfig |
 |  [getConditionConfig(condition)](./rulebuilder.md#getConditionConfig-method-static-1) | Method to get the conditions' StateConfig of a ConditionGroup seperately |
 |  [getConditionGroupConfig(conditionGroup)](./rulebuilder.md#getConditionGroupConfig-method-static-1) | Method to get the a ConditionGroup StateConfig |
@@ -107,6 +108,38 @@ static applyModifier(config: StateConfig, modifier: Modifier): StateConfig;
 `StateConfig`
 
 StateConfig
+
+<a id="eval-method-static-1"></a>
+
+### eval(currencies, signer, options)
+
+Method to execute and evaluate the generated StateConfig by Rain JSVM from Currency object(s) and return an eCurrency object(s) which is basically the same Currency object with result fields for each individual part of the StateConfig i.e. Quantities, Prices, Conditions etc.
+
+<b>Signature:</b>
+
+```typescript
+static eval(currencies: Currency[], signer: Signer, options?: {
+        contract?: Contract | string;
+        context?: string[];
+        data?: any;
+        opMeta?: Map<number, IOpMeta>;
+        storageOpFn?: FnPtrsJSVM;
+    }): Promise<eCurrency[]>;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  currencies | `Currency[]` | An array of Currency object(s) |
+|  signer | `Signer` | A valid ethers signer |
+|  options | <pre>{&#010;    contract?: Contract \| string;&#010;    context?: string[];&#010;    data?: any;&#010;    opMeta?: Map<number, IOpMeta>;&#010;    storageOpFn?: FnPtrsJSVM;&#010;}</pre> | (optional) Additional arguments to be passed to the JSVM |
+
+<b>Returns:</b>
+
+`Promise<eCurrency[]>`
+
+An eCurrency object
 
 <a id="from-method-static-1"></a>
 
