@@ -49,7 +49,6 @@ export type { IERC1155Receiver } from "./IERC1155Receiver";
 export type { ERC20 } from "./ERC20";
 export type { IERC20Permit } from "./IERC20Permit";
 export type { ERC20Burnable } from "./ERC20Burnable";
-export type { ERC20Snapshot } from "./ERC20Snapshot";
 export type { IERC20Metadata } from "./IERC20Metadata";
 export type { ERC721 } from "./ERC721";
 export type { ERC721Burnable } from "./ERC721Burnable";
@@ -175,7 +174,6 @@ export { IERC1155Receiver__factory } from "./factories/IERC1155Receiver__factory
 export { ERC20__factory } from "./factories/ERC20__factory";
 export { IERC20Permit__factory } from "./factories/IERC20Permit__factory";
 export { ERC20Burnable__factory } from "./factories/ERC20Burnable__factory";
-export { ERC20Snapshot__factory } from "./factories/ERC20Snapshot__factory";
 export { IERC20Metadata__factory } from "./factories/IERC20Metadata__factory";
 export { ERC721__factory } from "./factories/ERC721__factory";
 export { ERC721Burnable__factory } from "./factories/ERC721Burnable__factory";

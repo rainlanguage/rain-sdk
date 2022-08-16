@@ -14,8 +14,7 @@ import {
   selectLteLogic,
   selectLteMode 
 } from '../../utils';
-import { HumanFriendlySource } from '../../friendlySource';
-
+import { CombineTierJS } from '../../RainJS/CombineTierJS';
 
 
 /**
