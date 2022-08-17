@@ -374,7 +374,7 @@ export class RuleBuilder {
             let obj: any = conditionGroup;
 
             if (conditionGroup === 'always' || conditionGroup === 'never') {
-                obj = conditionGroup as eConditionGroup;
+                obj = conditionGroup;
             }
             else if ('constants' && 'sources' in conditionGroup) {
                 const result_ = await (
@@ -506,10 +506,44 @@ export class RuleBuilder {
 
         for (let i = 0; i < currencies.length; i++) {
             let eRules: eRule[] = [];
+            let temp: BigNumber[];
+
+            temp = await (
+                new RainJSVM(
+                    this.getQPConfig(currencies[i].default.quantity), {
+                        signer,
+                        contract: options?.contract,
+                        opMeta: options?.opMeta,
+                        storageOpFn: options?.storageOpFn
+                    }
+                )
+            )
+            .run({
+                context: options?.context,
+                ...options?.data
+            });
+            const qDefault_ = temp[temp.length - 1];
+            q_.push(qDefault_);
+
+            temp = await (
+                new RainJSVM(
+                    this.getQPConfig(currencies[i].default.price), {
+                        signer,
+                        contract: options?.contract,
+                        opMeta: options?.opMeta,
+                        storageOpFn: options?.storageOpFn
+                    }
+                )
+            )
+            .run({
+                context: options?.context,
+                ...options?.data
+            });
+            const pDefault_ = temp[temp.length - 1];
+            p_.push(pDefault_);
 
             for (let j = 0; j < currencies[i].rules.length; j++) {
                 const rule = currencies[i].rules[j];
-                let temp: BigNumber[];
 
                 temp = await (
                     new RainJSVM(
@@ -526,6 +560,22 @@ export class RuleBuilder {
                     ...options?.data
                 });
                 const qResult_ = temp[temp.length - 1];
+                let qm_;
+                if (rule.quantity.modifier !== undefined) {
+                    qm_ = {
+                        type: rule.quantity.modifier.type,
+                        values: rule.quantity.modifier.values,
+                        condition: await evalConditionGroup(
+                            rule.quantity.modifier.condition,
+                            signer,
+                            options?.contract,
+                            options?.context,
+                            options?.data,
+                            options?.storageOpFn,
+                            options?.opMeta
+                        )
+                    }
+                }
 
                 temp = await (
                     new RainJSVM(
@@ -542,22 +592,22 @@ export class RuleBuilder {
                     ...options?.data
                 });
                 const pResult_ = temp[temp.length - 1];
-
-                temp = await (
-                    new RainJSVM(
-                        this.getQPConfig(currencies[i].default.price), {
+                let pm_;
+                if (rule.price.modifier !== undefined) {
+                    pm_ = {
+                        type: rule.price.modifier.type,
+                        values: rule.price.modifier.values,
+                        condition: await evalConditionGroup(
+                            rule.price.modifier.condition,
                             signer,
-                            contract: options?.contract,
-                            opMeta: options?.opMeta,
-                            storageOpFn: options?.storageOpFn
-                        }
-                    )
-                )
-                .run({
-                    context: options?.context,
-                    ...options?.data
-                });
-                const pDefault_ = temp[temp.length - 1];
+                            options?.contract,
+                            options?.context,
+                            options?.data,
+                            options?.storageOpFn,
+                            options?.opMeta
+                        )
+                    }
+                }
 
                 const quantityConditions = await evalConditionGroup(
                     rule.quantityConditions,
@@ -581,8 +631,14 @@ export class RuleBuilder {
                 eRules.push({
                     quantityConditions,
                     priceConditions,
-                    quantity: rule.quantity,
-                    price: rule.price,
+                    quantity: {
+                        struct: rule.quantity.struct,
+                        modifier: qm_
+                    },
+                    price: {
+                        struct: rule.price.struct,
+                        modifier: pm_
+                    },
                     result: {
                         quantity: quantityConditions === 'always'
                             ? qResult_
@@ -612,12 +668,12 @@ export class RuleBuilder {
                 pick: currencies[i].pick,
                 result: {
                     quantity: q_.reduce(
-                        (a, b) => eCurrencyObj[i].pick.quantities === 'max' 
+                        (a, b) => currencies[i].pick.quantities === 'max' 
                             ? a.gte(b) ? a : b 
                             : a.lte(b) ? a : b
                     ),
                     price: p_.reduce(
-                        (a, b) => eCurrencyObj[i].pick.prices === 'max' 
+                        (a, b) => currencies[i].pick.prices === 'max' 
                             ? a.gte(b) ? a : b 
                             : a.lte(b) ? a : b
                     )
@@ -628,7 +684,19 @@ export class RuleBuilder {
             const pModifier = currencies[i].priceGlobalModifier;
 
             if (qModifier) {
-                eCurrencyObj[i].quantityGlobalModifier = currencies[i].quantityGlobalModifier;
+                eCurrencyObj[i].quantityGlobalModifier = {
+                    type: qModifier.type,
+                    values: qModifier.values,
+                    condition: await evalConditionGroup(
+                        qModifier.condition,
+                        signer,
+                        options?.contract,
+                        options?.context,
+                        options?.data,
+                        options?.storageOpFn,
+                        options?.opMeta
+                    )
+                };
                 if (qModifier.condition === 'always') {
                     if (qModifier.type === 'multiplier') {
                         eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
@@ -643,15 +711,9 @@ export class RuleBuilder {
                 }
                 if (qModifier.condition !== 'never') {
                     if (
-                        ((await evalConditionGroup(
-                            qModifier.condition,
-                            signer,
-                            options?.contract,
-                            options?.context,
-                            options?.data,
-                            options?.storageOpFn,
-                            options?.opMeta
-                        )) as Exclude<eConditionGroup, 'always' | 'never'>).result
+                        (eCurrencyObj[i].quantityGlobalModifier!.condition as Exclude<
+                            eConditionGroup, 'always' | 'never'
+                        >).result
                     ) {
                         if (qModifier.type === 'multiplier') {
                             eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
@@ -667,7 +729,19 @@ export class RuleBuilder {
                 }
             }
             if (pModifier) {
-                eCurrencyObj[i].priceGlobalModifier = currencies[i].priceGlobalModifier;
+                eCurrencyObj[i].priceGlobalModifier = {
+                    type: pModifier.type,
+                    values: pModifier.values,
+                    condition: await evalConditionGroup(
+                        pModifier.condition,
+                        signer,
+                        options?.contract,
+                        options?.context,
+                        options?.data,
+                        options?.storageOpFn,
+                        options?.opMeta
+                    )
+                };
                 if (pModifier.condition === 'always') {
                     if (pModifier.type === 'multiplier') {
                         eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
@@ -682,15 +756,9 @@ export class RuleBuilder {
                 }
                 if (pModifier.condition !== 'never') {
                     if (
-                        ((await evalConditionGroup(
-                            pModifier.condition,
-                            signer,
-                            options?.contract,
-                            options?.context,
-                            options?.data,
-                            options?.storageOpFn,
-                            options?.opMeta
-                        )) as Exclude<eConditionGroup, 'always' | 'never'>).result
+                        (eCurrencyObj[i].priceGlobalModifier!.condition as Exclude<
+                            eConditionGroup, 'always' | 'never'
+                        >).result
                     ) {
                         if (pModifier.type === 'multiplier') {
                             eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
@@ -708,5 +776,5 @@ export class RuleBuilder {
         }
         return eCurrencyObj;
     }
-
 }
+

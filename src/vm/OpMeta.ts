@@ -78,10 +78,10 @@ import { OpERC20SnapshotTotalSupplyAt } from "../jsvm/ops/erc20/snapshot/OpERC20
      */
     derived: (opcode: number, operand: number) => {
         if (opcode === AllStandardOps.ZIPMAP) {
-            return operand >> 5;
+            return (operand >> 5) + 1 ;
         }
         if (opcode === AllStandardOps.SELECT_LTE) {
-            return (operand & 248) >> 3;
+            return (operand & 31) + 1;
         }
         if (opcode === AllStandardOps.IERC1155_BALANCE_OF_BATCH) {
             return (operand * 2) + 1;

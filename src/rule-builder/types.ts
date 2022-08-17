@@ -688,8 +688,8 @@ export type eRule = {
 export type eCurrency = {
     rules: eRule[];
     default: Default;
-    quantityGlobalModifier?: Modifier;
-    priceGlobalModifier?: Modifier;
+    quantityGlobalModifier?: Omit<Modifier, 'condition'> & { condition: eConditionGroup };
+    priceGlobalModifier?: Omit<Modifier, 'condition'> & { condition: eConditionGroup };
     pick: {
         quantities: Extract<Operator, 'min' | 'max'>;
         prices: Extract<Operator, 'min' | 'max'>;

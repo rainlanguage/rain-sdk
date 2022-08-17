@@ -766,9 +766,18 @@ describe('SDK - RuleBuilder', () => {
                   }
                 },
                 operator: 'true'
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true'
               }
             ],
-            operator: 'true'
+            operator: 'and'
           },
           priceConditions: {
             conditions: [
@@ -780,9 +789,82 @@ describe('SDK - RuleBuilder', () => {
                   }
                 },
                 operator: 'true'
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true'
               }
             ],
-            operator: 'true'
+            operator: 'and'
+          },
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(1)
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(5)
+              }
+            }
+          }
+        },
+        {
+          quantityConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true'
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true'
+              }
+            ],
+            operator: 'and'
+          },
+          priceConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true'
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true'
+              }
+            ],
+            operator: 'and'
           },
           quantity: {
             struct: {
@@ -840,9 +922,19 @@ describe('SDK - RuleBuilder', () => {
                 },
                 operator: 'true',
                 result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
               }
             ],
-            operator: 'true',
+            operator: 'and',
             result: true
           },
           priceConditions: {
@@ -856,9 +948,93 @@ describe('SDK - RuleBuilder', () => {
                 },
                 operator: 'true',
                 result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
               }
             ],
-            operator: 'true',
+            operator: 'and',
+            result: true
+          },
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(1)
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(5)
+              }
+            }
+          },
+          result: {
+            quantity: BigNumber.from(1),
+            price: BigNumber.from(5)
+          }
+        },
+        {
+          quantityConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
+            result: true
+          },
+          priceConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
             result: true
           },
           quantity: {
@@ -912,6 +1088,686 @@ describe('SDK - RuleBuilder', () => {
     }];
 
     const resultObject = await RuleBuilder.eval([currencyObject], signer);
+
+    assert(
+      JSON.stringify(expectedObject) === JSON.stringify(resultObject),
+      `Result Currency object is not correct
+        expected: ${JSON.stringify(expectedObject)}
+        got: ${JSON.stringify(resultObject)}`
+    );
+  });
+
+  it('should correctly execute the JSVM for multi Currency object and return the evaluted Currency objects', async () => {
+    const signer = (await ethers.getSigners())[0];
+    const currencyObjects: Currency[] = [
+      {
+        rules: [
+          {
+            quantityConditions: {
+              conditions: [
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                },
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                }
+              ],
+              operator: 'and'
+            },
+            priceConditions: {
+              conditions: [
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                },
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                }
+              ],
+              operator: 'and'
+            },
+            quantity: {
+              struct: {
+                subject: 'constant',
+                args: {
+                  value: BigNumber.from(1)
+                }
+              }
+            },
+            price: {
+              struct: {
+                subject: 'constant',
+                args: {
+                  value: BigNumber.from(5)
+                }
+              }
+            }
+          },
+          {
+            quantityConditions: {
+              conditions: [
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                },
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                }
+              ],
+              operator: 'and'
+            },
+            priceConditions: {
+              conditions: [
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                },
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                }
+              ],
+              operator: 'and'
+            },
+            quantity: {
+              struct: {
+                subject: 'constant',
+                args: {
+                  value: BigNumber.from(1)
+                }
+              }
+            },
+            price: {
+              struct: {
+                subject: 'constant',
+                args: {
+                  value: BigNumber.from(5)
+                }
+              }
+            }
+          },
+        ],
+        default: {
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: ethers.constants.Zero
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(7)
+              }
+            }
+          }
+        },
+        pick: {
+          quantities: 'max',
+          prices: 'min'
+        }
+      },
+      {
+        rules: [
+          {
+            quantityConditions: {
+              conditions: [
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                },
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                }
+              ],
+              operator: 'and'
+            },
+            priceConditions: {
+              conditions: [
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                },
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                }
+              ],
+              operator: 'and'
+            },
+            quantity: {
+              struct: {
+                subject: 'constant',
+                args: {
+                  value: BigNumber.from(1)
+                }
+              }
+            },
+            price: {
+              struct: {
+                subject: 'constant',
+                args: {
+                  value: BigNumber.from(5)
+                }
+              }
+            }
+          },
+          {
+            quantityConditions: {
+              conditions: [
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                },
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                }
+              ],
+              operator: 'and'
+            },
+            priceConditions: {
+              conditions: [
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                },
+                {
+                  struct: {
+                    subject: 'constant',
+                    args: {
+                      value: BigNumber.from(10)
+                    }
+                  },
+                  operator: 'true'
+                }
+              ],
+              operator: 'and'
+            },
+            quantity: {
+              struct: {
+                subject: 'constant',
+                args: {
+                  value: BigNumber.from(1)
+                }
+              }
+            },
+            price: {
+              struct: {
+                subject: 'constant',
+                args: {
+                  value: BigNumber.from(5)
+                }
+              }
+            }
+          },
+        ],
+        default: {
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: ethers.constants.Zero
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(7)
+              }
+            }
+          }
+        },
+        pick: {
+          quantities: 'max',
+          prices: 'min'
+        }
+      }
+    ];
+
+    const expectedObject: eCurrency[] = [{
+      rules: [
+        {
+          quantityConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
+            result: true
+          },
+          priceConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
+            result: true
+          },
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(1)
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(5)
+              }
+            }
+          },
+          result: {
+            quantity: BigNumber.from(1),
+            price: BigNumber.from(5)
+          }
+        },
+        {
+          quantityConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
+            result: true
+          },
+          priceConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
+            result: true
+          },
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(1)
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(5)
+              }
+            }
+          },
+          result: {
+            quantity: BigNumber.from(1),
+            price: BigNumber.from(5)
+          }
+        }
+      ],
+      default: {
+        quantity: {
+          struct: {
+            subject: 'constant',
+            args: {
+              value: ethers.constants.Zero
+            }
+          }
+        },
+        price: {
+          struct: {
+            subject: 'constant',
+            args: {
+              value: BigNumber.from(7)
+            }
+          }
+        }
+      },
+      pick: {
+        quantities: 'max',
+        prices: 'min'
+      },
+      result: {
+        quantity: BigNumber.from(1),
+        price: BigNumber.from(5) 
+      }
+    },
+    {
+      rules: [
+        {
+          quantityConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
+            result: true
+          },
+          priceConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
+            result: true
+          },
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(1)
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(5)
+              }
+            }
+          },
+          result: {
+            quantity: BigNumber.from(1),
+            price: BigNumber.from(5)
+          }
+        },
+        {
+          quantityConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
+            result: true
+          },
+          priceConditions: {
+            conditions: [
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              },
+              {
+                struct: {
+                  subject: 'constant',
+                  args: {
+                    value: BigNumber.from(10)
+                  }
+                },
+                operator: 'true',
+                result: true
+              }
+            ],
+            operator: 'and',
+            result: true
+          },
+          quantity: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(1)
+              }
+            }
+          },
+          price: {
+            struct: {
+              subject: 'constant',
+              args: {
+                value: BigNumber.from(5)
+              }
+            }
+          },
+          result: {
+            quantity: BigNumber.from(1),
+            price: BigNumber.from(5)
+          }
+        }
+      ],
+      default: {
+        quantity: {
+          struct: {
+            subject: 'constant',
+            args: {
+              value: ethers.constants.Zero
+            }
+          }
+        },
+        price: {
+          struct: {
+            subject: 'constant',
+            args: {
+              value: BigNumber.from(7)
+            }
+          }
+        }
+      },
+      pick: {
+        quantities: 'max',
+        prices: 'min'
+      },
+      result: {
+        quantity: BigNumber.from(1),
+        price: BigNumber.from(5) 
+      }
+    }];
+
+    const resultObject = await RuleBuilder.eval(currencyObjects, signer);
 
     assert(
       JSON.stringify(expectedObject) === JSON.stringify(resultObject),
