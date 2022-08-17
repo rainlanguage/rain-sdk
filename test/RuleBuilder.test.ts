@@ -191,8 +191,8 @@ describe('SDK - RuleBuilder', () => {
         11111,
         11111,
         11111,
-        BigNumber.from(5),
         ethers.constants.Zero,
+        BigNumber.from(5),
         BigNumber.from(5),
         BigNumber.from(10),
         '0x123456789abcdef',
@@ -232,27 +232,31 @@ describe('SDK - RuleBuilder', () => {
           op(VM.Opcodes.CONSTANT, 7),
           op(VM.Opcodes.GREATER_THAN),
           op(VM.Opcodes.ISZERO),
-          // default price
+          // default quantity
           op(VM.Opcodes.CONSTANT, 8),
+          // default price
+          op(VM.Opcodes.CONSTANT, 9),
           // quantities
           op(VM.Opcodes.STACK, 0),
           op(VM.Opcodes.CONTEXT, 1),
-          op(VM.Opcodes.MUL, 2),
+          op(VM.Opcodes.STACK, 4),
+          op(VM.Opcodes.EAGER_IF),
           op(VM.Opcodes.STACK, 2),
           op(VM.Opcodes.CONTEXT, 1),
-          op(VM.Opcodes.MUL, 2),
-          op(VM.Opcodes.CONSTANT, 9),
+          op(VM.Opcodes.STACK, 4),
+          op(VM.Opcodes.EAGER_IF),
+          op(VM.Opcodes.STACK, 4),
           op(VM.Opcodes.MAX, 3),
           // prices
           op(VM.Opcodes.STACK, 1),
           op(VM.Opcodes.CONSTANT, 10),
-          op(VM.Opcodes.STACK, 4),
+          op(VM.Opcodes.STACK, 5),
           op(VM.Opcodes.EAGER_IF),
           op(VM.Opcodes.STACK, 3),
           op(VM.Opcodes.CONSTANT, 11),
-          op(VM.Opcodes.STACK, 4),
+          op(VM.Opcodes.STACK, 5),
           op(VM.Opcodes.EAGER_IF),
-          op(VM.Opcodes.STACK, 4),
+          op(VM.Opcodes.STACK, 5),
           op(VM.Opcodes.MIN, 3),
           // prices global modifier
           op(VM.Opcodes.CONSTANT, 12),
@@ -269,7 +273,7 @@ describe('SDK - RuleBuilder', () => {
         ])
       ]
     }
-    
+
     assert(
       areEqualConfigs(resultConfig, expectedConfig),
       `RuleBuilder did not generate correct StateConfig`
@@ -597,11 +601,12 @@ describe('SDK - RuleBuilder', () => {
           paddedUInt32('0xffffffff').repeat(5) + 
           paddedUInt32(0).repeat(3)
         ),
-        // default prices
-        BigNumber.from(5),
-        BigNumber.from(7),
-        // currency1 quantities constants
+        // currency1 default quantity and price
         ethers.constants.Zero,
+        BigNumber.from(5),
+        // currency2 default quantity and price
+        ethers.constants.Zero,
+        BigNumber.from(7),
         // currency1 prices constants
         BigNumber.from(5),
         BigNumber.from(10),
@@ -610,8 +615,6 @@ describe('SDK - RuleBuilder', () => {
         ethers.constants.MaxUint256,
         7500,
         10000,
-        // currency2 quantities constants
-        ethers.constants.Zero,
         // currency2 quantities global modifier
         '0x123456789abcdef',
         ethers.constants.MaxUint256,
@@ -669,46 +672,52 @@ describe('SDK - RuleBuilder', () => {
           op(VM.Opcodes.ANY, 2),
           // currency2 price rule1
           op(VM.Opcodes.STACK, 4),
-          // default prices
+          // currency1 default quantity and price 
           op(VM.Opcodes.CONSTANT, 11),
           op(VM.Opcodes.CONSTANT, 12),
+          // currency2 default quantity and price 
+          op(VM.Opcodes.CONSTANT, 13),
+          op(VM.Opcodes.CONSTANT, 14),
           // currency1 quantities
           op(VM.Opcodes.STACK, 0),
           op(VM.Opcodes.CONTEXT, 1),
-          op(VM.Opcodes.MUL, 2),
+          op(VM.Opcodes.STACK, 6),
+          op(VM.Opcodes.EAGER_IF),
           op(VM.Opcodes.STACK, 2),
           op(VM.Opcodes.CONTEXT, 1),
-          op(VM.Opcodes.MUL, 2),
-          op(VM.Opcodes.CONSTANT, 13),
+          op(VM.Opcodes.STACK, 6),
+          op(VM.Opcodes.EAGER_IF),
+          op(VM.Opcodes.STACK, 6),
           op(VM.Opcodes.MAX, 3),
           // currency1 prices
           op(VM.Opcodes.STACK, 1),
-          op(VM.Opcodes.CONSTANT, 14),
-          op(VM.Opcodes.STACK, 6),
+          op(VM.Opcodes.CONSTANT, 15),
+          op(VM.Opcodes.STACK, 7),
           op(VM.Opcodes.EAGER_IF),
           op(VM.Opcodes.STACK, 3),
-          op(VM.Opcodes.CONSTANT, 15),
-          op(VM.Opcodes.STACK, 6),
+          op(VM.Opcodes.CONSTANT, 16),
+          op(VM.Opcodes.STACK, 7),
           op(VM.Opcodes.EAGER_IF),
-          op(VM.Opcodes.STACK, 6),
+          op(VM.Opcodes.STACK, 7),
           op(VM.Opcodes.MIN, 3),
           // currency1 prices global modifier
-          op(VM.Opcodes.CONSTANT, 16),
+          op(VM.Opcodes.CONSTANT, 17),
           op(VM.Opcodes.CONTEXT, 0),
           op(VM.Opcodes.ITIERV2_REPORT),
-          op(VM.Opcodes.CONSTANT, 17),
-          op(VM.Opcodes.LESS_THAN),
           op(VM.Opcodes.CONSTANT, 18),
+          op(VM.Opcodes.LESS_THAN),
           op(VM.Opcodes.CONSTANT, 19),
+          op(VM.Opcodes.CONSTANT, 20),
           op(VM.Opcodes.EAGER_IF),
           op(VM.Opcodes.MUL, 2),
-          op(VM.Opcodes.CONSTANT, 19),
+          op(VM.Opcodes.CONSTANT, 20),
           op(VM.Opcodes.DIV, 2),
           // currency2 quantities
           op(VM.Opcodes.STACK, 4),
           op(VM.Opcodes.CONTEXT, 1),
-          op(VM.Opcodes.MUL, 2),
-          op(VM.Opcodes.CONSTANT, 20),
+          op(VM.Opcodes.STACK, 8),
+          op(VM.Opcodes.EAGER_IF),
+          op(VM.Opcodes.STACK, 8),
           op(VM.Opcodes.MAX, 2),
           // currency2 quantitty global modifier
           op(VM.Opcodes.CONSTANT, 21),
@@ -725,9 +734,9 @@ describe('SDK - RuleBuilder', () => {
           // currency2 prices
           op(VM.Opcodes.STACK, 5),
           op(VM.Opcodes.CONSTANT, 25),
-          op(VM.Opcodes.STACK, 7),
-          op(VM.Opcodes.EAGER_IF,),
-          op(VM.Opcodes.STACK, 7),
+          op(VM.Opcodes.STACK, 9),
+          op(VM.Opcodes.EAGER_IF),
+          op(VM.Opcodes.STACK, 9),
           op(VM.Opcodes.MIN, 2),
           // currency2 prices global modifier
           op(VM.Opcodes.CONSTANT, 26),

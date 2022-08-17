@@ -1,7 +1,15 @@
 import { vmbook } from './vmbook';
-import { BigNumber, BigNumberish, BytesLike, Contract, ethers, Signer } from 'ethers';
+import { IOpMeta } from '../vm/OpMeta';
 import { StateConfig, VM } from '../classes/vm';
 import { areEqualConfigs, concat } from '../utils';
+import { FnPtrsJSVM, RainJSVM } from '../jsvm/RainJSVM';
+import { 
+    Signer,
+    Contract,
+    BigNumber,
+    BytesLike,
+    BigNumberish
+} from 'ethers';
 import {
     AllStandardArgs,
     Condition,
@@ -14,8 +22,6 @@ import {
     Price,
     Quantity
 } from './types';
-import { FnPtrsJSVM, RainJSVM } from '../jsvm/RainJSVM';
-import { IOpMeta } from '../vm/OpMeta';
 
 
 /**
@@ -67,7 +73,7 @@ export class RuleBuilder {
     public static from(currencies: Currency[]): StateConfig {
         let rules_: StateConfig[] = [];
         let thens_: StateConfig[] = [];
-        let dps_: StateConfig[] = [];
+        let defaults_: StateConfig[] = [];
         let count = 0;
         let totalCount = 0;
 
@@ -97,8 +103,10 @@ export class RuleBuilder {
                 }
 
                 qs_.push(
-                    VM.mulTogether(
-                        [VM.stack(count * 2), this.getQPConfig(rule.quantity)],
+                    VM.ifelse(
+                        VM.stack(count * 2),
+                        this.getQPConfig(rule.quantity),
+                        VM.stack(totalCount + (i * 2)),
                         false
                     )
                 );
@@ -106,7 +114,7 @@ export class RuleBuilder {
                     VM.ifelse(
                         VM.stack((count * 2) + 1),
                         this.getQPConfig(rule.price),
-                        VM.stack(totalCount + i),
+                        VM.stack(totalCount + ((i * 2) + 1)),
                         false
                     )
                 );
@@ -114,17 +122,19 @@ export class RuleBuilder {
             }
 
             if (currencies[i].rules.length > 0) {
-                dps_.push(this.getQPConfig(currencies[i].default.price));
+                defaults_.push(this.getQPConfig(currencies[i].default.quantity));
+                defaults_.push(this.getQPConfig(currencies[i].default.price));
 
-                qs_.push(this.getQPConfig(currencies[i].default.quantity));
-                ps_.push(VM.stack(totalCount + i));
+                qs_.push(VM.stack(totalCount + (i * 2)));
+                ps_.push(VM.stack(totalCount + ((i * 2) + 1)));
         
                 q_ = (VM[currencies[i].pick.quantities](qs_, false));
                 p_ = (VM[currencies[i].pick.prices](ps_, false));
             }
             else {
-                rules_.push({constants: [], sources: [concat([])]});
-                dps_.push({constants: [], sources: [concat([])]});
+                rules_.push({ constants: [], sources: [concat([])] });
+                defaults_.push({ constants: [], sources: [concat([])] })
+                defaults_.push({ constants: [], sources: [concat([])] });
 
                 p_ = this.getQPConfig(currencies[i].default.price);
                 q_ = this.getQPConfig(currencies[i].default.quantity);
@@ -146,7 +156,7 @@ export class RuleBuilder {
             }
         }
 
-        return VM.multi([...rules_, ...dps_, ...thens_], false);
+        return VM.multi([...rules_, ...defaults_, ...thens_], false);
     }
 
     /**
@@ -643,10 +653,10 @@ export class RuleBuilder {
                         quantity: quantityConditions === 'always'
                             ? qResult_
                             : quantityConditions === 'never'
-                            ? ethers.constants.Zero
+                            ? qDefault_
                             : quantityConditions.result
                             ? qResult_
-                            : ethers.constants.Zero,
+                            : qDefault_,
 
                         price: priceConditions === 'always'
                             ? pResult_
