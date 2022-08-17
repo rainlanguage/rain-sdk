@@ -751,7 +751,7 @@ describe('SDK - RuleBuilder', () => {
     );
   });
 
-  it('should correctly execute the JSVM for a Currency object and return the evaluted Currency object', async () => {
+  it('should correctly execute the JSVM for a Currency object with modifier and return the evaluted Currency object', async () => {
     const signer = (await ethers.getSigners())[0];
     const currencyObject: Currency = {
       rules: [
@@ -879,6 +879,22 @@ describe('SDK - RuleBuilder', () => {
               subject: 'constant',
               args: {
                 value: BigNumber.from(5)
+              }
+            },
+            modifier: {
+              type: 'multiplier',
+              values: 2,
+              condition: {
+                conditions: [
+                  {
+                    struct: {
+                      subject: 'constant',
+                      args: { value: ethers.constants.One }
+                    },
+                    operator: 'true',
+                  }
+                ],
+                operator: 'true',
               }
             }
           }
@@ -1051,11 +1067,29 @@ describe('SDK - RuleBuilder', () => {
               args: {
                 value: BigNumber.from(5)
               }
+            },
+            modifier: {
+              type: 'multiplier',
+              values: 2,
+              condition: {
+                conditions: [
+                  {
+                    struct: {
+                      subject: 'constant',
+                      args: { value: ethers.constants.One }
+                    },
+                    operator: 'true',
+                    result: true
+                  }
+                ],
+                operator: 'true',
+                result: true
+              }
             }
           },
           result: {
             quantity: BigNumber.from(1),
-            price: BigNumber.from(5)
+            price: BigNumber.from(10)
           }
         }
       ],
@@ -1084,7 +1118,7 @@ describe('SDK - RuleBuilder', () => {
       result: {
         quantity: BigNumber.from(1),
         price: BigNumber.from(5) 
-      }
+      },
     }];
 
     const resultObject = await RuleBuilder.eval([currencyObject], signer);

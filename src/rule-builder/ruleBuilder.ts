@@ -744,12 +744,12 @@ export class RuleBuilder {
                 };
                 if (pModifier.condition === 'always') {
                     if (pModifier.type === 'multiplier') {
-                        eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                        eCurrencyObj[i].result.price = eCurrencyObj[i].result.price
                             .mul(Math.floor(pModifier.values * 100))
                             .div(100)
                     }
                     else {
-                        eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                        eCurrencyObj[i].result.price = eCurrencyObj[i].result.price
                             .mul(Math.floor(pModifier.values * 10000))
                             .div(10000)
                     }
@@ -761,12 +761,12 @@ export class RuleBuilder {
                         >).result
                     ) {
                         if (pModifier.type === 'multiplier') {
-                            eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                            eCurrencyObj[i].result.price = eCurrencyObj[i].result.price
                                 .mul(Math.floor(pModifier.values * 100))
                                 .div(100)
                         }
                         else {
-                            eCurrencyObj[i].result.quantity = eCurrencyObj[i].result.quantity
+                            eCurrencyObj[i].result.price = eCurrencyObj[i].result.price
                                 .mul(Math.floor(pModifier.values * 10000))
                                 .div(10000)
                         }
