@@ -79,7 +79,6 @@ describe('SDK - OrderBook', async function () {
         token: tokenB.address,
         vaultId: aliceOutputVault,
       }],
-      tracking: "0x00",
       vmStateConfig: {
         sources: [askSource],
         constants: askConstants,
@@ -118,7 +117,6 @@ describe('SDK - OrderBook', async function () {
         token: tokenA.address,
         vaultId: bobOutputVault,
       }],
-      tracking: "0x00",
       vmStateConfig: {
         sources: [bidSource],
         constants: bidConstants,
@@ -236,7 +234,6 @@ describe('SDK - OrderBook', async function () {
         token: tokenB.address,
         vaultId: aliceOutputVault,
       }],
-      tracking: "0x00",
       vmStateConfig: {
         sources: [askSource],
         constants: askConstants,
@@ -372,18 +369,16 @@ describe('SDK - OrderBook', async function () {
       vAskOutputMax,
       vAskPrice,
     ]);
+
     const askOrderConfig: OrderConfig = {
       validInputs: [{
-              token: tokenA.address,
-      vaultId: aliceInputVault,
+        token: tokenA.address,
+        vaultId: aliceInputVault,
       }],
       validOutputs: [{
-              token: tokenB.address,
-      vaultId: aliceOutputVault,
+        token: tokenB.address,
+        vaultId: aliceOutputVault,
       }],
-
-
-      tracking: "0x00",
       vmStateConfig: {
         sources: [askSource],
         constants: askConstants,
@@ -414,18 +409,16 @@ describe('SDK - OrderBook', async function () {
       vBidOutputMax,
       vBidPrice,
     ]);
+
     const bidOrderConfig: OrderConfig = {
       validInputs: [{
-              token: tokenB.address,
-      vaultId: bobInputVault,
+        token: tokenB.address,
+        vaultId: bobInputVault,
       }],
       validOutputs: [{
-              token: tokenA.address,
-      vaultId: bobOutputVault,
+        token: tokenA.address,
+        vaultId: bobOutputVault,
       }],
-
-
-      tracking: "0x00",
       vmStateConfig: {
         sources: [bidSource],
         constants: bidConstants,

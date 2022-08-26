@@ -214,7 +214,6 @@ export type IOConfig = { token: string; vaultId: BigNumberish };
 export type OrderConfig = {
   validInputs: IOConfig[];
   validOutputs: IOConfig[];
-  tracking: BigNumberish;
   vmStateConfig: StateConfig;
 };
 

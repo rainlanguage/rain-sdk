@@ -511,12 +511,11 @@ export class RuleBuilder {
         }
 
         let eCurrencyObj: eCurrency[] = [];
-        let q_: BigNumber[] = [];
-        let p_: BigNumber[] = [];
-
         for (let i = 0; i < currencies.length; i++) {
             let eRules: eRule[] = [];
             let temp: BigNumber[];
+            let q_: BigNumber[] = [];
+            let p_: BigNumber[] = [];
 
             temp = await (
                 new RainJSVM(
