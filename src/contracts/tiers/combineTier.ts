@@ -94,10 +94,9 @@ export class CombineTier extends ITierV2 {
    * @returns A new combineTier instance
    */
   constructor(address: string, signer: Signer) {
-    CombineTier.checkAddress(address);
+    super(address, signer);
 
     const _combineTier = CombineTier__factory.connect(address, signer);
-    super(address, signer);
 
     this.storageOpcodesRange = _combineTier.storageOpcodesRange;
     this.packedFunctionPointers = _combineTier.packedFunctionPointers;

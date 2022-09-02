@@ -77,8 +77,6 @@ export class EmissionsERC20 extends ITierV2 {
    *
    */
   constructor(address: string, signer: Signer) {
-    EmissionsERC20.checkAddress(address);
-
     super(address, signer);
     const _emission = EmissionsERC20__factory.connect(address, signer);
     

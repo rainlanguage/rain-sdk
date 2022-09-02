@@ -79,8 +79,6 @@ export class ITierV2 extends FactoryContract {
    * @returns A new instance of ITierV2 contract from the address with Signer
    */
   constructor(address: string, signer: Signer) {
-    ITierV2.checkAddress(address);
-
     super(address, signer);
 
     const _iTierV2 = ITierV2__factory.connect(address, signer);

@@ -40,9 +40,8 @@ export class VerifyTier extends ITierV2 {
    * @returns A new VerifyTier instance
    */
   constructor(address: string, signer: Signer) {
+      super(address, signer);
     VerifyTier.checkAddress(address);
-    
-    super(address, signer);
   }
 
   /**
