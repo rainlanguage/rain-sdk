@@ -46,7 +46,6 @@ export class NoticeBoard extends RainContract {
    *
    */
   constructor(address: string, signer: Signer) {
-    NoticeBoard.checkAddress(address);
     super(address, signer);
     const _noticeBoard = NoticeBoard__factory.connect(address, signer);
     this.createNotices = _noticeBoard.createNotices;

@@ -93,8 +93,6 @@ export class Sale extends FactoryContract {
    *
    */
   constructor(address: string, signer: Signer) {
-    Sale.checkAddress(address);
-
     super(address, signer);
     const _sale = Sale__factory.connect(address, signer);
 

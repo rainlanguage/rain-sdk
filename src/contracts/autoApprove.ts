@@ -50,8 +50,6 @@ export class AutoApprove extends FactoryContract {
    *
    */
    constructor(address: string, signer: Signer) {
-    AutoApprove.checkAddress(address);
-
     super(address, signer);
     const _autoApprove = AutoApprove__factory.connect(address, signer);
 

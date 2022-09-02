@@ -58,8 +58,6 @@ export class OrderBook extends RainContract {
    * @returns A new OrderBook instance
    */
   constructor(address: string, signer: Signer) {
-    OrderBook.checkAddress(address);
-
     super(address, signer);
     const _orderBook = OrderBook__factory.connect(address, signer);
 
