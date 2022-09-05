@@ -462,77 +462,77 @@ export class BuildReport extends CombineTierGenerator {
   }
 };
 
-/**
- * @public
- * class to create a the vmStateConfig for CombineTier as BalanceTier.
- * this will perform similar to ERC20BalancTier in RainVM version 1.0
- * 
- */
-export class ERC20BalanceTier extends CombineTierGenerator {
+// /**
+//  * @public
+//  * class to create a the vmStateConfig for CombineTier as BalanceTier.
+//  * this will perform similar to ERC20BalanceTier in RainVM version 1.0
+//  * 
+//  */
+// export class ERC20BalanceTier extends CombineTierGenerator {
 
-  /**
-   * Constructor for ERC20BalanceTier vmStateConfig
-   * 
-   * @param tierValues - an array of 8 values for each tier values
-   * @param tokenAddress - the ERC20 token address
-   * @param tokenDecimals - the ERC20 token decimals
-   */
-  constructor (
-    public readonly tierValues: (number | string)[],
-    public readonly tokenAddress: string,
-    tokenDecimals: number = 18
-  ) {
-    const constants = [
-      paddedUInt256(
-        paddedUInt32(parseUnits(tierValues[7].toString(), tokenDecimals)) +
-        paddedUInt32(parseUnits(tierValues[6].toString(), tokenDecimals)) +
-        paddedUInt32(parseUnits(tierValues[5].toString(), tokenDecimals)) +
-        paddedUInt32(parseUnits(tierValues[4].toString(), tokenDecimals)) +
-        paddedUInt32(parseUnits(tierValues[3].toString(), tokenDecimals)) +
-        paddedUInt32(parseUnits(tierValues[2].toString(), tokenDecimals)) +
-        paddedUInt32(parseUnits(tierValues[1].toString(), tokenDecimals)) +
-        paddedUInt32(parseUnits(tierValues[0].toString(), tokenDecimals))
-      ),
-      tokenAddress,
-      paddedUInt256(
-        paddedUInt32('7') +
-        paddedUInt32('6') +
-        paddedUInt32('5') +
-        paddedUInt32('4') +
-        paddedUInt32('3') +
-        paddedUInt32('2') +
-        paddedUInt32('1') +
-        paddedUInt32('0')
-      ),
-      "0xffffffff",
-      "0",
-      "100000000"
-    ];
-     const sources = [
-      concat([
-        op(VM.Opcodes.CONSTANT, 0),
-        op(VM.Opcodes.CONSTANT, 2),
-        op(VM.Opcodes.ZIPMAP, callSize(1, 3, 1)),
-        op(VM.Opcodes.ADD, 8),
-      ]),
-      concat([
-        op(VM.Opcodes.CONSTANT, 1),
-        op(VM.Opcodes.CONTEXT, 0),
-        op(VM.Opcodes.IERC20_BALANCE_OF),
-        op(VM.Opcodes.CONSTANT, 6),
-        op(VM.Opcodes.LESS_THAN),
-        op(VM.Opcodes.CONSTANT, 3),
-        op(VM.Opcodes.CONSTANT, 4),
-        op(VM.Opcodes.EAGER_IF),
-        op(VM.Opcodes.CONSTANT, 5),
-        op(VM.Opcodes.CONSTANT, 7),
-        op(VM.Opcodes.EXP, 2),
-        op(VM.Opcodes.MUL, 2),
-      ])
-    ];
-    super({constants, sources}, {hasReportForSingleTier: true, delegatedReport: true});
-  }
-};
+//   /**
+//    * Constructor for ERC20BalanceTier vmStateConfig
+//    * 
+//    * @param tierValues - an array of 8 values for each tier values
+//    * @param tokenAddress - the ERC20 token address
+//    * @param tokenDecimals - the ERC20 token decimals
+//    */
+//   constructor (
+//     public readonly tierValues: (number | string)[],
+//     public readonly tokenAddress: string,
+//     tokenDecimals: number = 18
+//   ) {
+//     const constants = [
+//       paddedUInt256(
+//         paddedUInt32(parseUnits(tierValues[7].toString(), tokenDecimals)) +
+//         paddedUInt32(parseUnits(tierValues[6].toString(), tokenDecimals)) +
+//         paddedUInt32(parseUnits(tierValues[5].toString(), tokenDecimals)) +
+//         paddedUInt32(parseUnits(tierValues[4].toString(), tokenDecimals)) +
+//         paddedUInt32(parseUnits(tierValues[3].toString(), tokenDecimals)) +
+//         paddedUInt32(parseUnits(tierValues[2].toString(), tokenDecimals)) +
+//         paddedUInt32(parseUnits(tierValues[1].toString(), tokenDecimals)) +
+//         paddedUInt32(parseUnits(tierValues[0].toString(), tokenDecimals))
+//       ),
+//       tokenAddress,
+//       paddedUInt256(
+//         paddedUInt32('7') +
+//         paddedUInt32('6') +
+//         paddedUInt32('5') +
+//         paddedUInt32('4') +
+//         paddedUInt32('3') +
+//         paddedUInt32('2') +
+//         paddedUInt32('1') +
+//         paddedUInt32('0')
+//       ),
+//       "0xffffffff",
+//       "0",
+//       "100000000"
+//     ];
+//      const sources = [
+//       concat([
+//         op(VM.Opcodes.CONSTANT, 0),
+//         op(VM.Opcodes.CONSTANT, 2),
+//         op(VM.Opcodes.ZIPMAP, callSize(1, 3, 1)),
+//         op(VM.Opcodes.ADD, 8),
+//       ]),
+//       concat([
+//         op(VM.Opcodes.CONSTANT, 1),
+//         op(VM.Opcodes.CONTEXT, 0),
+//         op(VM.Opcodes.IERC20_BALANCE_OF),
+//         op(VM.Opcodes.CONSTANT, 6),
+//         op(VM.Opcodes.LESS_THAN),
+//         op(VM.Opcodes.CONSTANT, 3),
+//         op(VM.Opcodes.CONSTANT, 4),
+//         op(VM.Opcodes.EAGER_IF),
+//         op(VM.Opcodes.CONSTANT, 5),
+//         op(VM.Opcodes.CONSTANT, 7),
+//         op(VM.Opcodes.EXP, 2),
+//         op(VM.Opcodes.MUL, 2),
+//       ])
+//     ];
+//     super({constants, sources}, {hasReportForSingleTier: true, delegatedReport: true});
+//   }
+// };
 
 /**
  * @public
@@ -675,5 +675,90 @@ export class ERC20BalanceTier extends CombineTierGenerator {
       ])
     ];
     super({constants, sources}, {hasReportForSingleTier: true, delegatedReport: true});
+  }
+}
+
+export class ERC20BalanceTier {
+    // StateConfig Properties of this class
+    public constants: BigNumberish[];
+    public sources: BytesLike[];
+
+  constructor (
+    public readonly tierValues: string[],
+    public readonly tokenAddress: string
+  ) {
+    this.constants = [
+      tokenAddress,
+      ...tierValues,
+      "0",
+      "0xffffffff00000000000000000000000000000000000000000000000000000000",
+      "0xffffffffffffffff000000000000000000000000000000000000000000000000",
+      "0xffffffffffffffffffffffff0000000000000000000000000000000000000000",
+      "0xffffffffffffffffffffffffffffffff00000000000000000000000000000000",
+      "0xffffffffffffffffffffffffffffffffffffffff000000000000000000000000",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000",
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000",
+      ethers.constants.MaxUint256,
+    ]
+    this.sources = [
+      concat([
+        op(VM.Opcodes.CONSTANT, 0),
+        op(VM.Opcodes.CONTEXT, 0),
+        op(VM.Opcodes.IERC20_BALANCE_OF),
+
+        op(VM.Opcodes.STACK, 0),
+        op(VM.Opcodes.CONSTANT, 1),
+        op(VM.Opcodes.LESS_THAN, 2),
+        op(VM.Opcodes.CONSTANT, 17),
+
+        op(VM.Opcodes.STACK, 0),
+        op(VM.Opcodes.CONSTANT, 2),
+        op(VM.Opcodes.LESS_THAN, 2),
+        op(VM.Opcodes.CONSTANT, 16),
+
+        op(VM.Opcodes.STACK, 0),
+        op(VM.Opcodes.CONSTANT, 3),
+        op(VM.Opcodes.LESS_THAN, 2),
+        op(VM.Opcodes.CONSTANT, 15),
+
+        op(VM.Opcodes.STACK, 0),
+        op(VM.Opcodes.CONSTANT, 4),
+        op(VM.Opcodes.LESS_THAN, 2),
+        op(VM.Opcodes.CONSTANT, 14),
+
+        op(VM.Opcodes.STACK, 0),
+        op(VM.Opcodes.CONSTANT, 5),
+        op(VM.Opcodes.LESS_THAN, 2),
+        op(VM.Opcodes.CONSTANT, 13),
+
+        op(VM.Opcodes.STACK, 0),
+        op(VM.Opcodes.CONSTANT, 6),
+        op(VM.Opcodes.LESS_THAN, 2),
+        op(VM.Opcodes.CONSTANT, 12),
+
+        op(VM.Opcodes.STACK, 0),
+        op(VM.Opcodes.CONSTANT, 7),
+        op(VM.Opcodes.LESS_THAN, 2),
+        op(VM.Opcodes.CONSTANT, 11),
+
+        op(VM.Opcodes.STACK, 0),
+        op(VM.Opcodes.CONSTANT, 8),
+        op(VM.Opcodes.LESS_THAN, 2),
+        op(VM.Opcodes.CONSTANT, 10),
+        op(VM.Opcodes.CONSTANT, 9),
+        op(VM.Opcodes.EAGER_IF),
+
+        op(VM.Opcodes.EAGER_IF),
+        op(VM.Opcodes.EAGER_IF),
+        op(VM.Opcodes.EAGER_IF),
+        op(VM.Opcodes.EAGER_IF),
+        op(VM.Opcodes.EAGER_IF),
+        op(VM.Opcodes.EAGER_IF),
+        op(VM.Opcodes.EAGER_IF),
+      ]),
+      concat([
+        op(VM.Opcodes.CONSTANT, 17),
+      ])
+    ]
   }
 }
