@@ -236,7 +236,7 @@ export class CombineTier extends ITierV2 {
     RainContract.checkAddress(address);
 
     if (type === "erc20") {
-      _balanceTierConfig = new ERC20BalanceTier(levels, address, erc20Decimals)
+      _balanceTierConfig = new ERC20BalanceTier(levels, address)
     }
     if (type === "erc721") {
       _balanceTierConfig = new ERC721BalanceTier(levels, address)

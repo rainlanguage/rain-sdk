@@ -683,7 +683,7 @@ export class ERC20BalanceTier {
     public sources: BytesLike[];
 
   constructor (
-    public readonly tierValues: string[],
+    public readonly tierValues: (number | string)[],
     public readonly tokenAddress: string
   ) {
     this.constants = [
