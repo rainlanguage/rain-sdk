@@ -10,8 +10,7 @@ import {
   paddedUInt32,
   paddedUInt256,
   selectLteLogic,
-  selectLteMode,
-  parseUnits,
+  selectLteMode
 } from '../../utils';
 
 /**
