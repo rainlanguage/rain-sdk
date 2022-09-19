@@ -17,9 +17,11 @@ interface IOpMeta extends Record<string, any>
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [alias](./iopmeta.md#alias-property) | `string` |  |
+|  [aliases](./iopmeta.md#aliases-property) | `string[]` |  |
+|  [data](./iopmeta.md#data-property) | `any` |  |
 |  [description](./iopmeta.md#description-property) | `string` |  |
 |  [enum](./iopmeta.md#enum-property) | `number` |  |
+|  [isZeroOperand](./iopmeta.md#isZeroOperand-property) | `boolean` |  |
 |  [jsvmfn](./iopmeta.md#jsvmfn-property) | [OpJSVM](./opjsvm.md) |  |
 |  [name](./iopmeta.md#name-property) | `string` |  |
 |  [pops](./iopmeta.md#pops-property) | `(opcode: number, operand: number) => number` |  |
@@ -27,14 +29,24 @@ interface IOpMeta extends Record<string, any>
 
 ## Property Details
 
-<a id="alias-property"></a>
+<a id="aliases-property"></a>
 
-### alias
+### aliases
 
 <b>Signature:</b>
 
 ```typescript
-alias?: string;
+aliases?: string[];
+```
+
+<a id="data-property"></a>
+
+### data
+
+<b>Signature:</b>
+
+```typescript
+data?: any;
 ```
 
 <a id="description-property"></a>
@@ -55,6 +67,16 @@ description?: string;
 
 ```typescript
 enum: number;
+```
+
+<a id="isZeroOperand-property"></a>
+
+### isZeroOperand
+
+<b>Signature:</b>
+
+```typescript
+isZeroOperand: boolean;
 ```
 
 <a id="jsvmfn-property"></a>

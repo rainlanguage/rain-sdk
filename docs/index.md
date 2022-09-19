@@ -21,12 +21,12 @@
 |  [ERC1155](./classes/erc1155.md) | A generic ERC1155 interface to get connected to any ERC1155 address and make transactions. |
 |  [ERC1155BalanceTier](./classes/erc1155balancetier.md) | class to create a the vmStateConfig for CombineTier as BalanceTier. this will perform similar to ERC1155BalancTier witha certain toke ID |
 |  [ERC20](./classes/erc20.md) | A generic ERC20 interface to get connected to any ERC20 address and make transactions. |
-|  [ERC20BalanceTier](./classes/erc20balancetier.md) | class to create a the vmStateConfig for CombineTier as BalanceTier. this will perform similar to ERC20BalancTier in RainVM version 1.0 |
+|  [ERC20BalanceTier](./classes/erc20balancetier.md) | class to create a the vmStateConfig for CombineTier as BalanceTier. this will perform similar to ERC20BalanceTier in RainVM version 1.0 |
 |  [ERC721](./classes/erc721.md) | A generic ERC721 interface to get connected to any ERC721 address and make transactions. |
 |  [ERC721BalanceTier](./classes/erc721balancetier.md) | class to create a the vmStateConfig for CombineTier as BalanceTier. this will perform similar to ERC721BalancTier in RainVM version 1.0 |
 |  [FactoryContract](./classes/factorycontract.md) | All contract factory should use this instead of directly Rain contract to take advantage of specific method to factories |
 |  [FixedPrice](./classes/fixedprice.md) | - A sub-class of PriceCurve for creating a Fixed Price sale type. The price is a constant value over the span of the sale. |
-|  [HumanFriendlyRead](./classes/humanfriendlyread.md) | The generator of human friendly readable source. |
+|  [Formatter](./classes/formatter.md) | The generator of human friendly readable source. |
 |  [IncDecPrice](./classes/incdecprice.md) | - A sub-class of PriceCurve for creating an linear Increasing or Decreasing sale type. |
 |  [ITierV2](./classes/itierv2.md) | Class to interact with any Rain Tier contract i.e ITierV2 contracts |
 |  [LinearEmissions](./classes/linearemissions.md) | A linear minting emissions over a period of time. holding more before claiming would result in a more reward. |
@@ -34,6 +34,7 @@
 |  [NoticeBoard](./classes/noticeboard.md) | A class for calling method on a NoticeBoard. |
 |  [OrderBook](./classes/orderbook.md) | A class for calling method on a Rain OrderBook contract. |
 |  [OrderbookSimulation](./classes/orderbooksimulation.md) | A class for creating a simulation environment for simulating a Orderbook contract off-chain using JSVM. or to be used to perform off-chain matchmaking based on. |
+|  [Parser](./classes/parser.md) | Parser is a mini compiler to generate a valid StateConfig (deployable bytes) from a text script |
 |  [PriceCurve](./classes/pricecurve.md) | - PriceCurve is an class that all the other sale types (sub-classes) will inherit from. |
 |  [RainContract](./classes/raincontract.md) | //TODO: Add doc |
 |  [RainJSVM](./classes/rainjsvm.md) | - The javascript version of the RainVM, basically does the same job RainVM does but off-chain. |
@@ -211,6 +212,7 @@
 |  [eConditionGroup](./types/econditiongroup.md) | Type of a evaluated ConditionGroup with JSVM, which is the same as ConditionGroup with a result property |
 |  [eCurrency](./types/ecurrency.md) | Type of a evaluated Currency with JSVM, which is the same as Currency with a result property |
 |  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
+|  [Error\_2](./types/error_2.md) |  |
 |  [eRule](./types/erule.md) | Type of a evaluated Rule with JSVM, which is the same as Rule with a result property |
 |  [EvidenceConfig](./types/evidenceconfig.md) |  |
 |  [Filter](./types/filter.md) | A filtering utility type for ArgsTypeBook |
@@ -224,12 +226,15 @@
 |  [Order](./types/order.md) | Type for an order containing all that is required in an order. An Order is an |
 |  [OrderBookOpcodes](./types/orderbookopcodes.md) | Type for the opcodes availables in a OrderBook instance. |
 |  [OrderConfig](./types/orderconfig.md) | A type for an order configuration without any specific owner |
+|  [ParseStack](./types/parsestack.md) |  |
+|  [ParseTree](./types/parsetree.md) |  |
 |  [PrettifyConfig](./types/prettifyconfig.md) | Specifies the configuration of the Prettify method. |
 |  [Price](./types/price.md) | Price type |
 |  [Quantity](./types/quantity.md) | Quantity type |
 |  [Rule](./types/rule.md) | A single Rule block, i.e. an if/then block that contains conditions of prices and quantities and its actions which are price and quantity |
 |  [sIOConfig](./types/sioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
 |  [StakeDeployArgs](./types/stakedeployargs.md) | A type for deploying a new stake contract which contains everything required for deployment.<br></br>'token' is the main token addtess. 'initialRatio' is the initial conversion ratio between the stake token and main token. 'name' of the stake token. 'symbol' of the stake token |
+|  [State](./types/state.md) |  |
 |  [Struct](./types/struct.md) | The smallest building block of RuleBuilder that contains the type and its valid arguments or a StateConfig |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
 |  [TimeBoundConfig](./types/timeboundconfig.md) |  |

@@ -1,5 +1,5 @@
 
-# Class HumanFriendlyRead
+# Class Formatter
 
 The generator of human friendly readable source.
 
@@ -10,16 +10,16 @@ If you find an issue or you want to propose a better way to show a specific scri
 <b>Signature:</b>
 
 ```typescript
-class HumanFriendlyRead 
+class Formatter 
 ```
 
 ## Static Methods
 
 |  Method | Description |
 |  --- | --- |
-|  [get(\_state, \_config)](./humanfriendlyread.md#get-method-static-1) | Obtain the friendly output from an StateConfig/script. |
-|  [prettify(\_text, \_config)](./humanfriendlyread.md#prettify-method-static-1) | Make the output from the HumanFriendly Source more readable by adding indenting following the parenthesis |
-|  [set(opmeta)](./humanfriendlyread.md#set-method-static-1) | Method to set the opMeta with more than AllStandardOps opcodes or with other name/aliases for this instance of the HumanFriendlyRead |
+|  [get(\_state, \_config)](./formatter.md#get-method-static-1) | Obtain the friendly output from an StateConfig/script. |
+|  [prettify(\_text, \_config)](./formatter.md#prettify-method-static-1) | Make the output from the HumanFriendly Source more readable by adding indenting following the parenthesis |
+|  [set(opmeta\_)](./formatter.md#set-method-static-1) | Method to set the opmeta with more than AllStandardOps opcodes or with other name/aliases for this instance of the Formatter |
 
 ## Static Method Details
 
@@ -76,23 +76,23 @@ A prettified output
 
 <a id="set-method-static-1"></a>
 
-### set(opmeta)
+### set(opmeta\_)
 
-Method to set the opMeta with more than AllStandardOps opcodes or with other name/aliases for this instance of the HumanFriendlyRead
+Method to set the opmeta with more than AllStandardOps opcodes or with other name/aliases for this instance of the Formatter
 
 <b>Signature:</b>
 
 ```typescript
-static set(opmeta: typeof OpMeta): any;
+static set(opmeta_: typeof OpMeta): Formatter;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  opmeta | `typeof OpMeta` | The OpMeta map object |
+|  opmeta\_ | `typeof OpMeta` | The OpMeta map object |
 
 <b>Returns:</b>
 
-`any`
+`Formatter`
 

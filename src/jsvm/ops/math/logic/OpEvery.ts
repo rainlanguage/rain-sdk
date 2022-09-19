@@ -16,13 +16,14 @@ export function OpEvery(this: RainJSVM, state: StateJSVM, operand: number, data?
         _item = items_.shift();
 
         if (_item !== undefined) {
-
+            if (i === 0) _check = _item;
+            
             if (_item.isZero()) {
                 
                 _check = ethers.constants.Zero;
                 break;
             } 
-            else _check = ethers.constants.One;
+            // else _check = ethers.constants.One;
         } 
         else throw new Error('Undefined stack variables');
     }

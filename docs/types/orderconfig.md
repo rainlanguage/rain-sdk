@@ -9,7 +9,6 @@ A type for an order configuration without any specific owner
 type OrderConfig = {
     validInputs: IOConfig[];
     validOutputs: IOConfig[];
-    tracking: BigNumberish;
     vmStateConfig: StateConfig;
 };
 ```

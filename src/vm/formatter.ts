@@ -30,6 +30,10 @@ export type Config = {
      * True if the result needs to be tagged and optimized for the RuleBuilder script generator
      */
     enableTagging?: boolean;
+    /**
+     * An opmeta object to be used for creating the human friendly read
+     */
+    opmeta?: typeof OpMeta;
 };
 
 /**
@@ -59,19 +63,20 @@ export type PrettifyConfig = {
  * If you find an issue or you want to propose a better way to show a specific script or opcodes, please
  * feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
  */
-export class HumanFriendlyRead {
+export class Formatter {
 
-    private static _pretty: boolean;
-    private static opMeta: IOpMeta[] = Array.from(OpMeta.values());
+    private static pretty: boolean;
+    private static opmeta: IOpMeta[] = Array.from(OpMeta.values());
 
     /**
      * @public
-     * Method to set the opMeta with more than AllStandardOps opcodes or with other name/aliases for this instance of the HumanFriendlyRead
+     * Method to set the opmeta with more than AllStandardOps opcodes or with other name/aliases for this instance of the Formatter
      * 
-     * @param opmeta - The OpMeta map object
+     * @param opmeta_ - The OpMeta map object
      */
-    public static set(opmeta: typeof OpMeta): any {
-        this.opMeta = Array.from(opmeta.values());
+    public static set(opmeta_: typeof OpMeta): Formatter {
+        this.opmeta = Array.from(opmeta_.values());
+        return this;
     }
 
     /**
@@ -87,10 +92,14 @@ export class HumanFriendlyRead {
             storageEnums: undefined,
             contextEnums: undefined,
             tags: undefined,
-            enableTagging: false
+            enableTagging: false,
+            opmeta: undefined
         }
     ): string {
-        this._pretty = _config.pretty ? true : false;
+        if (_config.opmeta) {
+            this.set(_config.opmeta);
+        }
+        this.pretty = _config.pretty ? true : false;
         let _constants: string[] = [];
         let _result;
 
@@ -107,7 +116,7 @@ export class HumanFriendlyRead {
             _config.enableTagging
         );
 
-        return this._pretty ? this.prettify(_result) : _result;
+        return this.pretty ? this.prettify(_result) : _result;
     }
 
     /**
@@ -249,14 +258,14 @@ export class HumanFriendlyRead {
                     _stack.push(
                         contextEnums && (contextEnums[src[j + 1]] !== undefined || '')
                             ? contextEnums[src[j + 1]] 
-                            : this.opMeta[src[j]].name + `[${src[j + 1]}]`
+                            : this.opmeta[src[j]].name + `[${src[j + 1]}]`
                     )
                 }
                 else if (src[j] === AllStandardOps.STORAGE) {
                     _stack.push(
                         storageEnums && (storageEnums[src[j + 1]] !== undefined || '')
                             ? storageEnums[src[j + 1]] 
-                            : this.opMeta[src[j]].name + `[${src[j + 1]}]`
+                            : this.opmeta[src[j]].name + `[${src[j + 1]}]`
                     )
                 }
                 else if (src[j] === AllStandardOps.ZIPMAP) {
@@ -264,11 +273,11 @@ export class HumanFriendlyRead {
                     let loopSize = 2 ** ((src[j + 1] >> 3) & 3);
 
                     _zipmapStack[index] = 'function '
-                        + this.opMeta[src[j]].name
+                        + this.opmeta[src[j]].name
                         + `${index} = `
                         + `(Loop Size: ${loopSize}, `
                         + `Arguments: [${
-                            _stack.splice(-this.opMeta[src[j]]
+                            _stack.splice(-this.opmeta[src[j]]
                                 .pops(src[j], src[j + 1]))
                                 .join(', ')
                             }]) `
@@ -279,11 +288,11 @@ export class HumanFriendlyRead {
                 }
                 else if (src[j] === AllStandardOps.SELECT_LTE) {
                     _stack.push(
-                        this.opMeta[src[j]].name +
+                        this.opmeta[src[j]].name +
                         `(Logic: ${selectLteLogic[src[j + 1] >> 7]}, ` + 
                         `Mode: ${selectLteMode[(src[j + 1] >> 5) & 3]}, ` + 
                         `Arguments: [${
-                            _stack.splice(-this.opMeta[src[j]]
+                            _stack.splice(-this.opmeta[src[j]]
                                 .pops(src[j], src[j + 1]))
                                 .join(', ')
                             }])`
@@ -291,33 +300,33 @@ export class HumanFriendlyRead {
                 }
                 else if (src[j] === AllStandardOps.UPDATE_TIMES_FOR_TIER_RANGE) {
                     _stack.push(
-                        this.opMeta[src[j]].name +
+                        this.opmeta[src[j]].name +
                         `(Start Tier: ${src[j + 1] & 15}, End Tier: ${src[j + 1] >> 4}, ` + 
                         `Arguments: [${
-                            _stack.splice(-this.opMeta[src[j]]
+                            _stack.splice(-this.opmeta[src[j]]
                                 .pops(src[j], src[j + 1]))
                                 .join(', ')
                             }])`
                     )
                 }
                 else if (
-                    this.opMeta[src[j]].pops.name === 'zero' && 
-                    this.opMeta[src[j]].pushes.name !== 'zero'
+                    this.opmeta[src[j]].pops.name === 'zero' && 
+                    this.opmeta[src[j]].pushes.name !== 'zero'
                 ) {
-                    let _alias = this.opMeta[src[j]].alias
-                    _stack.push(_alias ? _alias : this.opMeta[src[j]].name)
+                    let _alias = this.opmeta[src[j]].alias
+                    _stack.push(_alias ? _alias : this.opmeta[src[j]].name)
                 }
                 else {
-                    let _alias = this.opMeta[src[j]].alias
+                    let _alias = this.opmeta[src[j]].alias
                     _stack.push(
                         _alias 
                             ? _alias + `(${
-                                _stack.splice(-this.opMeta[src[j]]
+                                _stack.splice(-this.opmeta[src[j]]
                                     .pops(src[j], src[j + 1]))
                                     .join(', ')
                             })`
-                            : this.opMeta[src[j]].name + `(${
-                                _stack.splice(-this.opMeta[src[j]]
+                            : this.opmeta[src[j]].name + `(${
+                                _stack.splice(-this.opmeta[src[j]]
                                     .pops(src[j], src[j + 1]))
                                     .join(', ')
                             })`

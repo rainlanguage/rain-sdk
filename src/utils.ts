@@ -388,10 +388,10 @@ export function extractFromRecord<T extends string | number | symbol>(
  * @param properties - (optional) properties to pick from the second item of the Map's elements.
  * @returns a new Record (a key/value pait object)
  */
-export function mapToRecord<K extends string | number | symbol, T>(
+export function mapToRecord<K extends string | number | symbol>(
 	map: Map<K, any>,
 	properties?: string[]
-): Record<K, T> {
+): Record<K, any> {
 
 	let _ret: Record<any, any> = {};
 	const Properties = properties ? properties : [];
@@ -401,14 +401,14 @@ export function mapToRecord<K extends string | number | symbol, T>(
 			_ret[key] = value[Properties[0]]
 		}
 
-		return _ret as Record<K, T>;
+		return _ret as Record<K, any>;
 	}
 	else {
 		for (const [key, value] of extractFromMap(map, Properties)) {
 			_ret[key] = value;
 		}
 
-		return _ret as Record<K, T>;
+		return _ret as Record<K, any>;
 	}
 }
 

@@ -677,6 +677,12 @@ export class BuildReport extends CombineTierGenerator {
   }
 }
 
+/**
+ * @public
+ * class to create a the vmStateConfig for CombineTier as BalanceTier.
+ * this will perform similar to ERC20BalanceTier in RainVM version 1.0
+ * 
+ */
 export class ERC20BalanceTier {
     // StateConfig Properties of this class
     public constants: BigNumberish[];

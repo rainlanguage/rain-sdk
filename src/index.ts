@@ -96,5 +96,6 @@ export * from './contracts/generics/erc721';
 export * from './contracts/generics/erc1155';
 export * from './contracts/generics/seedDance';
 
-export * from './vm/HumanFreindlyRead';
+export * from './vm/parser';
 export * from './vm/OpMeta';
+export * from './vm/formatter';

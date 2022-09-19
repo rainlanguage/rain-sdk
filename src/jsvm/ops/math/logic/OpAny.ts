@@ -19,7 +19,7 @@ export function OpAny(this: RainJSVM, state: StateJSVM, operand: number, data?: 
 
             if (_item.gt(0)) {
 
-                _check = ethers.constants.One;
+                _check = _item;
                 break;
             } 
             else _check = ethers.constants.Zero;

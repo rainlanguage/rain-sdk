@@ -6,7 +6,7 @@ Conver a Map to a equivelant Record (a key/value pair object). Map keys must be 
 <b>Signature:</b>
 
 ```typescript
-function mapToRecord<K extends string | number | symbol, T>(map: Map<K, any>, properties?: string[]): Record<K, T>;
+function mapToRecord<K extends string | number | symbol>(map: Map<K, any>, properties?: string[]): Record<K, any>;
 ```
 
 ## Parameters
@@ -18,7 +18,7 @@ function mapToRecord<K extends string | number | symbol, T>(map: Map<K, any>, pr
 
 <b>Returns:</b>
 
-`Record<K, T>`
+`Record<K, any>`
 
 a new Record (a key/value pait object)
 
