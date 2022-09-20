@@ -193,8 +193,10 @@ export class Parser {
     [script, , offset] = this.trim(script);
     let expressions: string[] = [];
     let positions = [[0, script_.length - 1]];
+    let hasCurlyBrackets = false;
 
     if (script.startsWith("{") && script.indexOf("}") > -1) {
+      hasCurlyBrackets = true;
       positions = [[
         script_.indexOf("{"),
         script_.indexOf("}")
@@ -237,7 +239,7 @@ export class Parser {
         }
         else if (this.exp.startsWith(")")) {
           this.exp = this.exp.replace(")", "");
-          this.resolveParens(positions[i][0] + 1);
+          this.resolveParens(hasCurlyBrackets ? positions[i][0] + 1 : positions[i][0]);
           if (!this.hasError) {
             try {
               this.buildStateConfig(
@@ -250,7 +252,7 @@ export class Parser {
             }
           }
         }
-        else this.consume(positions[i][0] + 1);
+        else this.consume(hasCurlyBrackets ? positions[i][0] + 1 : positions[i][0]);
 
         if (
           !this.hasError && !this.state.parse.stack.includes("(") &&
