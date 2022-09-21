@@ -180,6 +180,7 @@ export class Parser {
     this.parseTree = {};
     this.constants = [];
     this.sources = [];
+    this.hasError = false;
     this.state.zipmaps = 0;
     this.state.arguments.has = false;
     this.state.arguments.count = 0;
