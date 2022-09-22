@@ -455,6 +455,7 @@ export class Parser {
     if ("error" in expBlock) return expBlock;
     else {
       let op = this.names.indexOf(expBlock.opcode.name);
+      
       if (op > -1) {
         if (
           op === AllStandardOps.STACK ||
@@ -1246,64 +1247,66 @@ export class Parser {
             break;
           }
         }
-        if (check_ && this.names.includes(str_)) {
-          this.state.parse.stack.push(
-            {
-              op: str_,
-              position: [startPosition, startPosition + str_.length - 1]
-            }
-          );
-          this.exp = this.exp.replace(consumee_, "");
-        }
-        else if (str_ === "arg") {
-          this.exp = this.exp.replace(consumee_, "");
-          let i_ = this.exp.indexOf(")") + 1;
-          str_ = str_ + this.exp.slice(0, i_);
-          this.exp = this.exp.slice(i_, this.exp.length);
-          this.state.parse.stack.push(
-            {
-              value: str_,
-              position: [startPosition, startPosition + str_.length - 1]
-            }
-          );
-        }
-        else if (str_ === this.placeholder) {
-          this.state.parse.stack.push({
-            value: this.placeholder,
-            position: [startPosition, startPosition + str_.length - 1]
-          });
-          this.exp = this.exp.replace(consumee_, "");
-        }
-        else {
-          if (str_.includes(".")) {
+        if (check_) {
+          if (this.names.includes(str_)) {
             this.state.parse.stack.push(
               {
-                error: `invalid number: float ${str_}`,
+                op: str_,
                 position: [startPosition, startPosition + str_.length - 1]
               }
             );
             this.exp = this.exp.replace(consumee_, "");
-            if (!this.hasError) this.hasError = true;
           }
-          else if (isBigNumberish(str_)) {
+          else if (str_ === "arg") {
+            this.exp = this.exp.replace(consumee_, "");
+            let i_ = this.exp.indexOf(")") + 1;
+            str_ = str_ + this.exp.slice(0, i_);
+            this.exp = this.exp.slice(i_, this.exp.length);
             this.state.parse.stack.push(
               {
                 value: str_,
                 position: [startPosition, startPosition + str_.length - 1]
               }
             );
+          }
+          else if (str_ === this.placeholder) {
+            this.state.parse.stack.push({
+              value: this.placeholder,
+              position: [startPosition, startPosition + str_.length - 1]
+            });
             this.exp = this.exp.replace(consumee_, "");
           }
           else {
-            this.state.parse.stack.push(
-              {
-                error: `unknown: ${str_}`,
-                position: [startPosition, startPosition + str_.length - 1]
-              }
-            );
-            this.exp = this.exp.replace(consumee_, "");
-            if (!this.hasError) this.hasError = true;
-          };
+            if (str_.includes(".")) {
+              this.state.parse.stack.push(
+                {
+                  error: `invalid number: float ${str_}`,
+                  position: [startPosition, startPosition + str_.length - 1]
+                }
+              );
+              this.exp = this.exp.replace(consumee_, "");
+              if (!this.hasError) this.hasError = true;
+            }
+            else if (isBigNumberish(str_)) {
+              this.state.parse.stack.push(
+                {
+                  value: str_,
+                  position: [startPosition, startPosition + str_.length - 1]
+                }
+              );
+              this.exp = this.exp.replace(consumee_, "");
+            }
+            else {
+              this.state.parse.stack.push(
+                {
+                  error: `unknown: ${str_}`,
+                  position: [startPosition, startPosition + str_.length - 1]
+                }
+              );
+              this.exp = this.exp.replace(consumee_, "");
+              if (!this.hasError) this.hasError = true;
+            };
+          }
         }
       }
     }
