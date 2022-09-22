@@ -244,7 +244,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             description: '',      
             pushes: pnp.one,
             pops: pnp.two, 
-            isZeroOperand: false,
+            isZeroOperand: true,
             jsvmfn: OpERC20BalanceOf
         }
     ],
@@ -256,7 +256,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             description: '',      
             pushes: pnp.one,
             pops: pnp.one, 
-            isZeroOperand: false,
+            isZeroOperand: true,
             jsvmfn: OpERC20TotalSupply
         }
     ],
@@ -268,7 +268,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             description: '',      
             pushes: pnp.one,
             pops: pnp.three, 
-            isZeroOperand: false,
+            isZeroOperand: true,
             jsvmfn: OpERC20SnapshotBalanceOfAt
         }
     ],
@@ -280,7 +280,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             description: '',      
             pushes: pnp.one,
             pops: pnp.two, 
-            isZeroOperand: false,
+            isZeroOperand: true,
             jsvmfn: OpERC20SnapshotTotalSupplyAt
         }
     ],
@@ -292,7 +292,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             description: '',      
             pushes: pnp.one,
             pops: pnp.two, 
-            isZeroOperand: false,
+            isZeroOperand: true,
             jsvmfn: OpERC721BalanceOf
         }
     ],
@@ -304,7 +304,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             description: '',      
             pushes: pnp.one,
             pops: pnp.two, 
-            isZeroOperand: false,
+            isZeroOperand: true,
             jsvmfn: OpERC721OwnerOf
         }
     ],
@@ -316,7 +316,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             description: '',      
             pushes: pnp.one,
             pops: pnp.three, 
-            isZeroOperand: false,
+            isZeroOperand: true,
             jsvmfn: OpERC1155BalanceOf
         }
     ],
