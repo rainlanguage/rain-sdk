@@ -1380,7 +1380,3 @@ export class Parser {
     }
   }
 }
-console.log((Parser.getStateConfig("eager_if(iszero(ITIERV2_REPORT(0xDe61D65dBaBC7274f18c747b6243b03E11933feC context(0))) 0 sub(min(mul(sub(block_timestamp() 1664806958) 3) div(1000000000 5)) min(mul(saturating_sub(ITIERV2_REPORT_TIME_FOR_TIER(this_address() context(0) 1) 1664806958) 3) div(1000000000 5))))")))
-// console.log(isBigNumberish("1"))
-// let a = "1"
-// console.log(a.slice(1, a.length))
