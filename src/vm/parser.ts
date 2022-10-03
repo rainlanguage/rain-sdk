@@ -14,18 +14,27 @@ export type Error = {
 /**
  * @public
  */
+export type Value = { value: BigNumberish, position: number[] };
+
+/**
+ * @public
+ */
+export type Op = { op: string, position: number[] };
+
+/**
+ * @public
+ */
 export type ParseTree = Error | {
   opcode: {
     name: string,
-    position: number[]
+    position: number[],
+    description?: string
   },
   operand: number,
   output: number,
-  parameters: (
-    ParseTree |
-    { value: BigNumberish, position: number[] }
-  )[],
+  parameters: (ParseTree | Value)[],
   position: number[],
+  parens: number[],
   data?: any,
 };
 
@@ -36,8 +45,17 @@ export type ParseStack =
   | "("
   | Error
   | ParseTree
-  | { op: string, position: number[] }
-  | { value: BigNumberish, position: number[] };
+  | Op
+  | Value;
+
+/**
+ * @public
+ */
+export type Flat =
+  | Error
+  | Value
+  | { paren: "(" | ")", position: number[] }
+  | { opcode: string, position: number[], output: number, operand: number, description?: string, data?: any };
 
 /**
  * @public
@@ -55,10 +73,7 @@ export type State = {
     cache: number[]
   },
   zipmaps: number,
-  multiOutputCache: (
-    Exclude<ParseTree, Error> |
-    { value: BigNumberish, position: number[] }
-  )[]
+  multiOutputCache: (Exclude<ParseTree, Error> | Value)[]
 }
 
 /**
@@ -91,6 +106,8 @@ export class Parser {
   public static sources: BytesLike[] = [];
   public static parseTree:
     Record<number, { tree: ParseTree[], position: number[] }> = {};
+  public static parseStack:
+    Record<number, { stack: ParseStack[], position: number[] }> = {};
 
   private static exp: string;
   private static input: string;
@@ -109,6 +126,7 @@ export class Parser {
     zipmaps: 0,
     multiOutputCache: []
   }
+  private static flat: Flat[] = [];
   private static placeholder: string = "_"
   private static hasError: boolean = false;
   private static data: any[] = Object.values(mapToRecord(OpMeta, ["data"]))
@@ -129,7 +147,8 @@ export class Parser {
    */
   public static get(script: string, opmeta?: typeof OpMeta, placeholderChar?: string): [
     Record<number, { tree: ParseTree[], position: number[] }>,
-    StateConfig
+    StateConfig,
+    Record<number, { stack: ParseStack[], position: number[] }>
   ] {
     this.parse(script, opmeta, placeholderChar);
     return [
@@ -137,7 +156,8 @@ export class Parser {
       {
         constants: this.constants,
         sources: this.sources
-      }
+      },
+      this.parseStack
     ]
   }
 
@@ -173,6 +193,23 @@ export class Parser {
   > {
     this.parse(script, opmeta, placeholderChar);
     return this.parseTree;
+  }
+
+  /**
+   * @public
+   * Method to get the parse stack object which is a flat array of parsed items
+   * 
+   * @param script - the text script
+   * @param opmeta - (optional) custom opmeta
+   * @param placeholderChar - (optional) custom multi output placeholder character, default is "_"
+   * @returns A parse tree object
+   */
+  public static getParseStack(script: string, opmeta?: typeof OpMeta, placeholderChar?: string): Record<
+    number,
+    { stack: ParseStack[], position: number[] }
+  > {
+    this.parse(script, opmeta, placeholderChar);
+    return this.parseStack;
   }
 
   private static parse(script: string, opmeta?: typeof OpMeta, placeholderChar?: string) {
@@ -231,15 +268,17 @@ export class Parser {
       while (this.exp.length > 0) {
         this.exp = this.trim(this.exp)[0];
 
-        if (this.exp.startsWith(",")) {
-          this.exp = this.exp.replace(",", "");
-        }
-        else if (this.exp.startsWith("(")) {
+        // if (this.exp.startsWith(",")) {
+        //   this.exp = this.exp.replace(",", "");
+        // }
+        if (this.exp.startsWith("(")) {
           this.exp = this.exp.replace("(", "");
           this.state.parse.stack.push("(");
+          this.flat.push({ paren: "(", position: [] });
         }
         else if (this.exp.startsWith(")")) {
           this.exp = this.exp.replace(")", "");
+          this.flat.push({ paren: "(", position: [] });
           this.resolveParens(hasCurlyBrackets ? positions[i][0] + 1 : positions[i][0]);
           if (!this.hasError) {
             try {
@@ -313,6 +352,7 @@ export class Parser {
   private static reset = () => {
     this.state.parse.tree = [];
     this.state.parse.stack = [];
+    this.flat = [];
   }
 
   private static findIndex = (str: string): number => {
@@ -349,7 +389,7 @@ export class Parser {
     return [str, leadingOffset, trailingOffset];
   }
 
-  private static buildStateConfig = (expBlock: Exclude<ParseStack, "(" | { op: string, position: number[] }>) => {
+  private static buildStateConfig = (expBlock: Exclude<ParseStack, "(" | Op>) => {
     let count = 0;
     if (!("error" in expBlock)) {
       let check = true;
@@ -364,8 +404,8 @@ export class Parser {
         }
         if (check) {
           let element:
-            | Exclude<ParseTree, { error: string, position: number[] }>
-            | { value: BigNumberish, position: number[] }
+            | Exclude<ParseTree, Error>
+            | Value
 
           let bytesArr_ = count !== 0 ? this.state.srcCache.splice(-count) : [];
           if (bytesArr_.length !== count) throw new Error("invalid script: cannot build the StateConfig")
@@ -581,7 +621,7 @@ export class Parser {
             expBlock.parameters.length === 4 ||
             expBlock.parameters.length === 11
           ) {
-            expBlock.operand = expBlock.parameters.length - 2;
+            expBlock.operand = expBlock.parameters.length - 3;
             if (!("value" in expBlock.parameters[2] && Number(expBlock.parameters[2].value) > -1 && Number(expBlock.parameters[2].value) < 9)) {
               expBlock.operand = NaN;
               expBlock.output = 1;
@@ -770,84 +810,96 @@ export class Parser {
     }
   }
 
-  private static trailingOp(str: string): boolean | string {
-    if (str.length > 0) {
-      if (str.startsWith("(") || str.startsWith(")")) return false;
-
-      if (!str.startsWith(" ")) {
-        let str_ = str.slice(0, this.findIndex(str));
-        str_ = this.rmComma(str_);
-
-        if (isBigNumberish(str_)) return false;
-        if (this.names.includes(str_)) return true
-        for (let i = 0; i < this.aliases.length; i++) {
-          if (this.aliases[i] && this.aliases[i].includes(str_)) return true;
-        }
-      }
-      else {
-        str = this.trim(str)[0];
-        if (str.startsWith("(") || str.startsWith(")")) return false;
-        let index1_ = this.findIndex(str) < 0
-          ? str.length
-          : this.findIndex(str) === 0
-            ? 1
-            : this.findIndex(str);
-
-        let str1_ = str.slice(0, index1_);
-        let consumee1_ = str1_;
-        let isOp1_ = false;
-        str1_ = this.rmComma(str1_);
-
-        if (str.startsWith("(") || str.startsWith(")")) return false;
-        if (isBigNumberish(str1_)) return false;
-        if (this.names.includes(str1_)) isOp1_ = true
-        for (let i = 0; i < this.aliases.length; i++) {
-          if (this.aliases[i] && this.aliases[i].includes(str1_)) {
-            isOp1_ = true;
-            break;
-          }
-        }
-        str = str.replace(consumee1_, "");
-        str = this.trim(str)[0];
-        if (isOp1_ && (str.startsWith("(") || str.startsWith(")"))) {
-          return "ambiguous expresion";
-        }
-        let index2_ = this.findIndex(str) < 0
-          ? str.length
-          : this.findIndex(str) === 0
-            ? 1
-            : this.findIndex(str);
-
-        let str2_ = str.slice(0, index2_);
-        str2_ = this.rmComma(str2_);
-
-        if (isOp1_ && (str.startsWith("(") || str.startsWith(")"))) {
-          return "ambiguous expresion";
-        }
-
-        if (isOp1_ && isBigNumberish(str2_)) return true;
-        if (isOp1_ && this.names.includes(str2_)) return true
-        for (let i = 0; i < this.aliases.length; i++) {
-          if (
-            isOp1_ && this.aliases[i] &&
-            this.aliases[i].includes(str2_)
-          ) return true;
-        }
-        return false;
-      }
-      return false;
+  private static searchOps(str: string): boolean {
+    for (let i = 0; i < this.names.length; i++) {
+      if (str.startsWith(this.names[i])) return true;
     }
-    else return false;
+    for (let i = 0; i < this.aliases.length; i++) {
+      if (this.aliases[i]) {
+        for (let j = 0; j < this.aliases[i].length; j++) {
+          if (str.startsWith(this.aliases[i][j])) return true;
+        }
+      }
+    }
+    return false
   }
+
+  // private static trailingOp(str: string): boolean | string {
+  //   if (str.length > 0) {
+  //     if (str.startsWith("(") || str.startsWith(")")) return false;
+
+  //     if (!str.startsWith(" ")) {
+  //       let str_ = str.slice(0, this.findIndex(str));
+  //       str_ = this.rmComma(str_);
+
+  //       if (isBigNumberish(str_)) return false;
+  //       if (this.names.includes(str_)) return true
+  //       for (let i = 0; i < this.aliases.length; i++) {
+  //         if (this.aliases[i] && this.aliases[i].includes(str_)) return true;
+  //       }
+  //     }
+  //     else {
+  //       str = this.trim(str)[0];
+  //       if (str.startsWith("(") || str.startsWith(")")) return false;
+  //       let index1_ = this.findIndex(str) < 0
+  //         ? str.length
+  //         : this.findIndex(str) === 0
+  //           ? 1
+  //           : this.findIndex(str);
+
+  //       let str1_ = str.slice(0, index1_);
+  //       let consumee1_ = str1_;
+  //       let isOp1_ = false;
+  //       str1_ = this.rmComma(str1_);
+
+  //       if (str.startsWith("(") || str.startsWith(")")) return false;
+  //       if (isBigNumberish(str1_)) return false;
+  //       if (this.names.includes(str1_)) isOp1_ = true
+  //       for (let i = 0; i < this.aliases.length; i++) {
+  //         if (this.aliases[i] && this.aliases[i].includes(str1_)) {
+  //           isOp1_ = true;
+  //           break;
+  //         }
+  //       }
+  //       str = str.replace(consumee1_, "");
+  //       str = this.trim(str)[0];
+  //       if (isOp1_ && (str.startsWith("(") || str.startsWith(")"))) {
+  //         return "ambiguous expresion";
+  //       }
+  //       let index2_ = this.findIndex(str) < 0
+  //         ? str.length
+  //         : this.findIndex(str) === 0
+  //           ? 1
+  //           : this.findIndex(str);
+
+  //       let str2_ = str.slice(0, index2_);
+  //       str2_ = this.rmComma(str2_);
+
+  //       if (isOp1_ && (str.startsWith("(") || str.startsWith(")"))) {
+  //         return "ambiguous expresion";
+  //       }
+
+  //       if (isOp1_ && isBigNumberish(str2_)) return true;
+  //       if (isOp1_ && this.names.includes(str2_)) return true
+  //       for (let i = 0; i < this.aliases.length; i++) {
+  //         if (
+  //           isOp1_ && this.aliases[i] &&
+  //           this.aliases[i].includes(str2_)
+  //         ) return true;
+  //       }
+  //       return false;
+  //     }
+  //     return false;
+  //   }
+  //   else return false;
+  // }
 
   private static resolveInfix(
     stack: Exclude<ParseStack, "(">[],
     position: number[]
   ): ParseTree {
     let infixExp: ParseTree;
-    let tmp_ = stack[1] as
-      { op: string, position: number[] } |
-      { error: string, position: number[] };
+    let tmp_ = stack[1] as Op | Error;
 
     if ("op" in tmp_) {
       infixExp = {
@@ -857,35 +909,23 @@ export class Parser {
         },
         operand: 2,
         parameters: [
-          (stack[0] as Exclude<
-            ParseStack,
-            { op: string, position: number[] } | "("
-          >),
-          (stack[2] as Exclude<
-            ParseStack,
-            { op: string, position: number[] } | "("
-          >)
+          (stack[0] as Exclude<ParseStack, Op | "(">),
+          (stack[2] as Exclude<ParseStack, Op | "(">)
         ],
         output: NaN,
         position: position,
+        parens: position,
         data: this.data[this.names.indexOf(tmp_.op)]
           ? this.data[this.names.indexOf(tmp_.op)]
           : undefined
       }
       if (stack.length > 3) {
         for (let i = 3; i < stack.length; i += 2) {
-          let item = stack[i] as Extract<
-            ParseStack,
-            { op: BigNumberish, position: number[] } |
-            { error: BigNumberish, position: number[] }
-          >;
+          let item = stack[i] as Extract<ParseStack, Op | Error>;
           if ("op" in item) {
             if (item.op === tmp_.op) {
               infixExp.parameters.push(
-                (stack[i + 1] as Exclude<
-                  ParseStack,
-                  { op: string, position: number[] } | "("
-                >),
+                (stack[i + 1] as Exclude<ParseStack, Op | "(">),
               );
               infixExp.opcode.position.push(...item.position);
               infixExp.operand++;
@@ -1088,6 +1128,7 @@ export class Parser {
               position: tmp.position
             },
             position: [tmp.position[0], endIndex_],
+            parens: [tmp.position[0] + tmp.op.length, endIndex_],
             operand: isInfix ? Math.floor(parens_.length / 2) + 1 : parens_.length,
             output: NaN,
             parameters: isInfix
@@ -1100,14 +1141,16 @@ export class Parser {
           })
         )
       }
-      else if (!isPrefix && !isPostfix && this.trailingOp(this.exp)) {
-        let err = this.trailingOp(this.exp);
+      else if (!isPrefix && !isPostfix && this.searchOps(this.exp)) {
+        //let err = this.trailingOp(this.exp);
+        let err = this.searchOps(this.exp);
         this.consume(entry);
-        let tmp_ = this.state.parse.stack.pop() as { op: string, position: number[] };
+        let tmp_ = this.state.parse.stack.pop() as Op;
 
-        if (typeof err === "string") {
+        //if (typeof err === "string") {
+        if (!err) {
           this.state.parse.stack.push({
-            error: err,
+            error: '',
             position: [startIndex_, tmp_.position[1]],
           });
           if (!this.hasError) this.hasError = true;
@@ -1120,6 +1163,7 @@ export class Parser {
                 position: tmp_.position
               },
               position: [startIndex_, tmp_.position[1]],
+              parens: [startIndex_, endIndex_],
               operand: isInfix ? Math.floor(parens_.length / 2) + 1 : parens_.length,
               output: NaN,
               parameters: isInfix
@@ -1144,6 +1188,7 @@ export class Parser {
           this.resolveOp({
             opcode: tmp_,
             position: [startIndex_, endIndex_],
+            parens: [startIndex_, endIndex_],
             operand: parens_.length,
             output: NaN,
             parameters: parens_ as ParseTree[],
@@ -1166,6 +1211,7 @@ export class Parser {
               }
             }).opcode,
             position: [startIndex_, endIndex_],
+            parens: [startIndex_, endIndex_],
             operand: parens_.length,
             output: NaN,
             parameters: parens_ as ParseTree[],
@@ -1236,38 +1282,66 @@ export class Parser {
       else {
         for (let i = 0; i < this.aliases.length; i++) {
           if (this.aliases[i] && this.aliases[i].includes(str_)) {
-            this.state.parse.stack.push(
-              {
-                op: this.names[i],
-                position: [startPosition, startPosition + this.names[i].length - 1]
-              }
-            );
             this.exp = this.exp.replace(consumee_, "");
+            let [tmpExp, offset] = this.trim(this.exp);
+            if (tmpExp.startsWith("(")) {
+              if (offset === 0 && consumee_.endsWith(str_)) {
+                this.state.parse.stack.push({
+                  op: this.names[i],
+                  position: [startPosition, startPosition + str_.length - 1]
+                });
+              }
+              else {
+                this.state.parse.stack.push({
+                  error: 'illigal characters between opcode and parenthesis',
+                  position: [startPosition, startPosition + str_.length - 1]
+                })
+              }
+            }
+            else {
+              this.state.parse.stack.push({
+                op: this.names[i],
+                position: [startPosition, startPosition + str_.length - 1]
+              });
+            }
             check_ = false;
             break;
           }
         }
         if (check_) {
           if (this.names.includes(str_)) {
-            this.state.parse.stack.push(
-              {
+            this.exp = this.exp.replace(consumee_, "");
+            let [tmpExp, offset] = this.trim(this.exp);
+            if (tmpExp.startsWith("(")) {
+              if (offset === 0 && consumee_.endsWith(str_)) {
+                this.state.parse.stack.push({
+                  op: str_,
+                  position: [startPosition, startPosition + str_.length - 1]
+                });
+              }
+              else {
+                this.state.parse.stack.push({
+                  error: 'illigal characters between opcode and parenthesis',
+                  position: [startPosition, startPosition + str_.length - 1]
+                })
+              }
+            }
+            else {
+              this.state.parse.stack.push({
                 op: str_,
                 position: [startPosition, startPosition + str_.length - 1]
-              }
-            );
-            this.exp = this.exp.replace(consumee_, "");
+              });
+            }
           }
           else if (str_ === "arg") {
             this.exp = this.exp.replace(consumee_, "");
             let i_ = this.exp.indexOf(")") + 1;
             str_ = str_ + this.exp.slice(0, i_);
             this.exp = this.exp.slice(i_, this.exp.length);
-            this.state.parse.stack.push(
-              {
-                value: str_,
-                position: [startPosition, startPosition + str_.length - 1]
-              }
-            );
+            this.state.parse.stack.push({
+              value: str_,
+              position: [startPosition, startPosition + str_.length - 1]
+            });
           }
           else if (str_ === this.placeholder) {
             this.state.parse.stack.push({
@@ -1278,31 +1352,25 @@ export class Parser {
           }
           else {
             if (str_.includes(".")) {
-              this.state.parse.stack.push(
-                {
-                  error: `invalid number: float ${str_}`,
-                  position: [startPosition, startPosition + str_.length - 1]
-                }
-              );
+              this.state.parse.stack.push({
+                error: `invalid number: float ${str_}`,
+                position: [startPosition, startPosition + str_.length - 1]
+              });
               this.exp = this.exp.replace(consumee_, "");
               if (!this.hasError) this.hasError = true;
             }
             else if (isBigNumberish(str_)) {
-              this.state.parse.stack.push(
-                {
-                  value: str_,
-                  position: [startPosition, startPosition + str_.length - 1]
-                }
-              );
+              this.state.parse.stack.push({
+                value: str_,
+                position: [startPosition, startPosition + str_.length - 1]
+              });
               this.exp = this.exp.replace(consumee_, "");
             }
             else {
-              this.state.parse.stack.push(
-                {
-                  error: `unknown: ${str_}`,
-                  position: [startPosition, startPosition + str_.length - 1]
-                }
-              );
+              this.state.parse.stack.push({
+                error: `unknown: ${str_}`,
+                position: [startPosition, startPosition + str_.length - 1]
+              });
               this.exp = this.exp.replace(consumee_, "");
               if (!this.hasError) this.hasError = true;
             };
@@ -1312,3 +1380,7 @@ export class Parser {
     }
   }
 }
+console.log((Parser.getStateConfig("eager_if(iszero(ITIERV2_REPORT(0xDe61D65dBaBC7274f18c747b6243b03E11933feC context(0))) 0 sub(min(mul(sub(block_timestamp() 1664806958) 3) div(1000000000 5)) min(mul(saturating_sub(ITIERV2_REPORT_TIME_FOR_TIER(this_address() context(0) 1) 1664806958) 3) div(1000000000 5))))")))
+// console.log(isBigNumberish("1"))
+// let a = "1"
+// console.log(a.slice(1, a.length))

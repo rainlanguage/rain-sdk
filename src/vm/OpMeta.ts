@@ -138,7 +138,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
                 data?: any
             ): void {
                 this.constant(operand, data)
-            }
+            },
+            aliases: ['Constant', 'constant', 'const', 'Const']
         }
     ],
     [
@@ -157,7 +158,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
                 data?: any
             ): void {
                 this.stack(operand, data)
-            }
+            },
+            aliases: ['stack', 'Stack']
         }
     ],
     [
@@ -176,7 +178,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
                 data?: any
             ): void {
                 this.context(operand, data)
-            }
+            },
+            aliases: ['context', 'Context']
         }
     ],
     [
@@ -195,7 +198,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
                 data?: any
             ): Promise<void> {
                 await this.storage(operand, data)
-            }
+            },
+            aliases: ['storage', 'Storage']
         }
     ],
     [
@@ -214,7 +218,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
                 data?: any
             ): Promise<void> {
                 await this.zipmap(operand, data)
-            }
+            },
+            aliases: ['zipmap', 'Zipamp']
         }
     ],
     [
@@ -233,7 +238,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
                 data?: any
             ): void {
                 this.debug(operand, data)
-            }
+            },
+            aliases: ['debug', 'Debug']
         }
     ],
     [
@@ -245,7 +251,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: true,
-            jsvmfn: OpERC20BalanceOf
+            jsvmfn: OpERC20BalanceOf,
+            aliases: ['ierc20_balance_of', 'erc20_balance_of', 'ERC20_BALANCE_OF']
         }
     ],
     [
@@ -257,7 +264,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.one, 
             isZeroOperand: true,
-            jsvmfn: OpERC20TotalSupply
+            jsvmfn: OpERC20TotalSupply,
+            aliases: ['ierc20_total_supply', 'erc20_total_supply', 'ERC20_TOTAL_SUPPLY']
         }
     ],
     [
@@ -269,7 +277,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.three, 
             isZeroOperand: true,
-            jsvmfn: OpERC20SnapshotBalanceOfAt
+            jsvmfn: OpERC20SnapshotBalanceOfAt,
+            aliases: ['ierc20_snapshot_balance_of', 'erc20_snapshot_balance_of', 'ERC20_SNAPSHOT_BALANCE_OF']
         }
     ],
     [
@@ -281,7 +290,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: true,
-            jsvmfn: OpERC20SnapshotTotalSupplyAt
+            jsvmfn: OpERC20SnapshotTotalSupplyAt,
+            aliases: ['ierc20_snapshot_total_supply', 'erc20_snapshot_total_supply', 'ERC20_SNAPSHOT_TOTAL_SUPPLY']
         }
     ],
     [
@@ -293,7 +303,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: true,
-            jsvmfn: OpERC721BalanceOf
+            jsvmfn: OpERC721BalanceOf,
+            aliases: ['ierc721_balance_of', 'erc721_balance_of', 'ERC721_BALANCE_OF']
         }
     ],
     [
@@ -305,7 +316,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: true,
-            jsvmfn: OpERC721OwnerOf
+            jsvmfn: OpERC721OwnerOf,
+            aliases: ['ierc721_owner_of', 'erc721_owner_of', 'ERC721_OWNER_OF']
         }
     ],
     [
@@ -317,7 +329,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.three, 
             isZeroOperand: true,
-            jsvmfn: OpERC1155BalanceOf
+            jsvmfn: OpERC1155BalanceOf,
+            aliases: ['ierc1155_balance_of', 'erc1155_balance_of', 'ERC1155_BALANCE_OF']
         }
     ],
     [
@@ -329,7 +342,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.oprnd,
             pops: pnp.derived, 
             isZeroOperand: false,
-            jsvmfn: OpERC1155BalanceOfBatch
+            jsvmfn: OpERC1155BalanceOfBatch,
+            aliases: ['ierc1155_balance_of_batch', 'erc1155_balance_of_batch', 'ERC1155_BALANCE_OF_BATCH']
         }
     ],
     [
@@ -342,7 +356,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pops: pnp.zero, 
             isZeroOperand: true,
             jsvmfn: OpBlockNumber,
-            aliases: ['CURRENT_BLOCK']
+            aliases: ['CURRENT_BLOCK', 'current_block', 'Current_Block', 'currentBlock', 'block_number', 'blockNumber', 'BlockNumber'],
         }
     ],
     [
@@ -355,7 +369,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pops: pnp.zero, 
             isZeroOperand: true,
             jsvmfn: OpCaller,
-            aliases: ['MSG_SENDER']
+            aliases: ['MSG_SENDER', 'msg_sender', 'Msg_Sender', 'msgSender', 'MsgSender', 'Sender', 'sender']
         }
     ],
     [
@@ -368,7 +382,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pops: pnp.zero, 
             isZeroOperand: true,
             jsvmfn: OpThisAddress,
-            aliases: ['THIS_ADDRESS']
+            aliases: ['THIS_ADDRESS', 'this_address', 'This_Adress', 'ThisAddress', 'thisAddress']
         }
     ],
     [
@@ -381,7 +395,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pops: pnp.zero, 
             isZeroOperand: true,
             jsvmfn: OpTimestamp,
-            aliases: ['CURRENT_TIMESTAMP']
+            aliases: ['CURRENT_TIMESTAMP', 'Current_Timestamp', 'current_timestamp', 'currentTimestamp', 'block_timestamp', 'Block_Timestamp', 'blockTimestamp', 'BlockTimestamp']
         }
     ],
     [
@@ -393,7 +407,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.one, 
             isZeroOperand: false,
-            jsvmfn: OpScale18
+            jsvmfn: OpScale18,
+            aliases: ['Scale18', 'scale18']
         }
     ],
     [
@@ -405,7 +420,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: false,
-            jsvmfn: OpScale18Div 
+            jsvmfn: OpScale18Div,
+            aliases: ['Scale18_Div', 'scale18_div', 'scale18Div', 'Scale18Div', 'scale18div']
         }
     ],
     [
@@ -417,7 +433,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: false,
-            jsvmfn: OpScale18Mul
+            jsvmfn: OpScale18Mul,
+            aliases: ['Scale18_Mul', 'scale18_mul', 'scale18Mul', 'Scale18Mul', 'scale18mul']
         }
     ],
     [
@@ -429,7 +446,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.one,
             isZeroOperand: false,
-            jsvmfn: OpScaleBy  
+            jsvmfn: OpScaleBy,
+            aliases: ['Scale_By', 'scale_by', 'scaleBy', 'ScaleBy']
         }
     ],
     [
@@ -441,7 +459,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.one, 
             isZeroOperand: false,
-            jsvmfn: OpScaleN 
+            jsvmfn: OpScaleN,
+            aliases: ['ScaleN', 'scaleN', 'scalen', 'scale_n', 'Scale_N', 'scale_n']
         }
     ],
     [
@@ -453,7 +472,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpAny 
+            jsvmfn: OpAny,
+            aliases: ['Any', 'any', 'or']
         }
     ],
     [
@@ -465,7 +485,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.three, 
             isZeroOperand: true,
-            jsvmfn: OpEagerIf 
+            jsvmfn: OpEagerIf,
+            aliases: ['eager_if', 'Eager_If', 'Eager_if', 'if', 'If', 'IF']
         }
     ],
     [
@@ -477,7 +498,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: true,
-            jsvmfn: OpEqualTo
+            jsvmfn: OpEqualTo,
+            aliases: ['Equal_To', 'equal_to', 'EqualTo', 'equalTo', 'eq', 'Eq', 'EQ']
         }
     ],
     [
@@ -489,7 +511,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpEvery 
+            jsvmfn: OpEvery,
+            aliases: ['Every', 'every', 'and', 'And', 'and', 'AND'] 
         }
     ],
     [
@@ -501,7 +524,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: true,
-            jsvmfn: OpGreaterThan
+            jsvmfn: OpGreaterThan,
+            aliases: ['Greater_Than', 'greater_than', 'greaterThan', 'GreaterThan', 'gt', 'GT', 'Gt']
         }
     ],
     [
@@ -513,7 +537,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.one, 
             isZeroOperand: true,
-            jsvmfn: OpIsZero
+            jsvmfn: OpIsZero,
+            aliases: ['IsZero', 'isZero', 'iszero', 'Is_Zero', 'is_zero', 'IS_ZERO']
         }
     ],
     [
@@ -525,7 +550,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: true,
-            jsvmfn: OpLessThan
+            jsvmfn: OpLessThan,
+            aliases: ['Less_Than', 'less_than', 'lessThan', 'LessThan', 'lt', 'LT', 'Lt']
         }
     ],
     [
@@ -537,7 +563,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpSaturatingAdd
+            jsvmfn: OpSaturatingAdd,
+            aliases: ['Saturating_Add', 'saturating_add', 'saturatingAdd', 'satAdd', 'sat_add', 'Sat_Add', 'Saturating_Sum', 'saturating_sum', 'saturatingSum', 'satSum', 'sat_sum', 'Sat_Sum']
         }
     ],
     [
@@ -549,7 +576,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpSaturatingMul
+            jsvmfn: OpSaturatingMul,
+            aliases: ['Saturating_Mul', 'saturating_mul', 'saturatingMul', 'satMul', 'sat_mul', 'Sat_Mul']
         }
     ],
     [
@@ -561,7 +589,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpSaturatingSub
+            jsvmfn: OpSaturatingSub,
+            aliases: ['Saturating_Sub', 'saturating_sub', 'saturatingSub', 'satSub', 'sat_sub', 'Sat_Sub', 'Saturating_Minus', 'saturating_minus', 'saturatingMinus', 'satMinus', 'sat_minus', 'Sat_Minus']
         }
     ],
     [
@@ -573,7 +602,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpAdd
+            jsvmfn: OpAdd,
+            aliases: ['Add', 'add', '+', 'Sum', 'sum', 'SUM']
         }
     ],
     [
@@ -585,7 +615,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpDiv
+            jsvmfn: OpDiv,
+            aliases: ['Div', 'div', '/']
         }
     ],
     [
@@ -597,7 +628,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpExp
+            jsvmfn: OpExp,
+            aliases: ['Exp', 'exp', '^', 'POW', 'Pow', 'pow']
         }
     ],
     [
@@ -609,7 +641,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpMax
+            jsvmfn: OpMax,
+            aliases: ['Max', 'max', 'maximum', 'MAXIMUM', 'Maximum']
         }
     ],
     [
@@ -621,7 +654,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpMin
+            jsvmfn: OpMin,
+            aliases: ['Min', 'min', 'MINIMUM', 'Minimum', 'minimum']
         }
     ],
     [
@@ -633,7 +667,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpMod
+            jsvmfn: OpMod,
+            aliases: ['Mod', 'mod', '%']
         }
     ],
     [
@@ -645,7 +680,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd, 
             isZeroOperand: false,
-            jsvmfn: OpMul
+            jsvmfn: OpMul,
+            aliases: ['Mul', 'mul', '*', 'x', 'X']
         }
     ],
     [
@@ -657,7 +693,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.oprnd,
             isZeroOperand: false,
-            jsvmfn: OpSub
+            jsvmfn: OpSub,
+            aliases: ['Sub', 'sub', '-', 'minus', 'Minus', 'MINUS']
         }
     ],
     [
@@ -669,7 +706,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.derived,
             isZeroOperand: false,
-            jsvmfn: OpITierV2Report
+            jsvmfn: OpITierV2Report,
+            aliases: ['itierv2_report', 'Itierv2_Report', 'itierv2Report', 'report', 'Report', 'REPORT']
         }
     ],
     [
@@ -681,7 +719,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.derived, 
             isZeroOperand: false,
-            jsvmfn: OpITierV2ReportTimesForTier
+            jsvmfn: OpITierV2ReportTimesForTier,
+            aliases: ['itierv2_report_time_for_tier', 'Itierv2_Report_Time_For_Tier', 'Itierv2ReportTimeForTier', 'itierv2ReportTimeForTier', 'singleReport', 'SingleReport', 'Single_Report', 'single_report']
         }
     ],
     [
@@ -693,7 +732,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: true,
-            jsvmfn: OpSaturatingDiff
+            jsvmfn: OpSaturatingDiff,
+            aliases: ['Saturating_Diff', 'saturating_diff', 'saturatingDiff', 'satDiff', 'SatDiff', 'sat_diff', 'Sat_Diff', 'SAT_DIFF']
         }
     ],
     [
@@ -705,7 +745,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.derived, 
             isZeroOperand: false,
-            jsvmfn: OpSelectLte
+            jsvmfn: OpSelectLte,
+            aliases: ['Select_Lte', 'select_lte', 'selectLte', 'SelectLte']
         }
     ],
     [
@@ -717,7 +758,8 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pushes: pnp.one,
             pops: pnp.two, 
             isZeroOperand: false,
-            jsvmfn: OpUpdateTimesForTierRange
+            jsvmfn: OpUpdateTimesForTierRange,
+            aliases: ['update_times_for_tier_range', 'Update_Times_For_Tier_Range', 'UpdateTimesForTierRange', 'updateTimesForTierRange']
         }
     ]
 ]);
