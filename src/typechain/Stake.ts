@@ -239,7 +239,7 @@ export interface Stake extends BaseContract {
     ): Promise<ContractTransaction>;
 
     deposit(
-      amount_: BigNumberish,
+      assets_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -298,7 +298,7 @@ export interface Stake extends BaseContract {
     ): Promise<ContractTransaction>;
 
     withdraw(
-      amount_: BigNumberish,
+      shares_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -326,7 +326,7 @@ export interface Stake extends BaseContract {
   ): Promise<ContractTransaction>;
 
   deposit(
-    amount_: BigNumberish,
+    assets_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -385,7 +385,7 @@ export interface Stake extends BaseContract {
   ): Promise<ContractTransaction>;
 
   withdraw(
-    amount_: BigNumberish,
+    shares_: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -412,7 +412,10 @@ export interface Stake extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    deposit(amount_: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    deposit(
+      assets_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     deposits(
       arg0: string,
@@ -468,7 +471,10 @@ export interface Stake extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    withdraw(amount_: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    withdraw(
+      shares_: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -528,7 +534,7 @@ export interface Stake extends BaseContract {
     ): Promise<BigNumber>;
 
     deposit(
-      amount_: BigNumberish,
+      assets_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -587,7 +593,7 @@ export interface Stake extends BaseContract {
     ): Promise<BigNumber>;
 
     withdraw(
-      amount_: BigNumberish,
+      shares_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -619,7 +625,7 @@ export interface Stake extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     deposit(
-      amount_: BigNumberish,
+      assets_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -678,7 +684,7 @@ export interface Stake extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     withdraw(
-      amount_: BigNumberish,
+      shares_: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
