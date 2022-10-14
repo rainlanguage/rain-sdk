@@ -331,9 +331,7 @@ export class Parser {
       sourcesCache = [];
     }
     if (argCount > 0) {
-      let tmp = this.updateArgs({constants, sources});
-      constants = tmp.constants;
-      sources = tmp.sources
+      ({ constants, sources } = this.updateArgs({constants, sources}));
     }
     return {
       constants,
@@ -572,9 +570,7 @@ export class Parser {
       }
       this.treeArray[i] = this.parseTree[i].tree;
     }
-    let tmp = this.buildBytes(this.treeArray)
-    this.constants = tmp.constants;
-    this.sources = tmp.sources;
+    ({ constants: this.constants, sources: this.sources } = this.buildBytes(this.treeArray));
   }
 
   /**
@@ -1478,7 +1474,7 @@ export class Parser {
   }
 
   /**
-   * Method to check for errors in parsee tree once an expression is fully parsed
+   * Method to check for errors in parse tree once an expression is fully parsed
    */
   private static errorCheck(element: Node): boolean {
     if ("opcode" in element) {
@@ -1495,7 +1491,7 @@ export class Parser {
   }
 
   /**
-   * Method to update the arguments of zipmaps after full buyes build (if any present)
+   * Method to update the arguments of zipmaps after full bytes build (if any present)
    */
   public static updateArgs(config: StateConfig): StateConfig {
     for (let i = 0; i < config.sources.length; i++) {
@@ -1541,3 +1537,4 @@ export class Parser {
     return argCache;
   }
 }
+
