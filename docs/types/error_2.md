@@ -1,6 +1,7 @@
 
 # Type Error\_2
 
+Type of Parser's Error node
 
 <b>Signature:</b>
 

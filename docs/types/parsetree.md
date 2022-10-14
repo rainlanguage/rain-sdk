@@ -1,22 +1,13 @@
 
 # Type ParseTree
 
+Type of a parse tree object
 
 <b>Signature:</b>
 
 ```typescript
-type ParseTree = Error | {
-    opcode: {
-        name: string;
-        position: number[];
-    };
-    operand: number;
-    output: number;
-    parameters: (ParseTree | {
-        value: BigNumberish;
-        position: number[];
-    })[];
+type ParseTree = Record<number, {
+    tree: Node[];
     position: number[];
-    data?: any;
-};
+}>;
 ```

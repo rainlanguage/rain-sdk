@@ -1,80 +1,97 @@
 import { OpMeta } from './OpMeta';
 import { BigNumberish, BytesLike } from 'ethers';
 import { AllStandardOps, StateConfig } from '../classes/vm';
-import { callSize, concat, isBigNumberish, mapToRecord, op, selectLte, tierRange } from '../utils';
+import {
+  callSize,
+  concat,
+  isBigNumberish,
+  mapToRecord,
+  op,
+  selectLte,
+  tierRange,
+} from '../utils';
 
 /**
- * @public
+ * Expression Notations
  */
-export type Error = {
-  error: string,
-  position: number[]
+enum Notations {
+  prefix,
+  postfix,
+  infix,
 }
 
 /**
  * @public
+ * Type of Parser's Error node 
  */
-export type Value = { value: BigNumberish, position: number[] };
-
-/**
- * @public
- */
-export type Op = { op: string, position: number[] };
-
-/**
- * @public
- */
-export type ParseTree = Error | {
-  opcode: {
-    name: string,
-    position: number[],
-    description?: string
-  },
-  operand: number,
-  output: number,
-  parameters: (ParseTree | Value)[],
-  position: number[],
-  parens: number[],
-  data?: any,
+export type Error = {
+  error: string;
+  position: number[];
 };
 
 /**
  * @public
+ * Type of Parser's Value node 
  */
-export type ParseStack =
-  | "("
-  | Error
-  | ParseTree
-  | Op
-  | Value;
+export type Value = { 
+  value: BigNumberish;
+  position: number[];
+  error?: string 
+};
 
 /**
  * @public
+ * Type of Parser's Opcode node 
  */
-export type Flat =
-  | Error
-  | Value
-  | { paren: "(" | ")", position: number[] }
-  | { opcode: string, position: number[], output: number, operand: number, description?: string, data?: any };
+export type Op = {
+  opcode: {
+    name: string;
+    position: number[];
+  };
+  operand: number;
+  output: number;
+  position: number[];
+  parens: number[];
+  parameters: Node[];
+  data?: any;
+  error?: string;
+  infixOp?: boolean;
+};
 
 /**
  * @public
+ * Type of Parser's Node
+ */
+export type Node = Error | Value | Op;
+
+/**
+ * @public
+ * Type of Parser's State
  */
 export type State = {
   parse: {
-    stack: ParseStack[],
-    tree: ParseTree[]
-  }
-  srcCache: Uint8Array[],
-  arguments: {
-    has: boolean,
-    offset: number,
-    count: number,
-    cache: number[]
-  },
-  zipmaps: number,
-  multiOutputCache: (Exclude<ParseTree, Error> | Value)[]
-}
+    tree: Node[];
+    moCache: (Op | Value)[][]
+  };
+  track: {
+    notation: number[];
+    parens: {
+      open: number[],
+      close: number[]
+    }
+  };
+  depthLevel: number;
+  ambiguity: boolean;
+};
+
+/**
+ * @public
+ * Type of a parse tree object
+ */
+export type ParseTree = Record<
+  number,
+  { tree: Node[]; position: number[] }
+>;
 
 /**
  * @public
@@ -93,171 +110,355 @@ export type State = {
  * let stateConfig
  * [ parseTree, stateConfig ] = Parser.get(textScript, customOpMeta, customMultiOutputPlaceholderChar);
  * 
- * // to get only parse tree object
+ * // to get parse tree object only
  * let parseTree = Parser.getParseTree(textScript, customOpMeta, customMultiOutputPlaceholderChar);
  * 
- * // to get only StateConfig
+ * // to get StateConfig only
  * let stateConfig = Parser.getStateConfig(textScript, customOpMeta, customMultiOutputPlaceholderChar);
+ * 
+ * // to build StateConfig (bytes) from ParseTree object or a Node or array of Node
+ * let argument: Node || Node[] || ParseTree
+ * let stateConfig = Parser.buildBytes(argument)
  * ```
  */
 export class Parser {
-  // StateConfig Properties of this class
   public static constants: BigNumberish[] = [];
   public static sources: BytesLike[] = [];
-  public static parseTree:
-    Record<number, { tree: ParseTree[], position: number[] }> = {};
-  public static parseStack:
-    Record<number, { stack: ParseStack[], position: number[] }> = {};
+  public static parseTree: ParseTree = {};
 
   private static exp: string;
   private static input: string;
+  private static placeholder: string = '_';
+  private static treeArray: Record<number, Node[]> = {};
+  private static data: any[] = Object.values(mapToRecord(OpMeta, ['data']));
+  private static names: string[] = Object.values(mapToRecord(OpMeta, ['name']));
+  private static aliases: string[] = Object.values(mapToRecord(OpMeta, ['aliases']));
+  private static zeroOperandOps: boolean[] = 
+    Object.values(mapToRecord(OpMeta, ['isZeroOperand']));
+  private static pops: ((opcode: number, operand: number) => number)[] = 
+    Object.values(mapToRecord(OpMeta, ['pops']));
+  private static pushes: ((opcode: number, operand: number) => number)[] = 
+    Object.values(mapToRecord(OpMeta, ['pushes']));
   private static state: State = {
     parse: {
-      stack: [],
-      tree: []
+      tree: [],
+      moCache: []
     },
-    srcCache: [],
-    arguments: {
-      has: false,
-      offset: 0,
-      count: 0,
-      cache: []
+    track: {
+      notation: [],
+      parens: {
+        open: [],
+        close: []
+      }
     },
-    zipmaps: 0,
-    multiOutputCache: []
-  }
-  private static flat: Flat[] = [];
-  private static placeholder: string = "_"
-  private static hasError: boolean = false;
-  private static data: any[] = Object.values(mapToRecord(OpMeta, ["data"]))
-  private static names: string[] = Object.values(mapToRecord(OpMeta, ["name"]));
-  private static aliases: string[] = Object.values(mapToRecord(OpMeta, ["aliases"]));
-  private static pops: ((opcode: number, operand: number) => number)[] =
-    Object.values(mapToRecord(OpMeta, ["pops"]));
-  private static zeroOperandOps: string[] = Object.values(mapToRecord(OpMeta, ["isZeroOperand"]));
+    depthLevel: 0,
+    ambiguity: false,
+  };
+
 
   /**
    * @public
    * Method to get parse tree object and StateConfig
    * 
-   * @param script - the text script
+   * @param expression - the text expression
    * @param opmeta - (optional) custom opmeta
-   * @param placeholderChar - (optional) custom multi output placeholder character, default is "_" 
+   * @param multiOutputPlaceholderChar - (optional) custom multi output placeholder character, default is "_" 
    * @returns Array of parse tree object and StateConfig
    */
-  public static get(script: string, opmeta?: typeof OpMeta, placeholderChar?: string): [
-    Record<number, { tree: ParseTree[], position: number[] }>,
-    StateConfig,
-    Record<number, { stack: ParseStack[], position: number[] }>
-  ] {
-    this.parse(script, opmeta, placeholderChar);
-    return [
-      this.parseTree,
-      {
-        constants: this.constants,
-        sources: this.sources
-      },
-      this.parseStack
-    ]
-  }
-
-  /**
-   * @public
-   * Method to get the StateConfig
-   * 
-   * @param script - the text script
-   * @param opmeta - (optional) custom opmeta
-   * @param placeholderChar - (optional) custom multi output placeholder character, default is "_"
-   * @returns A StateConfig
-   */
-  public static getStateConfig(script: string, opmeta?: typeof OpMeta, placeholderChar?: string): StateConfig {
-    this.parse(script, opmeta, placeholderChar);
-    return {
-      constants: this.constants,
-      sources: this.sources
-    } as StateConfig
+  public static get(
+    expression: string,
+    opmeta?: typeof OpMeta,
+    multiOutputPlaceholderChar?: string
+  ): [ParseTree, StateConfig] {
+    this.parse(expression, opmeta, multiOutputPlaceholderChar);
+    return [this.parseTree, { constants: this.constants, sources: this.sources } ]
   }
 
   /**
    * @public
    * Method to get the parse tree object
    * 
-   * @param script - the text script
+   * @param expression - the text expression
    * @param opmeta - (optional) custom opmeta
-   * @param placeholderChar - (optional) custom multi output placeholder character, default is "_"
+   * @param multiOutputPlaceholderChar - (optional) custom multi output placeholder character, default is "_" 
    * @returns A parse tree object
    */
-  public static getParseTree(script: string, opmeta?: typeof OpMeta, placeholderChar?: string): Record<
-    number,
-    { tree: ParseTree[], position: number[] }
-  > {
-    this.parse(script, opmeta, placeholderChar);
+  public static getParseTree(
+    expression: string,
+    opmeta?: typeof OpMeta,
+    multiOutputPlaceholderChar?: string
+  ): ParseTree {
+    this.parse(expression, opmeta, multiOutputPlaceholderChar);
     return this.parseTree;
   }
 
   /**
    * @public
-   * Method to get the parse stack object which is a flat array of parsed items
+   * Method to get the StateConfig
    * 
-   * @param script - the text script
+   * @param expression - the text expression
    * @param opmeta - (optional) custom opmeta
-   * @param placeholderChar - (optional) custom multi output placeholder character, default is "_"
-   * @returns A parse tree object
+   * @param multiOutputPlaceholderChar - (optional) custom multi output placeholder character, default is "_"
+   * @returns A StateConfig
    */
-  public static getParseStack(script: string, opmeta?: typeof OpMeta, placeholderChar?: string): Record<
-    number,
-    { stack: ParseStack[], position: number[] }
-  > {
-    this.parse(script, opmeta, placeholderChar);
-    return this.parseStack;
+  public static getStateConfig(
+    expression: string,
+    opmeta?: typeof OpMeta,
+    multiOutputPlaceholderChar?: string
+  ): StateConfig {
+    this.parse(expression, opmeta, multiOutputPlaceholderChar);
+    return {
+      constants: this.constants,
+      sources: this.sources
+    }
   }
 
-  private static parse(script: string, opmeta?: typeof OpMeta, placeholderChar?: string) {
-    this.reset();
-    this.parseTree = {};
-    this.constants = [];
-    this.sources = [];
-    this.hasError = false;
-    this.state.zipmaps = 0;
-    this.state.arguments.has = false;
-    this.state.arguments.count = 0;
-    this.state.arguments.offset = 0;
-    this.state.arguments.cache = [];
-    opmeta ? this.set(opmeta) : this.set(OpMeta);
-    this.placeholder = placeholderChar ? placeholderChar : "_";
+  /**
+   * @public
+   * Method to get StateConfig (bytes) from a Parse Tree object or a Node or array of Nodes
+   * 
+   * @param parseTree - Tree like object (Parse Tree object or a Node or array of Nodes) to get the StateConfig from
+   * @param offset - This argument is used internally and should be ignored when calling this method externally
+   * @returns StateConfig
+   */
+  public static buildBytes(
+    parseTree: 
+      | Node 
+      | Node[] 
+      | Record<number, Node[]>,
+    offset?: number
+  ): StateConfig {
+    let constants: BigNumberish[] = [];
+    let sources: BytesLike[] = [];
+    let sourcesCache: BytesLike[] = [];
+    let argOffset: number[] = [];
+    let nodes : Node[][];
+    let isRecord = false;
 
-    let script_ = script;
+    // convertion to a single type
+    if ("0" in parseTree) {
+      let array: any = Object.values(parseTree);
+      if (!("0" in array[0])) nodes = [array as Node[]];
+      else {
+        argOffset = this.countArgs(
+          parseTree as Record<number, Node[]>
+        );
+        isRecord = true;
+        nodes = array as Node[][];
+      }
+    }
+    else nodes = [[parseTree as Node]];
+
+    // check for errors
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = 0; j < nodes[i].length; j++) {
+        if (!this.errorCheck(nodes[i][j])) return {
+          constants: [],
+          sources: []
+        }
+      }
+    }
+
+    argOffset = isRecord 
+      ? this.countArgs(parseTree as Record<number, Node[]>) 
+      : [0, 0];
+    let argCount = isRecord ? argOffset.pop()! : 0;
+
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = 0; j < nodes[i].length; j++) {
+        let node = nodes[i][j];
+        if ("value" in node) {
+          if (isBigNumberish(node.value)) {
+            if (constants.includes(node.value)) {
+              sourcesCache.push(
+                op(AllStandardOps.CONSTANT, constants.indexOf(node.value))
+              );
+            }
+            else {
+              sourcesCache.push(
+                op(AllStandardOps.CONSTANT, constants.length)
+              );
+              constants.push(node.value);
+            }
+          }
+          else if ((node.value as string).includes("arg")) {
+            let index = Number(
+              (node.value as string).replace("arg(", "").slice(0, -1)
+            );
+            sourcesCache.push(
+              op(this.names.length, isRecord ? argOffset[i] + index : offset ? offset + index : 0)
+            );
+          }
+          else if (node.value === "MaxUint256") {
+            if (constants.includes("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")) {
+              sourcesCache.push(
+                op(AllStandardOps.CONSTANT, constants.indexOf(node.value))
+              );
+            }
+            else {
+              sourcesCache.push(
+                op(AllStandardOps.CONSTANT, constants.length)
+              );
+              constants.push("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+            }
+          }
+        }
+        else {
+          for (let i = 0; i < (node as Op).parameters.length; i++) {
+            let tmp = this.buildBytes(
+              (node as Op).parameters[i],
+              isRecord ? argOffset[i] : offset ? offset : 0
+            );
+            for (let k = 0; k < tmp.sources.length; k++) {
+              for (let l = 0; l < tmp.sources[k].length; l++) {
+                if (tmp.sources[k][l] === 0) {
+                  (tmp.sources[k] as Uint8Array)[l + 1] += constants.length;
+                }
+              }
+            }
+            sourcesCache.push(...tmp.sources);
+            constants.push(...tmp.constants)
+          }
+          sourcesCache.push(
+            op(
+              this.names.indexOf((node as Op).opcode.name),
+              (node as Op).operand
+            )
+          )
+        }
+      }
+      sources.push(concat(sourcesCache))
+      sourcesCache = [];
+    }
+    if (argCount > 0) {
+      let tmp = this.updateArgs({constants, sources});
+      constants = tmp.constants;
+      sources = tmp.sources
+    }
+    return {
+      constants,
+      sources
+    }
+  }
+
+  /**
+   * Method to set the opmeta
+   */
+  private static set(opmeta_: typeof OpMeta) {
+    this.data = Object.values(mapToRecord(opmeta_, ['data']));
+    this.names = Object.values(mapToRecord(opmeta_, ['name']));
+    this.aliases = Object.values(mapToRecord(opmeta_, ['aliases']));
+    this.pops = Object.values(mapToRecord(opmeta_, ['pops']));
+    this.pushes = Object.values(mapToRecord(opmeta_, ['pushes']));
+    this.zeroOperandOps = Object.values(
+      mapToRecord(opmeta_, ['isZeroOperand'])
+    );
+  }
+
+  /**
+   * Method to reset the class private properties
+   */
+  private static reset = () => {
+    this.state.parse.tree = [];
+    this.state.depthLevel = 0;
+    this.state.track.parens.open = [];
+    this.state.track.parens.close = [];
+  };
+
+  /**
+   * Method to find index of next element within the text expression
+   */
+  private static findIndex = (str: string): number => {
+    let indexes = [];
+    indexes[0] = str.indexOf('(');
+    indexes[1] = str.indexOf(')');
+    indexes[2] = str.indexOf(' ');
+    if (indexes[0] === -1 && indexes[1] === -1 && indexes[2] === -1) {
+      return -1;
+    } 
+    else {
+      let ret = indexes.filter((v) => v !== -1);
+      return ret.reduce((a, b) => (a <= b ? a : b));
+    }
+  };
+
+  /**
+   * Method to trim the text expression from whitespaces and commas from both ends
+   */
+  private static trim = (str: string): [string, number, number] => {
+    let leadingOffset = 0;
+    let trailingOffset = 0;
+    [str, trailingOffset] = this.trimRight(str);
+    [str, leadingOffset] = this.trimLeft(str);
+    return [str, leadingOffset, trailingOffset];
+  };
+
+  /**
+   * Method to trim the right side of the text expression from whitespaces and commas
+   */
+  private static trimRight = (str: string): [string, number] => {
+    let trailingOffset = 0;
+    while (str.endsWith(" ") || str.endsWith(",")) {
+      str = str.slice(0, -1);
+      trailingOffset++;
+    }
+    return [str, trailingOffset];
+  }
+
+  /**
+   * Method to trim the left side of the text expression from whitespaces and commas
+   */
+  private static trimLeft = (str: string): [string, number] => {
+    let leadingOffset = 0;
+    while (str.startsWith(' ') || str.startsWith(',')) {
+      str = str.slice(1, str.length);
+      leadingOffset++;
+    }
+    return [str, leadingOffset];
+  };
+
+  /**
+   * The main workhorse of Rain Parser which parses the words used in an 
+   * expression and is responsible for building the Parse Tree and Bytes 
+   */
+  private static parse(script: string, opmeta?: typeof OpMeta, placeholder?: string) {
+    this.reset();
+    this.sources = [];
+    this.constants = [];
+    this.treeArray = [];
+    this.parseTree = {};
+    opmeta ? this.set(opmeta) : this.set(OpMeta);
+    this.placeholder = placeholder ? placeholder : '_';
+
+    let originalText = script;
     let offset = 0;
     [script, , offset] = this.trim(script);
     let expressions: string[] = [];
-    let positions = [[0, script_.length - 1]];
+    let positions = [[0, originalText.length - 1]];
     let hasCurlyBrackets = false;
 
-    if (script.startsWith("{") && script.indexOf("}") > -1) {
+    // remove indents
+    while(script.includes(`\n`)) script = script.replace(`\n`, "");
+
+    if (script.startsWith('{') && script.indexOf('}') > -1) {
       hasCurlyBrackets = true;
-      positions = [[
-        script_.indexOf("{"),
-        script_.indexOf("}")
-      ]]
-      while (script.startsWith("{") && script.indexOf("}") > -1) {
-        let tmp = script.slice(0, script.indexOf("}") + 1);
+      positions = [[originalText.indexOf('{'), originalText.indexOf('}')]];
+      while (script.startsWith('{') && script.indexOf('}') > -1) {
+        let tmp = script.slice(0, script.indexOf('}') + 1);
         let length = tmp.length - script.length;
-
-        if (length === 0) length = script.length;
-
+        if (length === 0) length = -script.length;
         script = script.slice(length);
         script = this.trim(script)[0];
         expressions.push(tmp.slice(1, tmp.length - 1));
 
-        if (script.startsWith("{") && script.indexOf("}") > -1) {
+        if (script.startsWith('{') && script.indexOf('}') > -1) {
           positions.push([
-            script_.length - script.length - offset,
-            script_.length - script.length - offset + script.indexOf("}")
-          ])
+            originalText.length - script.length - offset,
+            originalText.length - script.length - offset + script.indexOf('}'),
+          ]);
         }
       }
-    }
-    else expressions.push(script);
+    } else expressions.push(script);
 
     for (let i = 0; i < expressions.length; i++) {
       this.reset();
@@ -266,1043 +467,893 @@ export class Parser {
       this.exp = this.trim(this.exp)[0];
 
       while (this.exp.length > 0) {
-        this.exp = this.trim(this.exp)[0];
+        this.exp = this.trimLeft(this.exp)[0];
+        let entry = hasCurlyBrackets ? positions[i][0] + 1 : positions[i][0];
+        let currentPosition = entry + this.input.length - this.exp.length;
 
-        // if (this.exp.startsWith(",")) {
-        //   this.exp = this.exp.replace(",", "");
-        // }
-        if (this.exp.startsWith("(")) {
-          this.exp = this.exp.replace("(", "");
-          this.state.parse.stack.push("(");
-          this.flat.push({ paren: "(", position: [] });
-        }
-        else if (this.exp.startsWith(")")) {
-          this.exp = this.exp.replace(")", "");
-          this.flat.push({ paren: "(", position: [] });
-          this.resolveParens(hasCurlyBrackets ? positions[i][0] + 1 : positions[i][0]);
-          if (!this.hasError) {
-            try {
-              this.buildStateConfig(
-                this.state.parse.stack[
-                this.state.parse.stack.length - 1
-                ] as ParseTree
-              )
-            } catch (err) {
-              console.log(err)
-            }
-          }
-        }
-        else this.consume(hasCurlyBrackets ? positions[i][0] + 1 : positions[i][0]);
-
-        if (
-          !this.hasError && !this.state.parse.stack.includes("(") &&
-          this.state.parse.stack.length === 1 &&
-          "value" in (this.state.parse.stack[0] as Exclude<ParseStack, "(">)
-        ) {
-          try {
-            this.buildStateConfig(
-              this.state.parse.stack[
-              this.state.parse.stack.length - 1
-              ] as ParseTree
-            )
-          } catch (err) {
-            console.log(err)
-          }
-        }
-        if (this.hasError) {
-          this.state.srcCache = [];
-          this.constants = [];
-        }
-        if (
-          !this.state.parse.stack.includes("(") &&
-          !("op" in (this.state.parse.stack[0] as Exclude<ParseStack, "(">))
-        ) {
-          if (this.state.multiOutputCache.length > 0) {
-            this.state.parse.stack.unshift(
-              ...this.state.multiOutputCache.splice(
-                -this.state.multiOutputCache.length
-              ) as ParseStack[]
-            )
-          }
-          this.state.parse.tree.push(
-            ...this.state.parse.stack.splice(
-              -this.state.parse.stack.length
-            ) as ParseTree[]
-          )
-        }
-      }
-      this.sources.push(concat(this.state.srcCache))
-      this.state.srcCache = [];
-      this.parseTree[i] = {
-        tree: this.state.parse.tree.splice(-this.state.parse.tree.length),
-        position: positions[i],
-      }
-    }
-    this.updateArgs();
-  }
-
-  private static set(opmeta_: typeof OpMeta) {
-    this.data = Object.values(mapToRecord(opmeta_, ["data"]));
-    this.names = Object.values(mapToRecord(opmeta_, ["name"]));
-    this.aliases = Object.values(mapToRecord(opmeta_, ["aliases"]));
-    this.pops = Object.values(mapToRecord(opmeta_, ["pops"]));
-    this.zeroOperandOps = Object.values(mapToRecord(opmeta_, ["isZeroOperand"]));
-  }
-
-  private static reset = () => {
-    this.state.parse.tree = [];
-    this.state.parse.stack = [];
-    this.flat = [];
-  }
-
-  private static findIndex = (str: string): number => {
-    let indexes = [];
-    indexes[0] = str.indexOf("(");
-    indexes[1] = str.indexOf(")");
-    indexes[2] = str.indexOf(" ");
-    if (indexes[0] === -1 && indexes[1] === -1 && indexes[2] === -1) {
-      return -1;
-    }
-    else {
-      let ret = indexes.filter((v) => v !== -1)
-      return ret.reduce((a, b) => a <= b ? a : b)
-    }
-  }
-
-  private static rmComma = (str_: string): string => {
-    while (str_.startsWith(",")) str_ = str_.replace(",", "");
-    while (str_.endsWith(",")) str_ = str_.slice(0, -1);
-    return str_;
-  }
-
-  private static trim = (str: string): [string, number, number] => {
-    let leadingOffset = 0;
-    let trailingOffset = 0;
-    while (str.startsWith(" ") || str.startsWith(",")) {
-      str = str.slice(1, str.length);
-      leadingOffset++;
-    }
-    while (str.endsWith(" ") || str.endsWith(",")) {
-      str = str.slice(0, -1);
-      trailingOffset++;
-    }
-    return [str, leadingOffset, trailingOffset];
-  }
-
-  private static buildStateConfig = (expBlock: Exclude<ParseStack, "(" | Op>) => {
-    let count = 0;
-    if (!("error" in expBlock)) {
-      let check = true;
-      let tmpStack: Uint8Array[] = [];
-      if ("parameters" in expBlock) {
-        for (let item of expBlock.parameters) {
-          if ("error" in item) {
-            check = false;
-            break;
-          }
-          else if ("opcode" in item) count++;
-        }
-        if (check) {
-          let element:
-            | Exclude<ParseTree, Error>
-            | Value
-
-          let bytesArr_ = count !== 0 ? this.state.srcCache.splice(-count) : [];
-          if (bytesArr_.length !== count) throw new Error("invalid script: cannot build the StateConfig")
-          for (let i = 0; i < expBlock.parameters.length; i++) {
-            element = expBlock.parameters[i] as typeof element;
-            if ("opcode" in element) {
-              let src_ = bytesArr_.shift();
-              if (src_) {
-                tmpStack.push(src_)
-              }
-              else throw new Error("invalid script: cannot build the StateConfig")
-            }
-            if ("value" in element) {
-              if (isBigNumberish(element.value)) {
-                if (this.constants.includes(element.value)) {
-                  tmpStack.push(
-                    op(AllStandardOps.CONSTANT, this.constants.indexOf(element.value))
-                  );
-                }
-                else {
-                  tmpStack.push(
-                    op(AllStandardOps.CONSTANT, this.constants.length)
-                  );
-                  this.constants.push(element.value);
-                }
-              }
-              else if ((element.value as string).includes("arg")) {
-                let index = Number(
-                  (element.value as string).replace("arg(", "").slice(0, -1)
-                );
-                if (!this.state.arguments.cache.includes(index)) {
-                  this.state.arguments.cache.push(index)
-                }
-                tmpStack.push(
-                  op(this.names.length, this.state.arguments.offset + index)
-                );
-              }
-            }
-          }
-          tmpStack.push(op(this.names.indexOf(expBlock.opcode.name), expBlock.operand))
-        }
-      }
-      else if ("value" in expBlock) {
-        if (isBigNumberish(expBlock.value)) {
-          if (this.constants.includes(expBlock.value)) {
-            tmpStack.push(
-              op(AllStandardOps.CONSTANT, this.constants.indexOf(expBlock.value))
-            );
-          }
-          else {
-            tmpStack.push(
-              op(AllStandardOps.CONSTANT, this.constants.length)
-            );
-            this.constants.push(expBlock.value);
-          }
-        }
-        else if ((expBlock.value as string).includes("arg")) {
-          let index = Number(
-            (expBlock.value as string).replace("arg(", "").slice(0, -1)
-          );
-          if (!this.state.arguments.cache.includes(index)) {
-            this.state.arguments.cache.push(index)
-          }
-          tmpStack.push(
-            op(this.names.length, this.state.arguments.offset + index)
-          );
-        }
-      }
-      this.state.srcCache.push(concat(tmpStack));
-    }
-  }
-
-  private static updateArgs = () => {
-    if (this.state.arguments.has) {
-      for (let i = 0; i < this.sources.length; i++) {
-        for (let j = 0; j < this.sources[i].length; j++) {
-          if (this.sources[i][j] === this.names.length) {
-            (this.sources[i][j] as number) = 0;
-            (this.sources[i][j + 1] as number) += this.constants.length;
-          }
-        }
-      }
-    }
-  }
-
-  private static resolveOp = (expBlock: ParseTree): ParseTree => {
-    if ("error" in expBlock) return expBlock;
-    else {
-      let op = this.names.indexOf(expBlock.opcode.name);
-      
-      if (op > -1) {
-        if (
-          op === AllStandardOps.STACK ||
-          op === AllStandardOps.CONTEXT ||
-          op === AllStandardOps.STORAGE
-        ) {
+        if (this.exp.startsWith('(')) {
+          this.state.track.parens.open.push(currentPosition);
+          this.exp = this.exp.replace('(', "");
           if (
-            expBlock.parameters.length === 1 &&
-            "value" in expBlock.parameters[0] &&
-            Number(expBlock.parameters[0].value) < 256
+            this.state.track.notation[this.state.track.notation.length - 1] !==
+              Notations.prefix ||
+            this.state.track.notation[this.state.track.notation.length - 2] !==
+              this.state.depthLevel
           ) {
-            let operand = Number(expBlock.parameters[0].value);
-            expBlock.parameters = [];
-            expBlock.operand = operand;
-            expBlock.output = 1;
-          }
-          else if (expBlock.parameters.length !== 1) {
-            expBlock.operand = NaN;
-            expBlock.parameters = [{
-              error: `invalid number of parameters, expected 1 parameter but got ${expBlock.parameters.length}`,
-              position: [expBlock.parameters[0].position[0], expBlock.parameters[expBlock.parameters.length - 1].position[1]]
-            }];
-            if (!this.hasError) this.hasError = true;
-          }
-          else if ("value" in expBlock.parameters[0] && Number(expBlock.parameters[0].value) > 255) {
-            expBlock.operand = NaN;
-            expBlock.parameters[0] = {
-              error: `${expBlock.opcode.name} parameter (i.e. operand) cannot be bigger than 255`,
-              position: expBlock.parameters[0].position
-            }
-            if (!this.hasError) this.hasError = true;
-          }
-          else {
-            expBlock.operand = NaN;
-            if (!this.hasError) this.hasError = true;
-          }
-        }
-        else if (op === AllStandardOps.ZIPMAP) {
-          if (expBlock.parameters.length > 2 && expBlock.parameters.length < 11) {
-            if ("value" in expBlock.parameters[0] && "value" in expBlock.parameters[1]) {
-              if (Number(expBlock.parameters[0].value) < 8 && Number(expBlock.parameters[1].value) < 4) {
-                expBlock.operand = callSize(
-                  Number(expBlock.parameters[0].value),
-                  Number(expBlock.parameters[1].value),
-                  expBlock.parameters.length - 3
-                )
-                expBlock.output = 2 ** Number(expBlock.parameters[1].value);
-                for (let i = 0; i < expBlock.output - 1; i++) {
-                  this.state.multiOutputCache.push({
-                    value: `${expBlock.opcode.name} output ${i + 1} placeholder`,
-                    position: [],
-                  })
-                };
-                this.state.multiOutputCache.push(expBlock);
-                if (!this.state.arguments.has) this.state.arguments.has = true;
-                this.state.arguments.offset = this.state.arguments.count;
-                this.state.arguments.count += expBlock.parameters.length - 2
-                expBlock.parameters.shift();
-                expBlock.parameters.shift();
-              }
-              else {
-                if (!this.hasError) this.hasError = true;
-                expBlock.operand = NaN;
-                if (Number(expBlock.parameters[0].value) > 7) {
-                  expBlock.parameters[0] = {
-                    error: "invalid value for ZIPMAP SourceIndex parameter",
-                    position: expBlock.parameters[0].position
-                  }
-                }
-                else if (Number(expBlock.parameters[1].value) > 3) {
-                  expBlock.parameters[1] = {
-                    error: "invalid value for ZIPMAP LoopSize parameter",
-                    position: expBlock.parameters[1].position
-                  }
-                }
-                else {
-                  expBlock.parameters[0] = {
-                    error: "invalid value for ZIPMAP SourceIndex parameter",
-                    position: expBlock.parameters[0].position
-                  }
-                  expBlock.parameters[1] = {
-                    error: "invalid value for ZIPMAP LoopSize parameter",
-                    position: expBlock.parameters[1].position
-                  }
-                }
-              }
-            }
-            else {
-              expBlock.operand = NaN;
-              if (!this.hasError) this.hasError = true;
-            }
-          }
-          else {
-            expBlock.operand = NaN;
-            expBlock.parameters = [{
-              error: `invalid parameters: expected at least 3 and at most 10 parameters, but got ${expBlock.parameters.length}`,
-              position: [expBlock.parameters[0].position[0], expBlock.parameters[expBlock.parameters.length - 1].position[1]]
-            }];
-            if (!this.hasError) this.hasError = true;
-          }
-        }
-        else if (op === AllStandardOps.ITIERV2_REPORT) {
-          if (
-            expBlock.parameters.length === 2 ||
-            expBlock.parameters.length === 3 ||
-            expBlock.parameters.length === 10
-          ) {
-            expBlock.operand = expBlock.parameters.length - 2;
-            expBlock.output = 1;
-          }
-          else {
-            expBlock.operand = NaN;
-            expBlock.parameters = [{
-              error: `invalid parameters: expected either 2 or 3 or 10 parameters, but got ${expBlock.parameters.length}`,
-              position: [expBlock.parameters[0].position[0], expBlock.parameters[expBlock.parameters.length - 1].position[1]]
-            }];
-            if (!this.hasError) this.hasError = true;
-          }
-        }
-        else if (op === AllStandardOps.ITIERV2_REPORT_TIME_FOR_TIER) {
-          if (
-            expBlock.parameters.length === 3 ||
-            expBlock.parameters.length === 4 ||
-            expBlock.parameters.length === 11
-          ) {
-            expBlock.operand = expBlock.parameters.length - 3;
-            if (!("value" in expBlock.parameters[2] && Number(expBlock.parameters[2].value) > -1 && Number(expBlock.parameters[2].value) < 9)) {
-              expBlock.operand = NaN;
-              expBlock.output = 1;
-              expBlock.parameters[2] = {
-                error: "invalid tier level",
-                position: expBlock.parameters[2].position
-              };
-              if (!this.hasError) this.hasError = true;
-            }
-          }
-          else {
-            expBlock.operand = NaN;
-            expBlock.parameters = [{
-              error: `invalid parameters: expected either 3 or 4 or 11 parameters, but got ${expBlock.parameters.length}`,
-              position: [expBlock.parameters[0].position[0], expBlock.parameters[expBlock.parameters.length - 1].position[1]]
-            }];
-            if (!this.hasError) this.hasError = true;
-          }
-        }
-        else if (op === AllStandardOps.SELECT_LTE) {
-          if (expBlock.parameters.length > 4 && expBlock.parameters.length < 35) {
-            if ("value" in expBlock.parameters[0] && "value" in expBlock.parameters[1]) {
-              if (Number(expBlock.parameters[0].value) < 2 && Number(expBlock.parameters[1].value) < 3) {
-                expBlock.operand = selectLte(
-                  Number(expBlock.parameters[0].value),
-                  Number(expBlock.parameters[0].value),
-                  expBlock.parameters.length - 2
-                );
-                expBlock.output = 1;
-                expBlock.parameters.shift();
-                expBlock.parameters.shift();
-              }
-              else {
-                expBlock.operand = NaN;
-                if (!this.hasError) this.hasError = true;
-                if (Number(expBlock.parameters[0].value) > 1) {
-                  expBlock.parameters[0] = {
-                    error: "invalid value for SELECT_LTE logic",
-                    position: expBlock.parameters[0].position
-                  }
-                }
-                else if (Number(expBlock.parameters[1].value) > 2) {
-                  expBlock.parameters[1] = {
-                    error: "invalid value for SELECT_LTE mode",
-                    position: expBlock.parameters[1].position
-                  }
-                }
-                else {
-                  expBlock.parameters[0] = {
-                    error: "invalid value for SELECT_LTE logic",
-                    position: expBlock.parameters[0].position
-                  }
-                  expBlock.parameters[1] = {
-                    error: "invalid value for SELECT_LTE mode",
-                    position: expBlock.parameters[1].position
-                  }
-                }
-              }
-            }
-            else {
-              expBlock.operand = NaN;
-              if (!this.hasError) this.hasError = true;
-            }
-          }
-          else {
-            expBlock.operand = NaN;
-            expBlock.parameters = [{
-              error: `invalid parameters: expected at least 4 and at most 34 parameters in total, but got ${expBlock.parameters.length}`,
-              position: [expBlock.parameters[0].position[0], expBlock.parameters[expBlock.parameters.length - 1].position[1]]
-            }];
-            if (!this.hasError) this.hasError = true;
-          }
-        }
-        else if (op === AllStandardOps.UPDATE_TIMES_FOR_TIER_RANGE) {
-          if (expBlock.parameters.length === 4) {
-            if ("value" in expBlock.parameters[0] && "value" in expBlock.parameters[1]) {
-              if (Number(expBlock.parameters[0].value) < 9 && Number(expBlock.parameters[1].value) < 9) {
-                expBlock.operand = tierRange(
-                  Number(expBlock.parameters[0].value),
-                  Number(expBlock.parameters[1].value)
-                );
-                expBlock.output = 1;
-                expBlock.parameters.shift();
-                expBlock.parameters.shift();
-              }
-              else {
-                expBlock.operand = NaN;
-                if (!this.hasError) this.hasError = true;
-                if (Number(expBlock.parameters[0].value) > 8) {
-                  expBlock.parameters[0] = {
-                    error: "invalid value for start tier",
-                    position: expBlock.parameters[0].position
-                  }
-                }
-                else if (Number(expBlock.parameters[1].value) > 8) {
-                  expBlock.parameters[1] = {
-                    error: "invalid value for end tier",
-                    position: expBlock.parameters[1].position
-                  }
-                }
-                else {
-                  expBlock.parameters[0] = {
-                    error: "invalid value for start tier",
-                    position: expBlock.parameters[0].position
-                  }
-                  expBlock.parameters[1] = {
-                    error: "invalid value for end tier",
-                    position: expBlock.parameters[1].position
-                  }
-                }
-              }
-            }
-            else {
-              expBlock.operand = NaN;
-              if (!this.hasError) this.hasError = true;
-            }
-          }
-          else {
-            expBlock.operand = NaN;
-            expBlock.parameters = [{
-              error: `invalid parameters: expected at least 4 parameters in total, but got ${expBlock.parameters.length}`,
-              position: [expBlock.parameters[0].position[0], expBlock.parameters[expBlock.parameters.length - 1].position[1]]
-            }];
-            if (!this.hasError) this.hasError = true;
-          }
-        }
-        else if (op === AllStandardOps.IERC1155_BALANCE_OF_BATCH) {
-          if (expBlock.parameters.length > 2 && expBlock.parameters.length % 2 === 1) {
-            expBlock.operand = (expBlock.parameters.length - 1) / 2;
-            expBlock.output = (expBlock.parameters.length - 1) / 2;
-            for (let i = 0; i < expBlock.output - 1; i++) {
-              this.state.multiOutputCache.push({
-                value: `${expBlock.opcode.name} output ${i + 1} placeholder`,
+            this.updateTree({
+              opcode: {
+                name: 'unknown opcode',
                 position: [],
-              })
+              },
+              operand: NaN,
+              output: NaN,
+              position: [currentPosition],
+              parens: [],
+              parameters: [],
+              error: 'unknown opcode',
+            });
+          }
+          this.state.depthLevel++;
+          let op = this.getTreeElement(
+            this.state.depthLevel - 1
+          ) as Op;
+          op.parens.push(currentPosition);
+          this.updateTree(op, true);
+        } 
+        else if (this.exp.startsWith(')')) {
+          if (this.state.track.parens.open.length > 0) {
+            let multiOutputResolvingDepth = this.state.depthLevel - 1;
+            this.exp = this.exp.replace(')', "");
+            let postfix = this.isPostfix(this.exp);
+            this.state.track.parens.close.push(currentPosition);
+            if (this.isInfix()) {
+              this.state.track.notation.pop();
+              this.state.track.notation.pop();
+              if (postfix || this.isPrefix()) {
+                this.resolveInfix(true);
+                multiOutputResolvingDepth++;
+              }
+              else this.resolveInfix(false);
             }
-            this.state.multiOutputCache.push(expBlock)
+            if (postfix && this.isPrefix()) {
+              let op = this.getTreeElement(
+                this.state.depthLevel - 1
+              ) as Op;
+              this.updateTree({
+                  error: 'invalid notation',
+                  position: [
+                    op.position[0],
+                    Number(postfix[2]) + currentPosition + 1,
+                  ],
+                },
+                true
+              );
+              this.state.track.notation.pop();
+              this.state.track.notation.pop();
+            } 
+            else if (postfix) {
+              this.resolvePostfix(
+                postfix[0],
+                Number(postfix[1]) + currentPosition + 1,
+                Number(postfix[2]) + currentPosition + 1,
+                postfix[3]
+              );
+              this.exp = this.input.slice(
+                Number(postfix[2]) + currentPosition + 2 - entry,
+                this.input.length
+              )
+            } 
+            else if (this.isPrefix()) {
+              this.resolvePrefix();
+              this.state.track.notation.pop();
+              this.state.track.notation.pop();
+            }
+            let item = this.getTreeElement(
+              multiOutputResolvingDepth
+            ) as Op;
+            if (item.output > 1) this.resolveMultiOutput(
+              item.output,
+              multiOutputResolvingDepth
+            );
+            this.state.depthLevel--;
           }
           else {
-            expBlock.operand = NaN;
-            expBlock.parameters = [{
-              error: `invalid number of parameters`,
-              position: [expBlock.parameters[0].position[0], expBlock.parameters[expBlock.parameters.length - 1].position[1]]
-            }];
-            if (!this.hasError) this.hasError = true;
+            this.state.parse.tree.push({
+              error: "invalid closing paren",
+              position: [currentPosition]
+            })
           }
         }
-        else if (this.pops[op].name !== "oprnd") {
-          if (this.pops[op](op, 0) === expBlock.parameters.length) {
-            expBlock.operand = expBlock.parameters.length;
-            if (this.zeroOperandOps[op]) {
-              expBlock.operand = 0;
+        else this.consume(currentPosition);
+      }
+      this.parseTree[i] = {
+        position: positions.shift()!,
+        tree: this.state.parse.tree.splice(-this.state.parse.tree.length)
+      }
+      this.treeArray[i] = this.parseTree[i].tree;
+    }
+    let tmp = this.buildBytes(this.treeArray)
+    this.constants = tmp.constants;
+    this.sources = tmp.sources;
+  }
+
+  /**
+   * Method to check if the current state of parsing of a node is prefix or not
+   */
+  private static isPrefix(): boolean {
+    return (
+      this.state.track.notation[this.state.track.notation.length - 1] ===
+        Notations.prefix &&
+      this.state.track.notation[this.state.track.notation.length - 2] ===
+        this.state.depthLevel - 1
+    )
+  }
+
+  /**
+   * * Method to check if the current state of parsing of a node is infix or not
+   */
+  private static isInfix(): boolean {
+    return (
+      this.state.track.notation[this.state.track.notation.length - 1] ===
+        Notations.infix &&
+      this.state.track.notation[this.state.track.notation.length - 2] ===
+        this.state.depthLevel
+    )
+  }
+
+  /**
+   * * Method to check if the current state of parsing of a node is postfix or not
+   */
+  private static isPostfix(str: string): string[] | undefined {
+    if (!str.length) return undefined;
+    if (str[0] === ' ' || str[0] === '(' || str[0] === ')') return undefined;
+    if (str.startsWith(',')) {
+      let offset = 0;
+      while (str.startsWith(',')) {
+        str = str.replace(',', "");
+        offset++;
+      }
+      if (str[0] === ' ' || str[0] === '(' || str[0] === ')') return undefined;
+      for (let i = 0; i < this.names.length; i++) {
+        if (str.startsWith(this.names[i])) {
+          return [
+            this.names[i],
+            offset.toString(),
+            (offset + this.names[i].length - 1).toString(),
+            'illigal characters between opcode and parenthesis',
+          ];
+        }
+      }
+      for (let i = 0; i < this.aliases.length; i++) {
+        if (this.aliases[i]) {
+          for (let j = 0; j < this.aliases[i].length; j++) {
+            if (str.startsWith(this.aliases[i][j])) {
+              return [
+                this.names[i],
+                offset.toString(),
+                (offset + this.aliases[i][j].length - 1).toString(),
+                'illigal characters between opcode and parenthesis',
+              ];
             }
-            expBlock.output = 1;
-          }
-          else {
-            expBlock.operand = NaN;
-            expBlock.parameters = [{
-              error: `invalid number of parameters`,
-              position: [expBlock.parameters[0].position[0], expBlock.parameters[expBlock.parameters.length - 1].position[1]]
-            }];
-            if (!this.hasError) this.hasError = true;
           }
         }
-        else if (this.pops[op].name === "oprnd") {
-          if (this.zeroOperandOps[op]) {
-            expBlock.operand = 0;
-          }
-          expBlock.output = 1;
+      }
+    }
+    for (let i = 0; i < this.names.length; i++) {
+      if (str.startsWith(this.names[i])) {
+        if (str.replace(this.names[i], "").startsWith('(')) {
+          this.state.ambiguity = true;
+          return [
+            this.names[i],
+            '0',
+            (this.names[i].length - 1).toString(),
+            'ambiguous expression/opcode',
+          ];
         }
         else {
-          expBlock.operand = NaN;
-          expBlock.parameters = [{
-            error: `unknown`,
-            position: [expBlock.parameters[0].position[0], expBlock.parameters[expBlock.parameters.length - 1].position[1]]
-          }];
-          if (!this.hasError) this.hasError = true;
+          return [this.names[i], '0', (this.names[i].length - 1).toString()];
         }
-        return expBlock;
       }
-      if (!this.hasError) this.hasError = true;
-      return {
-        error: "unknown opcode",
-        position: expBlock.opcode.position
-      }
-    }
-  }
-
-  private static searchOps(str: string): boolean {
-    for (let i = 0; i < this.names.length; i++) {
-      if (str.startsWith(this.names[i])) return true;
     }
     for (let i = 0; i < this.aliases.length; i++) {
       if (this.aliases[i]) {
         for (let j = 0; j < this.aliases[i].length; j++) {
-          if (str.startsWith(this.aliases[i][j])) return true;
+          if (str.startsWith(this.aliases[i][j])) {
+            if (str.replace(this.aliases[i][j], "").startsWith('(')) {
+              this.state.ambiguity = true;
+              return [
+                this.names[i],
+                '0',
+                (this.aliases[i][j].length - 1).toString(),
+                'ambiguous expression/opcode',
+              ];
+            } 
+            else {
+              return [
+                this.names[i],
+                '0',
+                (this.aliases[i][j].length - 1).toString(),
+              ];
+            }
+          }
         }
       }
     }
-    return false
+    return undefined;
   }
 
-  // private static trailingOp(str: string): boolean | string {
-  //   if (str.length > 0) {
-  //     if (str.startsWith("(") || str.startsWith(")")) return false;
+  /**
+   * Method to get the last item of a Node at a specified depth level of parse tree
+   */
+  private static getTreeElement(depthLevel: number): Node {
+    let tmp: Node[][] = [];
+    tmp.push(this.state.parse.tree);
+    for (let i = 0; i < depthLevel; i++) {
+      tmp.push(
+        (tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op)
+          .parameters
+      );
+    }
+    return tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1];
+  }
 
-  //     if (!str.startsWith(" ")) {
-  //       let str_ = str.slice(0, this.findIndex(str));
-  //       str_ = this.rmComma(str_);
-
-  //       if (isBigNumberish(str_)) return false;
-  //       if (this.names.includes(str_)) return true
-  //       for (let i = 0; i < this.aliases.length; i++) {
-  //         if (this.aliases[i] && this.aliases[i].includes(str_)) return true;
-  //       }
-  //     }
-  //     else {
-  //       str = this.trim(str)[0];
-  //       if (str.startsWith("(") || str.startsWith(")")) return false;
-  //       let index1_ = this.findIndex(str) < 0
-  //         ? str.length
-  //         : this.findIndex(str) === 0
-  //           ? 1
-  //           : this.findIndex(str);
-
-  //       let str1_ = str.slice(0, index1_);
-  //       let consumee1_ = str1_;
-  //       let isOp1_ = false;
-  //       str1_ = this.rmComma(str1_);
-
-  //       if (str.startsWith("(") || str.startsWith(")")) return false;
-  //       if (isBigNumberish(str1_)) return false;
-  //       if (this.names.includes(str1_)) isOp1_ = true
-  //       for (let i = 0; i < this.aliases.length; i++) {
-  //         if (this.aliases[i] && this.aliases[i].includes(str1_)) {
-  //           isOp1_ = true;
-  //           break;
-  //         }
-  //       }
-  //       str = str.replace(consumee1_, "");
-  //       str = this.trim(str)[0];
-  //       if (isOp1_ && (str.startsWith("(") || str.startsWith(")"))) {
-  //         return "ambiguous expresion";
-  //       }
-  //       let index2_ = this.findIndex(str) < 0
-  //         ? str.length
-  //         : this.findIndex(str) === 0
-  //           ? 1
-  //           : this.findIndex(str);
-
-  //       let str2_ = str.slice(0, index2_);
-  //       str2_ = this.rmComma(str2_);
-
-  //       if (isOp1_ && (str.startsWith("(") || str.startsWith(")"))) {
-  //         return "ambiguous expresion";
-  //       }
-
-  //       if (isOp1_ && isBigNumberish(str2_)) return true;
-  //       if (isOp1_ && this.names.includes(str2_)) return true
-  //       for (let i = 0; i < this.aliases.length; i++) {
-  //         if (
-  //           isOp1_ && this.aliases[i] &&
-  //           this.aliases[i].includes(str2_)
-  //         ) return true;
-  //       }
-  //       return false;
-  //     }
-  //     return false;
-  //   }
-  //   else return false;
-  // }
-
-  private static resolveInfix(
-    stack: Exclude<ParseStack, "(">[],
-    position: number[]
-  ): ParseTree {
-    let infixExp: ParseTree;
-    let tmp_ = stack[1] as Op | Error;
-
-    if ("op" in tmp_) {
-      infixExp = {
-        opcode: {
-          name: tmp_.op,
-          position: tmp_.position,
-        },
-        operand: 2,
-        parameters: [
-          (stack[0] as Exclude<ParseStack, Op | "(">),
-          (stack[2] as Exclude<ParseStack, Op | "(">)
-        ],
-        output: NaN,
-        position: position,
-        parens: position,
-        data: this.data[this.names.indexOf(tmp_.op)]
-          ? this.data[this.names.indexOf(tmp_.op)]
-          : undefined
+  /**
+   * Method to update the elements of a Node
+   */
+  private static updateTree(item: Node, replace?: boolean) {
+    if (replace) {
+      let tmp: Node[][] = [];
+      tmp.push(this.state.parse.tree);
+      for (let i = 0; i < this.state.depthLevel - 1; i++) {
+        tmp.push(
+          (tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op)
+            .parameters
+        );
       }
-      if (stack.length > 3) {
-        for (let i = 3; i < stack.length; i += 2) {
-          let item = stack[i] as Extract<ParseStack, Op | Error>;
-          if ("op" in item) {
-            if (item.op === tmp_.op) {
-              infixExp.parameters.push(
-                (stack[i + 1] as Exclude<ParseStack, Op | "(">),
-              );
-              infixExp.opcode.position.push(...item.position);
-              infixExp.operand++;
-            }
+      tmp[tmp.length - 1].pop();
+      tmp[tmp.length - 1].push(item);
+      while (tmp.length > 1) {
+        let updatedParams = tmp.pop()!;
+        (tmp[tmp.length - 1][
+          tmp[tmp.length - 1].length - 1
+        ] as Op).parameters = updatedParams;
+      }
+      this.state.parse.tree = tmp[0];
+    }
+    else {
+      let tmp: Node[][] = [];
+      tmp.push(this.state.parse.tree);
+      for (let i = 0; i < this.state.depthLevel; i++) {
+        tmp.push(
+          (tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op)
+            .parameters
+        );
+      }
+      tmp[tmp.length - 1].push(item);
+      while (tmp.length > 1) {
+        let updatedParams = tmp.pop()!;
+        (tmp[tmp.length - 1][
+          tmp[tmp.length - 1].length - 1
+        ] as Op).parameters = updatedParams;
+      }
+      this.state.parse.tree = tmp[0];
+    }
+  }
+
+  /**
+   * Method to resolve prefix notations at current state of parsing
+   */
+  private static resolvePrefix() {
+    this.state.track.parens.open.pop();
+    let endPosition = this.state.track.parens.close.pop()!;
+    let tmp: Node[][] = [];
+    tmp.push(this.state.parse.tree);
+    for (let i = 0; i < this.state.depthLevel - 1; i++) {
+      tmp.push(
+        (tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op)
+          .parameters
+      );
+    }
+    let node = tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op;
+    node.position.push(endPosition);
+    node.parens.push(endPosition);
+
+    if (node.error === 'no closing parenthesis') node.error = undefined;
+    if (!node.error) {
+      tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] = this.resolveOp(node);
+    }
+    while (tmp.length > 1) {
+      let resolvedExp = tmp.pop()!;
+      (tmp[tmp.length - 1][
+        tmp[tmp.length - 1].length - 1
+      ] as Op).parameters = resolvedExp;
+    }
+    this.state.parse.tree = tmp[0];
+  }
+
+  /**
+   * Method to resolve postfix notations at current state of parsing
+   */
+  private static resolvePostfix(
+    opcode: string,
+    startPosition: number,
+    endPosition: number,
+    error?: string
+  ) {
+    this.state.track.parens.open.pop();
+    let tmp: Node[][] = [];
+    tmp.push(this.state.parse.tree);
+    for (let i = 0; i < this.state.depthLevel - 1; i++) {
+      tmp.push(
+        (tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op)
+          .parameters
+      );
+    }
+    let node = tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op;
+    tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] = this.resolveOp({
+      opcode: {
+        name: opcode,
+        position: [startPosition, endPosition],
+      },
+      operand: this.zeroOperandOps[this.names.indexOf(opcode)] ? 0 : NaN,
+      output: this.pushes[this.names.indexOf(opcode)].name === 'zero' || 'one' || 'two' || 'three'
+        ? this.pushes[this.names.indexOf(opcode)](0, 0)
+        : NaN,
+      position: [node.position[0], endPosition],
+      parens: [node.position[0], this.state.track.parens.close.pop()!],
+      parameters: node.parameters,
+      data: this.data[this.names.indexOf(opcode)],
+      error
+    });
+    while (tmp.length > 1) {
+      let resolvedExp = tmp.pop()!;
+      (tmp[tmp.length - 1][
+        tmp[tmp.length - 1].length - 1
+      ] as Op).parameters = resolvedExp;
+    }
+    this.state.parse.tree = tmp[0];
+  }
+
+  /**
+   * Method to resolve infix notations at current state of parsing
+   */
+  private static resolveInfix(isParameter: boolean) {
+    let tmp: Node[][] = [];
+    tmp.push(this.state.parse.tree);
+    for (let i = 0; i < this.state.depthLevel; i++) {
+      tmp.push(
+        (tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op)
+          .parameters
+      );
+    }
+    let err = false;
+    let op: Node;
+    let elements: Node[] = tmp[tmp.length - 1];
+    let node = tmp[tmp.length - 2][tmp[tmp.length - 2].length - 1] as Op;
+    let closeParenPosition = 
+      this.state.track.parens.close[this.state.track.parens.close.length - 1];
+    
+    // if prefix-infix
+    if ('opcode' in elements[0] && elements[0].infixOp) {
+      op = elements[0];
+      op.position.push(...node.parens);
+      op.parens.push(...node.parens);
+      for (let i = 1; i < elements.length; i++) {
+        let item = elements[i];
+        if ('opcode' in item && item.infixOp) {
+          err = true;
+          op.error = 'invalid infix expression';
+          break;
+        }
+      }
+      if (!err) op.parameters = elements.slice(1, elements.length);
+      op.position.push(closeParenPosition);
+      op.parens.push(closeParenPosition);
+    } 
+    // if postfix-infix
+    else if (
+      'opcode' in elements[elements.length - 1] &&
+      (elements[elements.length - 1] as Op).infixOp
+    ) {
+      op = elements[elements.length - 1] as Op;
+      op.position.push(...node.parens);
+      op.parens.push(...node.parens);
+      for (let i = 0; i < elements.length - 1; i++) {
+        let item = elements[i];
+        if ('opcode' in item && item.infixOp) {
+          err = true;
+          op.error = 'invalid infix expression';
+          break;
+        }
+      }
+      if (!err) op.parameters = elements.slice(0, -1);
+      op.position.push(closeParenPosition);
+      op.parens.push(closeParenPosition);
+    }
+
+    // if infix-infix
+    else {
+      let params: Node[] = [elements[0]];
+      if ('opcode' in elements[1] && elements[1].infixOp) {
+        op = elements[1];
+        op.position.push(...node.parens);
+        op.parens.push(...node.parens);
+        for (let i = 2; i < elements.length; i++) {
+          if (i % 2 === 0) params.push(elements[i]);
+          else {
+            let item = elements[i];
+            if ('opcode' in item && item.infixOp && op.opcode.name === item.opcode.name) {
+              op.opcode.position.push(...item.opcode.position);
+            } 
             else {
-              infixExp = {
-                error: "invalid indetation",
-                position: tmp_.position
+              if ('opcode' in item) {
+                op.error = `invalid opcode format at position ${item.opcode.position}`;
               }
-              if (!this.hasError) this.hasError = true;
+              else {
+                op.error = `expected opcode but got value at position ${item.position}`;
+              }
+              err = true;
               break;
             }
           }
-          else {
-            infixExp = {
-              error: item.error!,
-              position: tmp_.position
-            };
-            if (!this.hasError) this.hasError = true;
-            break;
-          }
         }
+        if (!err) op.parameters = params;
+        op.position.push(closeParenPosition);
+        op.parens.push(closeParenPosition);
+      } 
+      else {
+        op = {
+          error: 'invalid infix expression',
+          position: [
+            (tmp[tmp.length - 2][tmp[tmp.length - 2].length - 1] as Op)
+              .parens[0],
+            closeParenPosition,
+          ],
+        };
+        err = true;
       }
     }
-    else {
-      infixExp = {
-        error: tmp_.error,
-        position: tmp_.position
-      };
-      if (!this.hasError) this.hasError = true;
+    if (!err) op = this.resolveOp(op as Op);
+    if (isParameter) {
+      let item = this.getTreeElement(this.state.depthLevel - 1) as Op;
+      item.parameters = [op];
+      op = item;
     }
-    return infixExp;
+    else {
+      this.state.track.parens.open.pop();
+      this.state.track.parens.close.pop();
+    }
+    this.updateTree(op, true);
   }
 
-  private static resolveMutliOutputs = (
-    items: Exclude<ParseStack, "(">[],
-    itemsPositions: number[],
-    positions: { pos: number, count: number, type: number }[]
-  ): Exclude<ParseStack, "(">[] => {
-    if (positions.length > 0) {
-      for (let i = 0; i < positions.length; i++) {
-        if (positions[i].type === 1) {
-          let item_ = items[positions[i].pos] as Exclude<ParseTree, Error>;
-          if (item_.output !== positions[i].count) {
-            if (positions[i].pos - positions[i].count + 1 !== 0) {
-              return [{
-                error: "illigal positioning of parameters",
-                position: itemsPositions
-              }]
+  /**
+   * Method to resolve multi output nodes at current state of parsing
+   */
+  public static resolveMultiOutput = (totalCount: number, depthLevel: number) => {
+    let count = 0;
+    let tmp: Node[][] = [];
+    const isOutput = (element: Node): boolean => {
+      return ("value" in element && element.value === this.placeholder);
+    }
+    tmp.push(this.state.parse.tree);
+    for (let i = 0; i < depthLevel; i++) {
+      tmp.push(
+        (tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op)
+          .parameters
+      );
+    }
+    while (tmp.length > 1) {
+      if (count !== totalCount) {
+        for (let i = tmp[tmp.length - 1].length - 2; i > -1; i--) {
+          if (count !== totalCount) {
+            if (!isOutput(tmp[tmp.length - 1][i])) {
+              (tmp[tmp.length - 2][tmp[tmp.length - 2].length - 1] as Op).error = 
+                `illigal placement of outputs, parameter ${i - 1} cannot be accessed by this opcode`;
+              break;
             }
             else {
-              let output_ = this.state.multiOutputCache.pop();
-              if (output_ && "opcode" in output_) {
-                for (let j = positions[i].pos - 1; j >= 0; j--) {
-                  let tmp = this.state.multiOutputCache.pop();
-                  if (tmp) items[j] = tmp;
-                  else return [{
-                    error: `illigal reach to undefined ${item_.opcode.name} outputs`,
-                    position: itemsPositions
-                  }]
-                }
-              }
-              else return [{
-                error: `invalid consumption of previous multioutput opcodes`,
-                position: itemsPositions
-              }]
+              count++;
+              tmp[tmp.length - 1][i] = this.state.parse.moCache[
+                this.state.parse.moCache.length - 1
+              ].pop()!;
             }
           }
-          else {
-            let output_ = this.state.multiOutputCache.pop();
-            if (output_ && "op" in output_) {
-              for (let j = positions[i].pos - 1; j >= 0; j--) {
-                let tmp = this.state.multiOutputCache.pop();
-                if (tmp) items[j] = tmp;
-                else return [{
-                  error: `illigal reach to undefined ${item_.opcode.name} outputs`,
-                  position: itemsPositions
-                }]
-              }
-            }
-            else return [{
-              error: `invalid consumption of previous multioutput opcodes`,
-              position: itemsPositions
-            }]
-          }
-        }
-        else {
-          if (positions[i].pos - positions[i].count + 1 !== 0) {
-            return [{
-              error: "illigal positioning of parameters",
-              position: itemsPositions
-            }]
-          }
-          else {
-            let output_ = this.state.multiOutputCache.pop();
-            if (output_ && "opcode" in output_) {
-              return [{
-                error: `invalid consumption of previous multioutput opcodes`,
-                position: itemsPositions
-              }]
-            }
-            else {
-              for (let j = positions[i].pos - 1; j >= 0; j--) {
-                let tmp = this.state.multiOutputCache.pop();
-                if (tmp) items[j] = tmp;
-                else return [{
-                  error: `illigal reach to undefined opcode outputs`,
-                  position: itemsPositions
-                }]
-              }
-            }
-          }
+          else break;
         }
       }
-      return items;
+      let resolvedOutputs = tmp.pop()!;
+      (tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op).parameters = resolvedOutputs;
     }
-    else {
-      return [{
-        error: "invalid expression",
-        position: itemsPositions
-      }]
+    if (count !== totalCount) {
+      let item = tmp[0].pop()!;
+      tmp[0].push(...this.state.parse.moCache[this.state.parse.moCache.length - 1]);
+      this.state.parse.moCache.pop();
+      tmp[0].push(item);
     }
   }
 
-  private static resolveParens(entry: number) {
-    let isInfix = false;
-    let isPrefix = false;
-    let isPostfix = false;
-    let index_ = this.state.parse.stack.lastIndexOf("(");
-    let endIndex_ = this.input.length + entry - this.exp.length - 1;
-    let startIndex_ =
-      entry + this.input.slice(0, -this.exp.length).lastIndexOf("(");
-
-    if (index_ >= 0) {
-      let parens_ = this.state.parse.stack.splice(
-        -(this.state.parse.stack.length - index_)
-      ) as Exclude<ParseStack, "(">[];
-      parens_.shift();
-
-      for (let i = 0; i < parens_.length; i++) {
-        let tmp = parens_[i];
-        if ("op" in tmp) {
-          if (i !== 0 && i !== parens_.length - 1) isInfix = true;
-          if (i === 0) isPrefix = true;
-          if (i === parens_.length - 1) isPostfix = true;
-        }
-      }
-
-      let multiOuputOpsPos: {
-        pos: number,
-        count: number,
-        type: number
-      }[] = [];
-      let reset = false;
-      for (let i = parens_.length - 1; i >= 0; i--) {
-        let tmp = parens_[i];
-        if (("output" in tmp && tmp.output > 1)) {
-          multiOuputOpsPos.push({ pos: i, count: 1, type: 1 });
-          reset = true;
-        }
-        else if (("value" in tmp && tmp.value === this.placeholder)) {
-          if (reset) {
-            multiOuputOpsPos[multiOuputOpsPos.length - 1].count++;
-          }
+  /**
+   * Method that resolves the opcode Node once its respective closing paren has consumed
+   */
+  private static resolveOp = (opNode: Op): Op => {
+    let op = this.names.indexOf(opNode.opcode.name);
+    if (
+      op === AllStandardOps.STACK ||
+      op === AllStandardOps.CONTEXT ||
+      op === AllStandardOps.STORAGE
+    ) {
+      opNode.operand = NaN;
+      if (
+        opNode.parameters.length === 1 &&
+        'value' in opNode.parameters[0] &&
+        Number(opNode.parameters[0].value) < 256
+      ) {
+        let operand = Number(opNode.parameters[0].value);
+        opNode.parameters = [];
+        opNode.operand = operand;
+        opNode.output = 1;
+      } 
+      else if (opNode.parameters.length !== 1) {
+        opNode.parameters = [
+          {
+            error: `invalid number of parameters, expected 1 parameter but got ${opNode.parameters.length}`,
+            position: [
+              opNode.parameters[0].position[0],
+              opNode.parameters[opNode.parameters.length - 1].position[1],
+            ],
+          },
+        ];
+      } 
+      else if (
+        'value' in opNode.parameters[0] &&
+        Number(opNode.parameters[0].value) > 255
+      ) {
+        opNode.parameters[0] = {
+          error: `${opNode.opcode.name} operand must be of range 0 - 255`,
+          position: opNode.parameters[0].position,
+        }; 
+      } 
+      else {}
+    } 
+    else if (op === AllStandardOps.ZIPMAP) {
+      opNode.operand = NaN;
+      opNode.output = NaN;
+      if (opNode.parameters.length > 2 && opNode.parameters.length < 11) {
+        if (
+          'value' in opNode.parameters[0] &&
+          'value' in opNode.parameters[1]
+        ) {
+          opNode.output = 2 ** Number(opNode.parameters[1].value);
+          if (
+            Number(opNode.parameters[0].value) < 8 &&
+            Number(opNode.parameters[1].value) < 4
+          ) {
+            opNode.operand = callSize(
+              Number(opNode.parameters[0].value),
+              Number(opNode.parameters[1].value),
+              opNode.parameters.length - 2
+            );
+            this.state.parse.moCache.push([]);
+            for (let i = 0; i < opNode.output - 1; i++) {
+              this.state.parse.moCache[this.state.parse.moCache.length - 1].push({
+                value: `${opNode.opcode.name} output ${i + 1} placeholder`,
+                position: [],
+              });
+            }
+            opNode.parameters.shift();
+            opNode.parameters.shift();
+          } 
           else {
-            multiOuputOpsPos.push({ pos: i, count: 1, type: 0 })
-            reset = true;
+            if (Number(opNode.parameters[0].value) > 7) {
+              opNode.parameters[0] = {
+                error: 'invalid value for ZIPMAP SourceIndex parameter',
+                position: opNode.parameters[0].position,
+              };
+            } 
+            if (Number(opNode.parameters[1].value) > 3) {
+              opNode.parameters[1] = {
+                error: 'invalid value for ZIPMAP LoopSize parameter',
+                position: opNode.parameters[1].position,
+              };
+              opNode.output = NaN;
+            } 
           }
-        }
-        else reset = false;
+        } 
+        else {}
+      } 
+      else {
+        opNode.parameters = [
+          {
+            error: `invalid parameters: expected at least 3 and at most 10 parameters, but got ${opNode.parameters.length}`,
+            position: [
+              opNode.parameters[0].position[0],
+              opNode.parameters[opNode.parameters.length - 1].position[1],
+            ],
+          },
+        ];
       }
-
-      if (multiOuputOpsPos.length > 0) {
-        parens_ = this.resolveMutliOutputs(parens_, [startIndex_, endIndex_], multiOuputOpsPos);
-        if ("error" in parens_[0]) this.hasError = true;
+    } 
+    else if (op === AllStandardOps.ITIERV2_REPORT) {
+      opNode.operand = NaN;
+      if (
+        opNode.parameters.length === 2 ||
+        opNode.parameters.length === 3 ||
+        opNode.parameters.length === 10
+      ) {
+        opNode.operand = opNode.parameters.length - 2;
+      } 
+      else {
+        opNode.parameters = [
+          {
+            error: `invalid parameters: expected either 2 or 3 or 10 parameters, but got ${opNode.parameters.length}`,
+            position: [
+              opNode.parameters[0].position[0],
+              opNode.parameters[opNode.parameters.length - 1].position[1],
+            ],
+          },
+        ];
       }
-
-      if (isPrefix && isPostfix) {
-        this.state.parse.stack.push({
-          error: "invalid notation",
-          position: [startIndex_, endIndex_]
-        });
-        if (!this.hasError) this.hasError = true;
-      }
-      if (isInfix && (isPrefix || isPostfix)) {
-        this.state.parse.stack.push({
-          error: "invalid notation",
-          position: [startIndex_, endIndex_]
-        });
-        if (!this.hasError) this.hasError = true;
-      }
-
-      let tmp = this.state.parse.stack[this.state.parse.stack.length - 1];
-      if (!isPrefix && !isPostfix && tmp && tmp !== "(" && "op" in tmp) {
-        this.state.parse.stack.pop();
-        this.state.parse.stack.push(
-          this.resolveOp({
-            opcode: {
-              name: tmp.op,
-              position: tmp.position
-            },
-            position: [tmp.position[0], endIndex_],
-            parens: [tmp.position[0] + tmp.op.length, endIndex_],
-            operand: isInfix ? Math.floor(parens_.length / 2) + 1 : parens_.length,
-            output: NaN,
-            parameters: isInfix
-              ? [this.resolveInfix(
-                parens_ as Exclude<ParseStack, "(">[],
-                [tmp.position[0], endIndex_]
-              )]
-              : parens_ as ParseTree[],
-            data: this.data[this.names.indexOf(tmp.op)]
-          })
-        )
-      }
-      else if (!isPrefix && !isPostfix && this.searchOps(this.exp)) {
-        //let err = this.trailingOp(this.exp);
-        let err = this.searchOps(this.exp);
-        this.consume(entry);
-        let tmp_ = this.state.parse.stack.pop() as Op;
-
-        //if (typeof err === "string") {
-        if (!err) {
-          this.state.parse.stack.push({
-            error: '',
-            position: [startIndex_, tmp_.position[1]],
-          });
-          if (!this.hasError) this.hasError = true;
-        }
-        else {
-          this.state.parse.stack.push(
-            this.resolveOp({
-              opcode: {
-                name: tmp_.op,
-                position: tmp_.position
-              },
-              position: [startIndex_, tmp_.position[1]],
-              parens: [startIndex_, endIndex_],
-              operand: isInfix ? Math.floor(parens_.length / 2) + 1 : parens_.length,
-              output: NaN,
-              parameters: isInfix
-                ? [this.resolveInfix(
-                  parens_ as Exclude<ParseStack, "(">[],
-                  [startIndex_, tmp_.position[1]]
-                )]
-                : parens_ as ParseTree[],
-              data: this.data[this.names.indexOf(tmp_.op)]
-            })
-          );
-        }
-      }
-      else if (isPrefix) {
-        let tmp_ = (parens_.shift() as {
-          opcode: {
-            name: string,
-            position: number[]
-          }
-        }).opcode;
-        this.state.parse.stack.push(
-          this.resolveOp({
-            opcode: tmp_,
-            position: [startIndex_, endIndex_],
-            parens: [startIndex_, endIndex_],
-            operand: parens_.length,
-            output: NaN,
-            parameters: parens_ as ParseTree[],
-            data: this.data[this.names.indexOf(tmp_.name)]
-          })
-        );
-      }
-      else if (isPostfix) {
-        let tmp_ = (parens_.shift() as {
-          opcode: {
-            name: string,
-            position: number[]
-          }
-        }).opcode
-        this.state.parse.stack.push(
-          this.resolveOp({
-            opcode: (parens_.pop() as {
-              opcode: {
-                name: string, position: number[]
-              }
-            }).opcode,
-            position: [startIndex_, endIndex_],
-            parens: [startIndex_, endIndex_],
-            operand: parens_.length,
-            output: NaN,
-            parameters: parens_ as ParseTree[],
-            data: this.data[this.names.indexOf(tmp_.name)]
-          })
-        );
-      }
-      else if (isInfix) {
-        if (parens_.length % 2 === 0) {
-          this.state.parse.stack.push({
-            error: "invalid expression: odd number of operators or parameters",
-            position: [startIndex_, endIndex_]
-          });
-          if (!this.hasError) this.hasError = true;
-        }
-        this.state.parse.stack.push(
-          this.resolveOp(
-            this.resolveInfix(
-              parens_ as Exclude<ParseStack, "(">[],
-              [startIndex_, endIndex_]
-            )
+    } 
+    else if (op === AllStandardOps.ITIERV2_REPORT_TIME_FOR_TIER) {
+      opNode.operand = NaN;
+      if (
+        opNode.parameters.length === 3 ||
+        opNode.parameters.length === 4 ||
+        opNode.parameters.length === 11
+      ) {
+        opNode.operand = opNode.parameters.length - 3;
+        if (
+          !(
+            'value' in opNode.parameters[2] &&
+            Number(opNode.parameters[2].value) > -1 &&
+            Number(opNode.parameters[2].value) < 9
           )
-        );
+        ) {
+          opNode.operand = opNode.parameters.length - 3;
+          opNode.parameters[2] = {
+            error: 'invalid tier level',
+            position: opNode.parameters[2].position,
+          };
+        }
+      } 
+      else {
+        opNode.parameters = [
+          {
+            error: `invalid parameters: expected either 3 or 4 or 11 parameters, but got ${opNode.parameters.length}`,
+            position: [
+              opNode.parameters[0].position[0],
+              opNode.parameters[opNode.parameters.length - 1].position[1],
+            ],
+          },
+        ];
+      }
+    } 
+    else if (op === AllStandardOps.SELECT_LTE) {
+      opNode.operand = NaN;
+      if (opNode.parameters.length > 4 && opNode.parameters.length < 35) {
+        if (
+          'value' in opNode.parameters[0] &&
+          'value' in opNode.parameters[1]
+        ) {
+          if (
+            Number(opNode.parameters[0].value) < 2 &&
+            Number(opNode.parameters[1].value) < 3
+          ) {
+            opNode.operand = selectLte(
+              Number(opNode.parameters[0].value),
+              Number(opNode.parameters[0].value),
+              opNode.parameters.length - 2
+            );
+            opNode.parameters.shift();
+            opNode.parameters.shift();
+          }
+          else {
+            if (Number(opNode.parameters[0].value) > 1) {
+              opNode.parameters[0] = {
+                error: 'invalid value for SELECT_LTE logic, must be between 0 - 1',
+                position: opNode.parameters[0].position,
+              };
+            }
+            if (Number(opNode.parameters[1].value) > 2) {
+              opNode.parameters[1] = {
+                error: 'invalid value for SELECT_LTE mode, must be between 0 - 2',
+                position: opNode.parameters[1].position,
+              };
+            }
+          }
+        }
+        else {}
       }
       else {
-        this.state.parse.stack.push({
-          error: "invalid notation",
-          position: [startIndex_, endIndex_]
-        });
-        if (!this.hasError) this.hasError = true;
+        opNode.parameters = [
+          {
+            error: `invalid parameters: expected at least 4 and at most 34 parameters in total, but got ${opNode.parameters.length}`,
+            position: [
+              opNode.parameters[0].position[0],
+              opNode.parameters[opNode.parameters.length - 1].position[1],
+            ],
+          },
+        ];
       }
     }
-    else {
-      this.state.parse.stack.push({
-        error: "cannot find the beginning/ending of this expression block",
-        position: [startIndex_, endIndex_]
-      });
-      if (!this.hasError) this.hasError = true;
+    else if (op === AllStandardOps.UPDATE_TIMES_FOR_TIER_RANGE) {
+      opNode.operand = NaN;
+      if (opNode.parameters.length === 4) {
+        if (
+          'value' in opNode.parameters[0] &&
+          'value' in opNode.parameters[1]
+        ) {
+          if (
+            Number(opNode.parameters[0].value) < 9 &&
+            Number(opNode.parameters[1].value) < 9
+          ) {
+            opNode.operand = tierRange(
+              Number(opNode.parameters[0].value),
+              Number(opNode.parameters[1].value)
+            );
+            opNode.parameters.shift();
+            opNode.parameters.shift();
+          } 
+          else {
+            if (Number(opNode.parameters[0].value) > 8) {
+              opNode.parameters[0] = {
+                error: 'invalid value for start tier',
+                position: opNode.parameters[0].position,
+              };
+            }
+            if (Number(opNode.parameters[1].value) > 8) {
+              opNode.parameters[1] = {
+                error: 'invalid value for end tier',
+                position: opNode.parameters[1].position,
+              };
+            }
+          }
+        } 
+        else {} 
+      }
+      else {
+        opNode.parameters = [
+          {
+            error: `invalid parameters: expected at least 4 parameters in total, but got ${opNode.parameters.length}`,
+            position: [
+              opNode.parameters[0].position[0],
+              opNode.parameters[opNode.parameters.length - 1].position[1],
+            ],
+          },
+        ];
+      }
     }
-  }
+    else if (op === AllStandardOps.IERC1155_BALANCE_OF_BATCH) {
+      opNode.operand = NaN;
+      opNode.output = NaN;
+      if (
+        opNode.parameters.length > 2 &&
+        opNode.parameters.length % 2 === 1
+      ) {
+        opNode.operand = (opNode.parameters.length - 1) / 2;
+        opNode.output = (opNode.parameters.length - 1) / 2;
+        this.state.parse.moCache.push([]);
+        for (let i = 0; i < opNode.output - 1; i++) {
+          this.state.parse.moCache[this.state.parse.moCache.length - 1].push({
+            value: `${opNode.opcode.name} output ${i + 1} placeholder`,
+            position: [],
+          });
+        }
+      } 
+      else {
+        opNode.parameters = [{
+          error: `invalid number of parameters`,
+          position: [
+            opNode.parameters[0].position[0],
+            opNode.parameters[opNode.parameters.length - 1].position[1],
+          ],
+        }];
+      }
+    }
+    else if (this.pops[op].name !== 'oprnd') {
+      if (this.pops[op](0, 0) === opNode.parameters.length) {
+        opNode.operand = this.pops[op](0, 0);
+        if (this.zeroOperandOps[op]) {
+          opNode.operand = 0;
+        } 
+      }
+      else {
+        opNode.operand = NaN;
+        opNode.parameters = [{
+          error: `invalid number of parameters`,
+          position: [
+            opNode.parameters[0].position[0],
+            opNode.parameters[opNode.parameters.length - 1].position[1],
+          ],
+        }];
+      }
+    }
+    else if (this.pops[op].name === 'oprnd') {
+      opNode.operand = opNode.parameters.length;
+      if (this.zeroOperandOps[op]) {
+        opNode.operand = 0;
+      }
+    }
+    return opNode;
+  };
 
+  /**
+   * Method that consumes the words from the expression and updates the parse tree with their Node type
+   */
   private static consume(entry: number): void {
-    this.exp = this.trim(this.exp)[0];
     if (this.exp.length > 0) {
       let check_ = true;
-      let index_ = this.findIndex(this.exp) < 0
-        ? this.exp.length
-        : this.findIndex(this.exp) === 0
+      let index_ =
+        this.findIndex(this.exp) < 0
+          ? this.exp.length
+          : this.findIndex(this.exp) === 0
           ? 1
           : this.findIndex(this.exp);
 
       let str_ = this.exp.slice(0, index_);
       let consumee_ = str_;
-      let startPosition =
-        this.input.length - this.exp.length + entry + consumee_.indexOf(str_);
-      str_ = this.rmComma(str_);
+      str_ = this.trim(str_)[0];
+      let startPosition = entry + consumee_.indexOf(str_);
 
-      if (str_.includes(",")) {
-        this.state.parse.stack.push(
-          {
-            error: `invalid comma: ${str_}`,
-            position: [startPosition, startPosition + str_.length - 1]
-          }
-        );
+      if (str_.includes(',')) {
+        this.state.parse.tree.push({
+          error: `invalid comma: ${str_}`,
+          position: [startPosition, startPosition + str_.length - 1],
+        });
         this.exp = this.exp.replace(consumee_, "");
-        if (!this.hasError) this.hasError = true;
       }
       else {
         for (let i = 0; i < this.aliases.length; i++) {
           if (this.aliases[i] && this.aliases[i].includes(str_)) {
             this.exp = this.exp.replace(consumee_, "");
-            let [tmpExp, offset] = this.trim(this.exp);
-            if (tmpExp.startsWith("(")) {
-              if (offset === 0 && consumee_.endsWith(str_)) {
-                this.state.parse.stack.push({
-                  op: this.names[i],
-                  position: [startPosition, startPosition + str_.length - 1]
-                });
-              }
+            let op: Op = {
+              opcode: {
+                name: this.names[i],
+                position: [startPosition, startPosition + str_.length - 1],
+              },
+              operand: this.zeroOperandOps[i] ? 0 : NaN,
+              output: this.pushes[i].name === 'zero' || 'one' || 'two' || 'three'
+                ? this.pushes[i](0, 0)
+                : NaN,
+              position: [startPosition],
+              parens: [],
+              parameters: [],
+              data: this.data[i],
+            };
+            if (this.exp.startsWith('(')) {
+              this.state.track.notation.push(
+                this.state.depthLevel,
+                Notations.prefix
+              );
+              if (consumee_.endsWith(str_)) {
+                op.error = this.state.ambiguity
+                  ? 'ambiguous expression/opcode'
+                  : 'no closing parenthesis';
+                this.updateTree(op);
+                if (this.state.ambiguity) this.state.ambiguity = false;
+              } 
               else {
-                this.state.parse.stack.push({
-                  error: 'illigal characters between opcode and parenthesis',
-                  position: [startPosition, startPosition + str_.length - 1]
-                })
+                op.error = this.state.ambiguity
+                  ? 'ambiguous expression/opcode'
+                  : 'illigal characters between opcode and parenthesis';
+                this.updateTree(op);
+                if (this.state.ambiguity) this.state.ambiguity = false;
               }
-            }
+            } 
             else {
-              this.state.parse.stack.push({
-                op: this.names[i],
-                position: [startPosition, startPosition + str_.length - 1]
-              });
+              if (this.pops[i].name !== 'zero' && !this.isInfix()) {
+                this.state.track.notation.push(
+                  this.state.depthLevel,
+                  Notations.infix
+                );
+              }
+              op.position = [];
+              op.error = this.state.ambiguity
+                ? 'ambiguous expression/opcode'
+                : undefined;
+              op.infixOp = this.pops[i].name !== 'zero' ? true : undefined;
+              this.updateTree(op);
+              if (this.state.ambiguity) this.state.ambiguity = false;
             }
             check_ = false;
             break;
@@ -1310,73 +1361,183 @@ export class Parser {
         }
         if (check_) {
           if (this.names.includes(str_)) {
+            this.state.track.notation.push(
+              this.state.depthLevel,
+              Notations.prefix
+            );
             this.exp = this.exp.replace(consumee_, "");
-            let [tmpExp, offset] = this.trim(this.exp);
-            if (tmpExp.startsWith("(")) {
-              if (offset === 0 && consumee_.endsWith(str_)) {
-                this.state.parse.stack.push({
-                  op: str_,
-                  position: [startPosition, startPosition + str_.length - 1]
-                });
-              }
+            let enum_ = this.names.indexOf(str_);
+            let op: Op = {
+              opcode: {
+                name: str_,
+                position: [startPosition, startPosition + str_.length - 1],
+              },
+              operand: this.zeroOperandOps[this.names.indexOf(str_)] ? 0 : NaN,
+              output: this.pushes[enum_].name === 'zero' || 'one' || 'two' || 'three'
+                ? this.pushes[this.names.indexOf(str_)](0, 0)
+                : NaN,
+              position: [startPosition],
+              parens: [],
+              parameters: [],
+              data: this.data[this.names.indexOf(str_)],
+            };
+            if (this.exp.startsWith('(')) {
+              if (consumee_.endsWith(str_)) {
+                op.error = this.state.ambiguity
+                  ? 'ambiguous expression/opcode'
+                  : 'no closing parenthesis';
+                this.updateTree(op);
+                if (this.state.ambiguity) this.state.ambiguity = false;
+              } 
               else {
-                this.state.parse.stack.push({
-                  error: 'illigal characters between opcode and parenthesis',
-                  position: [startPosition, startPosition + str_.length - 1]
-                })
+                op.error = this.state.ambiguity
+                  ? 'ambiguous expression/opcode'
+                  : 'illigal characters between opcode and parenthesis';
+                this.updateTree(op);
+                if (this.state.ambiguity) this.state.ambiguity = false;
               }
-            }
+            } 
             else {
-              this.state.parse.stack.push({
-                op: str_,
-                position: [startPosition, startPosition + str_.length - 1]
-              });
+              if (this.pops[enum_].name !== 'zero' && !this.isInfix()) {
+                this.state.track.notation.push(
+                  this.state.depthLevel,
+                  Notations.infix
+                );
+              }
+              op.position = [];
+              op.error = this.state.ambiguity
+                ? 'ambiguous expression/opcode'
+                : undefined;
+              op.infixOp = this.pops[enum_].name !== 'zero'
+                ? true
+                : undefined;
+              this.updateTree(op);
+              if (this.state.ambiguity) this.state.ambiguity = false;
             }
-          }
-          else if (str_ === "arg") {
+          } 
+          else if (str_ === 'arg') {
             this.exp = this.exp.replace(consumee_, "");
-            let i_ = this.exp.indexOf(")") + 1;
+            let i_ = this.exp.indexOf(')') + 1;
             str_ = str_ + this.exp.slice(0, i_);
             this.exp = this.exp.slice(i_, this.exp.length);
-            this.state.parse.stack.push({
+            this.updateTree({
               value: str_,
-              position: [startPosition, startPosition + str_.length - 1]
+              position: [startPosition, startPosition + str_.length - 1],
             });
-          }
+          } 
           else if (str_ === this.placeholder) {
-            this.state.parse.stack.push({
+            this.updateTree({
               value: this.placeholder,
-              position: [startPosition, startPosition + str_.length - 1]
+              position: [startPosition, startPosition + str_.length - 1],
+            });
+            this.exp = this.exp.replace(consumee_, "");
+          } 
+          else if (isBigNumberish(str_)) {
+            this.updateTree({
+              value: str_,
+              position: [startPosition, startPosition + str_.length - 1],
+            });
+            this.exp = this.exp.replace(consumee_, "");
+          }
+          else if (str_ === "MaxUint256" || str_ === "maxUint256") {
+            this.updateTree({
+              value: "MaxUint256",
+              position: [startPosition, startPosition + str_.length - 1],
             });
             this.exp = this.exp.replace(consumee_, "");
           }
           else {
-            if (str_.includes(".")) {
-              this.state.parse.stack.push({
-                error: `invalid number: float ${str_}`,
-                position: [startPosition, startPosition + str_.length - 1]
+            this.exp = this.exp.replace(consumee_, "");
+            if (this.exp.startsWith('(')) {
+              this.updateTree({
+                opcode: {
+                  name: 'unknown opcode',
+                  position: [startPosition, startPosition + str_.length],
+                },
+                operand: NaN,
+                output: NaN,
+                position: [startPosition],
+                parens: [],
+                parameters: [],
+                error: this.state.ambiguity
+                  ? 'ambiguous expression/opcode'
+                  : 'unknown opcode',
               });
-              this.exp = this.exp.replace(consumee_, "");
-              if (!this.hasError) this.hasError = true;
-            }
-            else if (isBigNumberish(str_)) {
-              this.state.parse.stack.push({
-                value: str_,
-                position: [startPosition, startPosition + str_.length - 1]
-              });
-              this.exp = this.exp.replace(consumee_, "");
-            }
+              if (this.state.ambiguity) this.state.ambiguity = false;
+            } 
             else {
-              this.state.parse.stack.push({
-                error: `unknown: ${str_}`,
-                position: [startPosition, startPosition + str_.length - 1]
+              this.updateTree({
+                error: `unknown word: ${str_}`,
+                position: [startPosition, startPosition + str_.length - 1],
               });
-              this.exp = this.exp.replace(consumee_, "");
-              if (!this.hasError) this.hasError = true;
-            };
+            }
           }
         }
       }
     }
+  }
+
+  /**
+   * Method to check for errors in parsee tree once an expression is fully parsed
+   */
+  private static errorCheck(element: Node): boolean {
+    if ("opcode" in element) {
+      if (element.error !== undefined) return false;
+      else {
+        for (let i = 0; i < element.parameters.length; i++) {
+          if (!this.errorCheck(element.parameters[i])) return false;
+        }
+        return true;
+      }
+    }
+    else if ("error" in element) return false;
+    else return true;
+  }
+
+  /**
+   * Method to update the arguments of zipmaps after full buyes build (if any present)
+   */
+  public static updateArgs(config: StateConfig): StateConfig {
+    for (let i = 0; i < config.sources.length; i++) {
+      for (let j = 0; j < config.sources[i].length; j++) {
+        if (config.sources[i][j] === this.names.length) {
+          (config.sources[i] as Uint8Array)[j] = 0;
+          (config.sources[i] as Uint8Array)[j + 1] += config.constants.length;
+        }
+      }
+    }
+    return config;
+  }
+
+  /**
+   * Method to count all arguments of all zipmaps (if any present)
+   */
+  private static countArgs(tree: Record<number, Node[]>): number[] {
+    let count = 0;
+    let argCache: number[] = [];
+    let elements = Object.values(tree);
+    const counter = (element: Node): number[] => {
+      let c_: number[] = [];
+      if ("opcode" in element) {
+        if (element.opcode.name === "ZIPMAP") {
+          c_.push(element.parameters.length);
+        }
+        for (let i = 0; i < element.parameters.length; i++) {
+          c_.push(...counter(element.parameters[i]));
+        }
+      }
+      return c_;
+    }
+    for (let i = 0; i < elements.length; i++) {
+      for (let j = 0; j < elements[i].length; j++) {
+        argCache.push(...counter(elements[i][j]));
+      }
+    }
+    for (let i = 0; i < argCache.length; i++) {
+      count += argCache[i];
+    }
+    argCache.unshift(0, 0);
+    argCache.unshift(count);
+    return argCache;
   }
 }

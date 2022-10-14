@@ -212,7 +212,7 @@
 |  [eConditionGroup](./types/econditiongroup.md) | Type of a evaluated ConditionGroup with JSVM, which is the same as ConditionGroup with a result property |
 |  [eCurrency](./types/ecurrency.md) | Type of a evaluated Currency with JSVM, which is the same as Currency with a result property |
 |  [EmissionsConfig](./types/emissionsconfig.md) | A type for newing Emissions script |
-|  [Error\_2](./types/error_2.md) |  |
+|  [Error\_2](./types/error_2.md) | Type of Parser's Error node |
 |  [eRule](./types/erule.md) | Type of a evaluated Rule with JSVM, which is the same as Rule with a result property |
 |  [EvidenceConfig](./types/evidenceconfig.md) |  |
 |  [Filter](./types/filter.md) | A filtering utility type for ArgsTypeBook |
@@ -220,24 +220,26 @@
 |  [Modifier](./types/modifier.md) | Type for price/quantity modifier based on a tier report or a Rule |
 |  [ModifierType](./types/modifiertype.md) | Valid Modifier types |
 |  [Never](./types/never.md) | Type to get an always false condition |
+|  [Node\_2](./types/node_2.md) | Type of Parser's Node |
+|  [Op](./types/op.md) | Type of Parser's Opcode node |
 |  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |
 |  [Operator](./types/operator.md) | All the valid logical operators used for comparison of Struct and/or StateConfig objects |
 |  [OptionalArgs](./types/optionalargs.md) | Type of all args properties as optional properties |
 |  [Order](./types/order.md) | Type for an order containing all that is required in an order. An Order is an |
 |  [OrderBookOpcodes](./types/orderbookopcodes.md) | Type for the opcodes availables in a OrderBook instance. |
 |  [OrderConfig](./types/orderconfig.md) | A type for an order configuration without any specific owner |
-|  [ParseStack](./types/parsestack.md) |  |
-|  [ParseTree](./types/parsetree.md) |  |
+|  [ParseTree](./types/parsetree.md) | Type of a parse tree object |
 |  [PrettifyConfig](./types/prettifyconfig.md) | Specifies the configuration of the Prettify method. |
 |  [Price](./types/price.md) | Price type |
 |  [Quantity](./types/quantity.md) | Quantity type |
 |  [Rule](./types/rule.md) | A single Rule block, i.e. an if/then block that contains conditions of prices and quantities and its actions which are price and quantity |
 |  [sIOConfig](./types/sioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
 |  [StakeDeployArgs](./types/stakedeployargs.md) | A type for deploying a new stake contract which contains everything required for deployment.<br></br>'token' is the main token addtess. 'initialRatio' is the initial conversion ratio between the stake token and main token. 'name' of the stake token. 'symbol' of the stake token |
-|  [State](./types/state.md) |  |
+|  [State](./types/state.md) | Type of Parser's State |
 |  [Struct](./types/struct.md) | The smallest building block of RuleBuilder that contains the type and its valid arguments or a StateConfig |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
 |  [TimeBoundConfig](./types/timeboundconfig.md) |  |
 |  [UnionToIntersection](./types/uniontointersection.md) | A utility generic type to convert union to intersection |
+|  [Value](./types/value.md) | Type of Parser's Value node |
 |  [WithdrawConfig](./types/withdrawconfig.md) | Type for withdrawing some token amount from a vault used in |
 

@@ -1,26 +1,24 @@
 
 # Type State
 
+Type of Parser's State
 
 <b>Signature:</b>
 
 ```typescript
 type State = {
     parse: {
-        stack: ParseStack[];
-        tree: ParseTree[];
+        tree: Node[];
+        moCache: (Op | Value)[][];
     };
-    srcCache: Uint8Array[];
-    arguments: {
-        has: boolean;
-        offset: number;
-        count: number;
-        cache: number[];
+    track: {
+        notation: number[];
+        parens: {
+            open: number[];
+            close: number[];
+        };
     };
-    zipmaps: number;
-    multiOutputCache: (Exclude<ParseTree, Error> | {
-        value: BigNumberish;
-        position: number[];
-    })[];
+    depthLevel: number;
+    ambiguity: boolean;
 };
 ```
