@@ -1,4 +1,4 @@
-import { OpMeta } from './OpMeta';
+import { OpMeta, pnp } from './OpMeta';
 import { BigNumberish, BytesLike } from 'ethers';
 import { AllStandardOps, StateConfig } from '../classes/vm';
 import {
@@ -93,6 +93,39 @@ export type ParseTree = Record<
   { tree: Node[]; position: number[] }
 >;
 
+export type iOpMetaLike = {
+  name: string,
+  pushes: (opcode: number, operand: number) => number,
+  pops: (opcode: number, operand: number) => number,
+  description?: string,
+  aliases?: string[],
+  data?: any
+}
+
+/**
+ * @public
+ * Special OpMeta-like object for providing GTE in parser
+ */
+export const gteOpcode: iOpMetaLike = {
+  name: 'GREATER_THAN_EQUAL',
+  description: '',      
+  pushes: pnp.one,
+  pops: pnp.oprnd, 
+  aliases: ['GTE', 'GREATERTHANEQUAL', 'BIGGERTHANEQUAL', 'BIGGER_THAN_EQUAL'],
+}
+
+/**
+ * @public
+ * Special OpMeta-like object for providing GTE in parser
+ */
+export const lteOpcode: iOpMetaLike = {
+  name: 'LESS_THAN_EQUAL',
+  description: '',      
+  pushes: pnp.one,
+  pops: pnp.oprnd, 
+  aliases: ["LTE", "LESSTHANEQUAL", "LITTLE_THAN_EQUAL", "LITTLETHANEQUAL"]
+}
+
 /**
  * @public
  * Parser is a mini compiler to generate a valid StateConfig (deployable bytes) from a text script
@@ -104,6 +137,10 @@ export type ParseTree = Record<
  * 
  * // to set the custom opmeta
  * Parser.set(OpMeta)
+ * 
+ * // to set the custom details of GTE and LTE opcodes
+ * Parser.setGteMeta(description?, data?, description?)
+ * Parser.setLteMeta(description?, data?, description?)
  * 
  * // to execute the parsing and get parse tree object and StateConfig
  * let parseTree;
@@ -155,6 +192,37 @@ export class Parser {
     ambiguity: false,
   };
 
+  // special literals for gte and lte
+  private static gte = gteOpcode;
+  private static lte = lteOpcode;
+
+  /**
+   * @public
+   * Method to set the details of the GTE opcode
+   * 
+   * @param aliases - The aliases of GTE opcode
+   * @param description - The description
+   * @param data - Optional data
+   */
+  public static setGteMeta(description?: string, data?: any, aliases?: string[]) {
+    this.gte.data = data;
+    this.gte.aliases = aliases;
+    this.gte.description = description;
+  }
+
+  /**
+   * @public
+   * Method to set the details of the LTE opcode
+   * 
+   * @param aliases - The aliases of LTE opcode
+   * @param description - The description
+   * @param data - Optional data
+   */
+  public static setLteMeta(description?: string, data?: any, aliases?: string[]) {
+    this.lte.data = data;
+    this.lte.aliases = aliases;
+    this.lte.description = description;
+  }
 
   /**
    * @public
@@ -225,7 +293,8 @@ export class Parser {
     parseTree: 
       | Node 
       | Node[] 
-      | Record<number, Node[]>,
+      | Record<number, Node[]>
+      | Record<number, { tree: Node[], position: number[] }>,
     offset?: number
   ): StateConfig {
     let constants: BigNumberish[] = [];
@@ -240,6 +309,11 @@ export class Parser {
       let array: any = Object.values(parseTree);
       if (!("0" in array[0])) nodes = [array as Node[]];
       else {
+        if ("tree" in array[0]) {
+          for (let i = 0; i < array.length; i++) {
+            array[i] = array[i].tree;
+          }
+        }
         argOffset = this.countArgs(
           parseTree as Record<number, Node[]>
         );
@@ -262,7 +336,7 @@ export class Parser {
     argOffset = isRecord 
       ? this.countArgs(parseTree as Record<number, Node[]>) 
       : [0, 0];
-    let argCount = isRecord ? argOffset.pop()! : 0;
+    let argCount = isRecord ? argOffset.unshift()! : 0;
 
     for (let i = 0; i < nodes.length; i++) {
       for (let j = 0; j < nodes[i].length; j++) {
@@ -286,10 +360,10 @@ export class Parser {
               (node.value as string).replace("arg(", "").slice(0, -1)
             );
             sourcesCache.push(
-              op(this.names.length, isRecord ? argOffset[i] + index : offset ? offset + index : 0)
+              op(this.names.length, isRecord ? argOffset[i] + index : offset ? offset + index : index)
             );
           }
-          else if (node.value === "MaxUint256") {
+          else if (node.value === "MaxUint256" || node.value === "Infinity") {
             if (constants.includes("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")) {
               sourcesCache.push(
                 op(AllStandardOps.CONSTANT, constants.indexOf(node.value))
@@ -319,19 +393,31 @@ export class Parser {
             sourcesCache.push(...tmp.sources);
             constants.push(...tmp.constants)
           }
-          sourcesCache.push(
-            op(
-              this.names.indexOf((node as Op).opcode.name),
-              (node as Op).operand
+          if (
+            (node as Op).opcode.name === this.gte.name ||
+            (node as Op).opcode.name === this.lte.name
+          ) {
+            sourcesCache.push(
+              op(
+                (node as Op).opcode.name === this.gte.name 
+                  ? AllStandardOps.LESS_THAN 
+                  : AllStandardOps.GREATER_THAN,
+                (node as Op).operand
+              ),
+              op(AllStandardOps.ISZERO)
             )
-          )
+          }
+          else sourcesCache.push(op(
+            this.names.indexOf((node as Op).opcode.name),
+            (node as Op).operand
+          ))
         }
       }
       sources.push(concat(sourcesCache))
       sourcesCache = [];
     }
-    if (argCount > 0) {
-      ({ constants, sources } = this.updateArgs({constants, sources}));
+    if (isRecord && argCount > 0) {
+       ({ constants, sources } = this.updateArgs({constants, sources}));
     }
     return {
       constants,
@@ -414,6 +500,14 @@ export class Parser {
     }
     return [str, leadingOffset];
   };
+
+  /**
+   * Method to handle letter case senivity
+   */
+  private static handleLetterCase = (str: string): string => {
+    while (str.includes("-")) str = str.replace("-", "_");
+    return str.toUpperCase();
+  }
 
   /**
    * The main workhorse of Rain Parser which parses the words used in an 
@@ -601,76 +695,113 @@ export class Parser {
    * * Method to check if the current state of parsing of a node is postfix or not
    */
   private static isPostfix(str: string): string[] | undefined {
+    let offset = 0;
     if (!str.length) return undefined;
     if (str[0] === ' ' || str[0] === '(' || str[0] === ')') return undefined;
-    if (str.startsWith(',')) {
-      let offset = 0;
-      while (str.startsWith(',')) {
-        str = str.replace(',', "");
-        offset++;
-      }
-      if (str[0] === ' ' || str[0] === '(' || str[0] === ')') return undefined;
-      for (let i = 0; i < this.names.length; i++) {
-        if (str.startsWith(this.names[i])) {
-          return [
-            this.names[i],
+    while (str.startsWith(',')) {
+      str = str.replace(',', "");
+      offset++;
+    }
+    if (str[0] === ' ' || str[0] === '(' || str[0] === ')') return undefined;
+    let str_ = this.handleLetterCase(str);
+    if (str_.startsWith(this.gte.name)) {
+      let tmp = [
+        this.gte.name,
+        offset.toString(),
+        (offset + this.gte.name.length - 1).toString(),
+      ];
+      if (str_.replace(this.gte.name, "").startsWith("(")) tmp.push(
+        'ambiguous expression/opcode'
+      )
+      else if (offset) tmp.push(
+        'illigal characters between opcode and parenthesis'
+      );
+      return tmp;
+    }
+    if (str_.startsWith(this.lte.name)) {
+      let tmp = [
+        this.lte.name,
+        offset.toString(),
+        (offset + this.lte.name.length - 1).toString(),
+      ];
+      if (str_.replace(this.lte.name, "").startsWith("(")) tmp.push(
+        'ambiguous expression/opcode'
+      )
+      else if (offset) tmp.push(
+        'illigal characters between opcode and parenthesis'
+      );
+      return tmp;
+    }
+    if (this.gte.aliases) {
+      for (let i = 0; i < this.gte.aliases.length; i++) {
+        if (str_.startsWith(this.gte.aliases[i])) {
+          let tmp = [
+            this.gte.name,
             offset.toString(),
-            (offset + this.names[i].length - 1).toString(),
-            'illigal characters between opcode and parenthesis',
+            (offset + this.gte.aliases[i].length - 1).toString(),
           ];
+          if (str_.replace(this.gte.aliases[i], "").startsWith("(")) tmp.push(
+            'ambiguous expression/opcode'
+          )
+          else if (offset) tmp.push(
+            'illigal characters between opcode and parenthesis'
+          );
+          return tmp;
         }
       }
-      for (let i = 0; i < this.aliases.length; i++) {
-        if (this.aliases[i]) {
-          for (let j = 0; j < this.aliases[i].length; j++) {
-            if (str.startsWith(this.aliases[i][j])) {
-              return [
-                this.names[i],
-                offset.toString(),
-                (offset + this.aliases[i][j].length - 1).toString(),
-                'illigal characters between opcode and parenthesis',
-              ];
-            }
-          }
+    }
+    if (this.lte.aliases) {
+      for (let i = 0; i < this.lte.aliases?.length; i++) {
+        if (str_.startsWith(this.lte.aliases[i])) {
+          let tmp = [
+            this.lte.name,
+            offset.toString(),
+            (offset + this.lte.aliases[i].length - 1).toString(),
+          ];
+          if (str_.replace(this.lte.aliases[i], "").startsWith("(")) tmp.push(
+            'ambiguous expression/opcode'
+          )
+          else if (offset) tmp.push(
+            'illigal characters between opcode and parenthesis'
+          );
+          return tmp;
         }
       }
     }
     for (let i = 0; i < this.names.length; i++) {
-      if (str.startsWith(this.names[i])) {
-        if (str.replace(this.names[i], "").startsWith('(')) {
+      if (str_.startsWith(this.names[i])) {
+        let tmp = [
+          this.names[i],
+          offset.toString(),
+          (offset + this.names[i].length - 1).toString(),
+        ];
+        if (str_.replace(this.names[i], "").startsWith('(')) {
           this.state.ambiguity = true;
-          return [
-            this.names[i],
-            '0',
-            (this.names[i].length - 1).toString(),
-            'ambiguous expression/opcode',
-          ];
+          tmp.push('ambiguous expression/opcode');
         }
-        else {
-          return [this.names[i], '0', (this.names[i].length - 1).toString()];
-        }
+        else if (offset) tmp.push(
+          'illigal characters between opcode and parenthesis'
+        )
+        return tmp;
       }
     }
     for (let i = 0; i < this.aliases.length; i++) {
       if (this.aliases[i]) {
         for (let j = 0; j < this.aliases[i].length; j++) {
-          if (str.startsWith(this.aliases[i][j])) {
-            if (str.replace(this.aliases[i][j], "").startsWith('(')) {
+          if (str_.startsWith(this.aliases[i][j])) {
+            let tmp = [
+              this.names[i],
+              offset.toString(),
+              (offset + this.aliases[i][j].length - 1).toString(),
+            ]
+            if (str_.replace(this.aliases[i][j], "").startsWith('(')) {
               this.state.ambiguity = true;
-              return [
-                this.names[i],
-                '0',
-                (this.aliases[i][j].length - 1).toString(),
-                'ambiguous expression/opcode',
-              ];
+              tmp.push('ambiguous expression/opcode');
             } 
-            else {
-              return [
-                this.names[i],
-                '0',
-                (this.aliases[i][j].length - 1).toString(),
-              ];
-            }
+            else if (offset) tmp.push(
+              'illigal characters between opcode and parenthesis'
+            )
+            return tmp;
           }
         }
       }
@@ -792,9 +923,11 @@ export class Parser {
         position: [startPosition, endPosition],
       },
       operand: this.zeroOperandOps[this.names.indexOf(opcode)] ? 0 : NaN,
-      output: this.pushes[this.names.indexOf(opcode)].name === 'zero' || 'one' || 'two' || 'three'
-        ? this.pushes[this.names.indexOf(opcode)](0, 0)
-        : NaN,
+      output: opcode === this.gte.name || opcode === this.lte.name 
+          ? 1
+          : this.pushes[this.names.indexOf(opcode)].name === 'zero' || 'one' || 'two' || 'three'
+          ? this.pushes[this.names.indexOf(opcode)](0, 0)
+          : NaN,
       position: [node.position[0], endPosition],
       parens: [node.position[0], this.state.track.parens.close.pop()!],
       parameters: node.parameters,
@@ -901,8 +1034,7 @@ export class Parser {
         op = {
           error: 'invalid infix expression',
           position: [
-            (tmp[tmp.length - 2][tmp[tmp.length - 2].length - 1] as Op)
-              .parens[0],
+            (tmp[tmp.length - 2][tmp[tmp.length - 2].length - 1] as Op).parens[0],
             closeParenPosition,
           ],
         };
@@ -973,7 +1105,13 @@ export class Parser {
    */
   private static resolveOp = (opNode: Op): Op => {
     let op = this.names.indexOf(opNode.opcode.name);
-    if (
+    if (opNode.opcode.name === this.gte.name || opNode.opcode.name === this.lte.name) {
+      opNode.operand = opNode.parameters.length;
+      if (opNode.operand < 2) {
+        opNode.error = "invalid number of parameters, needs at least 2 items to compare";
+      }
+    }
+    else if (
       op === AllStandardOps.STACK ||
       op === AllStandardOps.CONTEXT ||
       op === AllStandardOps.STORAGE
@@ -1278,90 +1416,146 @@ export class Parser {
    */
   private static consume(entry: number): void {
     if (this.exp.length > 0) {
-      let check_ = true;
-      let index_ =
+      let check = true;
+      let index =
         this.findIndex(this.exp) < 0
           ? this.exp.length
           : this.findIndex(this.exp) === 0
           ? 1
           : this.findIndex(this.exp);
 
-      let str_ = this.exp.slice(0, index_);
-      let consumee_ = str_;
-      str_ = this.trim(str_)[0];
-      let startPosition = entry + consumee_.indexOf(str_);
+      let str = this.exp.slice(0, index);
+      let consumee = str;
+      str = this.trim(str)[0];
+      let startPosition = entry + consumee.indexOf(str);
 
-      if (str_.includes(',')) {
+      if (str.includes(',')) {
         this.state.parse.tree.push({
-          error: `invalid comma: ${str_}`,
-          position: [startPosition, startPosition + str_.length - 1],
+          error: `invalid comma: ${str}`,
+          position: [startPosition, startPosition + str.length - 1],
         });
-        this.exp = this.exp.replace(consumee_, "");
+        this.exp = this.exp.replace(consumee, "");
       }
       else {
-        for (let i = 0; i < this.aliases.length; i++) {
-          if (this.aliases[i] && this.aliases[i].includes(str_)) {
-            this.exp = this.exp.replace(consumee_, "");
-            let op: Op = {
-              opcode: {
-                name: this.names[i],
-                position: [startPosition, startPosition + str_.length - 1],
-              },
-              operand: this.zeroOperandOps[i] ? 0 : NaN,
-              output: this.pushes[i].name === 'zero' || 'one' || 'two' || 'three'
-                ? this.pushes[i](0, 0)
-                : NaN,
-              position: [startPosition],
-              parens: [],
-              parameters: [],
-              data: this.data[i],
-            };
-            if (this.exp.startsWith('(')) {
-              this.state.track.notation.push(
-                this.state.depthLevel,
-                Notations.prefix
-              );
-              if (consumee_.endsWith(str_)) {
-                op.error = this.state.ambiguity
-                  ? 'ambiguous expression/opcode'
-                  : 'no closing parenthesis';
-                this.updateTree(op);
-                if (this.state.ambiguity) this.state.ambiguity = false;
-              } 
-              else {
-                op.error = this.state.ambiguity
-                  ? 'ambiguous expression/opcode'
-                  : 'illigal characters between opcode and parenthesis';
-                this.updateTree(op);
-                if (this.state.ambiguity) this.state.ambiguity = false;
-              }
-            } 
-            else {
-              if (this.pops[i].name !== 'zero' && !this.isInfix()) {
-                this.state.track.notation.push(
-                  this.state.depthLevel,
-                  Notations.infix
-                );
-              }
-              op.position = [];
+        let str_ = this.handleLetterCase(str);
+        if (
+          str_ === this.gte.name || this.gte.aliases?.includes(str_) ||
+          str_ === this.lte.name || this.lte.aliases?.includes(str_)
+        ) {
+          this.state.track.notation.push(
+            this.state.depthLevel,
+            Notations.prefix
+          );
+          let isGte = str_ === this.gte.name || this.gte.aliases?.includes(str_);
+          this.exp = this.exp.replace(consumee, "");
+          let op: Op = {
+            opcode: {
+              name: isGte ? this.gte.name : this.lte.name,
+              position: [startPosition, startPosition + str_.length - 1],
+            },
+            operand: NaN,
+            output: 1,
+            position: [startPosition],
+            parens: [],
+            parameters: [],
+            data: isGte ? this.gte.data : this.lte.data,
+          };
+          if (this.exp.startsWith('(')) {
+            if (consumee.endsWith(str)) {
               op.error = this.state.ambiguity
                 ? 'ambiguous expression/opcode'
-                : undefined;
-              op.infixOp = this.pops[i].name !== 'zero' ? true : undefined;
+                : 'no closing parenthesis';
+              this.updateTree(op);
+              if (this.state.ambiguity) this.state.ambiguity = false;
+            } 
+            else {
+              op.error = this.state.ambiguity
+                ? 'ambiguous expression/opcode'
+                : 'illigal characters between opcode and parenthesis';
               this.updateTree(op);
               if (this.state.ambiguity) this.state.ambiguity = false;
             }
-            check_ = false;
-            break;
+          } 
+          else {
+            if (!this.isInfix()) {
+              this.state.track.notation.push(
+                this.state.depthLevel,
+                Notations.infix
+              );
+            }
+            op.position = [];
+            op.error = 'ambiguous expression/opcode';
+            if (!this.state.ambiguity) delete op.error;
+            op.infixOp = true;
+            this.updateTree(op);
+            if (this.state.ambiguity) this.state.ambiguity = false;
           }
         }
-        if (check_) {
+        else {
+          for (let i = 0; i < this.aliases.length; i++) {
+            if (this.aliases[i] && this.aliases[i].includes(str_)) {
+              this.exp = this.exp.replace(consumee, "");
+              let op: Op = {
+                opcode: {
+                  name: this.names[i],
+                  position: [startPosition, startPosition + str_.length - 1],
+                },
+                operand: this.zeroOperandOps[i] ? 0 : NaN,
+                output: this.pushes[i].name === 'zero' || 'one' || 'two' || 'three'
+                  ? this.pushes[i](0, 0)
+                  : NaN,
+                position: [startPosition],
+                parens: [],
+                parameters: [],
+                data: this.data[i],
+              };
+              if (this.exp.startsWith('(')) {
+                this.state.track.notation.push(
+                  this.state.depthLevel,
+                  Notations.prefix
+                );
+                if (consumee.endsWith(str)) {
+                  op.error = this.state.ambiguity
+                    ? 'ambiguous expression/opcode'
+                    : 'no closing parenthesis';
+                  this.updateTree(op);
+                  if (this.state.ambiguity) this.state.ambiguity = false;
+                } 
+                else {
+                  op.error = this.state.ambiguity
+                    ? 'ambiguous expression/opcode'
+                    : 'illigal characters between opcode and parenthesis';
+                  this.updateTree(op);
+                  if (this.state.ambiguity) this.state.ambiguity = false;
+                }
+              } 
+              else {
+                if (this.pops[i].name !== 'zero' && !this.isInfix()) {
+                  this.state.track.notation.push(
+                    this.state.depthLevel,
+                    Notations.infix
+                  );
+                }
+                op.position = [];
+                op.error = 'ambiguous expression/opcode';
+                if (!this.state.ambiguity) delete op.error;
+                op.infixOp = this.pops[i].name !== 'zero' ? true : undefined;
+                this.updateTree(op);
+                if (this.state.ambiguity) this.state.ambiguity = false;
+              }
+              check = false;
+              break;
+            }
+          }
+        }
+        if (check) {
+          let str_ = this.handleLetterCase(str);
           if (this.names.includes(str_)) {
             this.state.track.notation.push(
               this.state.depthLevel,
               Notations.prefix
             );
-            this.exp = this.exp.replace(consumee_, "");
+            this.exp = this.exp.replace(consumee, "");
             let enum_ = this.names.indexOf(str_);
             let op: Op = {
               opcode: {
@@ -1378,7 +1572,7 @@ export class Parser {
               data: this.data[this.names.indexOf(str_)],
             };
             if (this.exp.startsWith('(')) {
-              if (consumee_.endsWith(str_)) {
+              if (consumee.endsWith(str)) {
                 op.error = this.state.ambiguity
                   ? 'ambiguous expression/opcode'
                   : 'no closing parenthesis';
@@ -1401,54 +1595,54 @@ export class Parser {
                 );
               }
               op.position = [];
-              op.error = this.state.ambiguity
-                ? 'ambiguous expression/opcode'
-                : undefined;
+              op.error = 'ambiguous expression/opcode';
+              if (!this.state.ambiguity) delete op.error;
               op.infixOp = this.pops[enum_].name !== 'zero'
                 ? true
                 : undefined;
               this.updateTree(op);
               if (this.state.ambiguity) this.state.ambiguity = false;
             }
-          } 
-          else if (str_ === 'arg') {
-            this.exp = this.exp.replace(consumee_, "");
+          }
+          else if (str_ === "ARG") {
+            str = "arg";
+            this.exp = this.exp.replace(consumee, "");
             let i_ = this.exp.indexOf(')') + 1;
-            str_ = str_ + this.exp.slice(0, i_);
+            str = str + this.exp.slice(0, i_);
             this.exp = this.exp.slice(i_, this.exp.length);
             this.updateTree({
-              value: str_,
-              position: [startPosition, startPosition + str_.length - 1],
+              value: str,
+              position: [startPosition, startPosition + str.length - 1],
             });
           } 
-          else if (str_ === this.placeholder) {
+          else if (str === this.placeholder) {
             this.updateTree({
               value: this.placeholder,
-              position: [startPosition, startPosition + str_.length - 1],
+              position: [startPosition, startPosition + str.length - 1],
             });
-            this.exp = this.exp.replace(consumee_, "");
+            this.exp = this.exp.replace(consumee, "");
           } 
-          else if (isBigNumberish(str_)) {
+          else if (isBigNumberish(str)) {
             this.updateTree({
-              value: str_,
-              position: [startPosition, startPosition + str_.length - 1],
+              value: str,
+              position: [startPosition, startPosition + str.length - 1],
             });
-            this.exp = this.exp.replace(consumee_, "");
+            this.exp = this.exp.replace(consumee, "");
           }
-          else if (str_ === "MaxUint256" || str_ === "maxUint256") {
+          else if (str_ === "MAXUINT256" || str_ === "INFINITY") {
             this.updateTree({
-              value: "MaxUint256",
-              position: [startPosition, startPosition + str_.length - 1],
+              value: str_ === "MAXUINT256" ? "MaxUint256" : "Infinity",
+              position: [startPosition, startPosition + str.length - 1],
             });
-            this.exp = this.exp.replace(consumee_, "");
+            this.exp = this.exp.replace(consumee, "");
           }
           else {
-            this.exp = this.exp.replace(consumee_, "");
+            this.exp = this.exp.replace(consumee, "");
             if (this.exp.startsWith('(')) {
               this.updateTree({
                 opcode: {
                   name: 'unknown opcode',
-                  position: [startPosition, startPosition + str_.length],
+                  position: [startPosition, startPosition + str.length],
                 },
                 operand: NaN,
                 output: NaN,
@@ -1463,8 +1657,8 @@ export class Parser {
             } 
             else {
               this.updateTree({
-                error: `unknown word: ${str_}`,
-                position: [startPosition, startPosition + str_.length - 1],
+                error: `unknown word: ${str}`,
+                position: [startPosition, startPosition + str.length - 1],
               });
             }
           }
@@ -1495,7 +1689,7 @@ export class Parser {
    */
   public static updateArgs(config: StateConfig): StateConfig {
     for (let i = 0; i < config.sources.length; i++) {
-      for (let j = 0; j < config.sources[i].length; j++) {
+      for (let j = 0; j < config.sources[i].length; j += 2) {
         if (config.sources[i][j] === this.names.length) {
           (config.sources[i] as Uint8Array)[j] = 0;
           (config.sources[i] as Uint8Array)[j + 1] += config.constants.length;
@@ -1537,4 +1731,5 @@ export class Parser {
     return argCache;
   }
 }
+
 

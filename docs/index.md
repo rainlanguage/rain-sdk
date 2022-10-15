@@ -173,6 +173,8 @@
 |  [eighteenZeros](./variables/eighteenzeros.md) | 18 decimals or i.e "DECIMALS" - used for fixed point match |
 |  [fixedPointDiv](./variables/fixedpointdiv.md) |  |
 |  [fixedPointMul](./variables/fixedpointmul.md) |  |
+|  [gteOpcode](./variables/gteopcode.md) | Special OpMeta-like object for providing GTE in parser |
+|  [lteOpcode](./variables/lteopcode.md) | Special OpMeta-like object for providing GTE in parser |
 |  [max](./variables/max.md) | calculate the maximum among array of BigNumbers |
 |  [min](./variables/min.md) | calculate the minimum among array of BigNumbers |
 |  [OpMeta](./variables/opmeta.md) |  |
@@ -217,6 +219,7 @@
 |  [EvidenceConfig](./types/evidenceconfig.md) |  |
 |  [Filter](./types/filter.md) | A filtering utility type for ArgsTypeBook |
 |  [IOConfig](./types/ioconfig.md) | token the address of the desired token vaultId corresponding token vault id |
+|  [iOpMetaLike](./types/iopmetalike.md) |  |
 |  [Modifier](./types/modifier.md) | Type for price/quantity modifier based on a tier report or a Rule |
 |  [ModifierType](./types/modifiertype.md) | Valid Modifier types |
 |  [Never](./types/never.md) | Type to get an always false condition |

@@ -19,6 +19,10 @@ import { Parser } from "rain-sdk";
 // to set the custom opmeta
 Parser.set(OpMeta)
 
+// to set the custom details of GTE and LTE opcodes
+Parser.setGteMeta(description?, data?, description?)
+Parser.setLteMeta(description?, data?, description?)
+
 // to execute the parsing and get parse tree object and StateConfig
 let parseTree;
 let stateConfig
@@ -53,7 +57,9 @@ let stateConfig = Parser.buildBytes(argument)
 |  [get(expression, opmeta, multiOutputPlaceholderChar)](./parser.md#get-method-static-1) | Method to get parse tree object and StateConfig |
 |  [getParseTree(expression, opmeta, multiOutputPlaceholderChar)](./parser.md#getParseTree-method-static-1) | Method to get the parse tree object |
 |  [getStateConfig(expression, opmeta, multiOutputPlaceholderChar)](./parser.md#getStateConfig-method-static-1) | Method to get the StateConfig |
-|  [updateArgs(config)](./parser.md#updateArgs-method-static-1) | Method to update the arguments of zipmaps after full buyes build (if any present) |
+|  [setGteMeta(description, data, aliases)](./parser.md#setGteMeta-method-static-1) | Method to set the details of the GTE opcode |
+|  [setLteMeta(description, data, aliases)](./parser.md#setLteMeta-method-static-1) | Method to set the details of the LTE opcode |
+|  [updateArgs(config)](./parser.md#updateArgs-method-static-1) | Method to update the arguments of zipmaps after full bytes build (if any present) |
 
 ## Static Property Details
 
@@ -110,14 +116,17 @@ Method to get StateConfig (bytes) from a Parse Tree object or a Node or array of
 <b>Signature:</b>
 
 ```typescript
-static buildBytes(parseTree: Node | Node[] | Record<number, Node[]>, offset?: number): StateConfig;
+static buildBytes(parseTree: Node | Node[] | Record<number, Node[]> | Record<number, {
+        tree: Node[];
+        position: number[];
+    }>, offset?: number): StateConfig;
 ```
 
 #### Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  parseTree | `Node \| Node[] \| Record<number, Node[]>` | Tree like object (Parse Tree object or a Node or array of Nodes) to get the StateConfig from |
+|  parseTree | <pre>Node \| Node[] \| Record<number, Node[]> \| Record<number, {&#010;    tree: Node[];&#010;    position: number[];&#010;}></pre> | Tree like object (Parse Tree object or a Node or array of Nodes) to get the StateConfig from |
 |  offset | `number` | This argument is used internally and should be ignored when calling this method externally |
 
 <b>Returns:</b>
@@ -204,11 +213,59 @@ static getStateConfig(expression: string, opmeta?: typeof OpMeta, multiOutputPla
 
 A StateConfig
 
+<a id="setGteMeta-method-static-1"></a>
+
+### setGteMeta(description, data, aliases)
+
+Method to set the details of the GTE opcode
+
+<b>Signature:</b>
+
+```typescript
+static setGteMeta(description?: string, data?: any, aliases?: string[]): void;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  description | `string` | The description |
+|  data | `any` | Optional data |
+|  aliases | `string[]` | The aliases of GTE opcode |
+
+<b>Returns:</b>
+
+`void`
+
+<a id="setLteMeta-method-static-1"></a>
+
+### setLteMeta(description, data, aliases)
+
+Method to set the details of the LTE opcode
+
+<b>Signature:</b>
+
+```typescript
+static setLteMeta(description?: string, data?: any, aliases?: string[]): void;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  description | `string` | The description |
+|  data | `any` | Optional data |
+|  aliases | `string[]` | The aliases of LTE opcode |
+
+<b>Returns:</b>
+
+`void`
+
 <a id="updateArgs-method-static-1"></a>
 
 ### updateArgs(config)
 
-Method to update the arguments of zipmaps after full buyes build (if any present)
+Method to update the arguments of zipmaps after full bytes build (if any present)
 
 <b>Signature:</b>
 
