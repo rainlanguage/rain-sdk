@@ -106,24 +106,87 @@ export type iOpMetaLike = {
  * @public
  * Special OpMeta-like object for providing GTE in parser
  */
-export const gteOpcode: iOpMetaLike = {
+export const gteParserOpcode: iOpMetaLike = {
   name: 'GREATER_THAN_EQUAL',
-  description: '',      
+  description: 'Takes last 2 values from stack and puts true/1 into the stack if the first value is greater than equal the second value and false/0 if not.',
   pushes: pnp.one,
-  pops: pnp.oprnd, 
-  aliases: ['GTE', 'GREATERTHANEQUAL', 'BIGGERTHANEQUAL', 'BIGGER_THAN_EQUAL'],
+  pops: pnp.two, 
+  aliases: ['GTE', 'GREATERTHANEQUAL', 'BIGGERTHANEQUAL', 'BIGGER_THAN_EQUAL', ">=", "≥"],
+  data: {
+    description: "Returns true if value X is greater than value Y.",
+    category: "logic",
+    example: "greater_than_equal(X, Y)",
+    parameters: [
+      {
+        spread: false,
+        name: "value",
+        description: "The first value."
+      },
+      {
+        spread: false,
+        name: "value",
+        description: "The second value."
+      }
+    ]
+  }
 }
 
 /**
  * @public
  * Special OpMeta-like object for providing GTE in parser
  */
-export const lteOpcode: iOpMetaLike = {
+export const lteParserOpcode: iOpMetaLike = {
   name: 'LESS_THAN_EQUAL',
-  description: '',      
+  description: 'Takes last 2 values from stack and puts true/1 into the stack if the first value is less than equal the second value and false/0 if not.',      
   pushes: pnp.one,
-  pops: pnp.oprnd, 
-  aliases: ["LTE", "LESSTHANEQUAL", "LITTLE_THAN_EQUAL", "LITTLETHANEQUAL"]
+  pops: pnp.two, 
+  aliases: ["LTE", "LESSTHANEQUAL", "LITTLE_THAN_EQUAL", "LITTLETHANEQUAL", "<=", "≤"],
+  data: {
+    description: "Returns true if value X is less than value Y.",
+    category: "logic",
+    example: "less_than_equal(X, Y)",
+    parameters: [
+      {
+        spread: false,
+        name: "value",
+        description: "The first value."
+      },
+      {
+        spread: false,
+        name: "value",
+        description: "The second value."
+      }
+    ]
+  }
+}
+
+/**
+ * @public
+ * Special OpMeta-like object for providing inequality check in parser
+ */
+ export const ineqParserOpcode: iOpMetaLike = {
+  name: 'INEQUAL_TO',
+  description: 'Takes last 2 values from stack and puts true/1 into the stack if the first value is not equal to the second value and false/0 if not.',
+  pushes: pnp.one,
+  pops: pnp.two, 
+  aliases: ['INEQ', 'INEQUALTO', 'NOTEQUAL', 'NOT_EQUAL', "NOTEQ", "NOT_EQUAL_TO", "NOTEQUALTO","!=", "!=="],
+  data: {
+    description: "Returns true if value X is not equal to value Y.",
+    category: "logic",
+    example: "inequal_to(X, Y)",
+    parameters: [
+      {
+        spread: false,
+        name: "value",
+        description: "The first value."
+      },
+      {
+        spread: false,
+        name: "value",
+        description: "The second value."
+      }
+    ]
+  }
 }
 
 /**
@@ -139,8 +202,8 @@ export const lteOpcode: iOpMetaLike = {
  * Parser.set(OpMeta)
  * 
  * // to set the custom details of GTE and LTE opcodes
- * Parser.setGteMeta(description?, data?, description?)
- * Parser.setLteMeta(description?, data?, description?)
+ * Parser.setGteMeta(name?, description?, data?, description?)
+ * Parser.setLteMeta(name?, description?, data?, description?)
  * 
  * // to execute the parsing and get parse tree object and StateConfig
  * let parseTree;
@@ -169,7 +232,8 @@ export class Parser {
   private static treeArray: Record<number, Node[]> = {};
   private static data: any[] = Object.values(mapToRecord(OpMeta, ['data']));
   private static names: string[] = Object.values(mapToRecord(OpMeta, ['name']));
-  private static aliases: string[] = Object.values(mapToRecord(OpMeta, ['aliases']));
+  private static aliases: (string[] | undefined)[] = 
+    Object.values(mapToRecord(OpMeta, ['aliases']));
   private static zeroOperandOps: boolean[] = 
     Object.values(mapToRecord(OpMeta, ['isZeroOperand']));
   private static pops: ((opcode: number, operand: number) => number)[] = 
@@ -193,35 +257,71 @@ export class Parser {
   };
 
   // special literals for gte and lte
-  private static gte = gteOpcode;
-  private static lte = lteOpcode;
+  private static gte = gteParserOpcode;
+  private static lte = lteParserOpcode;
+  private static ineq = ineqParserOpcode;
 
   /**
    * @public
    * Method to set the details of the GTE opcode
    * 
-   * @param aliases - The aliases of GTE opcode
-   * @param description - The description
-   * @param data - Optional data
+   * @param name - (optional) name of the GTE opcode
+   * @param aliases - (optional) The aliases of GTE opcode
+   * @param description - (optional) The description
+   * @param data - (optional) data
    */
-  public static setGteMeta(description?: string, data?: any, aliases?: string[]) {
+  public static setGteMeta(name?: string, description?: string, data?: any, aliases?: string[]) {
+    if (name) this.gte.name = name;
     this.gte.data = data;
     this.gte.aliases = aliases;
     this.gte.description = description;
+    if (this.gte.aliases) {
+      this.gte.aliases.forEach(
+        (v, i, array) => array[i] = this.handleLetterCase(v)
+      );
+    }
   }
 
   /**
    * @public
    * Method to set the details of the LTE opcode
    * 
-   * @param aliases - The aliases of LTE opcode
-   * @param description - The description
-   * @param data - Optional data
+   * @param name - (optional) name of the LTE opcode
+   * @param aliases - (optional) The aliases of LTE opcode
+   * @param description - (optional) The description
+   * @param data - (optional) data
    */
-  public static setLteMeta(description?: string, data?: any, aliases?: string[]) {
+  public static setLteMeta(name?: string, description?: string, data?: any, aliases?: string[]) {
+    if (name) this.lte.name = name;
     this.lte.data = data;
     this.lte.aliases = aliases;
     this.lte.description = description;
+    if (this.lte.aliases) {
+      this.lte.aliases.forEach(
+        (v, i, array) => array[i] = this.handleLetterCase(v)
+      );
+    }
+  }
+
+  /**
+   * @public
+   * Method to set the details of the INEQ opcode
+   * 
+   * @param name - (optional) name of the INEQ opcode
+   * @param aliases - (optional) The aliases of INEQ opcode
+   * @param description - (optional) The description
+   * @param data - (optional) data
+   */
+  public static setIneqMeta(name?: string, description?: string, data?: any, aliases?: string[]) {
+    if (name) this.ineq.name = name;
+    this.ineq.data = data;
+    this.ineq.aliases = aliases;
+    this.ineq.description = description;
+    if (this.ineq.aliases) {
+      this.ineq.aliases.forEach(
+        (v, i, array) => array[i] = this.handleLetterCase(v)
+      );
+    }
   }
 
   /**
@@ -395,14 +495,16 @@ export class Parser {
           }
           if (
             (node as Op).opcode.name === this.gte.name ||
-            (node as Op).opcode.name === this.lte.name
+            (node as Op).opcode.name === this.lte.name ||
+            (node as Op).opcode.name === this.ineq.name
           ) {
             sourcesCache.push(
               op(
                 (node as Op).opcode.name === this.gte.name 
                   ? AllStandardOps.LESS_THAN 
-                  : AllStandardOps.GREATER_THAN,
-                (node as Op).operand
+                  : (node as Op).opcode.name === this.lte.name 
+                  ? AllStandardOps.GREATER_THAN
+                  : AllStandardOps.EQUAL_TO
               ),
               op(AllStandardOps.ISZERO)
             )
@@ -437,6 +539,13 @@ export class Parser {
     this.zeroOperandOps = Object.values(
       mapToRecord(opmeta_, ['isZeroOperand'])
     );
+    for (let i = 0; i < this.aliases.length; i++) {
+      if (this.aliases[i]) {
+        this.aliases[i]!.forEach(
+          (v, i, array) => array[i] = this.handleLetterCase(v)
+        );
+      }
+    }
   }
 
   /**
@@ -704,13 +813,13 @@ export class Parser {
     }
     if (str[0] === ' ' || str[0] === '(' || str[0] === ')') return undefined;
     let str_ = this.handleLetterCase(str);
-    if (str_.startsWith(this.gte.name)) {
+    if (str_.startsWith(this.handleLetterCase(this.gte.name))) {
       let tmp = [
         this.gte.name,
         offset.toString(),
         (offset + this.gte.name.length - 1).toString(),
       ];
-      if (str_.replace(this.gte.name, "").startsWith("(")) tmp.push(
+      if (str_.replace(this.handleLetterCase(this.gte.name), "").startsWith("(")) tmp.push(
         'ambiguous expression/opcode'
       )
       else if (offset) tmp.push(
@@ -718,13 +827,27 @@ export class Parser {
       );
       return tmp;
     }
-    if (str_.startsWith(this.lte.name)) {
+    if (str_.startsWith(this.handleLetterCase(this.lte.name))) {
       let tmp = [
         this.lte.name,
         offset.toString(),
         (offset + this.lte.name.length - 1).toString(),
       ];
-      if (str_.replace(this.lte.name, "").startsWith("(")) tmp.push(
+      if (str_.replace(this.handleLetterCase(this.lte.name), "").startsWith("(")) tmp.push(
+        'ambiguous expression/opcode'
+      )
+      else if (offset) tmp.push(
+        'illigal characters between opcode and parenthesis'
+      );
+      return tmp;
+    }
+    if (str_.startsWith(this.handleLetterCase(this.ineq.name))) {
+      let tmp = [
+        this.ineq.name,
+        offset.toString(),
+        (offset + this.ineq.name.length - 1).toString(),
+      ];
+      if (str_.replace(this.handleLetterCase(this.ineq.name), "").startsWith("(")) tmp.push(
         'ambiguous expression/opcode'
       )
       else if (offset) tmp.push(
@@ -768,14 +891,32 @@ export class Parser {
         }
       }
     }
+    if (this.ineq.aliases) {
+      for (let i = 0; i < this.ineq.aliases?.length; i++) {
+        if (str_.startsWith(this.ineq.aliases[i])) {
+          let tmp = [
+            this.ineq.name,
+            offset.toString(),
+            (offset + this.ineq.aliases[i].length - 1).toString(),
+          ];
+          if (str_.replace(this.ineq.aliases[i], "").startsWith("(")) tmp.push(
+            'ambiguous expression/opcode'
+          )
+          else if (offset) tmp.push(
+            'illigal characters between opcode and parenthesis'
+          );
+          return tmp;
+        }
+      }
+    }
     for (let i = 0; i < this.names.length; i++) {
-      if (str_.startsWith(this.names[i])) {
+      if (str_.startsWith(this.handleLetterCase(this.names[i]))) {
         let tmp = [
           this.names[i],
           offset.toString(),
           (offset + this.names[i].length - 1).toString(),
         ];
-        if (str_.replace(this.names[i], "").startsWith('(')) {
+        if (str_.replace(this.handleLetterCase(this.names[i]), "").startsWith('(')) {
           this.state.ambiguity = true;
           tmp.push('ambiguous expression/opcode');
         }
@@ -787,14 +928,14 @@ export class Parser {
     }
     for (let i = 0; i < this.aliases.length; i++) {
       if (this.aliases[i]) {
-        for (let j = 0; j < this.aliases[i].length; j++) {
-          if (str_.startsWith(this.aliases[i][j])) {
+        for (let j = 0; j < this.aliases[i]!.length; j++) {
+          if (str_.startsWith(this.aliases[i]![j])) {
             let tmp = [
               this.names[i],
               offset.toString(),
-              (offset + this.aliases[i][j].length - 1).toString(),
+              (offset + this.aliases[i]![j].length - 1).toString(),
             ]
-            if (str_.replace(this.aliases[i][j], "").startsWith('(')) {
+            if (str_.replace(this.aliases[i]![j], "").startsWith('(')) {
               this.state.ambiguity = true;
               tmp.push('ambiguous expression/opcode');
             } 
@@ -813,15 +954,12 @@ export class Parser {
    * Method to get the last item of a Node at a specified depth level of parse tree
    */
   private static getTreeElement(depthLevel: number): Node {
-    let tmp: Node[][] = [];
-    tmp.push(this.state.parse.tree);
+    let tmp: Node;
+    tmp = this.state.parse.tree[this.state.parse.tree.length - 1];
     for (let i = 0; i < depthLevel; i++) {
-      tmp.push(
-        (tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op)
-          .parameters
-      );
+      tmp = (tmp as Op).parameters[(tmp as Op).parameters.length - 1];
     }
-    return tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1];
+    return tmp;
   }
 
   /**
@@ -884,7 +1022,6 @@ export class Parser {
     let node = tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] as Op;
     node.position.push(endPosition);
     node.parens.push(endPosition);
-
     if (node.error === 'no closing parenthesis') node.error = undefined;
     if (!node.error) {
       tmp[tmp.length - 1][tmp[tmp.length - 1].length - 1] = this.resolveOp(node);
@@ -922,8 +1059,13 @@ export class Parser {
         name: opcode,
         position: [startPosition, endPosition],
       },
-      operand: this.zeroOperandOps[this.names.indexOf(opcode)] ? 0 : NaN,
-      output: opcode === this.gte.name || opcode === this.lte.name 
+      operand: opcode === this.gte.name 
+      || opcode === this.lte.name 
+      || opcode === this.ineq.name 
+      || this.zeroOperandOps[this.names.indexOf(opcode)] 
+        ? 0 
+        : NaN,
+      output: opcode === this.gte.name || opcode === this.lte.name || opcode === this.ineq.name
           ? 1
           : this.pushes[this.names.indexOf(opcode)].name === 'zero' || 'one' || 'two' || 'three'
           ? this.pushes[this.names.indexOf(opcode)](0, 0)
@@ -931,7 +1073,13 @@ export class Parser {
       position: [node.position[0], endPosition],
       parens: [node.position[0], this.state.track.parens.close.pop()!],
       parameters: node.parameters,
-      data: this.data[this.names.indexOf(opcode)],
+      data: opcode === this.gte.name
+        ? this.gte.data
+        : opcode === this.lte.name
+        ? this.lte.data
+        : opcode === this.ineq.name
+        ? this.ineq.data
+        : this.data[this.names.indexOf(opcode)],
       error
     });
     while (tmp.length > 1) {
@@ -1105,10 +1253,14 @@ export class Parser {
    */
   private static resolveOp = (opNode: Op): Op => {
     let op = this.names.indexOf(opNode.opcode.name);
-    if (opNode.opcode.name === this.gte.name || opNode.opcode.name === this.lte.name) {
-      opNode.operand = opNode.parameters.length;
-      if (opNode.operand < 2) {
+    if (
+      opNode.opcode.name === this.gte.name || 
+      opNode.opcode.name === this.lte.name || 
+      opNode.opcode.name === this.ineq.name
+    ) {
+      if (opNode.parameters.length !== 2) {
         opNode.error = "invalid number of parameters, needs at least 2 items to compare";
+        opNode.operand = NaN;
       }
     }
     else if (
@@ -1439,26 +1591,36 @@ export class Parser {
       else {
         let str_ = this.handleLetterCase(str);
         if (
-          str_ === this.gte.name || this.gte.aliases?.includes(str_) ||
-          str_ === this.lte.name || this.lte.aliases?.includes(str_)
+          str_ === this.handleLetterCase(this.gte.name) || 
+          this.gte.aliases?.includes(str_) ||
+          str_ === this.handleLetterCase(this.lte.name) ||
+          this.lte.aliases?.includes(str_) ||
+          str_ === this.handleLetterCase(this.ineq.name) ||
+          this.ineq.aliases?.includes(str_)
         ) {
           this.state.track.notation.push(
             this.state.depthLevel,
             Notations.prefix
           );
-          let isGte = str_ === this.gte.name || this.gte.aliases?.includes(str_);
+          check = false;
+          let isGte = 
+            str_ === this.handleLetterCase(this.gte.name) ||
+            this.gte.aliases?.includes(str_);
+          let isLte = 
+            str_ === this.handleLetterCase(this.lte.name) ||
+            this.lte.aliases?.includes(str_);
           this.exp = this.exp.replace(consumee, "");
           let op: Op = {
             opcode: {
-              name: isGte ? this.gte.name : this.lte.name,
+              name: isGte ? this.gte.name : isLte ? this.lte.name : this.ineq.name,
               position: [startPosition, startPosition + str_.length - 1],
             },
-            operand: NaN,
+            operand: 0,
             output: 1,
             position: [startPosition],
             parens: [],
             parameters: [],
-            data: isGte ? this.gte.data : this.lte.data,
+            data: isGte ? this.gte.data : isLte ? this.lte.data : this.ineq.data,
           };
           if (this.exp.startsWith('(')) {
             if (consumee.endsWith(str)) {
@@ -1493,7 +1655,7 @@ export class Parser {
         }
         else {
           for (let i = 0; i < this.aliases.length; i++) {
-            if (this.aliases[i] && this.aliases[i].includes(str_)) {
+            if (this.aliases[i] && this.aliases[i]!.includes(str_)) {
               this.exp = this.exp.replace(consumee, "");
               let op: Op = {
                 opcode: {
@@ -1550,26 +1712,29 @@ export class Parser {
         }
         if (check) {
           let str_ = this.handleLetterCase(str);
-          if (this.names.includes(str_)) {
+          let names = this.names.map(
+            (v, i, names) => names[i] = this.handleLetterCase(v)
+          ) 
+          if (names.includes(str_)) {
             this.state.track.notation.push(
               this.state.depthLevel,
               Notations.prefix
             );
             this.exp = this.exp.replace(consumee, "");
-            let enum_ = this.names.indexOf(str_);
+            let enum_ = names.indexOf(str_);
             let op: Op = {
               opcode: {
-                name: str_,
+                name: this.names[enum_],
                 position: [startPosition, startPosition + str_.length - 1],
               },
-              operand: this.zeroOperandOps[this.names.indexOf(str_)] ? 0 : NaN,
+              operand: this.zeroOperandOps[enum_] ? 0 : NaN,
               output: this.pushes[enum_].name === 'zero' || 'one' || 'two' || 'three'
-                ? this.pushes[this.names.indexOf(str_)](0, 0)
+                ? this.pushes[enum_](0, 0)
                 : NaN,
               position: [startPosition],
               parens: [],
               parameters: [],
-              data: this.data[this.names.indexOf(str_)],
+              data: this.data[enum_],
             };
             if (this.exp.startsWith('(')) {
               if (consumee.endsWith(str)) {
@@ -1639,9 +1804,13 @@ export class Parser {
           else {
             this.exp = this.exp.replace(consumee, "");
             if (this.exp.startsWith('(')) {
+              this.state.track.notation.push(
+                this.state.depthLevel,
+                Notations.prefix
+              );
               this.updateTree({
                 opcode: {
-                  name: 'unknown opcode',
+                  name: `${str} is unknown opcode`,
                   position: [startPosition, startPosition + str.length],
                 },
                 operand: NaN,
@@ -1657,7 +1826,7 @@ export class Parser {
             } 
             else {
               this.updateTree({
-                error: `unknown word: ${str}`,
+                error: `${str} is unknown`,
                 position: [startPosition, startPosition + str.length - 1],
               });
             }
@@ -1731,5 +1900,3 @@ export class Parser {
     return argCache;
   }
 }
-
-
