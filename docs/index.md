@@ -21,7 +21,7 @@
 |  [FactoryContract](./classes/factorycontract.md) | All contract factory should use this instead of directly Rain contract to take advantage of specific method to factories |
 |  [FixedPrice](./classes/fixedprice.md) | - A sub-class of PriceCurve for creating a Fixed Price sale type. The price is a constant value over the span of the sale. |
 |  [GatedNFT](./classes/gatednft.md) | A class for calling methods on a GatedNFT. |
-|  [HumanFriendlySource](./classes/humanfriendlysource.md) | The generator of friendly human readable source. |
+|  [HumanFriendlySource](./classes/humanfriendlysource.md) | The generator of human friendly readable source. |
 |  [IncreasingPrice](./classes/increasingprice.md) | - A sub-class of PriceCurve for creating an linear Increasing sale type. |
 |  [ITier](./classes/itier.md) | Class to interact with ITier contracts |
 |  [LinearEmissions](./classes/linearemissions.md) | A linear minting emissions over a period of time. holding more before claiming would result in a more reward. |
@@ -66,6 +66,7 @@
 |  [Evidence](./interfaces/evidence.md) | Structure of arbitrary evidence to support any action taken. Priviledged roles are expected to provide evidence just as applicants as an audit trail will be preserved permanently in the logs. |
 |  [GatedConfig](./interfaces/gatedconfig.md) | Configuration of the basic information that will be added to the ERC721 NFT |
 |  [GatedNFTDeployArguments](./interfaces/gatednftdeployarguments.md) |  |
+|  [IOpMeta](./interfaces/iopmeta.md) |  |
 |  [NoticeStruct](./interfaces/noticestruct.md) |  |
 |  [ReadTxOverrides](./interfaces/readtxoverrides.md) | Interface that show the entire values that can be overrides on trasanctions that are read only. |
 |  [Receipt](./interfaces/receipt.md) | The receipt that contain the information of the buy |
@@ -87,6 +88,16 @@
 |  --- | --- |
 |  [utils](./namespaces/utils.md) |  |
 
+## Variables
+
+|  Variable | Description |
+|  --- | --- |
+|  [CombineTierOpmeta](./variables/combinetieropmeta.md) | CombineTier opmeta |
+|  [EmissionERC20Opmeta](./variables/emissionerc20opmeta.md) | EmissoinsERC20 OpMeta |
+|  [OpMeta](./variables/opmeta.md) |  |
+|  [pnp](./variables/pnp.md) | Class for Opcodes number of stack pushes and pops |
+|  [SaleOpmeta](./variables/saleopmeta.md) | Sale opmeta |
+
 ## Type Aliases
 
 |  Type Alias | Description |
@@ -99,7 +110,7 @@
 |  [EmissionsERC20Opcodes](./types/emissionserc20opcodes.md) | Type for the opcodes availables in a EmissionsERC20 instance. |
 |  [OpcodeFN](./types/opcodefn.md) | A type for functions to override the default opcodes functions with it. |
 |  [OPerand](./types/operand.md) | Parameter that will use to converted to the source.<br></br>Use an opcode and operand (optional) |
-|  [PrettifyConfig](./types/prettifyconfig.md) | Specific the configuration of the Prettify method. |
+|  [PrettifyConfig](./types/prettifyconfig.md) | Specifies the configuration of the Prettify method. |
 |  [SaleOpcodes](./types/saleopcodes.md) | Type for the opcodes availables in a CombineTier instance. |
 |  [SubgraphBook](./types/subgraphbook.md) | Type for index sugbraph endpoints by chain ID. |
 

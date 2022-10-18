@@ -3,6 +3,7 @@ import { TierContract } from '../../classes/tierContract';
 import { TxOverrides } from '../../classes/rainContract';
 import { StateConfig, AllStandardOps } from '../../classes/vm';
 import { CombineTierFactory__factory } from '../../typechain';
+import { OpMeta, pnp } from '../../opmeta';
 
 /**
  * @public
@@ -168,3 +169,20 @@ export class CombineTier extends TierContract {
     throw new Error('SET TIER: NOT IMPLEMENTED');
   };
 }
+
+/**
+ * @public
+ * CombineTier opmeta
+ */
+export const CombineTierOpmeta = new Map([
+  ...OpMeta.entries(),
+  [
+    46,
+    {
+        enum: CombineTier.Opcodes.ACCOUNT,
+        name: 'ACCOUNT',
+        pushes: pnp.one,
+        pops: pnp.zero
+    }
+  ],
+])

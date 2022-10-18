@@ -16,6 +16,7 @@ import {
   EmissionsERC20__factory,
   EmissionsERC20Factory__factory,
 } from '../typechain';
+import { OpMeta, pnp } from '../opmeta';
 
 /**
  * @public
@@ -363,3 +364,20 @@ export interface EmissionsERC20DeployArgs {
   erc20Config: ERC20Config;
   vmStateConfig: StateConfig;
 }
+
+/**
+ * @public
+ * EmissoinsERC20 OpMeta
+ */
+export const EmissionERC20Opmeta = new Map([
+  ...OpMeta.entries(),
+  [
+    46,
+    {
+        enum: EmissionsERC20.Opcodes.CLAIMANT_ACCOUNT,
+        name: 'CLAIMANT_ACCOUNT',
+        pushes: pnp.one,
+        pops: pnp.zero
+    }
+  ],
+])

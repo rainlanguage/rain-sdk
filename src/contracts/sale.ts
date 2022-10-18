@@ -9,6 +9,7 @@ import { FactoryContract } from '../classes/factoryContract';
 import { RedeemableERC20 } from './redeemableERC20';
 import { ERC20 } from './generics/erc20';
 import { Sale__factory, SaleFactory__factory } from '../typechain';
+import { OpMeta, pnp } from '../opmeta';
 
 /**
  * @public
@@ -435,3 +436,56 @@ export interface Receipt {
   fee: BigNumberish;
   units: BigNumberish;
 }
+
+/**
+ * @public
+ * Sale opmeta
+ */
+export const SaleOpmeta = new Map([
+  ...OpMeta.entries(),
+  [
+    46,
+    {
+        enum: Sale.Opcodes.REMAINING_UNITS,
+        name: 'REMAINING_UNITS',
+        pushes: pnp.one,
+        pops: pnp.zero
+    }
+  ],
+  [
+    47,
+    {
+        enum: Sale.Opcodes.TOTAL_RESERVE_IN,
+        name: 'TOTAL_RESERVE_IN',
+        pushes: pnp.one,
+        pops: pnp.zero
+    }
+  ],
+  [
+    48,
+    {
+        enum: Sale.Opcodes.CURRENT_BUY_UNITS,
+        name: 'CURRENT_BUY_UNITS',
+        pushes: pnp.one,
+        pops: pnp.zero
+    }
+  ],
+  [
+    49,
+    {
+        enum: Sale.Opcodes.TOKEN_ADDRESS,
+        name: 'TOKEN_ADDRESS',
+        pushes: pnp.one,
+        pops: pnp.zero
+    }
+  ],
+  [
+    50,
+    {
+        enum: Sale.Opcodes.RESERVE_ADDRESS,
+        name: 'RESERVE_ADDRESS',
+        pushes: pnp.one,
+        pops: pnp.zero
+    }
+  ],
+])
