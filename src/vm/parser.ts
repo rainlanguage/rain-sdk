@@ -1189,6 +1189,7 @@ export class Parser {
         err = true;
       }
     }
+    delete (op as Op).infixOp;
     if (!err) op = this.resolveOp(op as Op);
     if (isParameter) {
       let item = this.getTreeElement(this.state.depthLevel - 1) as Op;
@@ -1598,10 +1599,6 @@ export class Parser {
           str_ === this.handleLetterCase(this.ineq.name) ||
           this.ineq.aliases?.includes(str_)
         ) {
-          this.state.track.notation.push(
-            this.state.depthLevel,
-            Notations.prefix
-          );
           check = false;
           let isGte = 
             str_ === this.handleLetterCase(this.gte.name) ||
@@ -1623,6 +1620,10 @@ export class Parser {
             data: isGte ? this.gte.data : isLte ? this.lte.data : this.ineq.data,
           };
           if (this.exp.startsWith('(')) {
+            this.state.track.notation.push(
+              this.state.depthLevel,
+              Notations.prefix
+            );
             if (consumee.endsWith(str)) {
               op.error = this.state.ambiguity
                 ? 'ambiguous expression/opcode'
