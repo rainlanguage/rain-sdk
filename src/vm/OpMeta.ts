@@ -811,7 +811,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pops: pnp.oprnd, 
             isZeroOperand: false,
             jsvmfn: OpAny,
-            aliases: ['OR', 'ANY_OF', 'ANYOF'],
+            aliases: ['OR', 'ANY_OF', 'ANYOF', "|", "||"],
             data: {
                 description: 'Returns the first non-zero value if any of N number of sub-expressions are non-zero',
                 category: "logic",
@@ -901,7 +901,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             pops: pnp.oprnd, 
             isZeroOperand: false,
             jsvmfn: OpEvery,
-            aliases: ['AND', 'ALL_OF', 'ALLOF'],
+            aliases: ['AND', 'ALL_OF', 'ALLOF', "&", "&&"],
             data: {
                 description: 'Returns the first value if all of N number of sub-expressions are non-zero',
                 category: "logic",
