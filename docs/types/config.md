@@ -7,6 +7,7 @@ Specific the configuration of the generation method
 
 ```typescript
 type Config = {
+    contract?: string;
     pretty?: boolean;
     tags?: string[];
     enableTagging?: boolean;

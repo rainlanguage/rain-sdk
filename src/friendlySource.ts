@@ -2,6 +2,8 @@ import { BytesLike, BigNumber, ethers } from 'ethers';
 import { AllStandardOps, StateConfig } from './classes/vm';
 import { arrayify, selectLteLogic, selectLteMode } from './utils';
 import { IOpMeta, OpMeta } from './opmeta';
+import { SaleOpmeta } from './contracts/sale';
+import { CombineTierOpmeta } from './contracts/tiers/combineTier';
 
 /**
  * @public
@@ -9,6 +11,11 @@ import { IOpMeta, OpMeta } from './opmeta';
  * Specific the configuration of the generation method
  */
 export type Config = {
+    /**
+     * With this we can get the local ops of a specified contract in the opmeta as well.
+     * This will be the contract name eg: sale, combineTier or emissionsERC20 (It's not case-sensitive)
+     */
+    contract?: string
     /**
      * Enable the prettify for the result of the HumnaFriendlyRead, adds indentation to the final result
      */
@@ -78,13 +85,25 @@ export class HumanFriendlySource {
      */
     public static get(
         _state: StateConfig,
-        _config: Config = { 
+        _config: Config = {
+            contract: "",
             pretty: false,
             tags: undefined,
             enableTagging: false,
             opmeta: undefined
         }
     ): string {
+        if (_config.contract) {
+          if (_config.contract.toLowerCase() === "sale") {
+            this.set(SaleOpmeta);
+          }
+          if (_config.contract.toLowerCase() === "combinetier") {
+            this.set(CombineTierOpmeta);
+          }
+          if (_config.contract.toLowerCase() === "emissions") {
+            this.set(SaleOpmeta);
+          }
+        }
         if (_config.opmeta) {
             this.set(_config.opmeta);
         }
@@ -210,24 +229,14 @@ export class HumanFriendlySource {
 
             for (let j = 0; j < src.length; j += 2) {
                 if (src[j] === AllStandardOps.VAL) {
-                    if (src[j + 1] < constants.length) {
+                    if (src[j + 1] < 128) {
                         _stack.push(
                             BigNumber.from(constants[src[j + 1]]).eq(ethers.constants.MaxUint256)
                                 ? 'MaxUint256'
                                 : constants[src[j + 1]]
                         )
                     }
-                    else {
-                        let _args: number[] = [];
-                        let _offset: number;
-                        for (let k = 0; k < src.length; k += 2) {
-                            if (src[k] === 0 && src[k + 1] >= constants.length) {
-                                _args.push(src[k + 1])
-                            }
-                        }
-                        _offset = _args.reduce((a, b) => a <= b ? a : b)
-                        _stack.push(`Argument[${src[j + 1] - _offset}]`)
-                    }
+                    else _stack.push(`Argument[${src[j + 1] - 128}]`)
                 }
                 else if (src[j] === AllStandardOps.DUP) {
                     if (enableTagging) {
@@ -268,6 +277,26 @@ export class HumanFriendlySource {
                                 .join(', ')
                             }])`
                     )
+                }
+                else if (
+                  src[j] === AllStandardOps.SCALE_BY ||
+                  src[j] === AllStandardOps.SCALEN ||
+                  src[j] === AllStandardOps.SCALE18
+                ) {
+                  let check = src[j] === AllStandardOps.SCALE_BY;
+                  let oprnd = src[j + 1] > 127 ? src[j + 1] - 256 : src[j + 1];
+                  let _alias = this.opmeta[src[j]].alias
+                  _stack.push( 
+                    _alias 
+                        ? _alias + `(${
+                            [..._stack.splice(-1), (check ? oprnd.toString() : src[j + 1].toString())]
+                                .join(', ')
+                        })`
+                        : this.opmeta[src[j]].name + `(${
+                            [..._stack.splice(-1), (check ? oprnd.toString() : src[j + 1].toString())]
+                                .join(', ')
+                        })`
+                  )
                 }
                 else if (src[j] === AllStandardOps.UPDATE_BLOCKS_FOR_TIER_RANGE) {
                     _stack.push(
@@ -351,3 +380,5 @@ export class HumanFriendlySource {
         return true;
     }
 }
+
+

@@ -78,7 +78,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             name: 'SKIP',
             description: 'Deprecated',      
             pushes: pnp.zero, 
-            pops: pnp.zer
+            pops: pnp.zero
         }
     ],
     [
@@ -88,7 +88,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             name: 'VAL',
             description: 'Takes an item from constants array and insert it into the stack',      
             pushes: pnp.one, 
-            pops: pnp.zer
+            pops: pnp.zero
         }
     ],
     [
@@ -208,7 +208,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             name: 'SCALE_BY',
             description: 'Scale a fixed point up or down by opernad.',      
             pushes: pnp.one,
-            pops: pnp.on
+            pops: pnp.one
         }
     ],
     [
@@ -258,7 +258,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             name: 'SUB',
             description: 'Inserts the subtraction of N values taken from the stack into the stack',      
             pushes: pnp.one,
-            pops: pnp.oprn
+            pops: pnp.oprnd
         }
     ],
     [
@@ -418,7 +418,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             name: 'REPORT',
             description: 'Inserts the report of an account of a tier contract which are taken from the stack into the stack',      
             pushes: pnp.one,
-            pops: pnp.tw
+            pops: pnp.two
         }
     ],
     [
@@ -428,7 +428,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             name: 'NEVER',
             description: 'Inserts max uint 256 into the stack',      
             pushes: pnp.one,
-            pops: pnp.zer
+            pops: pnp.zero
         }
     ],
     [
@@ -438,7 +438,7 @@ export const OpMeta: Map<number, IOpMeta> = new Map([
             name: 'ALWAYS',
             description: 'Inserts zero into the stack',      
             pushes: pnp.one,
-            pops: pnp.zer
+            pops: pnp.zero
         }
     ],
     [
