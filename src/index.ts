@@ -37,3 +37,4 @@ export * from './contracts/generics/erc721';
 export * from './contracts/generics/erc1155';
 
 export * from './friendlySource';
+export * from './opmeta';

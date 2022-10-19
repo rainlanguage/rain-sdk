@@ -9,5 +9,8 @@ Specific the configuration of the generation method
 type Config = {
     contract?: string;
     pretty?: boolean;
+    tags?: string[];
+    enableTagging?: boolean;
+    opmeta?: typeof OpMeta;
 };
 ```

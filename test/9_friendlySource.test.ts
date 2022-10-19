@@ -8,16 +8,16 @@ import {
   AllStandardOps,
   StateConfig,
   // Sales prices Scripts
-  vLBP,
-  FixedPrice,
-  WalletCapMode,
+  // vLBP,
+  // FixedPrice,
+  // WalletCapMode,
   // CombineTier Scripts
-  CombineTierGenerator,
-  BuildReport,
+  // CombineTierGenerator,
+  // BuildReport,
   // Emissions Scripts
-  EmissionsConfig,
-  LinearEmissions,
-  SequentialEmissions,
+  // EmissionsConfig,
+  // LinearEmissions,
+  // SequentialEmissions,
 } from '../src';
 
 import {
@@ -26,8 +26,7 @@ import {
   max_uint256,
   Tier,
   blockNumbersToReport,
-  getSigned8,
-  Time,
+  getSigned8
 } from './utils';
 
 const {
@@ -39,15 +38,15 @@ const {
   paddedUInt256,
   paddedUInt32,
   tierRange,
-  selectLteLogic,
-  selectLteMode,
+  // selectLteLogic,
+  // selectLteMode,
 } = utils;
 
 const Opcode = AllStandardOps;
 
 describe('Human Friendly Source Generator', () => {
   it('should generate the human friendly from an exponentiation op source', async () => {
-    const constants = [5, 2];
+    const constants = ["0x05", "0x02"];
 
     const vFive = op(Opcode.VAL, 0);
     const vTwo = op(Opcode.VAL, 1);
@@ -72,7 +71,7 @@ describe('Human Friendly Source Generator', () => {
   });
 
   it('should generate the human friendly from a multiplication op source', async () => {
-    const constants = [4, 3];
+    const constants = ["0x04", "0x03"];
 
     const vFour = op(Opcode.VAL, 0);
     const vThree = op(Opcode.VAL, 1);
@@ -97,7 +96,7 @@ describe('Human Friendly Source Generator', () => {
   });
 
   it('should generate the human friendly from a subtraction op source', async () => {
-    const constants = [2, 1];
+    const constants = ["0x02", "0x01"];
 
     const vTwo = op(Opcode.VAL, 0);
     const vOne = op(Opcode.VAL, 1);
@@ -122,7 +121,7 @@ describe('Human Friendly Source Generator', () => {
   });
 
   it('should generate the human friendly from an addition op source', async () => {
-    const constants = [6, 1];
+    const constants = ["0x06", "0x01"];
 
     const vSix = op(Opcode.VAL, 0);
     const vOne = op(Opcode.VAL, 1);
@@ -163,7 +162,7 @@ describe('Human Friendly Source Generator', () => {
 
     const friendly0 = HumanFriendlySource.get(state);
 
-    expect(friendly0).to.be.equal('SCALE18_DECIMALS()');
+    expect(friendly0).to.be.equal('SCALE18_DECIMALS');
   });
 
   it('should generate the human friendly from the Scale18 ONE source', async () => {
@@ -183,11 +182,11 @@ describe('Human Friendly Source Generator', () => {
 
     const friendly0 = HumanFriendlySource.get(state);
 
-    expect(friendly0).to.be.equal('SCALE18_ONE()');
+    expect(friendly0).to.be.equal('SCALE18_ONE');
   });
 
-  it('should generate the human friendly from an arbitrary fixed point number DOWN by scale N', async () => {
-    const value1 = ethers.BigNumber.from(1 + sixZeros);
+  it('should generate the human friendly from an arbitrary fixed point number DOWN by scale by', async () => {
+    const value1 = ethers.BigNumber.from(1 + sixZeros).toHexString();
     const n = 0xfc; // -4
 
     const constants = [value1];
@@ -211,8 +210,8 @@ describe('Human Friendly Source Generator', () => {
     expect(friendly0).to.be.equal(`SCALE_BY(${value1}, ${getSigned8(n)})`);
   });
 
-  it('should generate the human friendly from an arbitrary fixed point number UP by scale N', async () => {
-    const value1 = ethers.BigNumber.from(1 + sixZeros);
+  it('should generate the human friendly from an arbitrary fixed point number UP by scale by', async () => {
+    const value1 = ethers.BigNumber.from(1 + sixZeros).toHexString();
     const n = 0x04; // -4
 
     const constants = [value1];
@@ -237,7 +236,7 @@ describe('Human Friendly Source Generator', () => {
   });
 
   it('should generate the human friendly from scale an 18 OOMs number UP to scale N', async () => {
-    const value1 = ethers.BigNumber.from(1 + eighteenZeros);
+    const value1 = ethers.BigNumber.from(1 + eighteenZeros).toHexString();
     const n = 20;
 
     const constants = [value1];
@@ -262,7 +261,7 @@ describe('Human Friendly Source Generator', () => {
   });
 
   it('should generate the human friendly from scale an 18 OOMs number DOWN to scale N', async () => {
-    const value1 = ethers.BigNumber.from(1 + eighteenZeros);
+    const value1 = ethers.BigNumber.from(1 + eighteenZeros).toHexString();
     const n = 6;
 
     const constants = [value1];
@@ -287,8 +286,8 @@ describe('Human Friendly Source Generator', () => {
   });
 
   it('should generate the human friendly from scale a number by 18 OOM while dividing', async () => {
-    const value1 = 50;
-    const value2 = 3;
+    const value1 = "0x32";
+    const value2 = "0x03";
 
     const constants = [value1, value2];
     const v1 = op(Opcode.VAL, 0);
@@ -310,12 +309,12 @@ describe('Human Friendly Source Generator', () => {
 
     const friendly0 = HumanFriendlySource.get(state);
 
-    expect(friendly0).to.be.equal(`SCALE18_DIV(${value1}*10**18, ${value2})`);
+    expect(friendly0).to.be.equal(`SCALE18_DIV(${value1}, ${value2})`);
   });
 
   it('should generate the human friendly from scale a number by 18 OOM while multiplying', async () => {
-    const value1 = 1;
-    const value2 = 2;
+    const value1 = "0x01";
+    const value2 = "0x02";
 
     const constants = [value1, value2];
     const v1 = op(Opcode.VAL, 0);
@@ -337,11 +336,12 @@ describe('Human Friendly Source Generator', () => {
 
     const friendly0 = HumanFriendlySource.get(state);
 
-    expect(friendly0).to.be.equal(`SCALE18_MUL(${value1}*10**18, ${value2})`);
+    expect(friendly0).to.be.equal(`SCALE18_MUL(${value1}, ${value2})`);
   });
 
   it('should generate the human friendly from scale a number by 18 OOM in situ', async () => {
-    const value = 1;
+    const value = "0x01";
+    let n = 12;
 
     const constants = [value];
     const v1 = op(Opcode.VAL, 0);
@@ -349,7 +349,7 @@ describe('Human Friendly Source Generator', () => {
     // prettier-ignore
     const sources = VM.createVMSources([
         v1,
-      op(Opcode.SCALE18)
+      op(Opcode.SCALE18, n)
     ]);
 
     const state: StateConfig = {
@@ -361,7 +361,7 @@ describe('Human Friendly Source Generator', () => {
 
     const friendly0 = HumanFriendlySource.get(state);
 
-    expect(friendly0).to.be.equal(`SCALE18(${value})`);
+    expect(friendly0).to.be.equal(`SCALE18(${value}, ${n})`);
   });
 
   it('should generate the human friendly from logic ops within a zipmap loop', async () => {
@@ -422,15 +422,11 @@ describe('Human Friendly Source Generator', () => {
 
     const friendly0 = HumanFriendlySource.get(state);
 
-    expect(friendly0).to.eq(`ZIPMAP_8(
-    ["00000001", "00000000", "00000003", "00000000", "00000005", "00000000", "00000007", "00000008"],
-    ["FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF", "FFFFFFFF"],
-    EAGER_IF(ISZERO(^0), ^1, ^0)
-)`);
+    expect(friendly0).to.eq(`ZIPMAP1 Result[1] ZIPMAP1 Result[2] ZIPMAP1 Result[3] ZIPMAP1 Result[4] ZIPMAP1 Result[5] ZIPMAP1 Result[6] ZIPMAP1 Result[7] ZIPMAP1 Result[8] function ZIPMAP1 = (Loop Size: 8, Arguments: [0x0100000000000000030000000000000005000000000000000700000008, MaxUint256])  => { EAGER_IF(ISZERO(Argument[0]), Argument[1], Argument[0]) }`);
   });
 
   it('should check whether any value in a list is non-zero', async () => {
-    const constants = [0, 1, 2, 3];
+    const constants = ["0x00", "0x01", "0x02", "0x03"];
 
     const v0 = op(Opcode.VAL, 0);
     const v1 = op(Opcode.VAL, 1);
@@ -453,7 +449,7 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly0 = HumanFriendlySource.get(state0);
-    expect(friendly0).to.be.equals(`ANY(1, 2, 3)`);
+    expect(friendly0).to.be.equals(`ANY(0x01, 0x02, 0x03)`);
 
     // prettier-ignore
     const source1 = concat([
@@ -470,7 +466,7 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly1 = HumanFriendlySource.get(state1);
-    expect(friendly1).to.be.equals(`ANY(0, 0)`);
+    expect(friendly1).to.be.equals(`ANY(0x00, 0x00)`);
 
     // prettier-ignore
     const source2 = concat([
@@ -488,11 +484,11 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly2 = HumanFriendlySource.get(state2);
-    expect(friendly2).to.be.equals(`ANY(0, 0, 3)`);
+    expect(friendly2).to.be.equals(`ANY(0x00, 0x00, 0x03)`);
   });
 
   it('should check whether every value in a list is non-zero', async () => {
-    const constants = [0, 1, 2, 3];
+    const constants = ["0x00", "0x01", "0x02", "0x03"];
 
     const v0 = op(Opcode.VAL, 0);
     const v1 = op(Opcode.VAL, 1);
@@ -515,7 +511,7 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly0 = HumanFriendlySource.get(state0);
-    expect(friendly0).to.be.equals(`EVERY(1, 2, 3)`);
+    expect(friendly0).to.be.equals(`EVERY(0x01, 0x02, 0x03)`);
 
     // prettier-ignore
     const source1 = concat([
@@ -533,7 +529,7 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly1 = HumanFriendlySource.get(state1);
-    expect(friendly1).to.be.equals(`EVERY(0, 1, 2)`);
+    expect(friendly1).to.be.equals(`EVERY(0x00, 0x01, 0x02)`);
 
     // prettier-ignore
     const source2 = concat([
@@ -550,11 +546,11 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly2 = HumanFriendlySource.get(state2);
-    expect(friendly2).to.be.equals(`EVERY(0, 3)`);
+    expect(friendly2).to.be.equals(`EVERY(0x00, 0x03)`);
   });
 
   it("should perform ternary 'eager if' operation on 3 values on the stack", async () => {
-    const constants = [0, 1, 2, 3];
+    const constants = ["0x00", "0x01", "0x02", "0x03"];
 
     const v0 = op(Opcode.VAL, 0);
     const v1 = op(Opcode.VAL, 1);
@@ -578,7 +574,7 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly0 = HumanFriendlySource.get(state0);
-    expect(friendly0).to.be.equals(`EAGER_IF(1, 2, 3)`);
+    expect(friendly0).to.be.equals(`EAGER_IF(0x01, 0x02, 0x03)`);
 
     // prettier-ignore
     const source1 = concat([
@@ -597,7 +593,7 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly1 = HumanFriendlySource.get(state1);
-    expect(friendly1).to.be.equals(`EAGER_IF(2, 2, 3)`);
+    expect(friendly1).to.be.equals(`EAGER_IF(0x02, 0x02, 0x03)`);
 
     // prettier-ignore
     const source2 = concat([
@@ -616,11 +612,11 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly2 = HumanFriendlySource.get(state2);
-    expect(friendly2).to.be.equals(`EAGER_IF(0, 2, 3)`);
+    expect(friendly2).to.be.equals(`EAGER_IF(0x00, 0x02, 0x03)`);
   });
 
   it('should check that value is greater than another value', async () => {
-    const constants = [1, 2];
+    const constants = ["0x01", "0x02"];
 
     // prettier-ignore
     const source0 = VM.createVMSources([
@@ -637,7 +633,7 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly0 = HumanFriendlySource.get(state0);
-    expect(friendly0).to.be.equals(`GREATER_THAN(2, 1)`);
+    expect(friendly0).to.be.equals(`GREATER_THAN(0x02, 0x01)`);
 
     // prettier-ignore
     const source1 = VM.createVMSources([
@@ -654,11 +650,11 @@ describe('Human Friendly Source Generator', () => {
     };
 
     const friendly1 = HumanFriendlySource.get(state1);
-    expect(friendly1).to.be.equals(`GREATER_THAN(1, 2)`);
+    expect(friendly1).to.be.equals(`GREATER_THAN(0x01, 0x02)`);
   });
 
   it('should check that value is less than another value', async () => {
-    const constants = [1, 2];
+    const constants = ["0x01", "0x02"];
 
     // prettier-ignore
     const source0 = VM.createVMSources([
@@ -674,7 +670,7 @@ describe('Human Friendly Source Generator', () => {
       stackLength: 3,
     };
     const friendly0 = HumanFriendlySource.get(state0);
-    expect(friendly0).to.be.equals(`LESS_THAN(2, 1)`);
+    expect(friendly0).to.be.equals(`LESS_THAN(0x02, 0x01)`);
 
     // prettier-ignore
     const source1 = VM.createVMSources([
@@ -690,11 +686,11 @@ describe('Human Friendly Source Generator', () => {
       stackLength: 3,
     };
     const friendly1 = HumanFriendlySource.get(state1);
-    expect(friendly1).to.be.equals(`LESS_THAN(1, 2)`);
+    expect(friendly1).to.be.equals(`LESS_THAN(0x01, 0x02)`);
   });
 
   it('should check that values are equal to each other', async () => {
-    const constants = [1, 2];
+    const constants = ["0x01", "0x02"];
 
     // prettier-ignore
     const source0 =  VM.createVMSources([
@@ -710,7 +706,7 @@ describe('Human Friendly Source Generator', () => {
       stackLength: 3,
     };
     const friendly0 = HumanFriendlySource.get(state0);
-    expect(friendly0).to.be.equals(`EQUAL_TO(2, 2)`);
+    expect(friendly0).to.be.equals(`EQUAL_TO(0x02, 0x02)`);
 
     // prettier-ignore
     const source1 =  VM.createVMSources([
@@ -726,11 +722,11 @@ describe('Human Friendly Source Generator', () => {
       stackLength: 3,
     };
     const friendly1 = HumanFriendlySource.get(state1);
-    expect(friendly1).to.be.equals(`EQUAL_TO(1, 2)`);
+    expect(friendly1).to.be.equals(`EQUAL_TO(0x01, 0x02)`);
   });
 
   it('should check that a value is zero', async () => {
-    const constants = [0, 1];
+    const constants = ["0x00", "0x01"];
 
     // prettier-ignore
     const source0 = VM.createVMSources([
@@ -745,7 +741,7 @@ describe('Human Friendly Source Generator', () => {
       stackLength: 3,
     };
     const friendly0 = HumanFriendlySource.get(state0);
-    expect(friendly0).to.be.equals(`ISZERO(0)`);
+    expect(friendly0).to.be.equals(`ISZERO(0x00)`);
 
     // prettier-ignore
     const source1 =  VM.createVMSources([
@@ -760,18 +756,18 @@ describe('Human Friendly Source Generator', () => {
       stackLength: 3,
     };
     const friendly1 = HumanFriendlySource.get(state1);
-    expect(friendly1).to.be.equals(`ISZERO(1)`);
+    expect(friendly1).to.be.equals(`ISZERO(0x01)`);
   });
 
   it('should support source scripts with leading zeroes', async () => {
     const block0 = await ethers.provider.getBlockNumber();
-    const constants = [block0];
+    const constants = ["0x00", block0];
 
     // prettier-ignore
     const source0 = VM.createVMSources([
       // 0 0 0 0 0 0 0 0 0 0 (block0 BLOCK_NUMBER min)
-      new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-        [Opcode.VAL, 0],
+      new Uint8Array([1, 0, 1, 0, 1, 0, 1, 0, 1, 0]),
+        [Opcode.VAL, 1],
         [Opcode.BLOCK_NUMBER],
       [Opcode.MIN, 2],
     ]);
@@ -782,22 +778,25 @@ describe('Human Friendly Source Generator', () => {
       argumentsLength: 0,
       stackLength: 10,
     };
+
     const friendly0 = HumanFriendlySource.get(state);
 
-    expect(friendly0).to.eq(`MIN(${block0}, BLOCK_NUMBER())`);
+    expect(friendly0).to.eq(`0x00 0x00 0x00 0x00 0x00 MIN(${
+      ethers.BigNumber.from(block0).toHexString()
+    }, BLOCK_NUMBER)`);
   });
 
   it('should support source scripts with trailing zeroes', async () => {
     const block0 = await ethers.provider.getBlockNumber();
-    const constants = [block0];
+    const constants = ["0x00", block0];
 
     // prettier-ignore
     const source0 = VM.createVMSources([
       // (block0 BLOCK_NUMBER min) 0 0 0 0 0 0 0 0 0 0
-        [Opcode.VAL, 0],
+        [Opcode.VAL, 1],
         [Opcode.BLOCK_NUMBER],
       [Opcode.MIN, 2],
-      new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+      new Uint8Array([1, 0, 1, 0, 1, 0, 1, 0, 1, 0]),
     ]);
 
     const state: StateConfig = {
@@ -808,7 +807,9 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly0 = HumanFriendlySource.get(state);
 
-    expect(friendly0).to.eq(`MIN(${block0}, BLOCK_NUMBER())`);
+    expect(friendly0).to.eq(`MIN(${
+      ethers.BigNumber.from(block0).toHexString()
+    }, BLOCK_NUMBER) 0x00 0x00 0x00 0x00 0x00`);
   });
 
   it('should return block.number and block.timestamp', () => {
@@ -827,7 +828,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly0 = HumanFriendlySource.get(state0);
 
-    expect(friendly0).to.eq('BLOCK_NUMBER()');
+    expect(friendly0).to.eq('BLOCK_NUMBER');
 
     const source1 = VM.createVMSources([
       // (BLOCK_TIMESTAMP)
@@ -842,11 +843,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly1 = HumanFriendlySource.get(state1);
 
-    expect(friendly1).to.eq('BLOCK_TIMESTAMP()');
+    expect(friendly1).to.eq('BLOCK_TIMESTAMP');
   });
 
   it('should return correct remainder when using modulo op on sequence of numbers', () => {
-    const constants = [7, 4, 2];
+    const constants = ["0x07", "0x04", "0x02"];
     const v7 = op(Opcode.VAL, 0);
     const v4 = op(Opcode.VAL, 1);
     const v2 = op(Opcode.VAL, 2);
@@ -868,11 +869,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('MOD(7, 4, 2)');
+    expect(friendly).to.eq('MOD(0x07, 0x04, 0x02)');
   });
 
   it('should perform exponentiation on a sequence of numbers', () => {
-    const constants = [2, 4, 3];
+    const constants = ["0x02", "0x04", "0x03"];
     const v2 = op(Opcode.VAL, 0);
     const v4 = op(Opcode.VAL, 1);
     const v3 = op(Opcode.VAL, 2);
@@ -893,11 +894,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('EXP(2, 4, 3)');
+    expect(friendly).to.eq('EXP(0x02, 0x04, 0x03)');
   });
 
   it('should return the maximum of a sequence of numbers', () => {
-    const constants = [33, 11, 22];
+    const constants = ["0x33", "0x11", "0x22"];
     const v33 = op(Opcode.VAL, 0);
     const v11 = op(Opcode.VAL, 1);
     const v22 = op(Opcode.VAL, 2);
@@ -919,11 +920,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('MAX(22, 11, 33)');
+    expect(friendly).to.eq('MAX(0x22, 0x11, 0x33)');
   });
 
   it('should return the minimum of a sequence of numbers', () => {
-    const constants = [33, 11, 22];
+    const constants = ["0x33", "0x11", "0x22"];
     const v33 = op(Opcode.VAL, 0);
     const v11 = op(Opcode.VAL, 1);
     const v22 = op(Opcode.VAL, 2);
@@ -945,7 +946,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('MIN(22, 11, 33)');
+    expect(friendly).to.eq('MIN(0x22, 0x11, 0x33)');
   });
 
   it('should run a basic program (return current block number)', () => {
@@ -964,7 +965,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('BLOCK_NUMBER()');
+    expect(friendly).to.eq('BLOCK_NUMBER');
   });
 
   it('should handle a zipmap which loops 4 times', () => {
@@ -1036,11 +1037,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP_8(
-    [1, 2, 3, 4, 5, 6, 7, 8],
-    [10, 20, 30, 40, 50, 60, 70, 80],
-    MUL(^0, ^1) ADD(^0, ^1)
-)`);
+    expect(friendly).to.eq(`ZIPMAP1 Result[1] ZIPMAP1 Result[2] ZIPMAP1 Result[3] ZIPMAP1 Result[4] ZIPMAP1 Result[5] ZIPMAP1 Result[6] ZIPMAP1 Result[7] ZIPMAP1 Result[8] function ZIPMAP1 = (Loop Size: 8, Arguments: [0x0100000002000000030000000400000005000000060000000700000008, 0x0a000000140000001e00000028000000320000003c0000004600000050])  => { MUL(Argument[0], Argument[1]) ADD(Argument[0], Argument[1]) }`);
   });
 
   it('should handle a zipmap which loops twice', () => {
@@ -1085,12 +1082,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP_2(
-    [5, 3],
-    [4, 2],
-    [3, 1],
-    MUL(^0, ^1, ^2) ADD(^0, ^1, ^2)
-)`);
+    expect(friendly).to.eq(`ZIPMAP1 Result[1] ZIPMAP1 Result[2] function ZIPMAP1 = (Loop Size: 2, Arguments: [0x0500000000000000000000000000000003, 0x0400000000000000000000000000000002, 0x0300000000000000000000000000000001])  => { MUL(Argument[0], Argument[1], Argument[2]) ADD(Argument[0], Argument[1], Argument[2]) }`);
   });
 
   it('should handle a zipmap op with maxed sourceIndex and valSize', () => {
@@ -1198,17 +1190,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP_1(
-    10,
-    20,
-    30,
-    40,
-    50,
-    60,
-    70,
-    80,
-    ADD(^0, ^1, ^2, ^3, ^4, ^5, ^6, ^7, ^0, ^1, ^2, ^3, ^4, ^5, ^6, ^7, ^0, ^1, ^2, ^3, ^4, ^5, ^6, ^7, ^0, ^1, ^2, ^3, ^4, ^5, ^6, ^7) ADD(^0, ^1, ^2, ^3, ^4, ^5, ^6, ^7, ^0, ^1, ^2, ^3, ^4, ^5, ^6, ^7, ^0, ^1, ^2, ^3, ^4, ^5, ^6, ^7, ^0, ^1, ^2, ^3, ^4, ^5)
-)`);
+    expect(friendly).to.eq(`ZIPMAP1 Result[1] function ZIPMAP1 = (Loop Size: 1, Arguments: [0x0a, 0x14, 0x1e, 0x28, 0x32, 0x3c, 0x46, 0x50])  => { ADD(Argument[0], Argument[1], Argument[2], Argument[3], Argument[4], Argument[5], Argument[6], Argument[7], Argument[0], Argument[1], Argument[2], Argument[3], Argument[4], Argument[5], Argument[6], Argument[7], Argument[0], Argument[1], Argument[2], Argument[3], Argument[4], Argument[5], Argument[6], Argument[7], Argument[0], Argument[1], Argument[2], Argument[3], Argument[4], Argument[5], Argument[6], Argument[7]) ADD(Argument[0], Argument[1], Argument[2], Argument[3], Argument[4], Argument[5], Argument[6], Argument[7], Argument[0], Argument[1], Argument[2], Argument[3], Argument[4], Argument[5], Argument[6], Argument[7], Argument[0], Argument[1], Argument[2], Argument[3], Argument[4], Argument[5], Argument[6], Argument[7], Argument[0], Argument[1], Argument[2], Argument[3], Argument[4], Argument[5]) }`);
   });
 
   it('should handle a zipmap op which runs multiple functions (across multiple fn vals)', () => {
@@ -1265,12 +1247,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP_1(
-    1,
-    2,
-    3,
-    MUL(^0, ^1, ^2) ADD(^1, ^2, ^0, ^1, ^2, ^0, ^1, ^2, ^0, ^1, ^2, ^0, ^1, ^2)
-)`);
+    expect(friendly).to.eq(`ZIPMAP1 Result[1] function ZIPMAP1 = (Loop Size: 1, Arguments: [0x01, 0x02, 0x03])  => { MUL(Argument[0], Argument[1], Argument[2]) ADD(Argument[1], Argument[2], Argument[0], Argument[1], Argument[2], Argument[0], Argument[1], Argument[2], Argument[0], Argument[1], Argument[2], Argument[0], Argument[1], Argument[2]) }`);
   });
 
   it('should handle a zipmap op which runs multiple functions (using single inner zipmap function source)', () => {
@@ -1317,12 +1294,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP_1(
-    3,
-    4,
-    5,
-    MUL(^0, ^1, ^2) ADD(^0, ^1, ^2)
-)`);
+    expect(friendly).to.eq(`ZIPMAP1 Result[1] function ZIPMAP1 = (Loop Size: 1, Arguments: [0x03, 0x04, 0x05])  => { MUL(Argument[0], Argument[1], Argument[2]) ADD(Argument[0], Argument[1], Argument[2]) }`);
   });
 
   it('should handle a simple call op', () => {
@@ -1364,16 +1336,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq(`ZIPMAP_1(
-    1,
-    2,
-    3,
-    ADD(^0, ^1, ^2)
-)`);
+    expect(friendly).to.eq(`ZIPMAP1 Result[1] function ZIPMAP1 = (Loop Size: 1, Arguments: [0x01, 0x02, 0x03])  => { ADD(Argument[0], Argument[1], Argument[2]) }`);
   });
 
   it('should perform a calculation using the block number as a value', () => {
-    const constants = [1, 2, 3, 4, 6];
+    const constants = ["0x01", "0x02", "0x03", "0x04", "0x06"];
 
     const one = op(Opcode.VAL, 0);
     const two = op(Opcode.VAL, 1);
@@ -1407,12 +1374,12 @@ describe('Human Friendly Source Generator', () => {
     const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq(
-      'MUL(BLOCK_NUMBER(), DIV(6, 3), ADD(3, 4, SUB(2, 1)))'
+      'MUL(BLOCK_NUMBER, DIV(0x06, 0x03), ADD(0x03, 0x04, SUB(0x02, 0x01)))'
     );
   });
 
   it('should calculate a mathematical expression (division, product, summation)', () => {
-    const constants = [2, 3];
+    const constants = ["0x02", "0x03"];
     const v2 = op(Opcode.VAL, 0);
     const v3 = op(Opcode.VAL, 1);
 
@@ -1439,11 +1406,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('DIV(MUL(ADD(2, 2, 2), 3), 2, 3)');
+    expect(friendly).to.eq('DIV(MUL(ADD(0x02, 0x02, 0x02), 0x03), 0x02, 0x03)');
   });
 
   it('should return remainder of dividing an initial number by the product of a sequence of numbers', () => {
-    const constants = [3, 2, 13];
+    const constants = ["0x03", "0x02", "0x13"];
     const v3 = op(Opcode.VAL, 0);
     const v2 = op(Opcode.VAL, 1);
     const v13 = op(Opcode.VAL, 2);
@@ -1466,11 +1433,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('MOD(13, 2, 3)');
+    expect(friendly).to.eq('MOD(0x13, 0x02, 0x03)');
   });
 
   it('should divide an initial number by the product of a sequence of numbers', () => {
-    const constants = [3, 2, 12];
+    const constants = ["0x03", "0x02", "0x12"];
     const v3 = op(Opcode.VAL, 0);
     const v2 = op(Opcode.VAL, 1);
     const v12 = op(Opcode.VAL, 2);
@@ -1493,11 +1460,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('DIV(12, 2, 3)');
+    expect(friendly).to.eq('DIV(0x12, 0x02, 0x03)');
   });
 
   it('should multiply a sequence of numbers together', () => {
-    const constants = [5, 4, 3];
+    const constants = ["0x05", "0x04", "0x03"];
     const v5 = op(Opcode.VAL, 0);
     const v4 = op(Opcode.VAL, 1);
     const v3 = op(Opcode.VAL, 2);
@@ -1520,11 +1487,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('MUL(3, 4, 5)');
+    expect(friendly).to.eq('MUL(0x03, 0x04, 0x05)');
   });
 
   it('should subtract a sequence of numbers from an initial number', () => {
-    const constants = [3, 2, 10];
+    const constants = ["0x03", "0x02", "0x10"];
     const v3 = op(Opcode.VAL, 0);
     const v2 = op(Opcode.VAL, 1);
     const v10 = op(Opcode.VAL, 2);
@@ -1547,11 +1514,11 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('SUB(10, 2, 3)');
+    expect(friendly).to.eq('SUB(0x10, 0x02, 0x03)');
   });
 
   it('should add a sequence of numbers together', () => {
-    const constants = [3, 2, 1];
+    const constants = ["0x03", "0x02", "0x01"];
     const v3 = op(Opcode.VAL, 0);
     const v2 = op(Opcode.VAL, 1);
     const v1 = op(Opcode.VAL, 2);
@@ -1574,7 +1541,7 @@ describe('Human Friendly Source Generator', () => {
     };
     const friendly = HumanFriendlySource.get(state);
 
-    expect(friendly).to.eq('ADD(1, 2, 3)');
+    expect(friendly).to.eq('ADD(0x01, 0x02, 0x03)');
   });
 
   it('should enforce maxTier for update tier range operation', async () => {
@@ -1603,16 +1570,18 @@ describe('Human Friendly Source Generator', () => {
     const friendly = HumanFriendlySource.get(state);
 
     expect(friendly).to.eq(
-      `UPDATE_BLOCKS_FOR_TIER_RANGE(NEVER(), (${Tier.ZERO}, ${Tier.SEVEN}), ${block})`
+      `UPDATE_BLOCKS_FOR_TIER_RANGE(Start Tier: ${Tier.ZERO}, End Tier: ${Tier.SEVEN}, Arguments: [NEVER, ${
+        ethers.BigNumber.from(block).toHexString()
+      }])`
     );
   });
 
-  it('should use saturating sub for diff where only some tiers would underflow', async () => {
+  it('should use saturating sub for diff where some tiers would underflow', async () => {
     const constants0 = [
-      //         0x01000000020000000300000004000000050000000600000007
-      blockNumbersToReport([0, 1, 2, 3, 4, 5, 6, 7].reverse()),
+      // 0x01000000020000000300000004000000050000000600000007
+      blockNumbersToReport([0, 1, 2, 3, 4, 5, 6, 7].reverse()).toHexString(),
       // 0x0200000000000000040000000000000006000000000000000800000000
-      blockNumbersToReport([2, 0, 4, 0, 6, 0, 8, 0].reverse()),
+      blockNumbersToReport([2, 0, 4, 0, 6, 0, 8, 0].reverse()).toHexString(),
     ];
 
     const vReport0 = op(Opcode.VAL, 0);
@@ -1643,8 +1612,8 @@ describe('Human Friendly Source Generator', () => {
     const tokenERC1155Factory = await ethers.getContractFactory('ReserveNFT');
     const tokenERC1155 = await tokenERC1155Factory.deploy();
 
-    const tokenId = 0;
-    const length = 2;
+    const tokenId = "0x00";
+    const length = "0x02";
 
     const constants = [
       signer1.address,
@@ -1664,7 +1633,7 @@ describe('Human Friendly Source Generator', () => {
         vSigner2,
         vTokenId,
         vTokenId,
-      op(Opcode.IERC1155_BALANCE_OF_BATCH, length - 1)
+      op(Opcode.IERC1155_BALANCE_OF_BATCH, length)
     ]);
 
     const state: StateConfig = {
@@ -1685,7 +1654,7 @@ describe('Human Friendly Source Generator', () => {
     const tokenERC1155Factory = await ethers.getContractFactory('ReserveNFT');
     const tokenERC1155 = await tokenERC1155Factory.deploy();
 
-    const tokenId = 0;
+    const tokenId = "0x00";
 
     const constants = [signer1.address, tokenERC1155.address, tokenId];
     const vSigner1 = op(Opcode.VAL, 0);
@@ -1719,7 +1688,7 @@ describe('Human Friendly Source Generator', () => {
     );
     const tokenERC721 = await tokenERC721Factory.deploy();
 
-    const nftId = 0;
+    const nftId = "0x00";
     const constants = [nftId, tokenERC721.address];
     const vNftId = op(Opcode.VAL, 0);
     const vTokenAddr = op(Opcode.VAL, 1);
@@ -1831,7 +1800,7 @@ describe('Human Friendly Source Generator', () => {
   });
 
   it('should generate the friendly source output with opcodes getting values from stack generated by zipmap', async () => {
-    const constants1 = [1, 2, 100];
+    const constants1 = ["0x01", "0x02", "0x0100"];
 
     const source0 = concat([
       op(VM.Opcodes.VAL, 2),
@@ -1856,861 +1825,841 @@ describe('Human Friendly Source Generator', () => {
       stackLength: 3,
     };
 
-    const friendly0 = HumanFriendlySource.get(state, {
-      pretty: true,
-    });
+    const friendly0 = HumanFriendlySource.get(state);
 
-    const outputExpected = `MUL(
-  ZIPMAP_8(
-    [
-      "00000000",
-      "00000000",
-      "00000000",
-      "00000000",
-      "00000000",
-      "00000000",
-      "00000000",
-      "00000064"
-    ],
-    EAGER_IF(
-      LESS_THAN(^0, 1),
-      1,
-      ^0
-    )
-  )
-)`;
+    const outputExpected = `MUL(ZIPMAP1 Result[1], ZIPMAP1 Result[2], ZIPMAP1 Result[3], ZIPMAP1 Result[4], ZIPMAP1 Result[5], ZIPMAP1 Result[6], ZIPMAP1 Result[7], ZIPMAP1 Result[8]) function ZIPMAP1 = (Loop Size: 8, Arguments: [0x0100])  => { EAGER_IF(LESS_THAN(Argument[0], 0x01), 0x01, Argument[0]) }`;
 
     expect(friendly0).to.be.equals(outputExpected);
   });
 
-  it('should generate the source friendly from vLBP', async () => {
-    const startPrice = 100000;
-    const startTimestamp = await Time.currentTime();
-    const endTimestamp = startTimestamp + 30;
-    const minimumRaise = 20000000;
-    const initialSupply = 5000000;
-
-    const script = new vLBP(
-      startPrice,
-      startTimestamp,
-      endTimestamp,
-      minimumRaise,
-      initialSupply
-    );
-
-    const friendly0 = HumanFriendlySource.get(script, {
-      contract: 'Sale',
-      pretty: true,
-    });
-
-    const expected = `DIV(
-  MUL(
-    ADD(
-      TOTAL_RESERVE_IN(),
-      100000000000000000000000000
-    ),
-    MAX(
-      SATURATING_SUB(
-        5000000000000000000000,
-        MUL(
-          SATURATING_SUB(
-            BLOCK_TIMESTAMP(),
-            ${startTimestamp}
-          ),
-          166633333333333325750
-        )
-      ),
-      1000000000000000000
-    )
-  ),
-  REMAINING_UNITS()
-)`;
-
-    expect(friendly0).to.be.equals(expected);
-  });
-
-  it('should generate friendly output from a sale vLBP with applyTierDiscount', async () => {
-    const startPrice = 100000;
-    const startTimestamp = await Time.currentTime();
-    const endTimestamp = startTimestamp + 30;
-    const minimumRaise = 20000000;
-    const initialSupply = 5000000;
-    const tierAddress = '0x859834199ebd4d53750be5588ebb64ad841266aa';
-
-    const script = new vLBP(
-      startPrice,
-      startTimestamp,
-      endTimestamp,
-      minimumRaise,
-      initialSupply
-    );
-
-    script.applyTierDiscount(
-      tierAddress,
-      [5, 10, 15, 20, 25, 30, 35, 40],
-      [8, 7, 6, 5, 4, 3, 2, 1]
-    );
-
-    const friendly = HumanFriendlySource.get(script, {
-      contract: 'Sale',
-      pretty: true,
-    });
-
-    const outputExpected = `DIV(
-  MUL(
-    DIV(
-      MUL(
-        ADD(
-          TOTAL_RESERVE_IN(),
-          100000000000000000000000000
-        ),
-        MAX(
-          SATURATING_SUB(
-            5000000000000000000000,
-            MUL(
-              SATURATING_SUB(
-                BLOCK_TIMESTAMP(),
-                ${startTimestamp}
-              ),
-              166633333333333325750
-            )
-          ),
-          1000000000000000000
-        )
-      ),
-      REMAINING_UNITS()
-    ),
-    MIN(
-      ZIPMAP_8(
-        SATURATING_DIFF(
-          UPDATE_BLOCKS_FOR_TIER_RANGE(
-            NEVER(),
-            (0, 8),
-            100
-          ),
-          SELECT_LTE(
-            every,
-            first,
-            2,
-            0x0000003c00000041000000460000004b00000050000000550000005a0000005f,
-            REPORT(
-              ${tierAddress},
-              SENDER()
-            ),
-            BLOCK_NUMBER()
-          )
-        ),
-        SATURATING_DIFF(
-          UPDATE_BLOCKS_FOR_TIER_RANGE(
-            NEVER(),
-            (0, 8),
-            BLOCK_NUMBER()
-          ),
-          REPORT(
-            ${tierAddress},
-            SENDER()
-          )
-        ),
-        [
-          "00000001",
-          "00000002",
-          "00000003",
-          "00000004",
-          "00000005",
-          "00000006",
-          "00000007",
-          "00000008"
-        ],
-        EAGER_IF(
-          LESS_THAN(^1, ^2),
-          100,
-          SUB(100, ^0)
-        )
-      )
-    )
-  ),
-  100
-)`;
-
-    expect(friendly).to.be.equals(outputExpected);
-  });
-
-  it('should generate friendly output from a sale FixedPrice with applyTierDiscount', async () => {
-    const [arbitrary] = await ethers.getSigners();
-    const tierAddress = arbitrary.address;
-
-    const script = new FixedPrice(10).applyTierDiscount(
-      tierAddress,
-      [1, 2, 3, 4, 5, 6, 7, 8]
-    );
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'sale',
-    });
-
-    const expectedOutput = `DIV(
-  MUL(
-    10000000000000000000,
-    MIN(
-      ZIPMAP_8(
-        SATURATING_DIFF(
-          UPDATE_BLOCKS_FOR_TIER_RANGE(
-            NEVER(),
-            (0, 8),
-            100
-          ),
-          SELECT_LTE(
-            every,
-            first,
-            2,
-            0x0000005c0000005d0000005e0000005f00000060000000610000006200000063,
-            REPORT(
-              ${tierAddress},
-              SENDER()
-            ),
-            BLOCK_NUMBER()
-          )
-        ),
-        SUB(100, ^0)
-      )
-    )
-  ),
-  100
-)`;
-
-    expect(friendly).to.be.equals(expectedOutput);
-  });
-
-  it('should generate friendly output from a sale FixedPrice with applyExtraTimeDiscount', async () => {
-    const priceBase = 10;
-    const endTimestamp = await Time.currentTime();
-    const extraTimeDiscountThreshold = 17;
-    const extraTimeDiscount = 5;
-
-    const script = new FixedPrice(priceBase).applyExtraTimeDiscount(
-      endTimestamp,
-      extraTimeDiscountThreshold,
-      extraTimeDiscount
-    );
-
-    const friendly0 = HumanFriendlySource.get(script, {
-      contract: 'sale',
-      pretty: true,
-    });
-
-    const priceExpected = priceBase + eighteenZeros;
-    const extraTimeDiscountExpected = 100 - extraTimeDiscount;
-    const extraTimeDiscountThresholdExpected =
-      extraTimeDiscountThreshold + eighteenZeros;
-
-    const outputExpected = `EAGER_IF(
-  ANY(
-    GREATER_THAN(
-      ${endTimestamp},
-      BLOCK_TIMESTAMP()
-    ),
-    GREATER_THAN(
-      ${extraTimeDiscountThresholdExpected},
-      IERC20_BALANCE_OF(
-        TOKEN_ADDRESS(),
-        SENDER()
-      )
-    )
-  ),
-  ${priceExpected},
-  DIV(
-    MUL(
-      ${priceExpected},
-      ${extraTimeDiscountExpected}
-    ),
-    100
-  )
-)`;
-
-    expect(friendly0).to.be.equals(outputExpected);
-  });
-
-  it('should generate friendly output from a sale FixedPrice with apply max Wallet Cap', async () => {
-    const script = new FixedPrice(10).applyWalletCap(WalletCapMode.max, {
-      maxWalletCap: 10,
-    });
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'sale',
-    });
-
-    const expectedOutput = `EAGER_IF(
-  GREATER_THAN(
-    10000000000000000001,
-    ADD(
-      CURRENT_BUY_UNITS(),
-      IERC20_BALANCE_OF(
-        TOKEN_ADDRESS(),
-        SENDER()
-      )
-    )
-  ),
-  10000000000000000000,
-  115792089237316195423570985008687907853269984665640564039457584007913129639935
-)`;
-
-    expect(friendly).to.be.equals(expectedOutput);
-  });
-
-  it('should generate friendly output from a sale FixedPrice with apply min Wallet Cap', async () => {
-    const script = new FixedPrice(10).applyWalletCap(WalletCapMode.min, {
-      minWalletCap: 10,
-    });
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'sale',
-    });
-
-    const expectedOutput = `EAGER_IF(
-  LESS_THAN(
-    9999999999999999999,
-    ADD(
-      CURRENT_BUY_UNITS(),
-      IERC20_BALANCE_OF(
-        TOKEN_ADDRESS(),
-        SENDER()
-      )
-    )
-  ),
-  10000000000000000000,
-  115792089237316195423570985008687907853269984665640564039457584007913129639935
-)`;
-
-    expect(friendly).to.be.equals(expectedOutput);
-  });
-
-  it('should generate friendly output from a sale FixedPrice with apply both Wallet Cap', async () => {
-    const script = new FixedPrice(10).applyWalletCap(WalletCapMode.min, {
-      minWalletCap: 10,
-      maxWalletCap: 20,
-    });
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'sale',
-    });
-
-    const expectedOutput = `EAGER_IF(
-  LESS_THAN(
-    9999999999999999999,
-    ADD(
-      CURRENT_BUY_UNITS(),
-      IERC20_BALANCE_OF(
-        TOKEN_ADDRESS(),
-        SENDER()
-      )
-    )
-  ),
-  10000000000000000000,
-  115792089237316195423570985008687907853269984665640564039457584007913129639935
-)`;
-
-    expect(friendly).to.be.equals(expectedOutput);
-  });
-
-  it('should generate friendly output from a sale FixedPrice with apply WalletCap tier multiplier', async () => {
-    const tierAddresss = '0x859834199ebd4d53750be5588ebb64ad841266aa';
-    const script = new FixedPrice(10).applyWalletCap(1, {
-      maxWalletCap: 10,
-      tierMultiplierMode: true,
-      tierAddress: tierAddresss,
-      tierMultiplier: [1, 1, 1, 12, 1, 1, 1, 1],
-    });
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'sale', // It's not case-sensitive
-    });
-
-    const expectedOutput = `EAGER_IF(
-  GREATER_THAN(
-    ADD(
-      DIV(
-        MUL(
-          10000000000000000000,
-          MAX(
-            ZIPMAP_8(
-              SELECT_LTE(
-                every,
-                first,
-                2,
-                0x00000064000000640000006400000064000004b0000000640000006400000064,
-                REPORT(
-                  ${tierAddresss},
-                  SENDER()
-                ),
-                BLOCK_NUMBER()
-              ),
-              EAGER_IF(
-                LESS_THAN(
-                  ^0,
-                  0xffffffff
-                ),
-                ^0,
-                100
-              )
-            )
-          )
-        ),
-        100
-      ),
-      1
-    ),
-    ADD(
-      CURRENT_BUY_UNITS(),
-      IERC20_BALANCE_OF(
-        TOKEN_ADDRESS(),
-        SENDER()
-      )
-    )
-  ),
-  10000000000000000000,
-  115792089237316195423570985008687907853269984665640564039457584007913129639935
-)`;
-
-    expect(friendly).to.be.equals(expectedOutput);
-  });
-
-  it('should  generate the friendly source output from a CombineTier script with combineWith', async () => {
-    const [arbitrary1, arbitrary2] = await ethers.getSigners();
-
-    const tier1 = arbitrary1.address;
-    const tier2 = arbitrary2.address;
-
-    const script = new CombineTierGenerator(tier1).combineWith(
-      tier2,
-      selectLteLogic.any,
-      selectLteMode.min
-    );
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'combineTier', // It's not case-sensitive
-    });
-
-    const outputExpected = `SELECT_LTE(
-  any,
-  min,
-  2,
-  REPORT(
-    ${tier1},
-    ACCOUNT()
-  ),
-  REPORT(
-    ${tier2},
-    ACCOUNT()
-  ),
-  BLOCK_NUMBER()
-)`;
-
-    expect(friendly).to.be.equals(outputExpected);
-  });
-
-  it('should  generate the friendly source output from a CombineTier script with updateReport', async () => {
-    const [arbitrary1, arbitrary2] = await ethers.getSigners();
-
-    const tier1 = arbitrary1.address;
-    const tier2 = arbitrary2.address;
-
-    const script = new CombineTierGenerator(tier1)
-      .combineWith(tier2, selectLteLogic.any, selectLteMode.min)
-      .updateReport(0, 8);
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'combineTier', // It's not case-sensitive
-    });
-
-    const outputExpected = `UPDATE_BLOCKS_FOR_TIER_RANGE(
-  SELECT_LTE(
-    any,
-    min,
-    2,
-    REPORT(
-      ${tier1},
-      ACCOUNT()
-    ),
-    REPORT(
-      ${tier2},
-      ACCOUNT()
-    ),
-    BLOCK_NUMBER()
-  ),
-  (0, 8),
-  BLOCK_NUMBER()
-)`;
-
-    expect(friendly).to.be.equals(outputExpected);
-  });
-
-  it('should  generate the friendly source output from a CombineTier script with updateReport and differenceFrom', async () => {
-    const [arbitrary1, arbitrary2, arbitrary3] = await ethers.getSigners();
-
-    const tier1 = arbitrary1.address;
-    const tier2 = arbitrary2.address;
-    const tier3 = arbitrary3.address;
-
-    const script = new CombineTierGenerator(tier1)
-      .combineWith(tier2, selectLteLogic.any, selectLteMode.min)
-      .updateReport(0, 8)
-      .differenceFrom(tier3);
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'combineTier', // It's not case-sensitive
-    });
-
-    const outputExpected = `SATURATING_DIFF(
-  UPDATE_BLOCKS_FOR_TIER_RANGE(
-    SELECT_LTE(
-      any,
-      min,
-      2,
-      REPORT(
-        ${tier1},
-        ACCOUNT()
-      ),
-      REPORT(
-        ${tier2},
-        ACCOUNT()
-      ),
-      BLOCK_NUMBER()
-    ),
-    (0, 8),
-    BLOCK_NUMBER()
-  ),
-  REPORT(
-    ${tier3},
-    ACCOUNT()
-  )
-)`;
-
-    expect(friendly).to.be.equals(outputExpected);
-  });
-
-  it('should  generate the friendly source output from a BuildReport script with updateReport and differenceFrom', async () => {
-    const [arbitrary1, arbitrary2] = await ethers.getSigners();
-
-    const tier1 = arbitrary1.address;
-    const tier2 = arbitrary2.address;
-
-    const script = new BuildReport()
-      .combineWith(tier1, selectLteLogic.any, selectLteMode.min)
-      .updateReport(0, 8)
-      .differenceFrom(tier2);
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'combineTier', // It's not case-sensitive
-    });
-
-    const outputExpected = `SATURATING_DIFF(
-  UPDATE_BLOCKS_FOR_TIER_RANGE(
-    SELECT_LTE(
-      any,
-      min,
-      2,
-      UPDATE_BLOCKS_FOR_TIER_RANGE(
-        NEVER(),
-        (0, 8),
-        BLOCK_NUMBER()
-      ),
-      REPORT(
-        ${tier1},
-        ACCOUNT()
-      ),
-      BLOCK_NUMBER()
-    ),
-    (0, 8),
-    BLOCK_NUMBER()
-  ),
-  REPORT(
-    ${tier2},
-    ACCOUNT()
-  )
-)`;
-
-    expect(friendly).to.be.equals(outputExpected);
-  });
-
-  it('should  generate the friendly source output from LinearEmissions', async () => {
-    const [arbitrary1] = await ethers.getSigners();
-
-    const tier = arbitrary1.address;
-    const blockTime = 10;
-    const period = 20;
-    const periodicRewards = {
-      tier1: 2,
-      tier2: 4,
-      tier3: 6,
-      tier4: 8,
-      tier5: 10,
-      tier6: 12,
-      tier7: 14,
-      tier8: 16,
-    };
-
-    const emissionConfig: EmissionsConfig = {
-      tierAddress: tier,
-      blockTime: blockTime,
-      period: period,
-      periodicRewards: periodicRewards,
-    };
-
-    const script = new LinearEmissions(emissionConfig);
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'emissions', // It's not case-sensitive
-    });
-
-    const outputExpected = `ADD(
-  ZIPMAP_8(
-    SATURATING_DIFF(
-      UPDATE_BLOCKS_FOR_TIER_RANGE(
-        NEVER(),
-        (0, 8),
-        BLOCK_NUMBER()
-      ),
-      SELECT_LTE(
-        every,
-        max,
-        2,
-        REPORT(
-          ${tier},
-          CLAIMANT_ACCOUNT()
-        ),
-        REPORT(
-          THIS_ADDRESS(),
-          CLAIMANT_ACCOUNT()
-        ),
-        BLOCK_NUMBER()
-      )
-    ),
-    [
-      "00000000",
-      "00000000",
-      "00000000",
-      "00000000",
-      "000f4240",
-      "000f4240",
-      "000f4240",
-      "000f4240"
-    ],
-    DIV(
-      MUL(
-        MUL(^0, ^1),
-        1000000000000000000
-      ),
-      1000000
-    )
-  )
-)`;
-
-    expect(friendly).to.be.equals(outputExpected);
-  });
-
-  it('should  generate the friendly source output from SequentialEmissions', async () => {
-    const [arbitrary1] = await ethers.getSigners();
-
-    const tier = arbitrary1.address;
-    const blockTime = 10;
-    const period = 20;
-    const periodicRewards = {
-      tier1: 2,
-      tier2: 4,
-      tier3: 6,
-      tier4: 8,
-      tier5: 10,
-      tier6: 12,
-      tier7: 14,
-      tier8: 16,
-    };
-
-    const emissionConfig: EmissionsConfig = {
-      tierAddress: tier,
-      blockTime: blockTime,
-      period: period,
-      periodicRewards: periodicRewards,
-    };
-
-    const script = new SequentialEmissions(emissionConfig);
-
-    const friendly = HumanFriendlySource.get(script, {
-      pretty: true,
-      contract: 'emissions', // It's not case-sensitive
-    });
-
-    const outputExpected = `DIV(
-  MUL(
-    ADD(
-      ZIPMAP_8(
-        SATURATING_DIFF(
-          UPDATE_BLOCKS_FOR_TIER_RANGE(
-            NEVER(),
-            (0, 8),
-            BLOCK_NUMBER()
-          ),
-          REPORT(
-            ${tier},
-            CLAIMANT_ACCOUNT()
-          )
-        ),
-        SATURATING_DIFF(
-          REPORT(
-            THIS_ADDRESS(),
-            CLAIMANT_ACCOUNT()
-          ),
-          REPORT(
-            ${tier},
-            CLAIMANT_ACCOUNT()
-          )
-        ),
-        [
-          "001e8480",
-          "001e8480",
-          "001e8480",
-          "001e8480",
-          "001e8480",
-          "001e8480",
-          "001e8480",
-          "001e8480"
-        ],
-        [
-          "00000000",
-          "00000000",
-          "00000000",
-          "00000000",
-          "00000000",
-          "00000000",
-          "00000000",
-          "00000000"
-        ],
-        ADD(
-          EAGER_IF(
-            GREATER_THAN(
-              DIV(^0, 2),
-              0
-            ),
-            MUL(
-              ADD(
-                DIV(
-                  MUL(
-                    SATURATING_SUB(
-                      0,
-                      DIV(
-                        ^1,
-                        2
-                      )
-                    ),
-                    DIV(
-                      MUL(
-                        ADD(
-                          DIV(
-                            ^1,
-                            2
-                          ),
-                          SATURATING_SUB(
-                            0,
-                            1
-                          )
-                        ),
-                        10
-                      ),
-                      2
-                    )
-                  ),
-                  10
-                ),
-                MUL(
-                  SATURATING_SUB(
-                    SATURATING_SUB(
-                      DIV(
-                        ^0,
-                        2
-                      ),
-                      DIV(
-                        ^1,
-                        2
-                      )
-                    ),
-                    SATURATING_SUB(
-                      0,
-                      DIV(
-                        ^1,
-                        2
-                      )
-                    )
-                  ),
-                  SATURATING_SUB(
-                    0,
-                    1
-                  )
-                )
-              ),
-              ^3
-            ),
-            MUL(
-              DIV(
-                MUL(
-                  SATURATING_SUB(
-                    DIV(
-                      ^0,
-                      2
-                    ),
-                    DIV(
-                      ^1,
-                      2
-                    )
-                  ),
-                  DIV(
-                    MUL(
-                      ADD(
-                        SATURATING_SUB(
-                          DIV(
-                            ^0,
-                            2
-                          ),
-                          1
-                        ),
-                        DIV(
-                          ^1,
-                          2
-                        )
-                      ),
-                      10
-                    ),
-                    2
-                  )
-                ),
-                10
-              ),
-              ^3
-            )
-          ),
-          MUL(
-            ^2,
-            SATURATING_SUB(
-              DIV(^0, 2),
-              DIV(^1, 2)
-            )
-          )
-        )
-      )
-    ),
-    1000000000000000000
-  ),
-  1000000
-)`;
-
-    expect(friendly).to.be.equals(outputExpected);
-  });
+//   it('should generate the source friendly from vLBP', async () => {
+//     const startPrice = 100000;
+//     const startTimestamp = await Time.currentTime();
+//     const endTimestamp = startTimestamp + 30;
+//     const minimumRaise = 20000000;
+//     const initialSupply = 5000000;
+
+//     const script = new vLBP(
+//       startPrice,
+//       startTimestamp,
+//       endTimestamp,
+//       minimumRaise,
+//       initialSupply
+//     );
+
+//     const friendly0 = HumanFriendlySource.get(script, {
+//       contract: 'Sale',
+//       pretty: true,
+//     });
+
+//     const expected = `DIV(
+//   MUL(
+//     ADD(
+//       TOTAL_RESERVE_IN(),
+//       100000000000000000000000000
+//     ),
+//     MAX(
+//       SATURATING_SUB(
+//         5000000000000000000000,
+//         MUL(
+//           SATURATING_SUB(
+//             BLOCK_TIMESTAMP(),
+//             ${startTimestamp}
+//           ),
+//           166633333333333325750
+//         )
+//       ),
+//       1000000000000000000
+//     )
+//   ),
+//   REMAINING_UNITS()
+// )`;
+
+//     expect(friendly0).to.be.equals(expected);
+//   });
+
+//   it('should generate friendly output from a sale vLBP with applyTierDiscount', async () => {
+//     const startPrice = 100000;
+//     const startTimestamp = await Time.currentTime();
+//     const endTimestamp = startTimestamp + 30;
+//     const minimumRaise = 20000000;
+//     const initialSupply = 5000000;
+//     const tierAddress = '0x859834199ebd4d53750be5588ebb64ad841266aa';
+
+//     const script = new vLBP(
+//       startPrice,
+//       startTimestamp,
+//       endTimestamp,
+//       minimumRaise,
+//       initialSupply
+//     );
+
+//     script.applyTierDiscount(
+//       tierAddress,
+//       [5, 10, 15, 20, 25, 30, 35, 40],
+//       [8, 7, 6, 5, 4, 3, 2, 1]
+//     );
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       contract: 'Sale',
+//       pretty: true,
+//     });
+
+//     const outputExpected = `DIV(
+//   MUL(
+//     DIV(
+//       MUL(
+//         ADD(
+//           TOTAL_RESERVE_IN(),
+//           100000000000000000000000000
+//         ),
+//         MAX(
+//           SATURATING_SUB(
+//             5000000000000000000000,
+//             MUL(
+//               SATURATING_SUB(
+//                 BLOCK_TIMESTAMP(),
+//                 ${startTimestamp}
+//               ),
+//               166633333333333325750
+//             )
+//           ),
+//           1000000000000000000
+//         )
+//       ),
+//       REMAINING_UNITS()
+//     ),
+//     MIN(
+//       ZIPMAP_8(
+//         SATURATING_DIFF(
+//           UPDATE_BLOCKS_FOR_TIER_RANGE(
+//             NEVER(),
+//             (0, 8),
+//             100
+//           ),
+//           SELECT_LTE(
+//             every,
+//             first,
+//             2,
+//             0x0000003c00000041000000460000004b00000050000000550000005a0000005f,
+//             REPORT(
+//               ${tierAddress},
+//               SENDER()
+//             ),
+//             BLOCK_NUMBER()
+//           )
+//         ),
+//         SATURATING_DIFF(
+//           UPDATE_BLOCKS_FOR_TIER_RANGE(
+//             NEVER(),
+//             (0, 8),
+//             BLOCK_NUMBER()
+//           ),
+//           REPORT(
+//             ${tierAddress},
+//             SENDER()
+//           )
+//         ),
+//         [
+//           "00000001",
+//           "00000002",
+//           "00000003",
+//           "00000004",
+//           "00000005",
+//           "00000006",
+//           "00000007",
+//           "00000008"
+//         ],
+//         EAGER_IF(
+//           LESS_THAN(^1, ^2),
+//           100,
+//           SUB(100, ^0)
+//         )
+//       )
+//     )
+//   ),
+//   100
+// )`;
+
+//     expect(friendly).to.be.equals(outputExpected);
+//   });
+
+//   it('should generate friendly output from a sale FixedPrice with applyTierDiscount', async () => {
+//     const [arbitrary] = await ethers.getSigners();
+//     const tierAddress = arbitrary.address;
+
+//     const script = new FixedPrice(10).applyTierDiscount(
+//       tierAddress,
+//       [1, 2, 3, 4, 5, 6, 7, 8]
+//     );
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'sale',
+//     });
+
+//     const expectedOutput = `DIV(
+//   MUL(
+//     10000000000000000000,
+//     MIN(
+//       ZIPMAP_8(
+//         SATURATING_DIFF(
+//           UPDATE_BLOCKS_FOR_TIER_RANGE(
+//             NEVER(),
+//             (0, 8),
+//             100
+//           ),
+//           SELECT_LTE(
+//             every,
+//             first,
+//             2,
+//             0x0000005c0000005d0000005e0000005f00000060000000610000006200000063,
+//             REPORT(
+//               ${tierAddress},
+//               SENDER()
+//             ),
+//             BLOCK_NUMBER()
+//           )
+//         ),
+//         SUB(100, ^0)
+//       )
+//     )
+//   ),
+//   100
+// )`;
+
+//     expect(friendly).to.be.equals(expectedOutput);
+//   });
+
+//   it('should generate friendly output from a sale FixedPrice with applyExtraTimeDiscount', async () => {
+//     const priceBase = 10;
+//     const endTimestamp = await Time.currentTime();
+//     const extraTimeDiscountThreshold = 17;
+//     const extraTimeDiscount = 5;
+
+//     const script = new FixedPrice(priceBase).applyExtraTimeDiscount(
+//       endTimestamp,
+//       extraTimeDiscountThreshold,
+//       extraTimeDiscount
+//     );
+
+//     const friendly0 = HumanFriendlySource.get(script, {
+//       contract: 'sale',
+//       pretty: true,
+//     });
+
+//     const priceExpected = priceBase + eighteenZeros;
+//     const extraTimeDiscountExpected = 100 - extraTimeDiscount;
+//     const extraTimeDiscountThresholdExpected =
+//       extraTimeDiscountThreshold + eighteenZeros;
+
+//     const outputExpected = `EAGER_IF(
+//   ANY(
+//     GREATER_THAN(
+//       ${endTimestamp},
+//       BLOCK_TIMESTAMP()
+//     ),
+//     GREATER_THAN(
+//       ${extraTimeDiscountThresholdExpected},
+//       IERC20_BALANCE_OF(
+//         TOKEN_ADDRESS(),
+//         SENDER()
+//       )
+//     )
+//   ),
+//   ${priceExpected},
+//   DIV(
+//     MUL(
+//       ${priceExpected},
+//       ${extraTimeDiscountExpected}
+//     ),
+//     100
+//   )
+// )`;
+
+//     expect(friendly0).to.be.equals(outputExpected);
+//   });
+
+//   it('should generate friendly output from a sale FixedPrice with apply max Wallet Cap', async () => {
+//     const script = new FixedPrice(10).applyWalletCap(WalletCapMode.max, {
+//       maxWalletCap: 10,
+//     });
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'sale',
+//     });
+
+//     const expectedOutput = `EAGER_IF(
+//   GREATER_THAN(
+//     10000000000000000001,
+//     ADD(
+//       CURRENT_BUY_UNITS(),
+//       IERC20_BALANCE_OF(
+//         TOKEN_ADDRESS(),
+//         SENDER()
+//       )
+//     )
+//   ),
+//   10000000000000000000,
+//   115792089237316195423570985008687907853269984665640564039457584007913129639935
+// )`;
+
+//     expect(friendly).to.be.equals(expectedOutput);
+//   });
+
+//   it('should generate friendly output from a sale FixedPrice with apply min Wallet Cap', async () => {
+//     const script = new FixedPrice(10).applyWalletCap(WalletCapMode.min, {
+//       minWalletCap: 10,
+//     });
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'sale',
+//     });
+
+//     const expectedOutput = `EAGER_IF(
+//   LESS_THAN(
+//     9999999999999999999,
+//     ADD(
+//       CURRENT_BUY_UNITS(),
+//       IERC20_BALANCE_OF(
+//         TOKEN_ADDRESS(),
+//         SENDER()
+//       )
+//     )
+//   ),
+//   10000000000000000000,
+//   115792089237316195423570985008687907853269984665640564039457584007913129639935
+// )`;
+
+//     expect(friendly).to.be.equals(expectedOutput);
+//   });
+
+//   it('should generate friendly output from a sale FixedPrice with apply both Wallet Cap', async () => {
+//     const script = new FixedPrice(10).applyWalletCap(WalletCapMode.min, {
+//       minWalletCap: 10,
+//       maxWalletCap: 20,
+//     });
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'sale',
+//     });
+
+//     const expectedOutput = `EAGER_IF(
+//   LESS_THAN(
+//     9999999999999999999,
+//     ADD(
+//       CURRENT_BUY_UNITS(),
+//       IERC20_BALANCE_OF(
+//         TOKEN_ADDRESS(),
+//         SENDER()
+//       )
+//     )
+//   ),
+//   10000000000000000000,
+//   115792089237316195423570985008687907853269984665640564039457584007913129639935
+// )`;
+
+//     expect(friendly).to.be.equals(expectedOutput);
+//   });
+
+//   it('should generate friendly output from a sale FixedPrice with apply WalletCap tier multiplier', async () => {
+//     const tierAddresss = '0x859834199ebd4d53750be5588ebb64ad841266aa';
+//     const script = new FixedPrice(10).applyWalletCap(1, {
+//       maxWalletCap: 10,
+//       tierMultiplierMode: true,
+//       tierAddress: tierAddresss,
+//       tierMultiplier: [1, 1, 1, 12, 1, 1, 1, 1],
+//     });
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'sale', // It's not case-sensitive
+//     });
+
+//     const expectedOutput = `EAGER_IF(
+//   GREATER_THAN(
+//     ADD(
+//       DIV(
+//         MUL(
+//           10000000000000000000,
+//           MAX(
+//             ZIPMAP_8(
+//               SELECT_LTE(
+//                 every,
+//                 first,
+//                 2,
+//                 0x00000064000000640000006400000064000004b0000000640000006400000064,
+//                 REPORT(
+//                   ${tierAddresss},
+//                   SENDER()
+//                 ),
+//                 BLOCK_NUMBER()
+//               ),
+//               EAGER_IF(
+//                 LESS_THAN(
+//                   ^0,
+//                   0xffffffff
+//                 ),
+//                 ^0,
+//                 100
+//               )
+//             )
+//           )
+//         ),
+//         100
+//       ),
+//       1
+//     ),
+//     ADD(
+//       CURRENT_BUY_UNITS(),
+//       IERC20_BALANCE_OF(
+//         TOKEN_ADDRESS(),
+//         SENDER()
+//       )
+//     )
+//   ),
+//   10000000000000000000,
+//   115792089237316195423570985008687907853269984665640564039457584007913129639935
+// )`;
+
+//     expect(friendly).to.be.equals(expectedOutput);
+//   });
+
+//   it('should  generate the friendly source output from a CombineTier script with combineWith', async () => {
+//     const [arbitrary1, arbitrary2] = await ethers.getSigners();
+
+//     const tier1 = arbitrary1.address;
+//     const tier2 = arbitrary2.address;
+
+//     const script = new CombineTierGenerator(tier1).combineWith(
+//       tier2,
+//       selectLteLogic.any,
+//       selectLteMode.min
+//     );
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'combineTier', // It's not case-sensitive
+//     });
+
+//     const outputExpected = `SELECT_LTE(
+//   any,
+//   min,
+//   2,
+//   REPORT(
+//     ${tier1},
+//     ACCOUNT()
+//   ),
+//   REPORT(
+//     ${tier2},
+//     ACCOUNT()
+//   ),
+//   BLOCK_NUMBER()
+// )`;
+
+//     expect(friendly).to.be.equals(outputExpected);
+//   });
+
+//   it('should  generate the friendly source output from a CombineTier script with updateReport', async () => {
+//     const [arbitrary1, arbitrary2] = await ethers.getSigners();
+
+//     const tier1 = arbitrary1.address;
+//     const tier2 = arbitrary2.address;
+
+//     const script = new CombineTierGenerator(tier1)
+//       .combineWith(tier2, selectLteLogic.any, selectLteMode.min)
+//       .updateReport(0, 8);
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'combineTier', // It's not case-sensitive
+//     });
+
+//     const outputExpected = `UPDATE_BLOCKS_FOR_TIER_RANGE(
+//   SELECT_LTE(
+//     any,
+//     min,
+//     2,
+//     REPORT(
+//       ${tier1},
+//       ACCOUNT()
+//     ),
+//     REPORT(
+//       ${tier2},
+//       ACCOUNT()
+//     ),
+//     BLOCK_NUMBER()
+//   ),
+//   (0, 8),
+//   BLOCK_NUMBER()
+// )`;
+
+//     expect(friendly).to.be.equals(outputExpected);
+//   });
+
+//   it('should  generate the friendly source output from a CombineTier script with updateReport and differenceFrom', async () => {
+//     const [arbitrary1, arbitrary2, arbitrary3] = await ethers.getSigners();
+
+//     const tier1 = arbitrary1.address;
+//     const tier2 = arbitrary2.address;
+//     const tier3 = arbitrary3.address;
+
+//     const script = new CombineTierGenerator(tier1)
+//       .combineWith(tier2, selectLteLogic.any, selectLteMode.min)
+//       .updateReport(0, 8)
+//       .differenceFrom(tier3);
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'combineTier', // It's not case-sensitive
+//     });
+
+//     const outputExpected = `SATURATING_DIFF(
+//   UPDATE_BLOCKS_FOR_TIER_RANGE(
+//     SELECT_LTE(
+//       any,
+//       min,
+//       2,
+//       REPORT(
+//         ${tier1},
+//         ACCOUNT()
+//       ),
+//       REPORT(
+//         ${tier2},
+//         ACCOUNT()
+//       ),
+//       BLOCK_NUMBER()
+//     ),
+//     (0, 8),
+//     BLOCK_NUMBER()
+//   ),
+//   REPORT(
+//     ${tier3},
+//     ACCOUNT()
+//   )
+// )`;
+
+//     expect(friendly).to.be.equals(outputExpected);
+//   });
+
+//   it('should  generate the friendly source output from a BuildReport script with updateReport and differenceFrom', async () => {
+//     const [arbitrary1, arbitrary2] = await ethers.getSigners();
+
+//     const tier1 = arbitrary1.address;
+//     const tier2 = arbitrary2.address;
+
+//     const script = new BuildReport()
+//       .combineWith(tier1, selectLteLogic.any, selectLteMode.min)
+//       .updateReport(0, 8)
+//       .differenceFrom(tier2);
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'combineTier', // It's not case-sensitive
+//     });
+
+//     const outputExpected = `SATURATING_DIFF(
+//   UPDATE_BLOCKS_FOR_TIER_RANGE(
+//     SELECT_LTE(
+//       any,
+//       min,
+//       2,
+//       UPDATE_BLOCKS_FOR_TIER_RANGE(
+//         NEVER(),
+//         (0, 8),
+//         BLOCK_NUMBER()
+//       ),
+//       REPORT(
+//         ${tier1},
+//         ACCOUNT()
+//       ),
+//       BLOCK_NUMBER()
+//     ),
+//     (0, 8),
+//     BLOCK_NUMBER()
+//   ),
+//   REPORT(
+//     ${tier2},
+//     ACCOUNT()
+//   )
+// )`;
+
+//     expect(friendly).to.be.equals(outputExpected);
+//   });
+
+//   it('should  generate the friendly source output from LinearEmissions', async () => {
+//     const [arbitrary1] = await ethers.getSigners();
+
+//     const tier = arbitrary1.address;
+//     const blockTime = 10;
+//     const period = 20;
+//     const periodicRewards = {
+//       tier1: 2,
+//       tier2: 4,
+//       tier3: 6,
+//       tier4: 8,
+//       tier5: 10,
+//       tier6: 12,
+//       tier7: 14,
+//       tier8: 16,
+//     };
+
+//     const emissionConfig: EmissionsConfig = {
+//       tierAddress: tier,
+//       blockTime: blockTime,
+//       period: period,
+//       periodicRewards: periodicRewards,
+//     };
+
+//     const script = new LinearEmissions(emissionConfig);
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'emissions', // It's not case-sensitive
+//     });
+
+//     const outputExpected = `ADD(
+//   ZIPMAP_8(
+//     SATURATING_DIFF(
+//       UPDATE_BLOCKS_FOR_TIER_RANGE(
+//         NEVER(),
+//         (0, 8),
+//         BLOCK_NUMBER()
+//       ),
+//       SELECT_LTE(
+//         every,
+//         max,
+//         2,
+//         REPORT(
+//           ${tier},
+//           CLAIMANT_ACCOUNT()
+//         ),
+//         REPORT(
+//           THIS_ADDRESS(),
+//           CLAIMANT_ACCOUNT()
+//         ),
+//         BLOCK_NUMBER()
+//       )
+//     ),
+//     [
+//       "00000000",
+//       "00000000",
+//       "00000000",
+//       "00000000",
+//       "000f4240",
+//       "000f4240",
+//       "000f4240",
+//       "000f4240"
+//     ],
+//     DIV(
+//       MUL(
+//         MUL(^0, ^1),
+//         1000000000000000000
+//       ),
+//       1000000
+//     )
+//   )
+// )`;
+
+//     expect(friendly).to.be.equals(outputExpected);
+//   });
+
+//   it('should  generate the friendly source output from SequentialEmissions', async () => {
+//     const [arbitrary1] = await ethers.getSigners();
+
+//     const tier = arbitrary1.address;
+//     const blockTime = 10;
+//     const period = 20;
+//     const periodicRewards = {
+//       tier1: 2,
+//       tier2: 4,
+//       tier3: 6,
+//       tier4: 8,
+//       tier5: 10,
+//       tier6: 12,
+//       tier7: 14,
+//       tier8: 16,
+//     };
+
+//     const emissionConfig: EmissionsConfig = {
+//       tierAddress: tier,
+//       blockTime: blockTime,
+//       period: period,
+//       periodicRewards: periodicRewards,
+//     };
+
+//     const script = new SequentialEmissions(emissionConfig);
+
+//     const friendly = HumanFriendlySource.get(script, {
+//       pretty: true,
+//       contract: 'emissions', // It's not case-sensitive
+//     });
+
+//     const outputExpected = `DIV(
+//   MUL(
+//     ADD(
+//       ZIPMAP_8(
+//         SATURATING_DIFF(
+//           UPDATE_BLOCKS_FOR_TIER_RANGE(
+//             NEVER(),
+//             (0, 8),
+//             BLOCK_NUMBER()
+//           ),
+//           REPORT(
+//             ${tier},
+//             CLAIMANT_ACCOUNT()
+//           )
+//         ),
+//         SATURATING_DIFF(
+//           REPORT(
+//             THIS_ADDRESS(),
+//             CLAIMANT_ACCOUNT()
+//           ),
+//           REPORT(
+//             ${tier},
+//             CLAIMANT_ACCOUNT()
+//           )
+//         ),
+//         [
+//           "001e8480",
+//           "001e8480",
+//           "001e8480",
+//           "001e8480",
+//           "001e8480",
+//           "001e8480",
+//           "001e8480",
+//           "001e8480"
+//         ],
+//         [
+//           "00000000",
+//           "00000000",
+//           "00000000",
+//           "00000000",
+//           "00000000",
+//           "00000000",
+//           "00000000",
+//           "00000000"
+//         ],
+//         ADD(
+//           EAGER_IF(
+//             GREATER_THAN(
+//               DIV(^0, 2),
+//               0
+//             ),
+//             MUL(
+//               ADD(
+//                 DIV(
+//                   MUL(
+//                     SATURATING_SUB(
+//                       0,
+//                       DIV(
+//                         ^1,
+//                         2
+//                       )
+//                     ),
+//                     DIV(
+//                       MUL(
+//                         ADD(
+//                           DIV(
+//                             ^1,
+//                             2
+//                           ),
+//                           SATURATING_SUB(
+//                             0,
+//                             1
+//                           )
+//                         ),
+//                         10
+//                       ),
+//                       2
+//                     )
+//                   ),
+//                   10
+//                 ),
+//                 MUL(
+//                   SATURATING_SUB(
+//                     SATURATING_SUB(
+//                       DIV(
+//                         ^0,
+//                         2
+//                       ),
+//                       DIV(
+//                         ^1,
+//                         2
+//                       )
+//                     ),
+//                     SATURATING_SUB(
+//                       0,
+//                       DIV(
+//                         ^1,
+//                         2
+//                       )
+//                     )
+//                   ),
+//                   SATURATING_SUB(
+//                     0,
+//                     1
+//                   )
+//                 )
+//               ),
+//               ^3
+//             ),
+//             MUL(
+//               DIV(
+//                 MUL(
+//                   SATURATING_SUB(
+//                     DIV(
+//                       ^0,
+//                       2
+//                     ),
+//                     DIV(
+//                       ^1,
+//                       2
+//                     )
+//                   ),
+//                   DIV(
+//                     MUL(
+//                       ADD(
+//                         SATURATING_SUB(
+//                           DIV(
+//                             ^0,
+//                             2
+//                           ),
+//                           1
+//                         ),
+//                         DIV(
+//                           ^1,
+//                           2
+//                         )
+//                       ),
+//                       10
+//                     ),
+//                     2
+//                   )
+//                 ),
+//                 10
+//               ),
+//               ^3
+//             )
+//           ),
+//           MUL(
+//             ^2,
+//             SATURATING_SUB(
+//               DIV(^0, 2),
+//               DIV(^1, 2)
+//             )
+//           )
+//         )
+//       )
+//     ),
+//     1000000000000000000
+//   ),
+//   1000000
+// )`;
+
+//     expect(friendly).to.be.equals(outputExpected);
+//   });
 });

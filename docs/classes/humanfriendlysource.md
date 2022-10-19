@@ -1,9 +1,9 @@
 
 # Class HumanFriendlySource
 
-The generator of friendly human readable source.
+The generator of human friendly readable source.
 
-Parse an State/Script to a more human readable form, making easier to understand. This form allow to the users read exactly what the Script is made for, like the conditions, values used, etc. Also, anyone can learn to write their own scripts if use the Human Form to see the output for each combination that they made.
+Format an StateConfig/Script to a more human readable form, making easier to understand. This form allows users read exactly what the Script will do, like the conditions, values used, etc. Also, anyone can learn to write their own scripts if use the Human Form to see the output for each combination that they made.
 
 If you find an issue or you want to propose a better way to show a specific script or opcodes, please feel to do it on: https://github.com/beehive-innovation/rain-sdk/issues
 
@@ -17,8 +17,9 @@ class HumanFriendlySource
 
 |  Method | Description |
 |  --- | --- |
-|  [get(\_state, \_config)](./humanfriendlysource.md#get-method-static-1) | Obtain the friendly output from an script. |
-|  [prettify(\_text, \_config)](./humanfriendlysource.md#prettify-method-static-1) | Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis |
+|  [get(\_state, \_config)](./humanfriendlysource.md#get-method-static-1) | Obtain the friendly output from an StateConfig/script. |
+|  [prettify(\_text, \_config)](./humanfriendlysource.md#prettify-method-static-1) | Make the output from the HumanFriendly Source more readable by adding indenting following the parenthesis |
+|  [set(opmeta\_)](./humanfriendlysource.md#set-method-static-1) | Method to set the opmeta with more than AllStandardOps opcodes or with other name/aliases for this instance of the Formatter |
 
 ## Static Method Details
 
@@ -26,7 +27,7 @@ class HumanFriendlySource
 
 ### get(\_state, \_config)
 
-Obtain the friendly output from an script.
+Obtain the friendly output from an StateConfig/script.
 
 <b>Signature:</b>
 
@@ -38,8 +39,8 @@ static get(_state: StateConfig, _config?: Config): string;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  \_state | [StateConfig](../interfaces/stateconfig.md) | The state or script to generate the friendly version |
-|  \_config | [Config](../types/config.md) | The configuration that will run the generator. |
+|  \_state | [StateConfig](../interfaces/stateconfig.md) | The StateConfig/script to generate the friendly version |
+|  \_config | [Config](../types/config.md) | The configuration that will run the generator |
 
 <b>Returns:</b>
 
@@ -50,7 +51,7 @@ static get(_state: StateConfig, _config?: Config): string;
 
 ### prettify(\_text, \_config)
 
-Make more readable the output from the HumanFriendly Source adding indenting following the parenthesis
+Make the output from the HumanFriendly Source more readable by adding indenting following the parenthesis
 
 If the string is already indentend, the method will wrongly generate the string
 
@@ -71,5 +72,27 @@ static prettify(_text: string, _config?: PrettifyConfig): string;
 
 `string`
 
-The pretty output
+A prettified output
+
+<a id="set-method-static-1"></a>
+
+### set(opmeta\_)
+
+Method to set the opmeta with more than AllStandardOps opcodes or with other name/aliases for this instance of the Formatter
+
+<b>Signature:</b>
+
+```typescript
+static set(opmeta_: typeof OpMeta): HumanFriendlySource;
+```
+
+#### Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  opmeta\_ | `typeof OpMeta` | The OpMeta map object |
+
+<b>Returns:</b>
+
+`HumanFriendlySource`
 
