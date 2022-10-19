@@ -401,10 +401,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RedeemableERC20Reentrant__factory>;
     getContractFactory(
-      name: "ReserveNFT",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.ReserveNFT__factory>;
-    getContractFactory(
       name: "ReserveToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ReserveToken__factory>;
@@ -504,6 +500,10 @@ declare module "hardhat/types/runtime" {
       name: "ReadWriteTier",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ReadWriteTier__factory>;
+    getContractFactory(
+      name: "ReserveNFT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ReserveNFT__factory>;
     getContractFactory(
       name: "ValueTier",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -1027,11 +1027,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.RedeemableERC20Reentrant>;
     getContractAt(
-      name: "ReserveNFT",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.ReserveNFT>;
-    getContractAt(
       name: "ReserveToken",
       address: string,
       signer?: ethers.Signer
@@ -1156,6 +1151,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ReadWriteTier>;
+    getContractAt(
+      name: "ReserveNFT",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReserveNFT>;
     getContractAt(
       name: "ValueTier",
       address: string,

@@ -988,12 +988,14 @@
   version "0.0.16"
   resolved "https://codeload.github.com/beehive-innovation/rain-protocol/tar.gz/69f2d4ccefcae5fa3803347b9f35e7a5f152c1e3"
   dependencies:
-    "@openzeppelin/contracts" "=4.7.2"
-    "@openzeppelin/contracts-upgradeable" "=4.7.2"
+    "@beehiveinnovation/balancer-core" "0.0.7"
+    "@beehiveinnovation/configurable-rights-pool" "0.0.1"
+    "@openzeppelin/contracts" "^4.3.3"
+    "@openzeppelin/contracts-upgradeable" "^4.4.1"
 
-"@beehiveinnovation/rain-protocol@git+https://github.com/beehive-innovation/rain-protocol.git#e590ce7ef673224afba04c43384a278a9500500d":
+"@beehiveinnovation/rain-protocol@git+https://github.com/beehive-innovation/rain-protocol.git#0d2d69259fb0276534f771aefbfb26413281eef0":
   version "0.0.16"
-  resolved "git+https://github.com/beehive-innovation/rain-protocol.git#e590ce7ef673224afba04c43384a278a9500500d"
+  resolved "git+https://github.com/beehive-innovation/rain-protocol.git#0d2d69259fb0276534f771aefbfb26413281eef0"
   dependencies:
     "@beehiveinnovation/balancer-core" "0.0.7"
     "@beehiveinnovation/configurable-rights-pool" "0.0.1"
@@ -2950,15 +2952,6 @@
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
-
-"@vishalkale15107/rain-protocol@git+https://github.com/vishalkale151071/rain-protocol.git#3d0ee716430d28716365f0f1c999fe14c30f0b4b":
-  version "0.0.16"
-  resolved "git+https://github.com/vishalkale151071/rain-protocol.git#3d0ee716430d28716365f0f1c999fe14c30f0b4b"
-  dependencies:
-    "@beehiveinnovation/balancer-core" "0.0.7"
-    "@beehiveinnovation/configurable-rights-pool" "0.0.1"
-    "@openzeppelin/contracts" "^4.3.3"
-    "@openzeppelin/contracts-upgradeable" "^4.4.1"
 
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
