@@ -128,7 +128,7 @@ const addressBook = [
       noticeBoard: '0x790Bfb7C3E07805F9880ece979ee2f3E19f524C2',
       redeemableERC20ClaimEscrow: '0x588BFaF31410240A1A780dbd7078485A7A65305A',
       redeemableERC20Factory: '0x84A35D90D5181473662e67eFE6e2de350F9918d7',
-      saleFactory: '0x6ab3Dde1e33F64F294a8b55321d345724C85E0A4',
+      saleFactory: '0x284581BF0575AA857a2D6a6957eA549C358eDD98',
       verifyFactory: '0xe68B2ce23d959bEe80d92b25271B767AE7A6A79D',
       verifyTierFactory: '0xB827ae1cD6D27abd56070d196A7175E02e531A5d',
     },
