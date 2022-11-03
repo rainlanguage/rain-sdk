@@ -22,9 +22,13 @@ export type ClearStateChangeStruct = {
   bOutput: BigNumberish;
   aInput: BigNumberish;
   bInput: BigNumberish;
+  aFlag: BigNumberish;
+  bFlag: BigNumberish;
 };
 
 export type ClearStateChangeStructOutput = [
+  BigNumber,
+  BigNumber,
   BigNumber,
   BigNumber,
   BigNumber,
@@ -34,6 +38,8 @@ export type ClearStateChangeStructOutput = [
   bOutput: BigNumber;
   aInput: BigNumber;
   bInput: BigNumber;
+  aFlag: BigNumber;
+  bFlag: BigNumber;
 };
 
 export type IOStruct = { token: string; vaultId: BigNumberish };
@@ -47,29 +53,26 @@ export type OrderStruct = {
   owner: string;
   validInputs: IOStruct[];
   validOutputs: IOStruct[];
-  tracking: BigNumberish;
-  vmState: BytesLike;
+  interpreterState: BytesLike;
 };
 
 export type OrderStructOutput = [
   string,
   IOStructOutput[],
   IOStructOutput[],
-  BigNumber,
   string
 ] & {
   owner: string;
   validInputs: IOStructOutput[];
   validOutputs: IOStructOutput[];
-  tracking: BigNumber;
-  vmState: string;
+  interpreterState: string;
 };
 
 export type ClearConfigStruct = {
-  aInputIndex: BigNumberish;
-  aOutputIndex: BigNumberish;
-  bInputIndex: BigNumberish;
-  bOutputIndex: BigNumberish;
+  aInputIOIndex: BigNumberish;
+  aOutputIOIndex: BigNumberish;
+  bInputIOIndex: BigNumberish;
+  bOutputIOIndex: BigNumberish;
   aBountyVaultId: BigNumberish;
   bBountyVaultId: BigNumberish;
 };
@@ -82,10 +85,10 @@ export type ClearConfigStructOutput = [
   BigNumber,
   BigNumber
 ] & {
-  aInputIndex: BigNumber;
-  aOutputIndex: BigNumber;
-  bInputIndex: BigNumber;
-  bOutputIndex: BigNumber;
+  aInputIOIndex: BigNumber;
+  aOutputIOIndex: BigNumber;
+  bInputIOIndex: BigNumber;
+  bOutputIOIndex: BigNumber;
   aBountyVaultId: BigNumber;
   bBountyVaultId: BigNumber;
 };
@@ -102,6 +105,32 @@ export type DepositConfigStructOutput = [string, BigNumber, BigNumber] & {
   amount: BigNumber;
 };
 
+export type StateConfigStruct = {
+  sources: BytesLike[];
+  constants: BigNumberish[];
+};
+
+export type StateConfigStructOutput = [string[], BigNumber[]] & {
+  sources: string[];
+  constants: BigNumber[];
+};
+
+export type TakeOrderConfigStruct = {
+  order: OrderStruct;
+  inputIOIndex: BigNumberish;
+  outputIOIndex: BigNumberish;
+};
+
+export type TakeOrderConfigStructOutput = [
+  OrderStructOutput,
+  BigNumber,
+  BigNumber
+] & {
+  order: OrderStructOutput;
+  inputIOIndex: BigNumber;
+  outputIOIndex: BigNumber;
+};
+
 export type WithdrawConfigStruct = {
   token: string;
   vaultId: BigNumberish;
@@ -114,20 +143,10 @@ export type WithdrawConfigStructOutput = [string, BigNumber, BigNumber] & {
   amount: BigNumber;
 };
 
-export type StateConfigStruct = {
-  sources: BytesLike[];
-  constants: BigNumberish[];
-};
-
-export type StateConfigStructOutput = [string[], BigNumber[]] & {
-  sources: string[];
-  constants: BigNumber[];
-};
-
 export type OrderConfigStruct = {
   validInputs: IOStruct[];
   validOutputs: IOStruct[];
-  vmStateConfig: StateConfigStruct;
+  interpreterStateConfig: StateConfigStruct;
 };
 
 export type OrderConfigStructOutput = [
@@ -137,7 +156,7 @@ export type OrderConfigStructOutput = [
 ] & {
   validInputs: IOStructOutput[];
   validOutputs: IOStructOutput[];
-  vmStateConfig: StateConfigStructOutput;
+  interpreterStateConfig: StateConfigStructOutput;
 };
 
 export type StorageOpcodesRangeStruct = {
@@ -150,14 +169,39 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
   length: BigNumber;
 };
 
+export type TakeOrdersConfigStruct = {
+  output: string;
+  input: string;
+  minimumInput: BigNumberish;
+  maximumInput: BigNumberish;
+  maximumIORatio: BigNumberish;
+  orders: TakeOrderConfigStruct[];
+};
+
+export type TakeOrdersConfigStructOutput = [
+  string,
+  string,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  TakeOrderConfigStructOutput[]
+] & {
+  output: string;
+  input: string;
+  minimumInput: BigNumber;
+  maximumInput: BigNumber;
+  maximumIORatio: BigNumber;
+  orders: TakeOrderConfigStructOutput[];
+};
+
 export interface OrderBookInterface extends utils.Interface {
   functions: {
     "addOrder(((address,uint256)[],(address,uint256)[],(bytes[],uint256[])))": FunctionFragment;
-    "clear((address,(address,uint256)[],(address,uint256)[],uint256,bytes),(address,(address,uint256)[],(address,uint256)[],uint256,bytes),(uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
+    "clear((address,(address,uint256)[],(address,uint256)[],bytes),(address,(address,uint256)[],(address,uint256)[],bytes),(uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
     "deposit((address,uint256,uint256))": FunctionFragment;
-    "packedFunctionPointers()": FunctionFragment;
-    "removeOrder((address,(address,uint256)[],(address,uint256)[],uint256,bytes))": FunctionFragment;
+    "removeOrder((address,(address,uint256)[],(address,uint256)[],bytes))": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
+    "takeOrders((address,address,uint256,uint256,uint256,((address,(address,uint256)[],(address,uint256)[],bytes),uint256,uint256)[]))": FunctionFragment;
     "withdraw((address,uint256,uint256))": FunctionFragment;
   };
 
@@ -174,16 +218,16 @@ export interface OrderBookInterface extends utils.Interface {
     values: [DepositConfigStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "packedFunctionPointers",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "removeOrder",
     values: [OrderStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "storageOpcodesRange",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "takeOrders",
+    values: [TakeOrdersConfigStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "withdraw",
@@ -194,10 +238,6 @@ export interface OrderBookInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "clear", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "packedFunctionPointers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "removeOrder",
     data: BytesLike
   ): Result;
@@ -205,6 +245,7 @@ export interface OrderBookInterface extends utils.Interface {
     functionFragment: "storageOpcodesRange",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "takeOrders", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
@@ -213,6 +254,8 @@ export interface OrderBookInterface extends utils.Interface {
     "Deposit(address,tuple)": EventFragment;
     "OrderDead(address,tuple)": EventFragment;
     "OrderLive(address,tuple)": EventFragment;
+    "SaveInterpreterState(address,uint256,tuple)": EventFragment;
+    "TakeOrder(address,tuple,uint256,uint256)": EventFragment;
     "Withdraw(address,tuple,uint256)": EventFragment;
   };
 
@@ -221,6 +264,8 @@ export interface OrderBookInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OrderDead"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OrderLive"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SaveInterpreterState"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TakeOrder"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Withdraw"): EventFragment;
 }
 
@@ -263,6 +308,26 @@ export type OrderLiveEvent = TypedEvent<
 >;
 
 export type OrderLiveEventFilter = TypedEventFilter<OrderLiveEvent>;
+
+export type SaveInterpreterStateEvent = TypedEvent<
+  [string, BigNumber, StateConfigStructOutput],
+  { sender: string; id: BigNumber; config: StateConfigStructOutput }
+>;
+
+export type SaveInterpreterStateEventFilter =
+  TypedEventFilter<SaveInterpreterStateEvent>;
+
+export type TakeOrderEvent = TypedEvent<
+  [string, TakeOrderConfigStructOutput, BigNumber, BigNumber],
+  {
+    sender: string;
+    takeOrder: TakeOrderConfigStructOutput;
+    input: BigNumber;
+    output: BigNumber;
+  }
+>;
+
+export type TakeOrderEventFilter = TypedEventFilter<TakeOrderEvent>;
 
 export type WithdrawEvent = TypedEvent<
   [string, WithdrawConfigStructOutput, BigNumber],
@@ -315,10 +380,6 @@ export interface OrderBook extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    packedFunctionPointers(
-      overrides?: CallOverrides
-    ): Promise<[string] & { ptrs_: string }>;
-
     removeOrder(
       order_: OrderStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -327,6 +388,11 @@ export interface OrderBook extends BaseContract {
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<[StorageOpcodesRangeStructOutput]>;
+
+    takeOrders(
+      takeOrders_: TakeOrdersConfigStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     withdraw(
       config_: WithdrawConfigStruct,
@@ -351,8 +417,6 @@ export interface OrderBook extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
-
   removeOrder(
     order_: OrderStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -361,6 +425,11 @@ export interface OrderBook extends BaseContract {
   storageOpcodesRange(
     overrides?: CallOverrides
   ): Promise<StorageOpcodesRangeStructOutput>;
+
+  takeOrders(
+    takeOrders_: TakeOrdersConfigStruct,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   withdraw(
     config_: WithdrawConfigStruct,
@@ -385,13 +454,21 @@ export interface OrderBook extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
-
     removeOrder(order_: OrderStruct, overrides?: CallOverrides): Promise<void>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<StorageOpcodesRangeStructOutput>;
+
+    takeOrders(
+      takeOrders_: TakeOrdersConfigStruct,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber] & {
+        totalInput_: BigNumber;
+        totalOutput_: BigNumber;
+      }
+    >;
 
     withdraw(
       config_: WithdrawConfigStruct,
@@ -431,6 +508,30 @@ export interface OrderBook extends BaseContract {
     ): OrderLiveEventFilter;
     OrderLive(sender?: null, config?: null): OrderLiveEventFilter;
 
+    "SaveInterpreterState(address,uint256,tuple)"(
+      sender?: null,
+      id?: null,
+      config?: null
+    ): SaveInterpreterStateEventFilter;
+    SaveInterpreterState(
+      sender?: null,
+      id?: null,
+      config?: null
+    ): SaveInterpreterStateEventFilter;
+
+    "TakeOrder(address,tuple,uint256,uint256)"(
+      sender?: null,
+      takeOrder?: null,
+      input?: null,
+      output?: null
+    ): TakeOrderEventFilter;
+    TakeOrder(
+      sender?: null,
+      takeOrder?: null,
+      input?: null,
+      output?: null
+    ): TakeOrderEventFilter;
+
     "Withdraw(address,tuple,uint256)"(
       sender?: null,
       config?: null,
@@ -457,14 +558,17 @@ export interface OrderBook extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
-
     removeOrder(
       order_: OrderStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     storageOpcodesRange(overrides?: CallOverrides): Promise<BigNumber>;
+
+    takeOrders(
+      takeOrders_: TakeOrdersConfigStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     withdraw(
       config_: WithdrawConfigStruct,
@@ -490,10 +594,6 @@ export interface OrderBook extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    packedFunctionPointers(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     removeOrder(
       order_: OrderStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -501,6 +601,11 @@ export interface OrderBook extends BaseContract {
 
     storageOpcodesRange(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    takeOrders(
+      takeOrders_: TakeOrdersConfigStruct,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     withdraw(

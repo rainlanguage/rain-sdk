@@ -4,7 +4,6 @@
 import {
   BaseContract,
   BigNumber,
-  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -17,16 +16,10 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export type StakeConfigStruct = {
-  token: string;
-  initialRatio: BigNumberish;
-  name: string;
-  symbol: string;
-};
+export type StakeConfigStruct = { asset: string; name: string; symbol: string };
 
-export type StakeConfigStructOutput = [string, BigNumber, string, string] & {
-  token: string;
-  initialRatio: BigNumber;
+export type StakeConfigStructOutput = [string, string, string] & {
+  asset: string;
   name: string;
   symbol: string;
 };
@@ -34,7 +27,7 @@ export type StakeConfigStructOutput = [string, BigNumber, string, string] & {
 export interface StakeFactoryInterface extends utils.Interface {
   functions: {
     "createChild(bytes)": FunctionFragment;
-    "createChildTyped((address,uint256,string,string))": FunctionFragment;
+    "createChildTyped((address,string,string))": FunctionFragment;
     "implementation()": FunctionFragment;
     "isChild(address)": FunctionFragment;
   };
@@ -69,10 +62,12 @@ export interface StakeFactoryInterface extends utils.Interface {
 
   events: {
     "Implementation(address,address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "NewChild(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Implementation"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewChild"): EventFragment;
 }
 
@@ -82,6 +77,10 @@ export type ImplementationEvent = TypedEvent<
 >;
 
 export type ImplementationEventFilter = TypedEventFilter<ImplementationEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type NewChildEvent = TypedEvent<
   [string, string],
@@ -168,6 +167,9 @@ export interface StakeFactory extends BaseContract {
       sender?: null,
       implementation?: null
     ): ImplementationEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "NewChild(address,address)"(
       sender?: null,

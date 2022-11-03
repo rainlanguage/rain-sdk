@@ -17,16 +17,10 @@ import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
-export type StakeConfigStruct = {
-  token: string;
-  initialRatio: BigNumberish;
-  name: string;
-  symbol: string;
-};
+export type StakeConfigStruct = { asset: string; name: string; symbol: string };
 
-export type StakeConfigStructOutput = [string, BigNumber, string, string] & {
-  token: string;
-  initialRatio: BigNumber;
+export type StakeConfigStructOutput = [string, string, string] & {
+  asset: string;
   name: string;
   symbol: string;
 };
@@ -35,22 +29,36 @@ export interface StakeInterface extends utils.Interface {
   functions: {
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
+    "asset()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "convertToAssets(uint256)": FunctionFragment;
+    "convertToShares(uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
-    "deposit(uint256)": FunctionFragment;
-    "deposits(address,uint256)": FunctionFragment;
+    "deposit(uint256,address)": FunctionFragment;
+    "depositRecords(address,uint256)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "initialize((address,uint256,string,string))": FunctionFragment;
+    "initialize((address,string,string))": FunctionFragment;
+    "maxDeposit(address)": FunctionFragment;
+    "maxMint(address)": FunctionFragment;
+    "maxRedeem(address)": FunctionFragment;
+    "maxWithdraw(address)": FunctionFragment;
+    "mint(uint256,address)": FunctionFragment;
     "name()": FunctionFragment;
+    "previewDeposit(uint256)": FunctionFragment;
+    "previewMint(uint256)": FunctionFragment;
+    "previewRedeem(uint256)": FunctionFragment;
+    "previewWithdraw(uint256)": FunctionFragment;
+    "redeem(uint256,address,address)": FunctionFragment;
     "report(address,uint256[])": FunctionFragment;
     "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
+    "totalAssets()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "withdraw(uint256)": FunctionFragment;
+    "withdraw(uint256,address,address)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -61,7 +69,16 @@ export interface StakeInterface extends utils.Interface {
     functionFragment: "approve",
     values: [string, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "convertToAssets",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "convertToShares",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
@@ -69,10 +86,10 @@ export interface StakeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "deposit",
-    values: [BigNumberish]
+    values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "deposits",
+    functionFragment: "depositRecords",
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
@@ -83,7 +100,35 @@ export interface StakeInterface extends utils.Interface {
     functionFragment: "initialize",
     values: [StakeConfigStruct]
   ): string;
+  encodeFunctionData(functionFragment: "maxDeposit", values: [string]): string;
+  encodeFunctionData(functionFragment: "maxMint", values: [string]): string;
+  encodeFunctionData(functionFragment: "maxRedeem", values: [string]): string;
+  encodeFunctionData(functionFragment: "maxWithdraw", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "mint",
+    values: [BigNumberish, string]
+  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "previewDeposit",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "previewMint",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "previewRedeem",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "previewWithdraw",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "redeem",
+    values: [BigNumberish, string, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "report",
     values: [string, BigNumberish[]]
@@ -98,6 +143,10 @@ export interface StakeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "totalAssets",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
   ): string;
@@ -111,25 +160,62 @@ export interface StakeInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "withdraw",
-    values: [BigNumberish]
+    values: [BigNumberish, string, string]
   ): string;
 
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "convertToAssets",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "convertToShares",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "deposits", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "depositRecords",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "maxDeposit", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "maxMint", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "maxRedeem", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "maxWithdraw",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "previewDeposit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "previewMint",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "previewRedeem",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "previewWithdraw",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "reportTimeForTier",
@@ -140,6 +226,10 @@ export interface StakeInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalAssets",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
@@ -153,15 +243,19 @@ export interface StakeInterface extends utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
+    "Deposit(address,address,uint256,uint256)": EventFragment;
     "Initialize(address,tuple)": EventFragment;
     "Initialized(uint8)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
+    "Withdraw(address,address,address,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Withdraw"): EventFragment;
 }
 
 export type ApprovalEvent = TypedEvent<
@@ -170,6 +264,13 @@ export type ApprovalEvent = TypedEvent<
 >;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
+
+export type DepositEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber],
+  { caller: string; owner: string; assets: BigNumber; shares: BigNumber }
+>;
+
+export type DepositEventFilter = TypedEventFilter<DepositEvent>;
 
 export type InitializeEvent = TypedEvent<
   [string, StakeConfigStructOutput],
@@ -188,6 +289,19 @@ export type TransferEvent = TypedEvent<
 >;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
+
+export type WithdrawEvent = TypedEvent<
+  [string, string, string, BigNumber, BigNumber],
+  {
+    caller: string;
+    receiver: string;
+    owner: string;
+    assets: BigNumber;
+    shares: BigNumber;
+  }
+>;
+
+export type WithdrawEventFilter = TypedEventFilter<WithdrawEvent>;
 
 export interface Stake extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -228,7 +342,19 @@ export interface Stake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    asset(overrides?: CallOverrides): Promise<[string]>;
+
     balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    convertToAssets(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { assets: BigNumber }>;
+
+    convertToShares(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { shares: BigNumber }>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
@@ -239,11 +365,12 @@ export interface Stake extends BaseContract {
     ): Promise<ContractTransaction>;
 
     deposit(
-      assets_: BigNumberish,
+      assets: BigNumberish,
+      receiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    deposits(
+    depositRecords(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -260,7 +387,48 @@ export interface Stake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    maxDeposit(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    maxMint(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    maxRedeem(owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    maxWithdraw(owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    mint(
+      shares: BigNumberish,
+      receiver: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     name(overrides?: CallOverrides): Promise<[string]>;
+
+    previewDeposit(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    previewMint(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    previewRedeem(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    previewWithdraw(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    redeem(
+      shares: BigNumberish,
+      receiver: string,
+      owner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     report(
       account_: string,
@@ -282,6 +450,8 @@ export interface Stake extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
+    totalAssets(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transfer(
@@ -298,7 +468,9 @@ export interface Stake extends BaseContract {
     ): Promise<ContractTransaction>;
 
     withdraw(
-      shares_: BigNumberish,
+      assets: BigNumberish,
+      receiver: string,
+      owner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -315,7 +487,19 @@ export interface Stake extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  asset(overrides?: CallOverrides): Promise<string>;
+
   balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  convertToAssets(
+    shares: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  convertToShares(
+    assets: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -326,11 +510,12 @@ export interface Stake extends BaseContract {
   ): Promise<ContractTransaction>;
 
   deposit(
-    assets_: BigNumberish,
+    assets: BigNumberish,
+    receiver: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  deposits(
+  depositRecords(
     arg0: string,
     arg1: BigNumberish,
     overrides?: CallOverrides
@@ -347,7 +532,48 @@ export interface Stake extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  maxDeposit(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  maxMint(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  maxRedeem(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  maxWithdraw(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  mint(
+    shares: BigNumberish,
+    receiver: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   name(overrides?: CallOverrides): Promise<string>;
+
+  previewDeposit(
+    assets: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  previewMint(
+    shares: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  previewRedeem(
+    shares: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  previewWithdraw(
+    assets: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  redeem(
+    shares: BigNumberish,
+    receiver: string,
+    owner: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   report(
     account_: string,
@@ -369,6 +595,8 @@ export interface Stake extends BaseContract {
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
+  totalAssets(overrides?: CallOverrides): Promise<BigNumber>;
+
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   transfer(
@@ -385,7 +613,9 @@ export interface Stake extends BaseContract {
   ): Promise<ContractTransaction>;
 
   withdraw(
-    shares_: BigNumberish,
+    assets: BigNumberish,
+    receiver: string,
+    owner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -402,7 +632,19 @@ export interface Stake extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    asset(overrides?: CallOverrides): Promise<string>;
+
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    convertToAssets(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    convertToShares(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -413,11 +655,12 @@ export interface Stake extends BaseContract {
     ): Promise<boolean>;
 
     deposit(
-      assets_: BigNumberish,
+      assets: BigNumberish,
+      receiver: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    deposits(
+    depositRecords(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -434,7 +677,48 @@ export interface Stake extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    maxDeposit(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxMint(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxRedeem(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxWithdraw(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    mint(
+      shares: BigNumberish,
+      receiver: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<string>;
+
+    previewDeposit(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    previewMint(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    previewRedeem(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    previewWithdraw(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    redeem(
+      shares: BigNumberish,
+      receiver: string,
+      owner: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     report(
       account_: string,
@@ -456,6 +740,8 @@ export interface Stake extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
+    totalAssets(overrides?: CallOverrides): Promise<BigNumber>;
+
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transfer(
@@ -472,7 +758,9 @@ export interface Stake extends BaseContract {
     ): Promise<boolean>;
 
     withdraw(
-      shares_: BigNumberish,
+      assets: BigNumberish,
+      receiver: string,
+      owner: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -488,6 +776,19 @@ export interface Stake extends BaseContract {
       spender?: string | null,
       value?: null
     ): ApprovalEventFilter;
+
+    "Deposit(address,address,uint256,uint256)"(
+      caller?: string | null,
+      owner?: string | null,
+      assets?: null,
+      shares?: null
+    ): DepositEventFilter;
+    Deposit(
+      caller?: string | null,
+      owner?: string | null,
+      assets?: null,
+      shares?: null
+    ): DepositEventFilter;
 
     "Initialize(address,tuple)"(
       sender?: null,
@@ -508,6 +809,21 @@ export interface Stake extends BaseContract {
       to?: string | null,
       value?: null
     ): TransferEventFilter;
+
+    "Withdraw(address,address,address,uint256,uint256)"(
+      caller?: string | null,
+      receiver?: string | null,
+      owner?: string | null,
+      assets?: null,
+      shares?: null
+    ): WithdrawEventFilter;
+    Withdraw(
+      caller?: string | null,
+      receiver?: string | null,
+      owner?: string | null,
+      assets?: null,
+      shares?: null
+    ): WithdrawEventFilter;
   };
 
   estimateGas: {
@@ -523,7 +839,19 @@ export interface Stake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    asset(overrides?: CallOverrides): Promise<BigNumber>;
+
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    convertToAssets(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    convertToShares(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -534,11 +862,12 @@ export interface Stake extends BaseContract {
     ): Promise<BigNumber>;
 
     deposit(
-      assets_: BigNumberish,
+      assets: BigNumberish,
+      receiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    deposits(
+    depositRecords(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -555,7 +884,48 @@ export interface Stake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    maxDeposit(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxMint(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxRedeem(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    maxWithdraw(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    mint(
+      shares: BigNumberish,
+      receiver: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<BigNumber>;
+
+    previewDeposit(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    previewMint(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    previewRedeem(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    previewWithdraw(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    redeem(
+      shares: BigNumberish,
+      receiver: string,
+      owner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     report(
       account_: string,
@@ -577,6 +947,8 @@ export interface Stake extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
+    totalAssets(overrides?: CallOverrides): Promise<BigNumber>;
+
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transfer(
@@ -593,7 +965,9 @@ export interface Stake extends BaseContract {
     ): Promise<BigNumber>;
 
     withdraw(
-      shares_: BigNumberish,
+      assets: BigNumberish,
+      receiver: string,
+      owner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -611,8 +985,20 @@ export interface Stake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    asset(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     balanceOf(
       account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    convertToAssets(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    convertToShares(
+      assets: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -625,11 +1011,12 @@ export interface Stake extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     deposit(
-      assets_: BigNumberish,
+      assets: BigNumberish,
+      receiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    deposits(
+    depositRecords(
       arg0: string,
       arg1: BigNumberish,
       overrides?: CallOverrides
@@ -646,7 +1033,60 @@ export interface Stake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    maxDeposit(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    maxMint(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    maxRedeem(
+      owner: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    maxWithdraw(
+      owner: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    mint(
+      shares: BigNumberish,
+      receiver: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    previewDeposit(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    previewMint(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    previewRedeem(
+      shares: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    previewWithdraw(
+      assets: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    redeem(
+      shares: BigNumberish,
+      receiver: string,
+      owner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     report(
       account_: string,
@@ -668,6 +1108,8 @@ export interface Stake extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    totalAssets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transfer(
@@ -684,7 +1126,9 @@ export interface Stake extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     withdraw(
-      shares_: BigNumberish,
+      assets: BigNumberish,
+      receiver: string,
+      owner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

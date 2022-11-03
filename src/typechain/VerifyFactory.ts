@@ -61,10 +61,12 @@ export interface VerifyFactoryInterface extends utils.Interface {
 
   events: {
     "Implementation(address,address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "NewChild(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Implementation"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewChild"): EventFragment;
 }
 
@@ -74,6 +76,10 @@ export type ImplementationEvent = TypedEvent<
 >;
 
 export type ImplementationEventFilter = TypedEventFilter<ImplementationEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type NewChildEvent = TypedEvent<
   [string, string],
@@ -160,6 +166,9 @@ export interface VerifyFactory extends BaseContract {
       sender?: null,
       implementation?: null
     ): ImplementationEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "NewChild(address,address)"(
       sender?: null,

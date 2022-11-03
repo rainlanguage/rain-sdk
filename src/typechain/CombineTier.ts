@@ -50,7 +50,6 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
 export interface CombineTierInterface extends utils.Interface {
   functions: {
     "initialize((uint256,(bytes[],uint256[])))": FunctionFragment;
-    "packedFunctionPointers()": FunctionFragment;
     "report(address,uint256[])": FunctionFragment;
     "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
@@ -60,10 +59,6 @@ export interface CombineTierInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initialize",
     values: [CombineTierConfigStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "packedFunctionPointers",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "report",
@@ -83,10 +78,6 @@ export interface CombineTierInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "packedFunctionPointers",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "report", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "reportTimeForTier",
@@ -104,10 +95,12 @@ export interface CombineTierInterface extends utils.Interface {
   events: {
     "Initialize(address,tuple)": EventFragment;
     "Initialized(uint8)": EventFragment;
+    "SaveInterpreterState(address,uint256,tuple)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Initialize"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SaveInterpreterState"): EventFragment;
 }
 
 export type InitializeEvent = TypedEvent<
@@ -120,6 +113,14 @@ export type InitializeEventFilter = TypedEventFilter<InitializeEvent>;
 export type InitializedEvent = TypedEvent<[number], { version: number }>;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export type SaveInterpreterStateEvent = TypedEvent<
+  [string, BigNumber, StateConfigStructOutput],
+  { sender: string; id: BigNumber; config: StateConfigStructOutput }
+>;
+
+export type SaveInterpreterStateEventFilter =
+  TypedEventFilter<SaveInterpreterStateEvent>;
 
 export interface CombineTier extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -153,22 +154,18 @@ export interface CombineTier extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    packedFunctionPointers(
-      overrides?: CallOverrides
-    ): Promise<[string] & { ptrs_: string }>;
-
     report(
       account_: string,
       context_: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { report_: BigNumber }>;
+    ): Promise<[BigNumber]>;
 
     reportTimeForTier(
       account_: string,
       tier_: BigNumberish,
       context_: BigNumberish[],
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { time_: BigNumber }>;
+    ): Promise<[BigNumber]>;
 
     storageOpcodesRange(
       overrides?: CallOverrides
@@ -184,8 +181,6 @@ export interface CombineTier extends BaseContract {
     config_: CombineTierConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
   report(
     account_: string,
@@ -214,8 +209,6 @@ export interface CombineTier extends BaseContract {
       config_: CombineTierConfigStruct,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
     report(
       account_: string,
@@ -249,6 +242,17 @@ export interface CombineTier extends BaseContract {
 
     "Initialized(uint8)"(version?: null): InitializedEventFilter;
     Initialized(version?: null): InitializedEventFilter;
+
+    "SaveInterpreterState(address,uint256,tuple)"(
+      sender?: null,
+      id?: null,
+      config?: null
+    ): SaveInterpreterStateEventFilter;
+    SaveInterpreterState(
+      sender?: null,
+      id?: null,
+      config?: null
+    ): SaveInterpreterStateEventFilter;
   };
 
   estimateGas: {
@@ -256,8 +260,6 @@ export interface CombineTier extends BaseContract {
       config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
 
     report(
       account_: string,
@@ -284,10 +286,6 @@ export interface CombineTier extends BaseContract {
     initialize(
       config_: CombineTierConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    packedFunctionPointers(
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     report(

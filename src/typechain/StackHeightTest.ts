@@ -13,7 +13,7 @@ import {
   Signer,
   utils,
 } from "ethers";
-import { FunctionFragment, Result } from "@ethersproject/abi";
+import { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import { Listener, Provider } from "@ethersproject/providers";
 import { TypedEventFilter, TypedEvent, TypedListener, OnEvent } from "./common";
 
@@ -40,7 +40,6 @@ export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
 export interface StackHeightTestInterface extends utils.Interface {
   functions: {
     "initialize((bytes[],uint256[]))": FunctionFragment;
-    "packedFunctionPointers()": FunctionFragment;
     "storageOpcodesRange()": FunctionFragment;
   };
 
@@ -49,26 +48,30 @@ export interface StackHeightTestInterface extends utils.Interface {
     values: [StateConfigStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "packedFunctionPointers",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "storageOpcodesRange",
     values?: undefined
   ): string;
 
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "packedFunctionPointers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "storageOpcodesRange",
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "SaveInterpreterState(address,uint256,tuple)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "SaveInterpreterState"): EventFragment;
 }
+
+export type SaveInterpreterStateEvent = TypedEvent<
+  [string, BigNumber, StateConfigStructOutput],
+  { sender: string; id: BigNumber; config: StateConfigStructOutput }
+>;
+
+export type SaveInterpreterStateEventFilter =
+  TypedEventFilter<SaveInterpreterStateEvent>;
 
 export interface StackHeightTest extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -102,10 +105,6 @@ export interface StackHeightTest extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    packedFunctionPointers(
-      overrides?: CallOverrides
-    ): Promise<[string] & { ptrs_: string }>;
-
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<[StorageOpcodesRangeStructOutput]>;
@@ -115,8 +114,6 @@ export interface StackHeightTest extends BaseContract {
     stateConfig_: StateConfigStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
 
   storageOpcodesRange(
     overrides?: CallOverrides
@@ -128,22 +125,29 @@ export interface StackHeightTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
-
     storageOpcodesRange(
       overrides?: CallOverrides
     ): Promise<StorageOpcodesRangeStructOutput>;
   };
 
-  filters: {};
+  filters: {
+    "SaveInterpreterState(address,uint256,tuple)"(
+      sender?: null,
+      id?: null,
+      config?: null
+    ): SaveInterpreterStateEventFilter;
+    SaveInterpreterState(
+      sender?: null,
+      id?: null,
+      config?: null
+    ): SaveInterpreterStateEventFilter;
+  };
 
   estimateGas: {
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
 
     storageOpcodesRange(overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -152,10 +156,6 @@ export interface StackHeightTest extends BaseContract {
     initialize(
       stateConfig_: StateConfigStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    packedFunctionPointers(
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     storageOpcodesRange(

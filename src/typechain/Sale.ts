@@ -21,7 +21,7 @@ export type SaleConstructorConfigStruct = {
   maximumSaleTimeout: BigNumberish;
   maximumCooldownDuration: BigNumberish;
   redeemableERC20Factory: string;
-  vmStateBuilder: string;
+  interpreterIntegrity: string;
 };
 
 export type SaleConstructorConfigStructOutput = [
@@ -33,7 +33,7 @@ export type SaleConstructorConfigStructOutput = [
   maximumSaleTimeout: BigNumber;
   maximumCooldownDuration: BigNumber;
   redeemableERC20Factory: string;
-  vmStateBuilder: string;
+  interpreterIntegrity: string;
 };
 
 export type BuyConfigStruct = {
@@ -91,7 +91,9 @@ export type StateConfigStructOutput = [string[], BigNumber[]] & {
 };
 
 export type SaleConfigStruct = {
-  vmStateConfig: StateConfigStruct;
+  expressionDeployer: string;
+  interpreter: string;
+  interpreterStateConfig: StateConfigStruct;
   recipient: string;
   reserve: string;
   saleTimeout: BigNumberish;
@@ -101,6 +103,8 @@ export type SaleConfigStruct = {
 };
 
 export type SaleConfigStructOutput = [
+  string,
+  string,
   StateConfigStructOutput,
   string,
   string,
@@ -109,7 +113,9 @@ export type SaleConfigStructOutput = [
   BigNumber,
   BigNumber
 ] & {
-  vmStateConfig: StateConfigStructOutput;
+  expressionDeployer: string;
+  interpreter: string;
+  interpreterStateConfig: StateConfigStructOutput;
   recipient: string;
   reserve: string;
   saleTimeout: BigNumber;
@@ -151,16 +157,6 @@ export type SaleRedeemableERC20ConfigStructOutput = [
   distributionEndForwardingAddress: string;
 };
 
-export type StorageOpcodesRangeStruct = {
-  pointer: BigNumberish;
-  length: BigNumberish;
-};
-
-export type StorageOpcodesRangeStructOutput = [BigNumber, BigNumber] & {
-  pointer: BigNumber;
-  length: BigNumber;
-};
-
 export interface SaleInterface extends utils.Interface {
   functions: {
     "buy((address,uint256,uint256,uint256,uint256))": FunctionFragment;
@@ -168,15 +164,15 @@ export interface SaleInterface extends utils.Interface {
     "canLive()": FunctionFragment;
     "claimFees(address)": FunctionFragment;
     "end()": FunctionFragment;
-    "initialize(((bytes[],uint256[]),address,address,uint256,uint256,uint256,uint256),((string,string,address,uint256),address,uint256,address))": FunctionFragment;
-    "packedFunctionPointers()": FunctionFragment;
+    "initialize((address,address,(bytes[],uint256[]),address,address,uint256,uint256,uint256,uint256),((string,string,address,uint256),address,uint256,address))": FunctionFragment;
     "refund((uint256,address,uint256,uint256,uint256))": FunctionFragment;
+    "remainingTokenInventory()": FunctionFragment;
     "reserve()": FunctionFragment;
     "saleStatus()": FunctionFragment;
     "start()": FunctionFragment;
-    "storageOpcodesRange()": FunctionFragment;
     "timeout()": FunctionFragment;
     "token()": FunctionFragment;
+    "totalReserveReceived()": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -195,12 +191,12 @@ export interface SaleInterface extends utils.Interface {
     values: [SaleConfigStruct, SaleRedeemableERC20ConfigStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "packedFunctionPointers",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "refund",
     values: [ReceiptStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "remainingTokenInventory",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "reserve", values?: undefined): string;
   encodeFunctionData(
@@ -208,12 +204,12 @@ export interface SaleInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "start", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "storageOpcodesRange",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "timeout", values?: undefined): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "totalReserveReceived",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
   decodeFunctionResult(
@@ -224,20 +220,20 @@ export interface SaleInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "claimFees", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "end", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "refund", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "packedFunctionPointers",
+    functionFragment: "remainingTokenInventory",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "refund", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "reserve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "saleStatus", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "start", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "storageOpcodesRange",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "timeout", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalReserveReceived",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Buy(address,tuple,tuple)": EventFragment;
@@ -385,14 +381,12 @@ export interface Sale extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    packedFunctionPointers(
-      overrides?: CallOverrides
-    ): Promise<[string] & { ptrs_: string }>;
-
     refund(
       receipt_: ReceiptStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    remainingTokenInventory(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     reserve(overrides?: CallOverrides): Promise<[string]>;
 
@@ -402,15 +396,13 @@ export interface Sale extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    storageOpcodesRange(
-      overrides?: CallOverrides
-    ): Promise<[StorageOpcodesRangeStructOutput]>;
-
     timeout(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     token(overrides?: CallOverrides): Promise<[string]>;
+
+    totalReserveReceived(overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   buy(
@@ -440,12 +432,12 @@ export interface Sale extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
-
   refund(
     receipt_: ReceiptStruct,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  remainingTokenInventory(overrides?: CallOverrides): Promise<BigNumber>;
 
   reserve(overrides?: CallOverrides): Promise<string>;
 
@@ -455,15 +447,13 @@ export interface Sale extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  storageOpcodesRange(
-    overrides?: CallOverrides
-  ): Promise<StorageOpcodesRangeStructOutput>;
-
   timeout(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   token(overrides?: CallOverrides): Promise<string>;
+
+  totalReserveReceived(overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
     buy(config_: BuyConfigStruct, overrides?: CallOverrides): Promise<void>;
@@ -485,9 +475,9 @@ export interface Sale extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    packedFunctionPointers(overrides?: CallOverrides): Promise<string>;
-
     refund(receipt_: ReceiptStruct, overrides?: CallOverrides): Promise<void>;
+
+    remainingTokenInventory(overrides?: CallOverrides): Promise<BigNumber>;
 
     reserve(overrides?: CallOverrides): Promise<string>;
 
@@ -495,13 +485,11 @@ export interface Sale extends BaseContract {
 
     start(overrides?: CallOverrides): Promise<void>;
 
-    storageOpcodesRange(
-      overrides?: CallOverrides
-    ): Promise<StorageOpcodesRangeStructOutput>;
-
     timeout(overrides?: CallOverrides): Promise<void>;
 
     token(overrides?: CallOverrides): Promise<string>;
+
+    totalReserveReceived(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
@@ -591,12 +579,12 @@ export interface Sale extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    packedFunctionPointers(overrides?: CallOverrides): Promise<BigNumber>;
-
     refund(
       receipt_: ReceiptStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    remainingTokenInventory(overrides?: CallOverrides): Promise<BigNumber>;
 
     reserve(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -606,13 +594,13 @@ export interface Sale extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    storageOpcodesRange(overrides?: CallOverrides): Promise<BigNumber>;
-
     timeout(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     token(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalReserveReceived(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -643,13 +631,13 @@ export interface Sale extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    packedFunctionPointers(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     refund(
       receipt_: ReceiptStruct,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    remainingTokenInventory(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     reserve(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -660,14 +648,14 @@ export interface Sale extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    storageOpcodesRange(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     timeout(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    totalReserveReceived(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

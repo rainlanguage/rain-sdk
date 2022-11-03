@@ -21,7 +21,7 @@ export interface ReadWriteTierInterface extends utils.Interface {
   functions: {
     "report(address,uint256[])": FunctionFragment;
     "reportTimeForTier(address,uint256,uint256[])": FunctionFragment;
-    "setTier(address,uint256,uint256[])": FunctionFragment;
+    "setTier(address,uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "tierAtTimeFromReport(uint256,uint256)": FunctionFragment;
     "truncateTiersAbove(uint256,uint256)": FunctionFragment;
@@ -40,7 +40,7 @@ export interface ReadWriteTierInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setTier",
-    values: [string, BigNumberish, BigNumberish[]]
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
@@ -99,21 +99,21 @@ export interface ReadWriteTierInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "TierChange(address,address,uint256,uint256,uint256[])": EventFragment;
+    "Initialized(uint8)": EventFragment;
+    "TierChange(address,address,uint256,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TierChange"): EventFragment;
 }
 
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
 export type TierChangeEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber, BigNumber[]],
-  {
-    sender: string;
-    account: string;
-    startTier: BigNumber;
-    endTier: BigNumber;
-    context: BigNumber[];
-  }
+  [string, string, BigNumber, BigNumber],
+  { sender: string; account: string; startTier: BigNumber; endTier: BigNumber }
 >;
 
 export type TierChangeEventFilter = TypedEventFilter<TierChangeEvent>;
@@ -154,7 +154,7 @@ export interface ReadWriteTier extends BaseContract {
     "reportTimeForTier(address,uint256,uint256[])"(
       account_: string,
       tier_: BigNumberish,
-      context_: BigNumberish[],
+      arg2: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -167,7 +167,6 @@ export interface ReadWriteTier extends BaseContract {
     setTier(
       account_: string,
       endTier_: BigNumberish,
-      context_: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -221,7 +220,7 @@ export interface ReadWriteTier extends BaseContract {
   "reportTimeForTier(address,uint256,uint256[])"(
     account_: string,
     tier_: BigNumberish,
-    context_: BigNumberish[],
+    arg2: BigNumberish[],
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -234,7 +233,6 @@ export interface ReadWriteTier extends BaseContract {
   setTier(
     account_: string,
     endTier_: BigNumberish,
-    context_: BigNumberish[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -288,7 +286,7 @@ export interface ReadWriteTier extends BaseContract {
     "reportTimeForTier(address,uint256,uint256[])"(
       account_: string,
       tier_: BigNumberish,
-      context_: BigNumberish[],
+      arg2: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -301,7 +299,6 @@ export interface ReadWriteTier extends BaseContract {
     setTier(
       account_: string,
       endTier_: BigNumberish,
-      context_: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -347,19 +344,20 @@ export interface ReadWriteTier extends BaseContract {
   };
 
   filters: {
-    "TierChange(address,address,uint256,uint256,uint256[])"(
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
+    "TierChange(address,address,uint256,uint256)"(
       sender?: null,
       account?: null,
       startTier?: null,
-      endTier?: null,
-      context?: null
+      endTier?: null
     ): TierChangeEventFilter;
     TierChange(
       sender?: null,
       account?: null,
       startTier?: null,
-      endTier?: null,
-      context?: null
+      endTier?: null
     ): TierChangeEventFilter;
   };
 
@@ -373,7 +371,7 @@ export interface ReadWriteTier extends BaseContract {
     "reportTimeForTier(address,uint256,uint256[])"(
       account_: string,
       tier_: BigNumberish,
-      context_: BigNumberish[],
+      arg2: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -386,7 +384,6 @@ export interface ReadWriteTier extends BaseContract {
     setTier(
       account_: string,
       endTier_: BigNumberish,
-      context_: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -441,7 +438,7 @@ export interface ReadWriteTier extends BaseContract {
     "reportTimeForTier(address,uint256,uint256[])"(
       account_: string,
       tier_: BigNumberish,
-      context_: BigNumberish[],
+      arg2: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -454,7 +451,6 @@ export interface ReadWriteTier extends BaseContract {
     setTier(
       account_: string,
       endTier_: BigNumberish,
-      context_: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

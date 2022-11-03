@@ -21,7 +21,7 @@ export type SaleConstructorConfigStruct = {
   maximumSaleTimeout: BigNumberish;
   maximumCooldownDuration: BigNumberish;
   redeemableERC20Factory: string;
-  vmStateBuilder: string;
+  interpreterIntegrity: string;
 };
 
 export type SaleConstructorConfigStructOutput = [
@@ -33,7 +33,7 @@ export type SaleConstructorConfigStructOutput = [
   maximumSaleTimeout: BigNumber;
   maximumCooldownDuration: BigNumber;
   redeemableERC20Factory: string;
-  vmStateBuilder: string;
+  interpreterIntegrity: string;
 };
 
 export type StateConfigStruct = {
@@ -47,7 +47,9 @@ export type StateConfigStructOutput = [string[], BigNumber[]] & {
 };
 
 export type SaleConfigStruct = {
-  vmStateConfig: StateConfigStruct;
+  expressionDeployer: string;
+  interpreter: string;
+  interpreterStateConfig: StateConfigStruct;
   recipient: string;
   reserve: string;
   saleTimeout: BigNumberish;
@@ -57,6 +59,8 @@ export type SaleConfigStruct = {
 };
 
 export type SaleConfigStructOutput = [
+  string,
+  string,
   StateConfigStructOutput,
   string,
   string,
@@ -65,7 +69,9 @@ export type SaleConfigStructOutput = [
   BigNumber,
   BigNumber
 ] & {
-  vmStateConfig: StateConfigStructOutput;
+  expressionDeployer: string;
+  interpreter: string;
+  interpreterStateConfig: StateConfigStructOutput;
   recipient: string;
   reserve: string;
   saleTimeout: BigNumber;
@@ -110,7 +116,7 @@ export type SaleRedeemableERC20ConfigStructOutput = [
 export interface SaleFactoryInterface extends utils.Interface {
   functions: {
     "createChild(bytes)": FunctionFragment;
-    "createChildTyped(((bytes[],uint256[]),address,address,uint256,uint256,uint256,uint256),((string,string,address,uint256),address,uint256,address))": FunctionFragment;
+    "createChildTyped((address,address,(bytes[],uint256[]),address,address,uint256,uint256,uint256,uint256),((string,string,address,uint256),address,uint256,address))": FunctionFragment;
     "isChild(address)": FunctionFragment;
   };
 
@@ -136,10 +142,12 @@ export interface SaleFactoryInterface extends utils.Interface {
 
   events: {
     "Implementation(address,address)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "NewChild(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Implementation"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NewChild"): EventFragment;
 }
 
@@ -149,6 +157,10 @@ export type ImplementationEvent = TypedEvent<
 >;
 
 export type ImplementationEventFilter = TypedEventFilter<ImplementationEvent>;
+
+export type InitializedEvent = TypedEvent<[number], { version: number }>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export type NewChildEvent = TypedEvent<
   [string, string],
@@ -232,6 +244,9 @@ export interface SaleFactory extends BaseContract {
       sender?: null,
       implementation?: null
     ): ImplementationEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "NewChild(address,address)"(
       sender?: null,
